@@ -1,4 +1,4 @@
-# stablecore-geometry# stablecore-geometry
+# stablecore-geometry
 
 A lightweight C++ geometry library for engineering computation.
 
