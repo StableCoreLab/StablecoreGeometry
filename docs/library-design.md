@@ -145,6 +145,8 @@ docs/
 - `point-vector-design.md`：负责 `Point2<T>` 与 `Vector2<T>` 的类型语义、运算符边界和容差接口边界
 - `segment-design.md`：负责 `Segment2<T>`、`LineSegment2<T>`、`ArcSegment2<T>` 的统一边段抽象与参数化规则
 - `box-design.md`：负责 `Box2<T>` 的包围盒语义、有效性规则和基础接口
+- `polyline-design.md`：负责 `Polyline2<T>` 的有序连续路径语义、闭合语义、整体参数化和顶点访问语义
+- `polygon-design.md`：负责 `Polygon2<T>` 的区域语义、外环/洞环结构、面积语义和方向规则
 
 执行要求：
 
@@ -180,9 +182,15 @@ docs/
 - `Vector2<T>`
 - `Segment2<T>`
 - `Box2<T>`
-- 后续的 `Polyline2<T>`、`Polygon2<T>`
+- `Polyline2<T>`
+- `Polygon2<T>`
 
 这个层重点是“表达数据”和“保存不变量”。
+
+当前执行落点：
+
+- `Polyline2<T>` 的具体实现边界以 `polyline-design.md` 为准
+- `Polygon2<T>` 的具体实现边界以 `polygon-design.md` 为准
 
 ### 4.3 `algorithm`
 
@@ -206,6 +214,11 @@ docs/
 - `Polygon2d`
 - `Clip2d`
 - `Topology2d`
+
+当前执行落点：
+
+- `Polyline2<T>` 属于阶段二“轮廓和区域基础”的路径层能力
+- `Polygon2<T>` 属于阶段二“轮廓和区域基础”的区域层能力
 
 ## 5. 类型系统设计
 
@@ -291,6 +304,11 @@ docs/
 - 洞和外环
 
 这些复杂度明显高于点线段阶段。
+
+当前执行落点：
+
+- `Polyline2<T>` 的语义细节以 `polyline-design.md` 为准
+- `Polygon2<T>` 的语义细节以 `polygon-design.md` 为准
 
 ## 6. 算法模块设计
 
@@ -454,6 +472,12 @@ docs/
 
 - 让图形可以表达“区域”
 
+当前执行落点：
+
+- 阶段二的路径层由 `polyline-design.md` 收敛
+- 阶段二的区域层由 `polygon-design.md` 收敛
+- 阶段二实现必须复用 `segment-design.md` 与 `box-design.md` 里已经定好的边段和包围盒规则
+
 ### 阶段三：图形清洗与拓扑预处理
 
 内容：
@@ -565,6 +589,8 @@ docs/
 - `types` 层中点和向量的规则已由 `point-vector-design.md` 固定
 - `types` 层中线段的规则已由 `segment-design.md` 固定
 - `types` 层中包围盒的规则已由 `box-design.md` 固定
+- `types` 层中连续线的规则已由 `polyline-design.md` 固定
+- `types` 层中多边形的规则已由 `polygon-design.md` 固定
 
 ### 11.4 结果结构体规则
 
