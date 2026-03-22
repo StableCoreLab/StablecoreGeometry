@@ -7,7 +7,11 @@ option(STABLECORE_GEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
 add_library(stablecore_geometry
     src/serialize/GeometryText.cpp
     src/sdk/ArcSegment2d.cpp
-    src/sdk/GeometryAlgorithms.cpp
+    src/sdk/GeometryAxisOps.cpp
+    src/sdk/GeometryIntersection.cpp
+    src/sdk/GeometryMetrics.cpp
+    src/sdk/GeometryProjection.cpp
+    src/sdk/GeometryShapeOps.cpp
     src/sdk/LineSegment2d.cpp
     src/sdk/Polyline2d.cpp
     src/sdk/Polygon2d.cpp)

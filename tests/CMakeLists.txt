@@ -1,6 +1,7 @@
 set(STABLECORE_GEOMETRY_TEST_SOURCES
     test_box.cpp
     test_point_vector.cpp
+    test_sdk_algorithms.cpp
     test_serialize.cpp
     test_polygon.cpp
     test_polyline.cpp
