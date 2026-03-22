@@ -4,12 +4,17 @@
 #include <cstdlib>
 #include <concepts>
 #include <iomanip>
+#include <initializer_list>
 #include <iostream>
 #include <limits>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
+
+#include "sdk/Polygon2d.h"
+#include "sdk/Polyline2d.h"
 
 namespace geometry::test
 {
@@ -39,6 +44,26 @@ concept HasProjectionFields = requires(const T& value) {
     value.parameter;
     value.distanceSquared;
     value.isOnSegment;
+};
+
+template <typename T>
+concept HasPointCount = requires(const T& value) {
+    { value.PointCount() } -> std::convertible_to<std::size_t>;
+};
+
+template <typename T>
+concept HasPointAt = requires(const T& value, std::size_t index) {
+    value.PointAt(index);
+};
+
+template <typename T>
+concept HasHoleCount = requires(const T& value) {
+    { value.HoleCount() } -> std::convertible_to<std::size_t>;
+};
+
+template <typename T>
+concept HasHoleAt = requires(const T& value, std::size_t index) {
+    value.HoleAt(index);
 };
 
 template <typename T>
@@ -153,6 +178,51 @@ template <typename T>
         << ", distanceSquared=" << FormatNumber(value.distanceSquared)
         << ", isOnSegment=" << (value.isOnSegment ? "true" : "false")
         << '}';
+    return out.str();
+}
+
+template <typename T>
+[[nodiscard]] std::string DescribePolylineLike(const T& value)
+{
+    std::ostringstream out;
+    out << "{pointCount=" << value.PointCount();
+    if constexpr (requires { value.IsClosed(); })
+    {
+        out << ", closure=" << (value.IsClosed() ? "closed" : "open");
+    }
+    out << ", points=[";
+    for (std::size_t i = 0; i < value.PointCount(); ++i)
+    {
+        if (i > 0)
+        {
+            out << ", ";
+        }
+        out << DescribePointLike(value.PointAt(i));
+    }
+    out << "]}";
+    return out.str();
+}
+
+template <typename T>
+[[nodiscard]] std::string DescribePolygonLike(const T& value)
+{
+    std::ostringstream out;
+    out << "{outer=" << DescribePolylineLike(value.OuterRing())
+        << ", holeCount=" << value.HoleCount();
+    if constexpr (HasHoleAt<T>)
+    {
+        out << ", holes=[";
+        for (std::size_t i = 0; i < value.HoleCount(); ++i)
+        {
+            if (i > 0)
+            {
+                out << ", ";
+            }
+            out << DescribePolylineLike(value.HoleAt(i));
+        }
+        out << "]";
+    }
+    out << "}";
     return out.str();
 }
 } // namespace detail
@@ -312,6 +382,114 @@ inline void AssertProjectionNear(
                 ", " + std::string(expectedExpr) + " = " + detail::DescribeProjectionLike(expected));
     }
 }
+
+template <detail::HasPointCount Actual, detail::HasPointCount Expected>
+inline void AssertPolylineNear(
+    const Actual& actual,
+    const Expected& expected,
+    double eps,
+    std::string_view actualExpr,
+    std::string_view expectedExpr,
+    std::string_view file,
+    int line)
+{
+    if (actual.PointCount() != expected.PointCount())
+    {
+        detail::Fail(
+            "polyline point-count mismatch",
+            file,
+            line,
+            std::string(actualExpr) + " = " + detail::DescribePolylineLike(actual) +
+                ", " + std::string(expectedExpr) + " = " + detail::DescribePolylineLike(expected));
+    }
+
+    if constexpr (requires { actual.IsClosed(); expected.IsClosed(); })
+    {
+        if (actual.IsClosed() != expected.IsClosed())
+        {
+            detail::Fail(
+                "polyline closure mismatch",
+                file,
+                line,
+                std::string(actualExpr) + " = " + detail::DescribePolylineLike(actual) +
+                    ", " + std::string(expectedExpr) + " = " + detail::DescribePolylineLike(expected));
+        }
+    }
+
+    for (std::size_t i = 0; i < actual.PointCount(); ++i)
+    {
+        AssertPointNear(actual.PointAt(i), expected.PointAt(i), eps, actualExpr, expectedExpr, file, line);
+    }
+}
+
+template <typename Actual, typename Expected>
+inline void AssertPolygonNear(
+    const Actual& actual,
+    const Expected& expected,
+    double eps,
+    std::string_view actualExpr,
+    std::string_view expectedExpr,
+    std::string_view file,
+    int line)
+{
+    if (actual.HoleCount() != expected.HoleCount())
+    {
+        detail::Fail(
+            "polygon hole-count mismatch",
+            file,
+            line,
+            std::string(actualExpr) + " = " + detail::DescribePolygonLike(actual) +
+                ", " + std::string(expectedExpr) + " = " + detail::DescribePolygonLike(expected));
+    }
+
+    AssertPolylineNear(actual.OuterRing(), expected.OuterRing(), eps, actualExpr, expectedExpr, file, line);
+    for (std::size_t i = 0; i < actual.HoleCount(); ++i)
+    {
+        AssertPolylineNear(actual.HoleAt(i), expected.HoleAt(i), eps, actualExpr, expectedExpr, file, line);
+    }
+}
+
+[[nodiscard]] inline geometry::sdk::Polyline2d MakeSdkPolyline(
+    std::initializer_list<geometry::sdk::Point2d> points,
+    geometry::sdk::PolylineClosure closure = geometry::sdk::PolylineClosure::Open)
+{
+    return geometry::sdk::Polyline2d(std::vector<geometry::sdk::Point2d>(points), closure);
+}
+
+[[nodiscard]] inline geometry::sdk::Polyline2d MakeSdkRectangleRing(
+    const geometry::sdk::Point2d& minPoint,
+    const geometry::sdk::Point2d& maxPoint)
+{
+    return MakeSdkPolyline(
+        {
+            minPoint,
+            geometry::sdk::Point2d{maxPoint.x, minPoint.y},
+            maxPoint,
+            geometry::sdk::Point2d{minPoint.x, maxPoint.y},
+        },
+        geometry::sdk::PolylineClosure::Closed);
+}
+
+[[nodiscard]] inline geometry::sdk::Polyline2d MakeSdkRectangleHoleRing(
+    const geometry::sdk::Point2d& minPoint,
+    const geometry::sdk::Point2d& maxPoint)
+{
+    return MakeSdkPolyline(
+        {
+            minPoint,
+            geometry::sdk::Point2d{minPoint.x, maxPoint.y},
+            maxPoint,
+            geometry::sdk::Point2d{maxPoint.x, minPoint.y},
+        },
+        geometry::sdk::PolylineClosure::Closed);
+}
+
+[[nodiscard]] inline geometry::sdk::Polygon2d MakeSdkRectanglePolygon(
+    const geometry::sdk::Point2d& minPoint,
+    const geometry::sdk::Point2d& maxPoint)
+{
+    return geometry::sdk::Polygon2d(MakeSdkRectangleRing(minPoint, maxPoint));
+}
 } // namespace geometry::test
 
 #define GEOMETRY_TEST_ASSERT_NEAR(actual, expected, eps) \
@@ -328,3 +506,9 @@ inline void AssertProjectionNear(
 
 #define GEOMETRY_TEST_ASSERT_PROJECTION_NEAR(actual, expected, eps) \
     ::geometry::test::AssertProjectionNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+
+#define GEOMETRY_TEST_ASSERT_POLYLINE_NEAR(actual, expected, eps) \
+    ::geometry::test::AssertPolylineNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+
+#define GEOMETRY_TEST_ASSERT_POLYGON_NEAR(actual, expected, eps) \
+    ::geometry::test::AssertPolygonNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)

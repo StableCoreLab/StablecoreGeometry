@@ -4,7 +4,6 @@
 #include <sstream>
 #include <utility>
 
-#include "sdk/GeometryConvert.h"
 #include "types/LineSegment2.h"
 #include "types/Polyline2.h"
 
@@ -36,8 +35,8 @@ namespace
         const Point2d& start = points[i];
         const Point2d& end = points[(i + 1) % points.size()];
         segments.push_back(std::make_shared<geometry::LineSegment2d>(
-            detail::ToInternal(start),
-            detail::ToInternal(end)));
+            start,
+            end));
     }
 
     return geometry::Polyline2d(std::move(segments), ToInternalClosure(closure));
@@ -114,12 +113,12 @@ std::size_t Polyline2d::SegmentCount() const
 
 Point2d Polyline2d::PointAt(std::size_t index) const
 {
-    return detail::ToSdk(impl_->polyline.GetVertex(index));
+    return impl_->polyline.GetVertex(index);
 }
 
 Box2d Polyline2d::Bounds() const
 {
-    return detail::ToSdk(impl_->polyline.GetBoundingBox());
+    return impl_->polyline.GetBoundingBox();
 }
 
 std::string Polyline2d::DebugString() const

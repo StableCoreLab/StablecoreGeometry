@@ -139,6 +139,22 @@
 - 即便如此，也应先完成导出宏、显式实例化和头文件组织收敛
 - 在正式 SDK 阶段前，不把它们现在的模板头文件直接视为最终发布接口
 
+其中圆弧对象若进入 SDK，推荐固定为如下公开表示：
+
+- `Point2d center`
+- `double radius`
+- `double startAngle`
+- `double sweepAngle`
+
+执行约束：
+
+- 角度单位统一为弧度
+- `radius > 0`
+- `0 < |sweepAngle| <= 2pi`
+- `sweepAngle > 0` 表示逆时针
+- `sweepAngle < 0` 表示顺时针
+- 不再同时对外承诺 `endAngle + direction` 作为主公开表示
+
 ### 5.3 `Polyline2<T>` 与 `Polygon2<T>` 当前禁止直接作为 ABI 类型导出
 
 这是当前最需要明确写死的规则。

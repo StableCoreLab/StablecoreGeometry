@@ -5,7 +5,6 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
-#include "sdk/GeometryConvert.h"
 
 namespace geometry::sdk
 {
@@ -24,7 +23,7 @@ namespace
 
 double DistanceSquared(const Point2d& lhs, const Point2d& rhs)
 {
-    return (detail::ToInternal(rhs) - detail::ToInternal(lhs)).LengthSquared();
+    return (rhs - lhs).LengthSquared();
 }
 
 double Distance(const Point2d& lhs, const Point2d& rhs)
@@ -39,9 +38,9 @@ SegmentProjection2d ProjectPointToSegment(
     const Point2d& segmentEnd,
     bool clampToSegment)
 {
-    const geometry::Point2d internalPoint = detail::ToInternal(point);
-    const geometry::Point2d internalStart = detail::ToInternal(segmentStart);
-    const geometry::Point2d internalEnd = detail::ToInternal(segmentEnd);
+    const geometry::Point2d internalPoint = point;
+    const geometry::Point2d internalStart = segmentStart;
+    const geometry::Point2d internalEnd = segmentEnd;
     const geometry::Vector2d segmentVector = internalEnd - internalStart;
     const double segmentLengthSquared = segmentVector.LengthSquared();
 
@@ -60,9 +59,9 @@ SegmentProjection2d ProjectPointToSegment(
     const geometry::Point2d projectedPoint = Interpolate(internalStart, internalEnd, parameter);
 
     return SegmentProjection2d{
-        detail::ToSdk(projectedPoint),
+        projectedPoint,
         parameter,
-        DistanceSquared(point, detail::ToSdk(projectedPoint)),
+        DistanceSquared(point, projectedPoint),
         clampToSegment ||
             (rawParameter >= -geometry::kDefaultEpsilon &&
              rawParameter <= 1.0 + geometry::kDefaultEpsilon)};
@@ -70,7 +69,7 @@ SegmentProjection2d ProjectPointToSegment(
 
 bool Contains(const Box2d& box, const Point2d& point, double eps)
 {
-    const geometry::Box2d internalBox = detail::ToInternal(box);
+    const geometry::Box2d internalBox = box;
     if (!internalBox.IsValid())
     {
         return false;
@@ -84,8 +83,8 @@ bool Contains(const Box2d& box, const Point2d& point, double eps)
 
 bool Intersects(const Box2d& lhs, const Box2d& rhs, double eps)
 {
-    const geometry::Box2d left = detail::ToInternal(lhs);
-    const geometry::Box2d right = detail::ToInternal(rhs);
+    const geometry::Box2d left = lhs;
+    const geometry::Box2d right = rhs;
     if (!left.IsValid() || !right.IsValid())
     {
         return false;

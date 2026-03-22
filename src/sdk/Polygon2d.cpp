@@ -1,11 +1,11 @@
 #include "sdk/Polygon2d.h"
 
 #include <memory>
+#include <stdexcept>
 #include <sstream>
 #include <utility>
 #include <vector>
 
-#include "sdk/GeometryConvert.h"
 #include "types/LineSegment2.h"
 #include "types/Polygon2.h"
 
@@ -19,7 +19,7 @@ namespace
                                               : geometry::PolylineClosure::Open;
 }
 
-[[nodiscard]] geometry::Polyline2d ToInternal(const Polyline2d& polyline)
+[[nodiscard]] geometry::Polyline2d BuildInternalPolylineFromSdk(const Polyline2d& polyline)
 {
     std::vector<Point2d> points;
     points.reserve(polyline.PointCount());
@@ -39,8 +39,8 @@ namespace
         for (std::size_t i = 0; i < segmentCount; ++i)
         {
             segments.push_back(std::make_shared<geometry::LineSegment2d>(
-                detail::ToInternal(points[i]),
-                detail::ToInternal(points[(i + 1) % points.size()])));
+                points[i],
+                points[(i + 1) % points.size()]));
         }
         return geometry::Polyline2d(std::move(segments), ToInternalClosure(closure));
     }
@@ -64,7 +64,7 @@ struct Polygon2d::Impl
 Polygon2d::Polygon2d() : impl_(std::make_unique<Impl>()) {}
 
 Polygon2d::Polygon2d(Polyline2d outerRing)
-    : impl_(std::make_unique<Impl>(geometry::Polygon2d(ToInternal(outerRing))))
+    : impl_(std::make_unique<Impl>(geometry::Polygon2d(BuildInternalPolylineFromSdk(outerRing))))
 {
 }
 
@@ -74,11 +74,11 @@ Polygon2d::Polygon2d(Polyline2d outerRing, std::vector<Polyline2d> holes)
     internalHoles.reserve(holes.size());
     for (const Polyline2d& hole : holes)
     {
-        internalHoles.push_back(ToInternal(hole));
+        internalHoles.push_back(BuildInternalPolylineFromSdk(hole));
     }
 
     impl_ = std::make_unique<Impl>(
-        geometry::Polygon2d(ToInternal(outerRing), std::move(internalHoles)));
+        geometry::Polygon2d(BuildInternalPolylineFromSdk(outerRing), std::move(internalHoles)));
 }
 
 Polygon2d::Polygon2d(const Polygon2d& other)
@@ -131,9 +131,40 @@ std::size_t Polygon2d::HoleCount() const
     return impl_->polygon.GetHoleCount();
 }
 
+Polyline2d Polygon2d::OuterRing() const
+{
+    std::vector<Point2d> points;
+    const auto& ring = impl_->polygon.GetOuterRing();
+    points.reserve(ring.GetVertexCount());
+    for (std::size_t i = 0; i < ring.GetVertexCount(); ++i)
+    {
+        points.push_back(ring.GetVertex(i));
+    }
+
+    return Polyline2d(std::move(points), PolylineClosure::Closed);
+}
+
+Polyline2d Polygon2d::HoleAt(std::size_t index) const
+{
+    if (index >= impl_->polygon.GetHoleCount())
+    {
+        throw std::out_of_range("Polygon2d::HoleAt index out of range");
+    }
+
+    std::vector<Point2d> points;
+    const auto& ring = impl_->polygon.GetHole(index);
+    points.reserve(ring.GetVertexCount());
+    for (std::size_t i = 0; i < ring.GetVertexCount(); ++i)
+    {
+        points.push_back(ring.GetVertex(i));
+    }
+
+    return Polyline2d(std::move(points), PolylineClosure::Closed);
+}
+
 Box2d Polygon2d::Bounds() const
 {
-    return detail::ToSdk(impl_->polygon.GetBoundingBox());
+    return impl_->polygon.GetBoundingBox();
 }
 
 std::string Polygon2d::DebugString() const

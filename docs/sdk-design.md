@@ -129,7 +129,19 @@
 
 - `Point2d`、`Vector2d`、`Box2d` 这类简单值类型，直接导出实现类，并优先由模板类的 `double` 实例承担该角色
 - `Polyline2d`、`Polygon2d` 这类复杂对象，未来若进入 SDK，应使用 pImpl
-- `LineSegment2d`、`ArcSegment2d` 是否直接导出，后续按其最终状态复杂度和 ABI 风险单独判断
+- `LineSegment2d` 作为简单值类型可直接导出
+- `ArcSegment2d` 也可直接导出，但公开表示统一收敛为 `center + radius + startAngle + sweepAngle`
+
+`ArcSegment2d` 的 SDK 公开规则固定为：
+
+- `center` 为圆心
+- `radius > 0`
+- `startAngle` 单位为弧度
+- `sweepAngle` 单位为弧度
+- `sweepAngle > 0` 表示逆时针
+- `sweepAngle < 0` 表示顺时针
+- 第一版要求 `0 < |sweepAngle| <= 2pi`
+- `endAngle` 作为导出语义上的派生量定义为 `startAngle + sweepAngle`
 
 ## 5. 第一版 SDK 精度策略
 

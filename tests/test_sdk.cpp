@@ -1,13 +1,16 @@
 #include <cassert>
 #include <cmath>
+#include <numbers>
 
 #include "sdk/Geometry.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::Contains;
 using geometry::sdk::Distance;
+using geometry::sdk::ArcSegment2d;
 using geometry::sdk::Box2d;
 using geometry::sdk::Intersects;
+using geometry::sdk::LineSegment2d;
 using geometry::sdk::Point2d;
 using geometry::sdk::Polygon2d;
 using geometry::sdk::ProjectPointToSegment;
@@ -27,6 +30,35 @@ int main()
     GEOMETRY_TEST_ASSERT_NEAR(offset.Length(), 5.0, 1e-12);
     assert(a + offset == b);
     assert(b - offset == a);
+
+    const LineSegment2d line = LineSegment2d::FromEndpoints(a, b);
+    assert(line.IsValid());
+    GEOMETRY_TEST_ASSERT_NEAR(line.Length(), 5.0, 1e-12);
+    const Point2d lineMidpoint{1.5, 2.0};
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAt(0.5), lineMidpoint, 1e-12);
+    GEOMETRY_TEST_ASSERT_BOX_NEAR(
+        line.Bounds(),
+        Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{3.0, 4.0}),
+        1e-12);
+    assert(line.DebugString().find("LineSegment2d{start=") == 0);
+
+    const ArcSegment2d arc = ArcSegment2d::FromCenterRadiusStartSweep(
+        Point2d{0.0, 0.0},
+        1.0,
+        0.0,
+        std::numbers::pi_v<double> * 0.5);
+    assert(arc.IsValid());
+    assert(arc.Direction() == geometry::ArcDirection::CounterClockwise);
+    GEOMETRY_TEST_ASSERT_NEAR(arc.Length(), std::numbers::pi_v<double> * 0.5, 1e-12);
+    const Point2d arcStart{1.0, 0.0};
+    const Point2d arcEnd{0.0, 1.0};
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(arc.StartPoint(), arcStart, 1e-12);
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(arc.EndPoint(), arcEnd, 1e-12);
+    GEOMETRY_TEST_ASSERT_BOX_NEAR(
+        arc.Bounds(),
+        Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{1.0, 1.0}),
+        1e-12);
+    assert(arc.DebugString().find("ArcSegment2d{center=") == 0);
 
     const auto projection = ProjectPointToSegment(Point2d{3.0, 1.0}, a, b);
     const geometry::sdk::SegmentProjection2d expectedProjection{
@@ -83,6 +115,8 @@ int main()
     assert(polygon.HoleCount() == 1);
     assert(polygon.PointCount() == 8);
     assert(polygon.SegmentCount() == 8);
+    GEOMETRY_TEST_ASSERT_POLYLINE_NEAR(polygon.OuterRing(), outerRing, 1e-12);
+    GEOMETRY_TEST_ASSERT_POLYLINE_NEAR(polygon.HoleAt(0), holeRing, 1e-12);
     GEOMETRY_TEST_ASSERT_BOX_NEAR(
         polygon.Bounds(),
         Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{4.0, 4.0}),
