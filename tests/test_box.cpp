@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include "types/Box2.h"
+#include "support/GeometryTestSupport.h"
 
 using geometry::Box2d;
 using geometry::Box2i;
@@ -18,17 +19,18 @@ int main()
 
     const Box2i pointBox(Point2i(2, 3), Point2i(2, 3));
     assert(pointBox.IsValid());
+    assert(Box2i::FromMinMax(Point2i(2, 3), Point2i(2, 3)) == pointBox);
     assert(pointBox.Width() == 0.0);
     assert(pointBox.Height() == 0.0);
     assert(pointBox.Area() == 0.0);
-    assert(pointBox.Center() == geometry::Point2<double>(2.0, 3.0));
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(pointBox.Center(), geometry::Point2<double>(2.0, 3.0), 1e-12);
 
     const Box2i boxA(Point2i(1, 2), Point2i(4, 6));
     assert(boxA.IsValid());
     assert(boxA.Width() == 3.0);
     assert(boxA.Height() == 4.0);
     assert(boxA.Area() == 12.0);
-    assert(boxA.Center() == geometry::Point2<double>(2.5, 4.0));
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(boxA.Center(), geometry::Point2<double>(2.5, 4.0), 1e-12);
 
     Box2i expanded;
     expanded.ExpandToInclude(Point2i(5, 7));
@@ -55,8 +57,11 @@ int main()
     assert(std::abs(floatingBox.Width() - 2.0) < 1e-12);
     assert(std::abs(floatingBox.Height() - 0.5) < 1e-12);
     assert(std::abs(floatingBox.Area() - 1.0) < 1e-12);
-    assert(std::abs(floatingBox.Center().x - 0.5) < 1e-12);
-    assert(std::abs(floatingBox.Center().y - 2.75) < 1e-12);
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(floatingBox.Center(), Point2d(0.5, 2.75), 1e-12);
+    GEOMETRY_TEST_ASSERT_BOX_NEAR(
+        floatingBox,
+        Box2d::FromMinMax(Point2d(-0.5, 2.5), Point2d(1.5, 3.0)),
+        1e-12);
 
     const Box2i sameA(Point2i(1, 2), Point2i(3, 4));
     const Box2i sameB(Point2i(1, 2), Point2i(3, 4));
@@ -64,6 +69,7 @@ int main()
     assert(sameA == sameB);
     assert(!(sameA != sameB));
     assert(sameA != different);
+    GEOMETRY_TEST_ASSERT_BOX_NEAR(sameA, sameB, 0.0);
 
     return 0;
 }

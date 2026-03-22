@@ -1,8 +1,12 @@
 #pragma once
 
 #include <cassert>
+#include <cmath>
+#include <sstream>
+#include <string>
 #include <type_traits>
 
+#include "common/Epsilon.h"
 #include "types/Point2.h"
 
 namespace geometry
@@ -24,9 +28,16 @@ public:
     {
     }
 
+    [[nodiscard]] static constexpr Box2 FromMinMax(
+        const Point2<T>& minPoint,
+        const Point2<T>& maxPoint)
+    {
+        return Box2(minPoint, maxPoint);
+    }
+
     [[nodiscard]] constexpr bool IsValid() const
     {
-        return valid_ && IsOrdered(min_, max_);
+        return valid_ && min_.IsValid() && max_.IsValid() && IsOrdered(min_, max_);
     }
 
     [[nodiscard]] constexpr const Point2<T>& GetMinPoint() const
@@ -112,6 +123,37 @@ public:
 
     [[nodiscard]] constexpr bool operator==(const Box2& other) const = default;
     [[nodiscard]] constexpr bool operator!=(const Box2& other) const = default;
+
+    [[nodiscard]] constexpr bool AlmostEquals(
+        const Box2& other,
+        double eps = kDefaultEpsilon) const
+    {
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            if (valid_ != other.valid_)
+            {
+                return false;
+            }
+
+            if (!valid_)
+            {
+                return true;
+            }
+
+            return min_.AlmostEquals(other.min_, eps) && max_.AlmostEquals(other.max_, eps);
+        }
+
+        (void)eps;
+        return *this == other;
+    }
+
+    [[nodiscard]] std::string DebugString() const
+    {
+        std::ostringstream stream;
+        stream << "Box2{min=" << min_.DebugString() << ", max=" << max_.DebugString()
+               << ", valid=" << (valid_ ? "true" : "false") << "}";
+        return stream.str();
+    }
 
 private:
     static constexpr bool IsOrdered(const Point2<T>& minPoint, const Point2<T>& maxPoint)

@@ -16,6 +16,11 @@ struct Vector2 : Vec2Storage<T>
     using Vec2Storage<T>::Vec2Storage;
     using LengthType = VectorLengthType<T>;
 
+    [[nodiscard]] static constexpr Vector2 FromXY(T xValue, T yValue)
+    {
+        return Vector2(xValue, yValue);
+    }
+
     [[nodiscard]] constexpr auto LengthSquared() const -> LengthType
     {
         return static_cast<LengthType>(this->x) * static_cast<LengthType>(this->x) +
@@ -26,6 +31,11 @@ struct Vector2 : Vec2Storage<T>
     {
         using std::sqrt;
         return sqrt(LengthSquared());
+    }
+
+    [[nodiscard]] std::string DebugString() const
+    {
+        return this->Vec2Storage<T>::DebugString("Vector2");
     }
 };
 

@@ -5,7 +5,10 @@ project(stablecore_geometry LANGUAGES CXX)
 option(STABLECORE_GEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
 
 add_library(stablecore_geometry
-    src/sdk/GeometryAlgorithms.cpp)
+    src/serialize/GeometryText.cpp
+    src/sdk/GeometryAlgorithms.cpp
+    src/sdk/Polyline2d.cpp
+    src/sdk/Polygon2d.cpp)
 add_library(stablecore::geometry ALIAS stablecore_geometry)
 
 target_include_directories(stablecore_geometry

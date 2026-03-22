@@ -22,21 +22,21 @@ namespace
 }
 } // namespace
 
-double DistanceSquared(const GeoPoint2d& lhs, const GeoPoint2d& rhs)
+double DistanceSquared(const Point2d& lhs, const Point2d& rhs)
 {
     return (detail::ToInternal(rhs) - detail::ToInternal(lhs)).LengthSquared();
 }
 
-double Distance(const GeoPoint2d& lhs, const GeoPoint2d& rhs)
+double Distance(const Point2d& lhs, const Point2d& rhs)
 {
     using std::sqrt;
     return sqrt(DistanceSquared(lhs, rhs));
 }
 
-ProjectionResult2d ProjectPointToSegment(
-    const GeoPoint2d& point,
-    const GeoPoint2d& segmentStart,
-    const GeoPoint2d& segmentEnd,
+SegmentProjection2d ProjectPointToSegment(
+    const Point2d& point,
+    const Point2d& segmentStart,
+    const Point2d& segmentEnd,
     bool clampToSegment)
 {
     const geometry::Point2d internalPoint = detail::ToInternal(point);
@@ -47,7 +47,7 @@ ProjectionResult2d ProjectPointToSegment(
 
     if (geometry::IsZero(segmentLengthSquared))
     {
-        return ProjectionResult2d{
+        return SegmentProjection2d{
             segmentStart,
             0.0,
             DistanceSquared(point, segmentStart),
@@ -59,7 +59,7 @@ ProjectionResult2d ProjectPointToSegment(
     const double parameter = clampToSegment ? std::clamp(rawParameter, 0.0, 1.0) : rawParameter;
     const geometry::Point2d projectedPoint = Interpolate(internalStart, internalEnd, parameter);
 
-    return ProjectionResult2d{
+    return SegmentProjection2d{
         detail::ToSdk(projectedPoint),
         parameter,
         DistanceSquared(point, detail::ToSdk(projectedPoint)),
@@ -68,7 +68,7 @@ ProjectionResult2d ProjectPointToSegment(
              rawParameter <= 1.0 + geometry::kDefaultEpsilon)};
 }
 
-bool Contains(const GeoBox2d& box, const GeoPoint2d& point, double eps)
+bool Contains(const Box2d& box, const Point2d& point, double eps)
 {
     const geometry::Box2d internalBox = detail::ToInternal(box);
     if (!internalBox.IsValid())
@@ -82,7 +82,7 @@ bool Contains(const GeoBox2d& box, const GeoPoint2d& point, double eps)
            point.y <= internalBox.GetMaxPoint().y + eps;
 }
 
-bool Intersects(const GeoBox2d& lhs, const GeoBox2d& rhs, double eps)
+bool Intersects(const Box2d& lhs, const Box2d& rhs, double eps)
 {
     const geometry::Box2d left = detail::ToInternal(lhs);
     const geometry::Box2d right = detail::ToInternal(rhs);

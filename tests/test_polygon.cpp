@@ -7,6 +7,7 @@
 #include "types/ArcSegment2.h"
 #include "types/LineSegment2.h"
 #include "types/Polygon2.h"
+#include "support/GeometryTestSupport.h"
 
 using geometry::Box2d;
 using geometry::ArcDirection;
@@ -20,11 +21,6 @@ using geometry::PolylineClosure;
 
 namespace
 {
-void ExpectPointNear(const Point2d& actual, const Point2d& expected, double eps = 1e-12)
-{
-    assert(IsEqual(actual, expected, eps));
-}
-
 Polyline2d MakeClosedRing(const std::vector<std::pair<Point2d, Point2d>>& edges)
 {
     std::vector<std::shared_ptr<geometry::Segment2d>> segments;
@@ -61,12 +57,12 @@ int main()
 
     assert(std::abs(polygon.Area() - 12.0) < 1e-12);
     assert(std::abs(polygon.Perimeter() - 24.0) < 1e-12);
-    ExpectPointNear(polygon.Centroid(), Point2d(2.0, 2.0));
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(polygon.Centroid(), Point2d(2.0, 2.0), 1e-12);
 
     const Box2d box = polygon.GetBoundingBox();
     assert(box.IsValid());
-    ExpectPointNear(box.GetMinPoint(), Point2d(0.0, 0.0));
-    ExpectPointNear(box.GetMaxPoint(), Point2d(4.0, 4.0));
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(box.GetMinPoint(), Point2d(0.0, 0.0), 1e-12);
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(box.GetMaxPoint(), Point2d(4.0, 4.0), 1e-12);
 
     Polyline2d badHole = MakeClosedRing({
         {Point2d(1.0, 1.0), Point2d(3.0, 1.0)},
@@ -91,7 +87,7 @@ int main()
     assert(quarterDisk.IsValid());
     assert(std::abs(quarterDisk.Area() - (std::acos(-1.0) / 4.0)) < 1e-12);
     assert(std::abs(quarterDisk.Perimeter() - (2.0 + std::acos(-1.0) * 0.5)) < 1e-12);
-    ExpectPointNear(
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(
         quarterDisk.Centroid(),
         Point2d(4.0 / (3.0 * std::acos(-1.0)), 4.0 / (3.0 * std::acos(-1.0))),
         1e-12);

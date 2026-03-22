@@ -7,46 +7,33 @@
 
 namespace geometry::sdk::detail
 {
-[[nodiscard]] inline geometry::Point2d ToInternal(const GeoPoint2d& point)
+[[nodiscard]] inline geometry::Point2d ToInternal(const Point2d& point)
 {
     return geometry::Point2d(point.x, point.y);
 }
 
-[[nodiscard]] inline geometry::Vector2d ToInternal(const GeoVector2d& vector)
+[[nodiscard]] inline geometry::Vector2d ToInternal(const Vector2d& vector)
 {
     return geometry::Vector2d(vector.x, vector.y);
 }
 
-[[nodiscard]] inline geometry::Box2d ToInternal(const GeoBox2d& box)
+[[nodiscard]] inline geometry::Box2d ToInternal(const Box2d& box)
 {
-    if (!box.isValid)
-    {
-        return geometry::Box2d();
-    }
-
-    return geometry::Box2d(ToInternal(box.minPoint), ToInternal(box.maxPoint));
+    return box;
 }
 
-[[nodiscard]] inline GeoPoint2d ToSdk(const geometry::Point2d& point)
+[[nodiscard]] inline Point2d ToSdk(const geometry::Point2d& point)
 {
-    return GeoPoint2d{point.x, point.y};
+    return Point2d{point.x, point.y};
 }
 
-[[nodiscard]] inline GeoVector2d ToSdk(const geometry::Vector2d& vector)
+[[nodiscard]] inline Vector2d ToSdk(const geometry::Vector2d& vector)
 {
-    return GeoVector2d{vector.x, vector.y};
+    return Vector2d{vector.x, vector.y};
 }
 
-[[nodiscard]] inline GeoBox2d ToSdk(const geometry::Box2d& box)
+[[nodiscard]] inline Box2d ToSdk(const geometry::Box2d& box)
 {
-    if (!box.IsValid())
-    {
-        return GeoBox2d{};
-    }
-
-    return GeoBox2d{
-        ToSdk(box.GetMinPoint()),
-        ToSdk(box.GetMaxPoint()),
-        true};
+    return box;
 }
 } // namespace geometry::sdk::detail

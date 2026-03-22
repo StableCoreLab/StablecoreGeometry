@@ -1,4 +1,3 @@
 #pragma once
 
-#include "sdk/GeometryAlgorithms.h"
-#include "sdk/GeometryTypes.h"
+#include "sdk/GeometryApi.h"
