@@ -1,7 +1,12 @@
 set(STABLECORE_GEOMETRY_TEST_SOURCES
     test_box.cpp
+    test_relation_boolean.cpp
+    test_sdk_multigeometry.cpp
+    test_topology_indexing.cpp
+    test_transform_sampling.cpp
     test_point_vector.cpp
     test_sdk_algorithms.cpp
+    test_offset.cpp
     test_serialize.cpp
     test_polygon.cpp
     test_polyline.cpp
