@@ -97,5 +97,26 @@ int main()
     assert(branched.Count() == 1);
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(branched[0]), 16.0, 1e-9);
 
+    const MultiPolyline2d dirtyNearClosedLines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 0.12}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{2.0, 4.0}, Point2d{2.0, 5.0}}, PolylineClosure::Open)};
+    const auto dirtyNearClosed = BuildMultiPolygonByLines(dirtyNearClosedLines);
+    assert(dirtyNearClosed.Count() == 1);
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(dirtyNearClosed[0]), 16.0, 1e-6);
+
+    const MultiPolyline2d autoExtendLines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 1.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{-0.15, 1.0}, Point2d{-0.15, 0.25}}, PolylineClosure::Open)};
+    const auto autoExtended = BuildMultiPolygonByLines(autoExtendLines);
+    assert(autoExtended.Count() == 1);
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(autoExtended[0]), 16.0, 1e-6);
+
     return 0;
 }

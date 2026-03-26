@@ -35,16 +35,16 @@ Notes:
 
 ## 3. Current Overall Conclusion
 
-The current C++ repository now covers a larger portion of the Delphi geometry algorithm capability, but it still has not reached full Delphi parity.
+The current C++ repository now covers a larger portion of the Delphi geometry algorithm capability for polygon and face workflows, but it still has not reached full Delphi parity.
 
 Current status summary:
 
 - basic geometry kernel: largely covered
-- open and branched line-network polygon reconstruction: partially covered
-- polygon boolean on crossing and contained polygon cases: partially covered
+- line-network polygon reconstruction with splitting, duplicate-edge cleanup, nearby auto-close, simple auto-extend, and branch pruning: substantially improved
+- polygon boolean on ordinary crossing and containment cases: partially covered
 - polygon relation and topology classification: partially covered
-- polygon offset cleanup through rebuild: partially covered
-- Delphi-level search/build recovery, branch pruning, and deep offset robustness: still below Delphi level
+- polygon offset rebuild and basic cleanup: partially covered
+- Delphi-level polygon search recovery on heavily ambiguous dirty input and deep offset/boolean robustness: still below Delphi level
 
 ## 4. Capability Classification
 
@@ -78,7 +78,7 @@ Representative verified tests:
 
 ### 4.2 Partially Reached
 
-These areas exist in the current C++ repository, and this round improved them substantially, but implementation depth or robustness is still below Delphi.
+These areas exist in the current C++ repository, and recent work improved them substantially, but implementation depth or robustness is still below Delphi.
 
 - polygon boolean operations
 - polygon offset
@@ -91,10 +91,10 @@ These areas exist in the current C++ repository, and this round improved them su
 Reasons for partial status:
 
 - the APIs exist and now cover more crossing, nested, and branched cases
-- line-network polygon reconstruction now performs intersection splitting before face extraction
+- line-network polygon reconstruction now performs duplicate cleanup, intersection splitting, nearby endpoint auto-close, simple projection-based auto-extend, and dangling-branch pruning before face extraction
 - boolean now works through arrangement face classification and boundary rebuild
 - offset now rebuilds polygon results from generated offset rings instead of rejecting invalid intermediate rings immediately
-- complex topology cleanup, ambiguous branch handling, auto-close, auto-extend, and difficult recovery logic are still not yet equivalent to Delphi
+- complex topology cleanup, heavily ambiguous branch handling, stronger fake-edge heuristics, and difficult recovery logic are still not yet equivalent to Delphi
 
 Representative C++ references:
 
@@ -114,10 +114,10 @@ Representative Delphi references:
 
 These Delphi geometry algorithm capabilities do not yet have equivalent depth in the current C++ repository.
 
-- automatic closing and extension for search-based polygon extraction in complex branched networks
-- branch removal and duplicate-segment cleanup strategies comparable to Delphi `SearchPoly`
-- richer search heuristics and recovery for ambiguous polygon reconstruction paths
+- branch scoring, fake-edge strategies, and richer search heuristics comparable to Delphi `SearchPoly`
+- stronger auto-close and auto-extend logic for heavily ambiguous or multi-candidate branched networks
 - complex offset cleanup for reverse edges, invalid circles, multi-failure recovery, and more difficult self-intersection cases
+- deeper boolean robustness on large overlap families and difficult degeneracies
 - Delphi-level end-to-end polygon search/build workflows around `SearchPoly`
 
 Representative Delphi references:
@@ -126,9 +126,40 @@ Representative Delphi references:
 - `GGLOffsetFunc2d.pas`
 - `GGLPolyRelation.pas`
 
-## 5. Key Evidence For The Current Gap
+## 5. Current Gap List
 
-### 5.1 Boolean Has Moved Beyond Simple Cell Cases But Is Still Not Delphi-Level
+### 5.1 Must Close
+
+These are the remaining gaps most likely to block Delphi-level polygon capability.
+
+- branch-aware polygon search for heavily ambiguous line networks, not only already-repairable linework
+- stronger boolean robustness on collinear overlap, repeated edges, tiny sliver faces, and near-degenerate intersections
+- stronger offset recovery when rings self-intersect, split into multiple areas, collapse through narrow gaps, or flip hole/outer semantics
+- unified preprocessing across boolean and offset, not only line-network polygon building
+- more Delphi-like fake-segment and candidate-ranking strategies when multiple closure paths are possible
+
+### 5.2 Should Close
+
+These gaps do not block basic polygon workflows anymore, but they still matter for production-hard parity.
+
+- richer polygon relation hierarchy comparable to Delphi `GGLPolyRelation`
+- better polygon cut and split workflows for holes, multi-cut input, and line-network-assisted partitioning
+- more explicit topology recovery between line search, face extraction, boolean, and offset pipelines
+- stronger tolerance propagation so the same `eps` policy behaves consistently through splitting, ring extraction, containment, and rebuild
+- broader search helpers for downstream polygon workflows instead of leaving most cleanup to individual algorithms
+
+### 5.3 Can Be Deferred
+
+These areas are still differences, but they are lower priority than the items above.
+
+- performance tuning for large arrangements and repeated rebuild steps
+- longer-lived spatial index reuse instead of rebuilding local structures inside each workflow
+- more exhaustive test matrices for difficult geometry families after the remaining algorithm gaps are closed
+- API reshaping to expose more intermediate topology products if needed by higher layers
+
+## 6. Key Evidence For The Current Gap
+
+### 6.1 Boolean Has Moved Beyond Simple Cell Cases But Is Still Not Delphi-Level
 
 The C++ boolean implementation is no longer just simple scan cells. It now rebuilds a segment arrangement, classifies bounded faces, and reconstructs the selected result boundary. This closes part of the previous gap for crossing and contained polygons.
 
@@ -139,13 +170,13 @@ Current C++ evidence:
 
 Still missing compared with Delphi:
 
-- broader recovery strategies on more difficult polygon graphs
-- Delphi-level polygon search workflow integration
 - deeper robustness around difficult degeneracies and overlapping cases
+- broader cleanup and recovery strategies on more difficult polygon graphs
+- stronger integration with heavier polygon search workflows
 
-### 5.2 BuildMultiPolygonByLines Has Improved To Intersection-Splitting Face Reconstruction
+### 6.2 BuildMultiPolygonByLines Now Includes Repair Before Face Reconstruction
 
-The C++ implementation now reconstructs polygons from open and branched line networks after splitting line intersections. This is stronger than the earlier closed-polyline-only behavior.
+The C++ implementation now reconstructs polygons from open and branched line networks after duplicate cleanup, intersection splitting, nearby endpoint auto-close, simple projection-based auto-extend, and dangling-branch pruning. This closes a meaningful part of the earlier `SearchPoly` gap for ordinary dirty linework.
 
 Current C++ evidence:
 
@@ -154,19 +185,20 @@ Current C++ evidence:
 
 Still missing compared with Delphi:
 
-- branch-oriented search strategies
-- auto-close and auto-extend workflows
-- branch pruning and more aggressive topology cleanup
-- richer recovery from difficult or ambiguous line networks
+- branch-oriented scoring and search strategies
+- richer fake-edge insertion policies
+- stronger recovery from heavily ambiguous line networks
+- fuller equivalence to Delphi smart search and closure workflows
 
 Representative Delphi references:
 
 - `GGLSearchPolyFunc2d.pas:1614`
 - `GGLSearchPolyFunc2d.pas:1779`
-- `GGLSearchPolyFunc2d.pas:2876`
+- `GGLSearchPolyFunc2d.pas:3018`
 - `GGLSearchPolyFunc2d.pas:3761`
+- `GGLSearchPolyFunc2d.pas:3905`
 
-### 5.3 Offset Now Rebuilds From Generated Rings But Is Still Not Delphi Offset Depth
+### 6.3 Offset Now Rebuilds From Generated Rings But Is Still Not Delphi Offset Depth
 
 The current C++ offset logic now feeds generated offset rings back into polygon reconstruction, which is stronger than rejecting the result immediately when an intermediate ring becomes invalid.
 
@@ -180,6 +212,7 @@ Still missing compared with Delphi:
 - dedicated reverse-edge cleanup
 - invalid-circle cleanup and deeper loop filtering
 - more complete recovery when offset output splits or becomes ambiguous
+- better handling of narrow channels, loop collapse, and hole inversion
 
 Representative Delphi references:
 
@@ -188,7 +221,7 @@ Representative Delphi references:
 - `GGLOffsetFunc2d.pas:751`
 - `GGLOffsetFunc2d.pas:875`
 
-### 5.4 Relation And Topology Are Stronger Than Before But Still Simpler Than Delphi PolyRelation
+### 6.4 Relation And Topology Are Stronger Than Before But Still Simpler Than Delphi PolyRelation
 
 The C++ relation and topology logic now checks polygon boundary contact together with containment, so touching and intersecting cases are stronger than the earlier vertex-only containment logic.
 
@@ -201,16 +234,18 @@ Still missing compared with Delphi:
 
 - richer multi-level relation management comparable to `GGLPolyRelation`
 - more complete integration with complex search/build workflows
+- more systematic handling of degenerate and nearly coincident relation inputs
 
-## 6. Current Comparison Baseline
+## 7. Current Comparison Baseline
 
 Until this document is updated, future parity review should use the following rule:
 
 - if a C++ feature works only for straightforward branching and ordinary crossing cases, it still does not count as Delphi parity for the full `SearchPoly` class of capability
-- if a C++ feature lacks explicit branch recovery, auto-close, auto-extend, or heavy cleanup phases, it still remains below Delphi for production-hard polygon workflows
+- if a C++ feature lacks explicit ambiguity resolution, fake-edge ranking, or heavier cleanup phases, it still remains below Delphi for production-hard polygon workflows
+- if a C++ feature handles ordinary offset but does not recover well from self-intersection, split output, or collapse, it still remains below Delphi offset capability
 - coordinate transform and drawing modules remain out of scope even if they exist in Delphi
 
-## 7. Suggested Tracking Method
+## 8. Suggested Tracking Method
 
 Future implementation comparison should continue to categorize each algorithm area into:
 
@@ -220,7 +255,8 @@ Future implementation comparison should continue to categorize each algorithm ar
 
 Recommended next tracking focus:
 
-- complex branched polygon-search workflows
+- stronger overlap and degeneracy handling in polygon boolean
 - stronger offset cleanup and recovery
-- broader degeneracy handling in polygon boolean
+- branch scoring and ambiguity resolution in polygon search
 - richer polygon relation hierarchy behavior
+- unified geometry preprocessing before all face operations

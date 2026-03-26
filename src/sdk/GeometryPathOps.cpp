@@ -9,6 +9,7 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
+#include "sdk/GeometryEditing.h"
 #include "sdk/GeometryIntersection.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryRelation.h"
@@ -32,6 +33,12 @@ struct RawSegment
 {
     Point2d start{};
     Point2d end{};
+};
+
+struct VertexGraph2d
+{
+    std::vector<Point2d> vertices;
+    std::vector<std::size_t> degrees;
 };
 
 [[nodiscard]] double SideValue(const Point2d& point, const LineSegment2d& line)
@@ -161,16 +168,17 @@ struct RawSegment
 
 void CollectRawSegments(const Polyline2d& polyline, std::vector<RawSegment>& segments, double eps)
 {
-    if (!polyline.IsValid() || polyline.PointCount() < 2)
+    const Polyline2d normalized = Normalize(polyline, eps);
+    if (!normalized.IsValid() || normalized.PointCount() < 2)
     {
         return;
     }
 
-    const std::size_t segmentCount = polyline.IsClosed() ? polyline.PointCount() : polyline.PointCount() - 1;
+    const std::size_t segmentCount = normalized.IsClosed() ? normalized.PointCount() : normalized.PointCount() - 1;
     for (std::size_t i = 0; i < segmentCount; ++i)
     {
-        const Point2d start = polyline.PointAt(i);
-        const Point2d end = polyline.PointAt((i + 1) % polyline.PointCount());
+        const Point2d start = normalized.PointAt(i);
+        const Point2d end = normalized.PointAt((i + 1) % normalized.PointCount());
         if (!start.AlmostEquals(end, eps))
         {
             segments.push_back(RawSegment{start, end});
@@ -255,7 +263,7 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     return splitSegments;
 }
 
-[[nodiscard]] std::size_t FindOrAddVertex(std::vector<Point2d>& vertices, const Point2d& point, double eps)
+[[nodiscard]] std::size_t FindVertexIndex(const std::vector<Point2d>& vertices, const Point2d& point, double eps)
 {
     for (std::size_t i = 0; i < vertices.size(); ++i)
     {
@@ -264,9 +272,44 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
             return i;
         }
     }
+    return static_cast<std::size_t>(-1);
+}
+
+[[nodiscard]] std::size_t FindOrAddVertex(std::vector<Point2d>& vertices, const Point2d& point, double eps)
+{
+    const std::size_t existing = FindVertexIndex(vertices, point, eps);
+    if (existing != static_cast<std::size_t>(-1))
+    {
+        return existing;
+    }
 
     vertices.push_back(point);
     return vertices.size() - 1;
+}
+
+[[nodiscard]] VertexGraph2d BuildVertexGraph(const std::vector<RawSegment>& segments, double eps)
+{
+    VertexGraph2d graph;
+    for (const RawSegment& segment : segments)
+    {
+        if (segment.start.AlmostEquals(segment.end, eps))
+        {
+            continue;
+        }
+
+        const std::size_t from = FindOrAddVertex(graph.vertices, segment.start, eps);
+        const std::size_t to = FindOrAddVertex(graph.vertices, segment.end, eps);
+        if (graph.degrees.size() < graph.vertices.size())
+        {
+            graph.degrees.resize(graph.vertices.size(), 0);
+        }
+        if (from != to)
+        {
+            ++graph.degrees[from];
+            ++graph.degrees[to];
+        }
+    }
+    return graph;
 }
 
 [[nodiscard]] std::uint64_t MakeUndirectedEdgeKey(std::size_t first, std::size_t second)
@@ -274,6 +317,188 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     const std::uint64_t a = static_cast<std::uint64_t>(std::min(first, second));
     const std::uint64_t b = static_cast<std::uint64_t>(std::max(first, second));
     return (a << 32U) | b;
+}
+
+[[nodiscard]] std::vector<RawSegment> RemoveDuplicateSegments(const std::vector<RawSegment>& segments, double eps)
+{
+    std::vector<RawSegment> unique;
+    std::vector<Point2d> vertices;
+    std::unordered_set<std::uint64_t> edgeKeys;
+    unique.reserve(segments.size());
+    for (const RawSegment& segment : segments)
+    {
+        if (segment.start.AlmostEquals(segment.end, eps))
+        {
+            continue;
+        }
+
+        const std::size_t from = FindOrAddVertex(vertices, segment.start, eps);
+        const std::size_t to = FindOrAddVertex(vertices, segment.end, eps);
+        if (from == to)
+        {
+            continue;
+        }
+
+        if (edgeKeys.insert(MakeUndirectedEdgeKey(from, to)).second)
+        {
+            unique.push_back(segment);
+        }
+    }
+    return unique;
+}
+
+[[nodiscard]] double ComputeRepairTolerance(const std::vector<RawSegment>& segments, double eps)
+{
+    double totalLength = 0.0;
+    double maxLength = 0.0;
+    std::size_t counted = 0;
+    for (const RawSegment& segment : segments)
+    {
+        const double length = (segment.end - segment.start).Length();
+        if (length <= eps)
+        {
+            continue;
+        }
+        totalLength += length;
+        maxLength = std::max(maxLength, length);
+        ++counted;
+    }
+
+    if (counted == 0)
+    {
+        return 16.0 * eps;
+    }
+
+    const double averageLength = totalLength / static_cast<double>(counted);
+    return std::max(16.0 * eps, std::min(0.2 * averageLength, 0.25 * maxLength));
+}
+
+void AutoCloseDanglingEndpoints(std::vector<RawSegment>& segments, double repairTol, double eps)
+{
+    const VertexGraph2d graph = BuildVertexGraph(segments, eps);
+    std::vector<std::size_t> endpoints;
+    for (std::size_t i = 0; i < graph.vertices.size(); ++i)
+    {
+        if (graph.degrees[i] == 1)
+        {
+            endpoints.push_back(i);
+        }
+    }
+
+    std::vector<bool> used(endpoints.size(), false);
+    for (std::size_t i = 0; i < endpoints.size(); ++i)
+    {
+        if (used[i])
+        {
+            continue;
+        }
+
+        const Point2d& first = graph.vertices[endpoints[i]];
+        std::size_t bestIndex = static_cast<std::size_t>(-1);
+        double bestDistance = repairTol;
+        for (std::size_t j = i + 1; j < endpoints.size(); ++j)
+        {
+            if (used[j])
+            {
+                continue;
+            }
+
+            const double distance = (graph.vertices[endpoints[j]] - first).Length();
+            if (distance <= bestDistance && distance > eps)
+            {
+                bestDistance = distance;
+                bestIndex = j;
+            }
+        }
+
+        if (bestIndex != static_cast<std::size_t>(-1))
+        {
+            used[i] = true;
+            used[bestIndex] = true;
+            segments.push_back(RawSegment{first, graph.vertices[endpoints[bestIndex]]});
+        }
+    }
+}
+
+void AutoExtendDanglingEndpoints(std::vector<RawSegment>& segments, double repairTol, double eps)
+{
+    const VertexGraph2d graph = BuildVertexGraph(segments, eps);
+    const std::size_t originalCount = segments.size();
+    for (std::size_t vertexIndex = 0; vertexIndex < graph.vertices.size(); ++vertexIndex)
+    {
+        if (graph.degrees[vertexIndex] != 1)
+        {
+            continue;
+        }
+
+        const Point2d& endpoint = graph.vertices[vertexIndex];
+        SegmentProjection2d bestProjection;
+        bool found = false;
+        for (std::size_t segmentIndex = 0; segmentIndex < originalCount; ++segmentIndex)
+        {
+            const RawSegment& segment = segments[segmentIndex];
+            if (endpoint.AlmostEquals(segment.start, eps) || endpoint.AlmostEquals(segment.end, eps))
+            {
+                continue;
+            }
+
+            const SegmentProjection2d projection =
+                ProjectPointToLineSegment(endpoint, LineSegment2d(segment.start, segment.end), true);
+            if (!projection.IsValid() || !projection.isOnSegment)
+            {
+                continue;
+            }
+            if (projection.parameter <= eps || projection.parameter >= 1.0 - eps)
+            {
+                continue;
+            }
+            if (projection.distanceSquared > repairTol * repairTol || projection.distanceSquared <= eps * eps)
+            {
+                continue;
+            }
+
+            if (!found || projection.distanceSquared < bestProjection.distanceSquared)
+            {
+                bestProjection = projection;
+                found = true;
+            }
+        }
+
+        if (found)
+        {
+            segments.push_back(RawSegment{endpoint, bestProjection.point});
+        }
+    }
+}
+
+[[nodiscard]] std::vector<RawSegment> PruneDanglingSegments(std::vector<RawSegment> segments, double eps)
+{
+    bool changed = true;
+    while (changed)
+    {
+        changed = false;
+        const VertexGraph2d graph = BuildVertexGraph(segments, eps);
+        std::vector<RawSegment> kept;
+        kept.reserve(segments.size());
+        for (const RawSegment& segment : segments)
+        {
+            const std::size_t from = FindVertexIndex(graph.vertices, segment.start, eps);
+            const std::size_t to = FindVertexIndex(graph.vertices, segment.end, eps);
+            if (from == static_cast<std::size_t>(-1) || to == static_cast<std::size_t>(-1) ||
+                from >= graph.degrees.size() || to >= graph.degrees.size())
+            {
+                continue;
+            }
+            if (graph.degrees[from] <= 1 || graph.degrees[to] <= 1)
+            {
+                changed = true;
+                continue;
+            }
+            kept.push_back(segment);
+        }
+        segments = std::move(kept);
+    }
+    return segments;
 }
 
 void AppendSplitEdges(
@@ -591,13 +816,25 @@ PolygonCutResult2d CutPolygon(const Polygon2d& polygon, const LineSegment2d& cut
 
 MultiPolygon2d BuildMultiPolygonByLines(const MultiPolyline2d& polylines, double eps)
 {
-    const std::vector<RawSegment> rawSegments = CollectRawSegments(polylines, eps);
+    std::vector<RawSegment> rawSegments = CollectRawSegments(polylines, eps);
     if (rawSegments.empty())
     {
         return {};
     }
 
-    const std::vector<RawSegment> splitSegments = SubdivideRawSegments(rawSegments, eps);
+    rawSegments = RemoveDuplicateSegments(rawSegments, eps);
+    std::vector<RawSegment> splitSegments = SubdivideRawSegments(rawSegments, eps);
+    if (splitSegments.empty())
+    {
+        return {};
+    }
+
+    const double repairTol = ComputeRepairTolerance(splitSegments, eps);
+    AutoCloseDanglingEndpoints(splitSegments, repairTol, eps);
+    AutoExtendDanglingEndpoints(splitSegments, repairTol, eps);
+    splitSegments = SubdivideRawSegments(splitSegments, eps);
+    splitSegments = RemoveDuplicateSegments(splitSegments, eps);
+    splitSegments = PruneDanglingSegments(std::move(splitSegments), eps);
     if (splitSegments.empty())
     {
         return {};
@@ -618,3 +855,4 @@ MultiPolygon2d BuildMultiPolygonByLines(const MultiPolyline2d& polylines, double
     return BuildFilledPolygonsFromCandidateRings(rings, eps);
 }
 } // namespace geometry::sdk
+
