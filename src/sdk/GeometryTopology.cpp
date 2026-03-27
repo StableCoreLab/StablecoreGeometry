@@ -132,7 +132,7 @@ bool PolygonTopology2d::Build(const MultiPolygon2d& polygons, double eps)
             }
 
             const PolygonContainment2d relation = Relate(polygons[j], polygons[i], eps);
-            if (relation != PolygonContainment2d::FirstContainsSecond && relation != PolygonContainment2d::Equal)
+            if (relation != PolygonContainment2d::FirstContainsSecond && !(relation == PolygonContainment2d::Equal && j < i))
             {
                 continue;
             }

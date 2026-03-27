@@ -45,6 +45,9 @@ struct RingCandidate
     double area{0.0};
     double perimeter{0.0};
     double syntheticPerimeter{0.0};
+    std::size_t branchVertexCount{0};
+    std::size_t syntheticBranchVertexCount{0};
+    double score{0.0};
 };
 
 struct VertexGraph2d

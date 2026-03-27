@@ -94,7 +94,7 @@ Reasons for partial status:
 - line-network polygon reconstruction now performs duplicate cleanup, intersection splitting, nearby endpoint auto-close, simple projection-based auto-extend, dangling-branch pruning, and candidate filtering that down-ranks fake-edge-dominated tiny loops before face extraction
 - boolean now works through relation-aware fast paths plus arrangement face classification and boundary rebuild, with duplicate-edge preprocessing and tiny-face filtering to reduce overlap/degenerated slivers
 - offset now rebuilds polygon results from generated offset rings, filters collapsed rings before rebuild, and better preserves the semantically correct result when rebuild returns multiple candidates
-- relation/topology now distinguishes equal/shared-edge overlap more reliably instead of collapsing them into generic crossing cases
+- relation/topology now distinguishes equal/shared-edge overlap more reliably instead of collapsing them into generic crossing cases, and equal duplicate polygons now use a deterministic topology parent tie-break
 - complex topology cleanup, heavily ambiguous branch handling, stronger fake-edge heuristics, and difficult recovery logic are still not yet equivalent to Delphi
 
 Representative C++ references:

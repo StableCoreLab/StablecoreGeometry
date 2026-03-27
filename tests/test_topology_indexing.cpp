@@ -50,7 +50,7 @@ int main()
             PolylineClosure::Closed));
     assert(geometry::sdk::Relate(outer, inner) == PolygonContainment2d::FirstContainsSecond);
     const auto topology = geometry::sdk::BuildPolygonTopology(MultiPolygon2d{{outer, inner}});
-    assert(topology.Roots().size() == 1);
+    assert(topology.Roots().size() == 1); const auto duplicateTopology = geometry::sdk::BuildPolygonTopology(MultiPolygon2d{outer, outer}); assert(duplicateTopology.Roots().size() == 1); assert(duplicateTopology.ParentOf(1) == 0);
 
     const Polygon2d touching(
         Polyline2d(
