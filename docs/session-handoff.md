@@ -225,16 +225,32 @@ Confirmed and landed in local files during this session:
 - `docs/geometry-3d-services-design.md`
   - 3D predicate / projection / intersection / search service layer is now defined separately
   - establishes tolerance/context infrastructure and shared internal service boundaries
+- `docs/geometry-3d-validation-healing-design.md`
+  - validation and healing are now split into their own 3D design layer
+  - defines structured issue/report/result types and conservative first-phase repair policy
+- `docs/geometry-3d-first-phase-roadmap.md`
+  - the 3D design set is now condensed into a staged first-phase implementation order
+  - clarifies what to build first and what to delay deliberately
+- `docs/geometry-3d-section-tessellation-validation-integration.md`
+  - section, tessellation, and body-validation are now connected on top of the current multi-layer 3D design set
+  - identifies plane-dominant polyhedron section plus tessellation plus validation as the best first algorithm chain
+- `docs/geometry-3d-module-package-layout.md`
+  - the future C++ file/module layout is now mapped from the design set
+  - fixes the intended split between public types, topology, mesh, services, results, builders, and internal helpers
 
 ## Current 3D Design State To Remember
 
-The 3D work is no longer only a high-level idea. It now has six design layers on disk:
+The 3D work is no longer only a high-level idea. It now has ten design layers on disk:
 - overall library direction
 - foundational value types
 - parametric curve/surface layer
 - polyhedron/BRep topology layer
 - triangle mesh / conversion layer
 - shared 3D services layer
+- validation / healing layer
+- first-phase implementation roadmap
+- section / tessellation / validation integration
+- module / package layout
 
 The key current 3D conclusions are:
 - 2D API convergence rules should continue to constrain 3D naming and layering
@@ -247,6 +263,6 @@ The key current 3D conclusions are:
 ## Recommended Next 3D Action
 
 When returning to 3D design, the most reliable next tasks are:
-- connect the new mesh and service-layer docs back into section / tessellation / body-validation planning
-- design body-validation and healing service docs
-- then define a first-phase implementation order across types, parametric geometry, topology, mesh, and services
+- choose one first implementation slice, most likely value types plus tolerance/context plus first-batch 3D services
+- then connect that code skeleton to `PlaneSurface`, `LineCurve3d`, and a minimal plane-dominant polyhedron section path
+- keep `section / tessellation / validation` sharing the same service and diagnostics infrastructure from the start
