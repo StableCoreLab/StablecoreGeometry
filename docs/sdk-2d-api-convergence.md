@@ -36,6 +36,30 @@
 - 不再继续增加与成员方法完全同构的自由函数入口。
 - 文档和测试示例优先展示成员方法用法。
 
+当前收口清单见：
+- `docs/api-member-free-function-checklist.md`
+
+当前执行结论：
+- 段相关基础行为以成员方法为主入口：
+  - `Length()`
+  - `Bounds()`
+  - `PointAt()`
+  - `PointAtLength()`
+- 下面这批自由函数应视为兼容层，而不是主推荐入口：
+  - `Length(segment)`
+  - `Bounds(segment)`
+  - `PointAt(segment, ...)`
+  - `PointAtLength(segment, ...)`
+- 下面这批自由函数继续作为主公开算法入口保留：
+  - `Distance(...)`
+  - `ProjectPointTo...(...)`
+  - `Intersect(...)`
+  - `Relate(...)`
+  - `Contains(...)`
+  - `Offset(...)`
+  - `Area(...)`
+  - `Centroid(...)`
+
 ## 3. Type Exposure
 
 值类型继续保持轻量、清晰、可复制。

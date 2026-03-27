@@ -35,6 +35,20 @@
 - `MultiPolyline2d::Count()`, `MultiPolygon2d::Count()`, and `PolygonTopology2d::Count()` are the current unified forms
 - rename-related compile fallout and capability-test fallout from this round were already repaired
 - `docs/sdk-type-design-review.md` remains the main API/design review baseline
+- member-method vs free-function boundary was written down explicitly in:
+  - `docs/sdk-2d-api-convergence.md`
+  - `docs/api-member-free-function-checklist.md`
+
+### 2D Design Doc Sync State
+
+- the core 2D design docs were rewritten/synchronized to current API state:
+  - `docs/segment-design.md`
+  - `docs/polyline-design.md`
+  - `docs/polygon-design.md`
+  - `docs/box-design.md`
+- current doc-sync progress is tracked in:
+  - `docs/design-doc-sync-tracker.md`
+- future sessions should update `docs/session-handoff.md` whenever a meaningful task is completed, not only at the end of a long batch
 
 ### Geometry / Algorithm State
 
@@ -108,6 +122,7 @@ Gap characterization already reflects this in:
 - `docs/delphi-geometry-parity.md`
 - `docs/sdk-type-design-review.md`
 - `docs/test-capability-coverage.md`
+- `docs/design-doc-sync-tracker.md`
 
 If working specifically on the current boolean gap, inspect these directly:
 - `src/sdk/GeometryBoolean.cpp`
@@ -173,16 +188,22 @@ Key 3D conclusions:
 
 ## Current 3D Code State
 
-The first real 3D code slice is present:
+The first real 3D code slice is present, and the missing Phase A foundational value-type headers were expanded further:
 - value-type headers:
   - `include/types/Point3.h`
   - `include/types/Vector3.h`
   - `include/types/Interval.h`
   - `include/types/Box3.h`
+  - `include/types/Direction3.h`
+  - `include/types/Matrix3.h`
+  - `include/types/Transform3.h`
   - `include/types/Plane.h`
   - `include/types/Line3.h`
+  - `include/types/Ray3.h`
+  - `include/types/LineSegment3.h`
+  - `include/types/Triangle3.h`
 - `include/sdk/GeometryTypes.h`
-  - exposes `Point3d`, `Vector3d`, `Box3d`, `Intervald`, `Plane`, `Line3d`
+  - now exposes `Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`, `Matrix3d`, `Transform3d`, `Plane`, `Line3d`, `Ray3d`, `LineSegment3d`, `Triangle3d`
   - adds `GeometryTolerance3d`, `GeometryContext3d`, `LineProjection3d`, `PlaneProjection3d`, `LinePlaneIntersection3d`, `PlanePlaneIntersection3d`
 - `include/sdk/GeometryProjection.h`
   - adds `ProjectPointToLine(...)` and `ProjectPointToPlane(...)`
@@ -202,6 +223,7 @@ The first real 3D code slice is present:
 Important current constraints:
 - no compile was run yet for the 3D slice
 - no tests were added yet
+- Phase A is much closer to complete at header/API level, but still not validated by compile/test feedback
 - `PlaneSurface`, `LineCurve3d`, and richer 3D object protocols are still design-only
 - this slice intentionally stops before section/tessellation/body code
 

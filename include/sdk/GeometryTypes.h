@@ -8,11 +8,17 @@
 #include "export/GeometryExport.h"
 #include "types/Box2.h"
 #include "types/Box3.h"
+#include "types/Direction3.h"
 #include "types/Interval.h"
 #include "types/Line3.h"
+#include "types/LineSegment3.h"
+#include "types/Matrix3.h"
 #include "types/Plane.h"
 #include "types/Point2.h"
 #include "types/Point3.h"
+#include "types/Ray3.h"
+#include "types/Transform3.h"
+#include "types/Triangle3.h"
 #include "types/Vector2.h"
 #include "types/Vector3.h"
 
@@ -20,11 +26,17 @@ namespace geometry::sdk
 {
 using geometry::Box2d;
 using geometry::Box3d;
+using geometry::Direction3d;
 using geometry::Intervald;
 using geometry::Line3d;
+using geometry::LineSegment3d;
+using geometry::Matrix3d;
 using geometry::Plane;
 using geometry::Point2d;
 using geometry::Point3d;
+using geometry::Ray3d;
+using geometry::Transform3d;
+using geometry::Triangle3d;
 using geometry::Vector2d;
 using geometry::Vector3d;
 

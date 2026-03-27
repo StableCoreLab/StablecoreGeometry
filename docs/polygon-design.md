@@ -1,368 +1,226 @@
-# Polygon2 开发设计文档
+# Polygon Design
 
-## 1. 文档目的
+## Purpose
 
-本文档用于定义几何库中二维多边形 `Polygon2<T>` 的开发方案。后续开发人员必须按本文档实现，不再按临时理解扩展。
+本文定义当前仓库中 2D polygon 体系的设计边界，作为后续维护、文档示例和 API 收口的参考基线。
 
-本文档覆盖以下内容：
+覆盖范围：
+- `Polygon2<T>` 值类型层
+- `sdk::Polygon2d`
+- `sdk::MultiPolygon2d`
+- 与 polygon 直接相关的 outer ring / hole、方向、面积和包围盒语义
 
-- `Polygon2<T>` 的类型定位
-- 与 `Polyline2<T>` 的关系
-- 外环与洞的表达规则
-- 方向规则
-- 有效性规则
-- 公共接口边界
-- 第一版实现范围
+不覆盖：
+- boolean / relation / topology / offset 的算法细节
+- line-network build 和 SearchPoly 风格恢复逻辑
 
-本文档是 `library-design.md`、`polyline-design.md`、`segment-design.md`、`box-design.md` 在区域表达层的实现依据。
+## Current Structure
 
-## 1.1 文档关系
+### 1. `types` 层
 
-本文档与其它设计文档的关系如下：
+文件：
+- `include/types/Polygon2.h`
 
-- `library-design.md` 负责定义多边形属于第二阶段的“轮廓和区域基础”能力
-- `polyline-design.md` 负责定义连续线的有序边段、闭合性、整体参数化和路径有效性，而 `Polygon2<T>` 必须建立在闭合连续线之上
-- `segment-design.md` 负责定义边段语义、边段方向、长度和包围盒语义，多边形边界最终仍由边段构成
-- `box-design.md` 负责定义 `Box2<T>` 的包围盒语义，而 `Polygon2<T>::GetBoundingBox()` 必须严格遵守这套语义
+职责：
+- 表达由一个 outer ring 和零个或多个 hole 组成的 2D 区域对象
+- 提供面积、周长、质心、包围盒和基本有效性规则
 
-执行要求：
+### 2. `sdk` 层
 
-- 多边形文档不得绕开 `Polyline2<T>` 直接发明另一套边界对象
-- 多边形的边界方向规则不得脱离边段方向和闭合路径规则单独演化
-- 若未来修改连续线、边段或包围盒规则，必须同步检查多边形文档
+文件：
+- `include/sdk/Polygon2d.h`
+- `include/sdk/MultiPolygon2d.h`
 
-## 2. 设计定位
+职责：
+- 提供 SDK 暴露面
+- 与布尔、偏移、拓扑、关系、构面等算法模块协同
+- 为上层 workflow 提供稳定公共对象
 
-`Polygon2<T>` 表示二维区域对象，而不是单纯的闭合路径对象。
+## Core Types
 
-它的核心语义是：
+### `Polygon2<T>`
 
-- 有边界
-- 有内部
-- 可以表达一个外环
-- 可以表达若干洞
+`types` 层当前核心接口：
+- `OuterRing()`
+- `HoleCount()`
+- `HoleAt(index)`
+- `Area()`
+- `Perimeter()`
+- `Centroid()`
+- `Bounds()`
+- `IsValid()`
+
+设计结论：
+- polygon 是区域对象，不是简单的闭合 polyline
+- outer ring 和 hole 都是结构上显式存在的组成部分
+
+### `sdk::Polygon2d`
+
+SDK 层当前公开接口：
+- `IsValid()`
+- `PointCount()`
+- `SegmentCount()`
+- `HoleCount()`
+- `OuterRing()`
+- `HoleAt(index)`
+- `Bounds()`
+- `DebugString()`
+
+说明：
+- SDK 层更偏工程对象使用面
+- 面积、质心、布尔、关系等更高层行为通过 shape ops / boolean / topology 等自由函数模块提供
+
+### `sdk::MultiPolygon2d`
+
+当前公开接口：
+- `Count()`
+- `IsEmpty()`
+- `IsValid()`
+- `Add(...)`
+- `PolygonAt(index)`
+- `PointCount()`
+- `SegmentCount()`
+- `HoleCount()`
+- `Bounds()`
+- `Data()`
+
+设计结论：
+- 聚合容器统一使用 `Count()`
+- 不再恢复 `PolygonCount()` 这类重复命名
+
+## Naming Rules
+
+当前 polygon 体系统一采用短名风格：
+- `OuterRing()`
+- `HoleCount()`
+- `HoleAt()`
+- `Bounds()`
+- `Count()`
+
+结论：
+- 不再使用新的 `GetXxx` 风格
+- 历史文档若仍写 `GetOuterRing` / `GetHoleCount` / `GetHole` / `GetBoundingBox`，应理解为旧措辞
+
+## Structural Rules
+
+### Outer Ring
+
+outer ring 是 polygon 的主边界。
+
+要求：
+- outer ring 必须有效
+- outer ring 必须闭合
+- outer ring 的有向面积必须为正
+
+当前设计结论：
+- outer ring 统一采用 counterclockwise 方向
+
+### Holes
+
+hole 是 polygon 内部扣除区域。
+
+要求：
+- 每个 hole 必须有效
+- 每个 hole 必须闭合
+- hole 的有向面积必须为负
+
+当前设计结论：
+- hole 统一采用 clockwise 方向
+
+### Region Semantics
+
+polygon 的几何语义是：
+- outer ring 内部算区域
+- holes 内部从区域中扣除
+
+因此 polygon 的面积、周长、质心和关系判断，都不应退化成“只看外环”的简化对象模型。
+
+## Area / Centroid / Bounds Rules
+
+### `Area()`
+
+当前 `types` 层 `Area()` 规则：
+- outer ring 贡献正面积
+- holes 贡献负面积
+- 最终返回绝对值面积
+
+### `Centroid()`
+
+当前 `types` 层 `Centroid()` 规则：
+- 基于 outer ring 和 holes 的综合面积矩
+- 不是只对 outer ring 做简单平均
+
+### `Bounds()`
+
+`Bounds()` 统一表示 axis-aligned bounding box。
+
+要求：
+- 返回整个 polygon 的最小轴对齐包围盒
+- holes 仍属于 polygon 几何范围的一部分，因此 `Bounds()` 需要覆盖 outer 和 holes 的坐标范围
+- 语义与 `Box2<T>` 保持一致
+
+## Validity Rules
+
+当前 `types` 层最小有效性条件：
+- outer ring 有效且闭合
+- outer ring 有正有向面积
+- 每个 hole 有效且闭合
+- 每个 hole 有负有向面积
+
+说明：
+- 这里的 `IsValid()` 主要收口方向和结构层约束
+- 更强的几何约束，例如 hole 与 outer 的实际包含关系、自交、复杂拓扑一致性等，可以由更高层验证模块继续承担
+
+## Member vs Free Function Boundary
+
+polygon 相关边界沿用当前 2D 收口规则。
+
+### 对象自身天然结构行为
+
+保留为成员或对象方法：
+- `OuterRing()`
+- `HoleCount()`
+- `HoleAt()`
+- `Bounds()`
+- `IsValid()`
+
+### 统一 shape / algorithm 入口
+
+保留为自由函数：
+- `Area(const Polygon2d&)`
+- `Centroid(const Polygon2d&)`
+- `Contains(...)`
+- `Relate(...)`
+- `Intersect(...)`
+- `Union(...)`
+- `Difference(...)`
+- `Offset(...)`
+
+当前结论：
+- polygon 的区域语义强，很多高层能力继续保留为自由函数更合理
+- 但结构性读取接口应稳定留在对象自身，不再扩散 `GetXxx` 风格重复入口
+
+## SDK Layer Notes
+
+SDK 层 `Polygon2d` 当前使用 PImpl。
 
 这意味着：
-
-- `Polygon2<T>` 不是普通边段集合
-- `Polygon2<T>` 也不是普通闭合路径
-- 它比闭合 `Polyline2<T>` 多了一层“区域语义”
-
-## 3. 为什么 Polygon2 必须建立在闭合连续线之上
-
-多边形的边界本质上是闭合路径。
-
-如果不先把连续线定稳，直接让 `Polygon2<T>` 依赖边段数组，后续会立刻混乱的内容包括：
-
-- 边段顺序
-- 首尾闭合
-- 路径方向
-- 累计长度参数
-- 顶点访问
-- 包围盒合并
-
-这些能力已经在 `Polyline2<T>` 层收敛过一次，因此多边形必须复用它，而不是重新发明。
-
-执行结论：
-
-- `Polygon2<T>` 必须建立在有效闭合 `Polyline2<T>` 之上
-
-## 4. 总体设计结论
-
-第一版统一按以下命名实现：
-
-```cpp
-template <typename T>
-class Polygon2;
-
-using Polygon2d = Polygon2<double>;
-using Polygon2i = Polygon2<int>;
-```
-
-执行结论：
-
-- `Polygon2<T>` 是 `types` 层区域对象
-- 第一版支持一个外环和零个或多个洞
-- 每个环都必须是闭合连续线
-
-## 5. 多边形组成规则
-
-### 5.1 基础组成单元
-
-`Polygon2<T>` 的边界统一由闭合 `Polyline2<T>` 组成。
-
-建议分为：
-
-- 一个外环
-- 零个或多个洞环
-
-### 5.2 外环
-
-外环负责定义区域外边界。
-
-执行要求：
-
-- 必须存在且唯一
-- 必须是有效闭合路径
-
-### 5.3 洞环
-
-洞环负责定义区域内部的空洞。
-
-执行要求：
-
-- 可以为零个或多个
-- 每个洞环都必须是有效闭合路径
-- 洞环不得再包含洞的层级结构
-
-第一版不支持嵌套层级区域树。
-
-## 6. 环方向规则
-
-### 6.1 为什么方向必须尽早定下来
-
-区域对象一旦引入：
-
-- 面积符号
-- 外环/洞区分
-- 偏移方向
-- 轮廓布尔预备能力
-
-都会依赖统一方向规则。
-
-### 6.2 第一版统一方向约定
-
-第一版建议统一采用：
-
-- 外环：逆时针
-- 洞环：顺时针
-
-### 6.3 方向规则的地位
-
-方向规则是多边形有效性的组成部分，而不是单纯的风格约定。
-
-也就是说：
-
-- 外环方向错误，应视为无效输入，或需要显式规范化流程处理
-- 洞环方向错误，应视为无效输入，或需要显式规范化流程处理
-
-当前版本执行结论：
-
-- `Polygon2<T>` 本体不偷偷修正方向
-- 若未来要做自动规范化，必须单独设计显式接口
-
-## 7. 有效性规则
-
-`Polygon2<T>` 必须支持 `IsValid()`。
-
-### 7.1 必须满足的基础条件
-
-以下条件必须同时满足：
-
-- 外环存在
-- 外环是有效闭合路径
-- 所有洞环都是有效闭合路径
-- 外环方向正确
-- 洞环方向正确
-
-### 7.2 第一版建议纳入有效性约束的几何条件
-
-以下规则建议在第一版就纳入多边形有效性：
-
-- 外环不能自交
-- 洞环不能自交
-- 洞环必须位于外环内部
-- 洞环之间不能相交或重叠
-- 洞环不能与外环相交
-
-### 7.3 第一版是否立即强制完整拓扑校验
-
-这里需要工程克制。
-
-虽然上述规则是多边形语义的一部分，但第一版不一定要把所有复杂拓扑校验都塞进 `IsValid()` 内部。
-
-当前版本执行结论：
-
-- `Polygon2<T>::IsValid()` 第一版至少要检查结构级约束和方向级约束
-- 复杂拓扑校验是否内置到 `IsValid()`，后续应单独补一份区域校验文档再彻底收口
-
-也就是说，第一版先把“区域对象的结构边界”定清，而不强迫立刻实现全部重拓扑校验。
-
-## 8. Polygon2 负责什么
-
-`Polygon2<T>` 负责：
-
-- 保存外环和洞环
-- 表达区域边界结构
-- 提供整体包围盒
-- 提供整体面积、周长和质心的入口语义
-- 对外暴露区域对象身份
-
-## 9. Polygon2 不负责什么
-
-`Polygon2<T>` 不负责：
-
-- 布尔运算
-- 自动修复方向
-- 自动修复自交
-- 自动去噪与清洗
-- 偏移算法
-- 业务构件语义
-
-## 10. 公共接口
-
-`Polygon2<T>` 第一版必须至少提供以下接口。
-
-### 10.1 环访问接口
-
-- `GetOuterRing()`
-- `GetHoleCount()`
-- `GetHole(index)`
-
-### 10.2 测量接口
-
-- `Area()`
-- `Perimeter()`
-- `Centroid()`
-
-### 10.3 包围盒接口
-
-- `GetBoundingBox()`
-
-### 10.4 有效性接口
-
-- `IsValid()`
-
-## 11. 面积与周长语义
-
-### 11.1 面积
-
-`Area()` 的语义必须是区域净面积。
-
-也就是说：
-
-- 外环面积计入
-- 洞环面积扣除
-
-### 11.2 周长
-
-`Perimeter()` 的语义必须是所有边界长度之和。
-
-也就是说：
-
-- 外环边界长度计入
-- 洞环边界长度也计入
-
-### 11.3 质心
-
-`Centroid()` 的语义必须是区域质心，而不是外环路径顶点平均值。
-
-第一版若暂时不实现，可先把接口语义定清。
-
-## 12. 包围盒规则
-
-`Polygon2<T>::GetBoundingBox()` 必须返回：
-
-- 外环与所有洞环边界共同覆盖的最小轴对齐有效包围盒
-
-注意：
-
-- 洞不会扩大外接包围盒，但实现上允许统一按所有环合并求得
-- 返回语义必须遵守 `box-design.md`
-
-## 13. 与连续线的边界
-
-### 13.1 闭合连续线不等于多边形
-
-即使一个 `Polyline2<T>` 是闭合且有效，也不自动成为多边形。
-
-因为多边形还需要：
-
-- 区域语义
-- 外环/洞结构
-- 方向规则
-- 面积语义
-
-### 13.2 多边形必须依赖闭合连续线
-
-当前执行结论：
-
-- `Polygon2<T>` 的每个环必须是闭合 `Polyline2<T>`
-- 不允许直接用边段数组作为 `Polygon2<T>` 的主边界存储
-
-## 14. 第一版不做的内容
-
-第一版 `Polygon2<T>` 不做以下内容：
-
-- 布尔运算
-- 自交修复
-- 自动方向规范化
-- 嵌套区域树
-- 多重区域集合
-- 区域裁剪
-- 偏移多边形
-
-## 15. 第一版实现清单
-
-后续开发必须至少完成以下内容。
-
-### 15.1 类型
-
-- `Polygon2<T>`
-- `Polygon2d`
-- `Polygon2i`
-
-### 15.2 基础数据
-
-- 一个外环
-- 零个或多个洞环
-
-### 15.3 基础接口
-
-- `GetOuterRing()`
-- `GetHoleCount()`
-- `GetHole(index)`
-- `Area()`
-- `Perimeter()`
-- `Centroid()`
-- `GetBoundingBox()`
-- `IsValid()`
-
-### 15.4 测试清单
-
-至少覆盖：
-
-- 只有外环的简单多边形
-- 带单个洞的多边形
-- 外环方向错误
-- 洞环方向错误
-- 外环非闭合
-- 洞环非闭合
-- 面积与周长语义
-- 包围盒合并
-
-## 16. 开发验收标准
-
-后续实现完成后，必须满足以下标准：
-
-- `Polygon2<T>` 明确表示区域对象，而不是闭合路径别名
-- 多边形建立在闭合连续线之上
-- 外环与洞环结构清楚
-- 方向规则清楚
-- 面积、周长、包围盒语义清楚
-- 第一版范围不混入布尔和清洗能力
-
-## 17. 最终执行结论
-
-后续 `Polygon2<T>` 开发必须按以下原则执行：
-
-- `Polygon2<T>` 表示二维区域对象
-- 以一个外环和零个或多个洞环表达边界
-- 所有环都必须是闭合 `Polyline2<T>`
-- 外环与洞环方向必须统一约定
-- 闭合连续线不自动等于多边形
-- 面积语义是净面积，周长语义是所有边界总长
-- 包围盒语义由 `box-design.md` 统一约束
-- 多边形设计建立在连续线层之上，不得绕过它
-
-本文档即为 `Polygon2<T>` 的实现依据。
+- 它与 `LineSegment2d` / `ArcSegment2d` 这类透明值类型不完全同路
+- 这仍是当前 SDK 设计里的一个特例
+
+当前判断：
+- 短期可以接受
+- 长期仍应和 `Polyline2d` 一起评估是否继续保留为 PImpl 特例
+
+## Bottom Line
+
+当前 2D polygon 体系的主线已经稳定：
+- outer / hole 结构明确
+- 方向约束明确
+- 短名风格明确
+- 区域对象和路径对象边界明确
+
+后续重点不应再放在命名改动，而应放在：
+- 保持结构访问接口稳定
+- 让高层区域算法继续收敛在自由函数模块中
+- 避免文档和示例继续混用旧接口名或模糊 outer / hole 语义
