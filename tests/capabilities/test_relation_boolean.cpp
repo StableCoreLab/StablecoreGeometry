@@ -1,4 +1,4 @@
-﻿#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 #include <cassert>
 #include <vector>
 
@@ -112,6 +112,18 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(overlapStripA, overlapStripB)), 12.0, 1e-9);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(overlapStripA, overlapStripB)), 4.0, 1e-9);
 
+    const Polygon2d overlapFamilyA(
+        Polyline2d(
+            {Point2d{0.0, 0.0}, Point2d{8.0, 0.0}, Point2d{8.0, 2.0}, Point2d{5.0, 2.0}, Point2d{5.0, 4.0}, Point2d{0.0, 4.0}},
+            PolylineClosure::Closed));
+    const Polygon2d overlapFamilyB(
+        Polyline2d(
+            {Point2d{3.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 3.0}, Point2d{6.0, 3.0}, Point2d{6.0, 5.0}, Point2d{3.0, 5.0}},
+            PolylineClosure::Closed));
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(overlapFamilyA, overlapFamilyB)), 14.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(overlapFamilyA, overlapFamilyB)), 39.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(overlapFamilyA, overlapFamilyB)), 12.0, 1e-9);
+
     const auto equalIntersection = geometry::sdk::Intersect(square, square);
     assert(equalIntersection.Count() == 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(equalIntersection), 16.0, 1e-9);
@@ -135,5 +147,6 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
     assert(touchingDifference.Count() == 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(touchingDifference), 16.0, 1e-9);
 }
+
 
 

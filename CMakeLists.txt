@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 
 project(stablecore_geometry LANGUAGES CXX)
 
+include(CTest)
+include(FetchContent)
+
 option(STABLECORE_GEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
 
 add_library(stablecore_geometry
@@ -45,8 +48,22 @@ if (BUILD_SHARED_LIBS)
     target_compile_definitions(stablecore_geometry PRIVATE GEOMETRY_BUILD_DLL)
 endif()
 
+option(STABLECORE_STORAGE_BUILD_TESTS "Build tests" ON)
+
 if (STABLECORE_GEOMETRY_BUILD_TESTS)
-    include(CTest)
-    enable_testing()
+enable_testing()
+
+    find_package(GTest CONFIG QUIET)
+
+    if (NOT GTest_FOUND)
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+        FetchContent_Declare(
+            googletest
+            SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/googletest-1.17.0"
+        )
+
+        FetchContent_MakeAvailable(googletest)
+    endif()
     add_subdirectory(tests)
 endif()

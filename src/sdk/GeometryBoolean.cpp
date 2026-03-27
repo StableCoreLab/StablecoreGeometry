@@ -521,6 +521,22 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
     }
 
     const Polyline2d outer = polygon.OuterRing();
+    double minX = outer.PointAt(0).x;
+    double minY = outer.PointAt(0).y;
+    double maxX = minX;
+    double maxY = minY;
+    for (std::size_t i = 1; i < outer.PointCount(); ++i)
+    {
+        const Point2d point = outer.PointAt(i);
+        minX = std::min(minX, point.x);
+        minY = std::min(minY, point.y);
+        maxX = std::max(maxX, point.x);
+        maxY = std::max(maxY, point.y);
+    }
+    const double dx = maxX - minX;
+    const double dy = maxY - minY;
+    const double polygonScale = std::sqrt(dx * dx + dy * dy);
+    const double maxStep = std::max(128.0 * eps, 0.1 * polygonScale);
     for (std::size_t i = 0; i < outer.PointCount(); ++i)
     {
         const Point2d start = outer.PointAt(i);
@@ -534,11 +550,57 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
 
         const Point2d midpoint{0.5 * (start.x + end.x), 0.5 * (start.y + end.y)};
         const Vector2d inward{-edge.y / length, edge.x / length};
-        const double step = std::max(32.0 * eps, std::min(0.25 * length, 1e-3));
+        const double step = std::max(32.0 * eps, std::min(0.25 * length, maxStep));
         const Point2d candidate = midpoint + inward * step;
         if (LocatePoint(candidate, polygon, eps) == PointContainment2d::Inside)
         {
             return candidate;
+        }
+    }
+
+    for (std::size_t i = 0; i < outer.PointCount(); ++i)
+    {
+        const Point2d prev = outer.PointAt((i + outer.PointCount() - 1) % outer.PointCount());
+        const Point2d current = outer.PointAt(i);
+        const Point2d next = outer.PointAt((i + 1) % outer.PointCount());
+        const Vector2d incoming = current - prev;
+        const Vector2d outgoing = next - current;
+        const double incomingLength = incoming.Length();
+        const double outgoingLength = outgoing.Length();
+        if (incomingLength <= eps || outgoingLength <= eps)
+        {
+            continue;
+        }
+
+        if (Cross(incoming, outgoing) <= eps)
+        {
+            continue;
+        }
+
+        const Vector2d incomingNormal{-incoming.y / incomingLength, incoming.x / incomingLength};
+        const Vector2d outgoingNormal{-outgoing.y / outgoingLength, outgoing.x / outgoingLength};
+        Vector2d bisector = incomingNormal + outgoingNormal;
+        const double bisectorLength = bisector.Length();
+        if (bisectorLength <= eps)
+        {
+            continue;
+        }
+
+        bisector = bisector / bisectorLength;
+        const double localScale = std::min(incomingLength, outgoingLength);
+        const double step = std::max(32.0 * eps, std::min(0.2 * localScale, maxStep));
+        const Point2d candidate = current + bisector * step;
+        if (LocatePoint(candidate, polygon, eps) == PointContainment2d::Inside)
+        {
+            return candidate;
+        }
+
+        const Point2d triangleCentroid{
+            (prev.x + current.x + next.x) / 3.0,
+            (prev.y + current.y + next.y) / 3.0};
+        if (LocatePoint(triangleCentroid, polygon, eps) == PointContainment2d::Inside)
+        {
+            return triangleCentroid;
         }
     }
 
@@ -731,3 +793,4 @@ MultiPolygon2d Difference(const Polygon2d& first, const Polygon2d& second, doubl
     return BooleanCompose(first, second, BooleanOp::Difference, eps);
 }
 } // namespace geometry::sdk
+
