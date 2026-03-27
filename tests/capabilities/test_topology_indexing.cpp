@@ -1,3 +1,4 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <memory>
 
@@ -5,6 +6,7 @@
 #include "sdk/GeometryKDTree.h"
 #include "sdk/GeometrySegmentSearch.h"
 #include "sdk/GeometryTopology.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::ArcSegment2d;
@@ -20,7 +22,7 @@ using geometry::sdk::PolygonContainment2d;
 using geometry::sdk::Polyline2d;
 using geometry::sdk::PolylineClosure;
 
-int main()
+TEST(TopologyIndexingTest, CoversCurrentCapabilities)
 {
     GeometryBoxTree2d boxTree;
     boxTree.Add(1, Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{2.0, 2.0}));
@@ -79,6 +81,6 @@ int main()
             {Point2d{4.0, 4.0}, Point2d{6.0, 4.0}, Point2d{6.0, 6.0}, Point2d{4.0, 6.0}},
             PolylineClosure::Closed));
     assert(!geometry::sdk::Contains(holePolygon, insideHole));
-
-    return 0;
 }
+
+

@@ -1,9 +1,11 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 #include <memory>
 #include <vector>
 
 #include "sdk/GeometryOffset.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::ArcSegment2d;
@@ -14,7 +16,7 @@ using geometry::sdk::Polygon2d;
 using geometry::sdk::Polyline2d;
 using geometry::sdk::PolylineClosure;
 
-int main()
+TEST(OffsetTest, CoversCurrentCapabilities)
 {
     const LineSegment2d line(Point2d{0.0, 0.0}, Point2d{4.0, 0.0});
     const LineSegment2d shiftedLine = geometry::sdk::Offset(line, 2.0);
@@ -85,6 +87,6 @@ int main()
             PolylineClosure::Closed));
     const MultiPolygon2d splitInset = geometry::sdk::Offset(MultiPolygon2d{bridgePolygon}, -0.45);
     assert(splitInset.Count() == 2);
-
-    return 0;
 }
+
+

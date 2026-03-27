@@ -1,3 +1,4 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <vector>
 
@@ -5,6 +6,7 @@
 #include "sdk/GeometryRelation.h"
 #include "sdk/GeometryShapeOps.h"
 #include "sdk/GeometryValidation.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::LineSegment2d;
@@ -28,7 +30,7 @@ double TotalArea(const geometry::sdk::MultiPolygon2d& polygons)
 }
 }
 
-int main()
+TEST(RelationBooleanTest, CoversCurrentCapabilities)
 {
     const LineSegment2d horizontal(Point2d{0.0, 0.0}, Point2d{4.0, 0.0});
     assert(LocatePoint(Point2d{2.0, 0.0}, horizontal) == PointContainment2d::OnBoundary);
@@ -132,6 +134,6 @@ int main()
     const auto touchingDifference = geometry::sdk::Difference(square, edgeTouch);
     assert(touchingDifference.Count() == 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(touchingDifference), 16.0, 1e-9);
-
-    return 0;
 }
+
+

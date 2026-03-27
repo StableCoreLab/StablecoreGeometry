@@ -1,11 +1,13 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <numbers>
 #include <string>
 
 #include "serialize/GeometryText.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
-int main()
+TEST(SerializeTest, CoversCurrentCapabilities)
 {
     using geometry::sdk::Box2d;
     using geometry::sdk::Point2d;
@@ -90,6 +92,6 @@ int main()
     assert(!FromText("ArcSegment2d 0 0 1 0 0", parsedArc));
     assert(!FromText("Polyline2d open 2 0 0 1", parsedPolyline));
     assert(!FromText("Polygon2d Polyline2d open 2 0 0 1 0 0", parsedPolygon));
-
-    return 0;
 }
+
+

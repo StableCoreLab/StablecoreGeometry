@@ -1,7 +1,9 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 
 #include "types/Box2.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::Box2d;
@@ -9,7 +11,7 @@ using geometry::Box2i;
 using geometry::Point2d;
 using geometry::Point2i;
 
-int main()
+TEST(BoxTest, CoversCurrentCapabilities)
 {
     Box2i emptyBox;
     assert(!emptyBox.IsValid());
@@ -70,6 +72,6 @@ int main()
     assert(!(sameA != sameB));
     assert(sameA != different);
     GEOMETRY_TEST_ASSERT_BOX_NEAR(sameA, sameB, 0.0);
-
-    return 0;
 }
+
+

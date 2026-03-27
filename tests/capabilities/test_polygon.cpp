@@ -1,3 +1,4 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -7,6 +8,7 @@
 #include "types/ArcSegment2.h"
 #include "types/LineSegment2.h"
 #include "types/Polygon2.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::Box2d;
@@ -33,7 +35,7 @@ Polyline2d MakeClosedRing(const std::vector<std::pair<Point2d, Point2d>>& edges)
 }
 }
 
-int main()
+TEST(PolygonTest, CoversCurrentCapabilities)
 {
     Polyline2d outerRing = MakeClosedRing({
         {Point2d(0.0, 0.0), Point2d(4.0, 0.0)},
@@ -91,6 +93,6 @@ int main()
         quarterDisk.Centroid(),
         Point2d(4.0 / (3.0 * std::acos(-1.0)), 4.0 / (3.0 * std::acos(-1.0))),
         1e-12);
-
-    return 0;
 }
+
+

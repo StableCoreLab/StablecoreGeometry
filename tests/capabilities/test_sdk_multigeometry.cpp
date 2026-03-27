@@ -1,3 +1,4 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -25,7 +26,7 @@ namespace
 constexpr double kPi = 3.141592653589793238462643383279502884;
 }
 
-int main()
+TEST(SdkMultigeometryTest, CoversCurrentCapabilities)
 {
     const Polyline2d outerRing(
         {Point2d{0.0, 0.0}, Point2d{6.0, 0.0}, Point2d{6.0, 6.0}, Point2d{0.0, 6.0}},
@@ -96,6 +97,6 @@ int main()
     const auto nearestSegment = segmentSearch.Nearest(Point2d{2.0, 1.0});
     assert(nearestSegment.has_value());
     assert(nearestSegment->id == lineId);
-
-    return 0;
 }
+
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cmath>
 #include <cstdlib>
@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <stdexcept>
 #include <vector>
 
 #include "sdk/Polygon2d.h"
@@ -119,10 +120,10 @@ template <typename T>
     int line,
     std::string_view message)
 {
-    std::cerr << FormatLocation(file, line) << ": " << kind << ": " << message << '\n';
-    std::abort();
+    std::ostringstream out;
+    out << FormatLocation(file, line) << ": " << kind << ": " << message;
+    throw std::runtime_error(out.str());
 }
-
 template <typename T>
 [[nodiscard]] bool NearlyEqual(T lhs, T rhs, double eps)
 {
@@ -512,3 +513,4 @@ inline void AssertPolygonNear(
 
 #define GEOMETRY_TEST_ASSERT_POLYGON_NEAR(actual, expected, eps) \
     ::geometry::test::AssertPolygonNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+

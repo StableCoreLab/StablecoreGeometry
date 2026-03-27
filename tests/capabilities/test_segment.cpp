@@ -1,3 +1,4 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 #include <concepts>
@@ -5,6 +6,7 @@
 
 #include "types/ArcSegment2.h"
 #include "types/LineSegment2.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::ArcDirection;
@@ -21,7 +23,7 @@ namespace
 constexpr double kPi = 3.141592653589793238462643383279502884;
 }
 
-int main()
+TEST(SegmentTest, CoversCurrentCapabilities)
 {
     static_assert(std::is_abstract_v<Segment2d>);
     static_assert(!std::is_abstract_v<LineSegment2d>);
@@ -109,6 +111,6 @@ int main()
         ArcDirection::CounterClockwise);
 
     assert(!invalidArc.IsValid());
-
-    return 0;
 }
+
+

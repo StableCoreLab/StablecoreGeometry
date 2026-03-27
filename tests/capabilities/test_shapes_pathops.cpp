@@ -1,6 +1,8 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 
 #include "sdk/Geometry.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::BuildMultiPolygonByLines;
@@ -16,7 +18,7 @@ using geometry::sdk::PolylineClosure;
 using geometry::sdk::Rectangle2d;
 using geometry::sdk::SubPolyline;
 
-int main()
+TEST(ShapesPathopsTest, CoversCurrentCapabilities)
 {
     const Circle2d circle(Point2d{1.0, 2.0}, 3.0);
     assert(circle.IsValid());
@@ -129,6 +131,6 @@ int main()
     assert(ambiguousFake.Count() == 1);
     assert(ambiguousFake[0].HoleCount() == 0);
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(ambiguousFake[0]), 16.0, 1e-6);
-
-    return 0;
 }
+
+

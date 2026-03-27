@@ -1,10 +1,12 @@
-#include <array>
+﻿#include <array>
+#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 #include <memory>
 #include <numbers>
 
 #include "sdk/Geometry.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::ArcDirection;
@@ -29,7 +31,7 @@ using geometry::sdk::SegmentTrim2d;
 using geometry::sdk::SnapResult2d;
 using geometry::sdk::Vector2d;
 
-int main()
+TEST(SdkAlgorithmsTest, CoversCurrentCapabilities)
 {
     const LineSegment2d line(Point2d{0.0, 0.0}, Point2d{4.0, 0.0});
     const ArcSegment2d arc(Point2d{0.0, 0.0}, 2.0, 0.0, std::numbers::pi_v<double> * 0.5);
@@ -121,6 +123,6 @@ int main()
     const std::array<const Segment2d*, 2> snapSegments{lineClone.get(), arcClone.get()};
     const SnapResult2d snap = geometry::sdk::SnapPointToSegments(Point2d{1.0, 1.0}, snapSegments, 2.0);
     assert(snap.snapped);
-
-    return 0;
 }
+
+

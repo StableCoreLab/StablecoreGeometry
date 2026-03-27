@@ -1,9 +1,11 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 #include <memory>
 #include <numbers>
 
 #include "sdk/Geometry.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::Contains;
@@ -20,7 +22,7 @@ using geometry::sdk::PolylineClosure;
 using geometry::sdk::Segment2d;
 using geometry::sdk::Vector2d;
 
-int main()
+TEST(SdkTest, CoversCurrentCapabilities)
 {
     const Point2d a = Point2d::FromXY(0.0, 0.0);
     const Point2d b = Point2d::FromXY(3.0, 4.0);
@@ -135,6 +137,6 @@ int main()
         Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{4.0, 4.0}),
         1e-12);
     assert(polygon.DebugString().find("Polygon2d{holeCount=1") == 0);
-
-    return 0;
 }
+
+

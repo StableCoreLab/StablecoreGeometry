@@ -1,3 +1,4 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <concepts>
 #include <cmath>
@@ -6,6 +7,7 @@
 #include "types/ArcSegment2.h"
 #include "types/Box2.h"
 #include "types/LineSegment2.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::ArcDirection;
@@ -45,7 +47,7 @@ namespace
 constexpr double kPi = 3.141592653589793238462643383279502884;
 }
 
-int main()
+TEST(PointVectorTest, CoversCurrentCapabilities)
 {
     static_assert(std::is_abstract_v<Segment2d>);
     static_assert(!std::same_as<Point2d, Vector2d>);
@@ -155,6 +157,6 @@ int main()
     assert(arcBox.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcBox.GetMinPoint(), Point2d(0.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcBox.GetMaxPoint(), Point2d(1.0, 1.0), 1e-12);
-
-    return 0;
 }
+
+

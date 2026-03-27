@@ -1,9 +1,11 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometrySampling.h"
 #include "sdk/GeometryTransform.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::ArcSegment2d;
@@ -15,7 +17,7 @@ using geometry::sdk::Polyline2d;
 using geometry::sdk::PolylineClosure;
 using geometry::sdk::Vector2d;
 
-int main()
+TEST(TransformSamplingTest, CoversCurrentCapabilities)
 {
     const LineSegment2d line(Point2d{0.0, 0.0}, Point2d{2.0, 0.0});
     const auto moved = geometry::sdk::Translate(line, Vector2d{1.0, 2.0});
@@ -51,6 +53,6 @@ int main()
             PolylineClosure::Closed));
     const auto movedPolygon = geometry::sdk::Translate(polygon, Vector2d{1.0, 0.0});
     GEOMETRY_TEST_ASSERT_POINT_NEAR(movedPolygon.OuterRing().PointAt(0), (Point2d{1.0, 0.0}), 1e-12);
-
-    return 0;
 }
+
+

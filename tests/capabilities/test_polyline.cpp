@@ -1,3 +1,4 @@
+﻿#include <gtest/gtest.h>
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -6,6 +7,7 @@
 #include "types/ArcSegment2.h"
 #include "types/LineSegment2.h"
 #include "types/Polyline2.h"
+#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::ArcDirection;
@@ -22,7 +24,7 @@ namespace
 constexpr double kPi = 3.141592653589793238462643383279502884;
 }
 
-int main()
+TEST(PolylineTest, CoversCurrentCapabilities)
 {
     Polyline2d emptyPath;
     assert(!emptyPath.IsValid());
@@ -87,6 +89,6 @@ int main()
     assert(mixedBox.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(mixedBox.GetMinPoint(), Point2d(0.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(mixedBox.GetMaxPoint(), Point2d(2.0, 1.0), 1e-12);
-
-    return 0;
 }
+
+
