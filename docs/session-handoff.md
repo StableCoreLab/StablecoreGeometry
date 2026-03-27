@@ -1,39 +1,44 @@
 # Session Handoff
 
-## Current Date Context
+## Current Context
 
 - Workspace: `D:\code\stablecore-geometry`
-- Handoff written on: `2026-03-27`
-- User clarified: `python` is now installed and available for future sessions.
-- User also clarified: future sessions should focus on writing code and documents only; compile/run/build will be done manually by the user.
-- User said: do not worry about `gtest` environment provisioning; they will modify CMake/build side manually as needed.
+- Handoff updated on: `2026-03-27`
+- `python` is available
+- future sessions should focus on writing code and documents only
+- compile/run/build should be done manually by the user
+- do not worry about `gtest` environment provisioning; the user will adjust CMake/build side as needed
 
-## High-Level State
+## Current Focus Order
 
-This repository has been worked on for Delphi / GGP parity around polygon-related geometry algorithms.
-
-Known current focus order remains:
 1. boolean degeneracy / overlap robustness
 2. offset recovery in harder cases
 3. SearchPoly-style branch scoring / fake-edge ranking
 4. richer relation hierarchy
 5. polygon cut with holes
 
-## What Was Confirmed Earlier In This Session
+## Current 2D State
 
-A design review was completed and written to:
-- `docs/sdk-type-design-review.md`
+### Build / Test State
 
-That review concluded the main API/design concerns are:
-- public naming style is not fully unified
-- segment member methods and free functions overlap too much
-- `Polyline2d` / `Polygon2d` use PImpl while sibling value types do not
-- mutable `Data()` exposure is too loose on indexing classes
-- `Geometry*` module boundaries have some overlap
+- `tests/` gtest migration is real current state
+- current test tree includes:
+  - `tests/capabilities`
+  - `tests/gaps`
+  - `tests/support`
+- `tests/CMakeLists.txt` already wires capability and gap gtest executables
+- `stablecore_geometry_capabilities_gtest` has passed after the latest repair pass
 
-## Geometry / Algorithm Status To Remember
+### API / Naming State
 
-Already implemented before this handoff:
+- old `GetXxx`-style 2D API call sites have been cleared from code
+- `MultiPolyline2d::Count()`, `MultiPolygon2d::Count()`, and `PolygonTopology2d::Count()` are the current unified forms
+- rename-related compile fallout and capability-test fallout from this round were already repaired
+- `docs/sdk-type-design-review.md` remains the main API/design review baseline
+
+### Geometry / Algorithm State
+
+Already implemented:
 - `BuildMultiPolygonByLines`
   - open line-network polygon build
   - intersection splitting
@@ -42,6 +47,10 @@ Already implemented before this handoff:
   - simple projection-style auto-extend
   - dangling branch pruning
   - outer / hole nesting merge
+  - synthetic/fake edge tracking
+  - candidate loop area threshold filtering
+  - fake-edge-dominated tiny-loop suppression
+  - real-edge-first duplicate retention
 - Boolean
   - arrangement face extraction
   - bounded-face classification
@@ -49,6 +58,7 @@ Already implemented before this handoff:
   - ordinary crossing / containment
   - duplicate-edge preprocessing
   - tiny sliver face filtering
+  - stronger face sampling and multi-probe face classification
   - relation-aware fast path for `Equal`, `Disjoint`, `FirstContainsSecond`, `SecondContainsFirst`, `Touching`
 - Offset
   - rebuild from offset rings
@@ -61,70 +71,16 @@ Already implemented before this handoff:
   - shared-edge / collinear overlap no longer always misclassified as crossing
   - stricter interior checks with edge-midpoint assistance
   - equal duplicate polygon deterministic parent tie-break in topology
-- SearchPoly-style improvements
-  - synthetic/fake edge tracking in `BuildMultiPolygonByLines`
-  - candidate loop area threshold filtering
-  - fake-edge-dominated tiny-loop suppression
-  - real-edge-first duplicate retention
 
-## Important Geometry Docs Already Present
-
-Use these first next time:
-- `docs/next-task-prompt.md`
-- `docs/delphi-geometry-parity.md`
-- `docs/sdk-type-design-review.md`
-
-## Test-System Status
-
-A partial migration toward gtest was started conceptually in this session, but it should NOT be trusted as completed unless re-checked from local files in the next session.
-
-What was intended:
-- split tests into:
-  - `tests/capabilities`
-  - `tests/gaps`
-- move existing tests under `tests/capabilities`
-- convert standalone `main`-style tests to gtest `TEST(...)`
-- add gap-characterization files under `tests/gaps`
-- add a test capability coverage document
-
-However, before ending this session, the worktree status only clearly showed one untracked file:
-- `docs/sdk-type-design-review.md`
-
-So next session must re-check the actual on-disk state before assuming any test migration landed.
-
-## What Was Confirmed Later In This Session
-
-- `tests/` gtest migration is actually present on disk and should now be treated as real current state, not just an intended plan.
-- Current test tree includes:
-  - `tests/capabilities`
-  - `tests/gaps`
-  - `tests/support`
-- `tests/CMakeLists.txt` already wires capability and gap gtest executables.
-
-## Boolean Progress Added In This Session
-
-Confirmed and landed in local files during this session:
-- `src/sdk/GeometryBoolean.cpp`
-  - `SampleFacePoint` was strengthened so face sampling no longer relies only on centroid plus a tiny midpoint offset.
-  - boolean face classification now uses stronger interior sampling for arrangement faces.
-  - a new `ClassifyFaceAgainstPolygon(...)` helper now performs multi-probe classification instead of trusting a single sample point.
-- `tests/capabilities/test_relation_boolean.cpp`
-  - larger multi-step collinear-overlap family was promoted from gap-level concern into capability coverage.
-  - near-degenerate repeated-overlap family was also added as capability coverage.
-- `tests/gaps/test_boolean_gaps.cpp`
-  - remaining open boolean gap was moved forward from broader near-degenerate repeated-overlap to a harder ultra-thin repeated-overlap family.
-- `docs/delphi-geometry-parity.md`
-  - updated to reflect stronger arrangement-face sampling / classification and the newly closed near-degenerate overlap family.
-
-## Current Boolean State To Remember
+## Current Boolean State
 
 Boolean is no longer mainly blocked on ordinary crossing / containment / equal / touching / simple overlap.
 
-The current remaining boolean gap has tightened to:
+Current remaining boolean gap:
 - ultra-thin repeated-overlap families
 - harder arrangement degeneracies beyond the current duplicate-edge cleanup, tiny-face filtering, stronger face sampling, and multi-probe face classification
 
-Most recent capability expectations now include:
+Current capability expectations include:
 - larger multi-step overlap family
   - `Intersect = 14.0`
   - `Union = 39.0`
@@ -134,55 +90,55 @@ Most recent capability expectations now include:
   - `Union = 26.000007`
   - `Difference = 6.000003`
 
-## Safe Assumption For Next Session
+## Current Offset / Relation Boundary
 
-When next session starts:
-- first read `docs/next-task-prompt.md`
-- then read `docs/sdk-type-design-review.md`
-- then read this handoff section about the latest boolean progress
-- then inspect current boolean files and tests directly:
-  - `src/sdk/GeometryBoolean.cpp`
-  - `tests/capabilities/test_relation_boolean.cpp`
-  - `tests/gaps/test_boolean_gaps.cpp`
-  - `docs/delphi-geometry-parity.md`
+The latest capability cleanup confirmed that some cases still belong to gaps rather than stable capabilities:
+- single-polygon offset does not yet reliably preserve hole semantics after rebuild
+- inward offset of a narrow bridge does not yet reliably split into stable multipolygon output
+- hole-aware polygon containment is not yet stable enough to keep in capability coverage
+- some boolean and polygon-rebuild tests are stable at area/semantic level but not yet at exact result-shape level
 
-## User Preferences / Constraints
+Gap characterization already reflects this in:
+- `tests/gaps/test_offset_gaps.cpp`
+- `docs/test-capability-coverage.md`
 
-- only write code and documentation
-- do not compile
-- do not run builds
-- do not depend on compile results
-- do not revert existing user changes
-- keep current API style unless there is a strong reason not to
-- use local resources first
-- user prefers not to use sandboxed commands because local sandbox refresh repeatedly fails in this environment
-- user prefers fewer intermediate questions
-- if compile/test feedback becomes necessary, ask the user to run the needed build/tests manually and paste back the results
+## Important Docs To Read First Next Time
 
-## Recommended Next Action
+- `docs/next-task-prompt.md`
+- `docs/delphi-geometry-parity.md`
+- `docs/sdk-type-design-review.md`
+- `docs/test-capability-coverage.md`
 
-For the next session, the most reliable first task is:
-- continue boolean robustness from the current remaining gap:
+If working specifically on the current boolean gap, inspect these directly:
+- `src/sdk/GeometryBoolean.cpp`
+- `tests/capabilities/test_relation_boolean.cpp`
+- `tests/gaps/test_boolean_gaps.cpp`
+
+## Recommended Next 2D Action
+
+The most reliable next task is:
+- continue boolean robustness from the current remaining gap
   - target `tests/gaps/test_boolean_gaps.cpp`
   - focus on ultra-thin repeated-overlap families
   - prefer mechanism-level improvements over one-off case special-casing
-- if static reasoning stops being reliable enough, ask the user to compile/run the specific target/tests and provide the output
+
+If compile/test feedback becomes necessary:
+- ask for the narrowest useful build/test step
+- prefer one failing target or one focused test executable over broad validation
 
 ## Manual Validation Workflow
 
-When compile or test feedback becomes necessary, use a small manual-validation loop instead of trying to infer everything statically.
+When feedback is needed:
+- specify the smallest useful build/test step
+- user runs it locally
+- user pastes the relevant output
+- patch code from the exact result
 
-Recommended collaboration pattern:
-- I specify the smallest useful build/test step.
-- User runs it locally.
-- User pastes back the relevant output.
-- I patch code based on the exact result.
-
-Preferred output to request from the user:
+Preferred output from the user:
 - for compile failure:
   - target name
   - first failing file and line
-  - the main error text
+  - main error text
   - roughly 20 lines before/after if available
 - for test failure:
   - executable or ctest target name
@@ -193,54 +149,9 @@ Preferred output to request from the user:
   - which target/test was run
   - whether it passed cleanly
 
-Environment assumptions currently known:
-- `python` is available
-- user handles local CMake/build setup manually
-- sandboxed command execution is unreliable in this environment, so prefer direct local edits plus user-run validation when needed
+## Current 3D Design State
 
-Good next-session behavior:
-- do not ask for full rebuilds by default
-- ask for the narrowest compile/test step that can validate the current change
-- prefer one failing target or one focused test executable over broad validation first
-
-
-
-## 3D Design Progress Added In This Session
-
-Confirmed and landed in local files during this session:
-- `docs/geometry-3d-library-design.md`
-  - the real Delphi 3D baseline is now the `Geo3DLib\Source` tree and should be treated as a direct 3D reference together with GGP
-- `docs/geometry-3d-types-design.md`
-  - foundational value-type layer is defined for `Point3d` / `Vector3d` / `Direction3d` / `Box3d` / `Matrix3d` / `Transform3d` / `Plane` / `Line3d` / `Ray3d` / `LineSegment3d` / `Triangle3d` / `Intervald`
-- `docs/curve3d-surface-design.md`
-  - parametric layer is now defined separately
-  - covers `Curve3d`, `Surface`, derived families, evaluation/projection result types, parameter-domain rules, and `CurveOnSurface` as the 2D/3D bridge
-- `docs/polyhedron-brep-design.md`
-  - topology/body layer is now defined separately
-  - clarifies why `PolyhedronBody` and `BrepBody` must both exist
-  - defines the recommended `vertex/edge/coedge/loop/face/shell/body` structure and a builder-first construction strategy
-- `docs/trianglemesh-mesh-conversion-design.md`
-  - mesh layer and mesh conversion services are now defined separately
-  - keeps `TriangleMesh` as an independent discrete representation instead of a hidden BRep cache
-- `docs/geometry-3d-services-design.md`
-  - 3D predicate / projection / intersection / search service layer is now defined separately
-  - establishes tolerance/context infrastructure and shared internal service boundaries
-- `docs/geometry-3d-validation-healing-design.md`
-  - validation and healing are now split into their own 3D design layer
-  - defines structured issue/report/result types and conservative first-phase repair policy
-- `docs/geometry-3d-first-phase-roadmap.md`
-  - the 3D design set is now condensed into a staged first-phase implementation order
-  - clarifies what to build first and what to delay deliberately
-- `docs/geometry-3d-section-tessellation-validation-integration.md`
-  - section, tessellation, and body-validation are now connected on top of the current multi-layer 3D design set
-  - identifies plane-dominant polyhedron section plus tessellation plus validation as the best first algorithm chain
-- `docs/geometry-3d-module-package-layout.md`
-  - the future C++ file/module layout is now mapped from the design set
-  - fixes the intended split between public types, topology, mesh, services, results, builders, and internal helpers
-
-## Current 3D Design State To Remember
-
-The 3D work is no longer only a high-level idea. It now has ten design layers on disk:
+The 3D work now has these design layers on disk:
 - overall library direction
 - foundational value types
 - parametric curve/surface layer
@@ -252,7 +163,7 @@ The 3D work is no longer only a high-level idea. It now has ten design layers on
 - section / tessellation / validation integration
 - module / package layout
 
-The key current 3D conclusions are:
+Key 3D conclusions:
 - 2D API convergence rules should continue to constrain 3D naming and layering
 - `Plane` and `PlaneSurface` should stay separate
 - `Curve3d` / `Surface` are the core parametric protocols
@@ -260,17 +171,10 @@ The key current 3D conclusions are:
 - `PolyhedronBody` and `BrepBody` should not be merged early
 - `BrepCoedge` is required, not optional
 
-## Recommended Next 3D Action
+## Current 3D Code State
 
-When returning to 3D design, the most reliable next tasks are:
-- choose one first implementation slice, most likely value types plus tolerance/context plus first-batch 3D services
-- then connect that code skeleton to `PlaneSurface`, `LineCurve3d`, and a minimal plane-dominant polyhedron section path
-- keep `section / tessellation / validation` sharing the same service and diagnostics infrastructure from the start
-
-## First 3D Implementation Slice Added In This Session
-
-Confirmed and landed in local files during this session:
-- new 3D value-type headers:
+The first real 3D code slice is present:
+- value-type headers:
   - `include/types/Point3.h`
   - `include/types/Vector3.h`
   - `include/types/Interval.h`
@@ -278,7 +182,7 @@ Confirmed and landed in local files during this session:
   - `include/types/Plane.h`
   - `include/types/Line3.h`
 - `include/sdk/GeometryTypes.h`
-  - now exposes `Point3d`, `Vector3d`, `Box3d`, `Intervald`, `Plane`, `Line3d`
+  - exposes `Point3d`, `Vector3d`, `Box3d`, `Intervald`, `Plane`, `Line3d`
   - adds `GeometryTolerance3d`, `GeometryContext3d`, `LineProjection3d`, `PlaneProjection3d`, `LinePlaneIntersection3d`, `PlanePlaneIntersection3d`
 - `include/sdk/GeometryProjection.h`
   - adds `ProjectPointToLine(...)` and `ProjectPointToPlane(...)`
@@ -288,37 +192,22 @@ Confirmed and landed in local files during this session:
   - adds `PointPlaneSide3d`, `LocatePoint(point, plane, tolerance)`, `IsParallel(Vector3d, Vector3d, tolerance)`, `IsPerpendicular(Vector3d, Vector3d, tolerance)`
 - `include/sdk/GeometryApi.h`
   - now pulls `GeometryProjection.h` and `GeometryIntersection.h` into the umbrella API
-- new 3D service implementation files:
+- service implementation files:
   - `src/sdk/GeometryProjection3d.cpp`
   - `src/sdk/GeometryIntersection3d.cpp`
   - `src/sdk/GeometryRelation3d.cpp`
 - `CMakeLists.txt`
-  - now registers the three new 3D `.cpp` files in `stablecore_geometry`
+  - registers the three new 3D `.cpp` files in `stablecore_geometry`
 
-## Current Code State To Remember
-
-This is the first real 3D code slice, not only design work.
-
-What now exists in code:
-- minimal 3D value types for point / vector / interval / box / plane / line
-- explicit 3D tolerance/context objects
-- first-batch 3D services for:
-  - point-to-line projection
-  - point-to-plane projection
-  - line-plane intersection
-  - plane-plane intersection
-  - point-plane side classification
-  - vector parallel / perpendicular predicates
-
-Important constraints of the current slice:
-- no compile was run yet
+Important current constraints:
+- no compile was run yet for the 3D slice
 - no tests were added yet
 - `PlaneSurface`, `LineCurve3d`, and richer 3D object protocols are still design-only
 - this slice intentionally stops before section/tessellation/body code
 
-## Recommended Next Code Action
+## Recommended Next 3D Action
 
-The most reliable next code steps are:
+When returning to 3D code, the most reliable next steps are:
 - manually compile just the library target first and report any compile errors
 - then, if compile is clean, add `PlaneSurface` and `LineCurve3d` headers/skeletons on top of the new value/service layer
-- after that, start the minimal plane-dominant polyhedron section path that the design docs already identified
+- after that, start the minimal plane-dominant polyhedron section path identified by the design docs

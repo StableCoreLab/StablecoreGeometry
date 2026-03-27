@@ -17,25 +17,25 @@
 - 结果类型：`SegmentProjection2d`、`SegmentIntersection2d`、`AxisProjection2d` 等 POD/轻量 struct
 - 多态链：`Segment2d` -> `LineSegment2d` / `ArcSegment2d`
 
-大方向是合理的，API 也基本易懂。但从长期维护看，有几处设计债已经比较明显，尤其是命名风格和职责边界。
+大方向是合理的，API 也基本易懂。当前更值得关注的设计债已经主要落在职责边界、内部层次和少数类型包装策略上，而不再是 2D 命名统一本身。
 
 ## Main Findings
 
-### 1. Public API naming style is not fully unified
+### 1. Public API naming style is now largely unified, but documentation still has lagging wording
 
 现状：
-- SDK 层大量接口采用短名风格：`PointAt`、`Bounds`、`Count`、`HoleAt`、`Contains`
-- 但底层桥接和部分公开语义明显仍受旧内核影响：`GetVertexCount`、`GetBoundingBox`、`GetMinPoint`、`GetMaxPoint`
-- `MultiPolyline2d` / `MultiPolygon2d` 同时提供 `Count()` 和 `PolylineCount()` / `PolygonCount()`，存在重复语义
+- SDK 层公开接口已经以短名风格为主，并且当前代码中的 2D 旧 `GetXxx` 风格调用已经基本清空：`PointAt`、`Bounds`、`Count`、`HoleAt`、`Contains`
+- `MultiPolyline2d` / `MultiPolygon2d` 已收口到 `Count()`
+- 当前不一致更多残留在历史设计文档和部分评审描述里，而不是代码接口本身
 
 影响：
-- 外部用户难以判断推荐命名风格到底是 `Xxx()` 还是 `GetXxx()`。
-- 随着 API 增长，重复命名会继续扩散，降低一致性。
+- 代码层面的命名歧义已经明显下降。
+- 目前主要风险变成文档口径仍可能落后于现状，影响后续设计讨论和新文档示例的一致性。
 
 建议：
 - 对公开 SDK 统一采用现在已经占主导的短名风格：`PointAt` / `Bounds` / `Count` / `Data`。
-- `PolylineCount()` / `PolygonCount()` 建议逐步标记为兼容别名，保留一段时间后只保留 `Count()`。
 - 不再新增新的 `GetXxx` 风格公开 API。
+- 后续若继续做文档整理，应优先把旧设计文档中的 `GetXxx` 表述同步到当前短名风格。
 
 涉及位置：
 - [MultiPolyline2d.h](/D:/code/stablecore-geometry/include/sdk/MultiPolyline2d.h#L20)
@@ -177,18 +177,20 @@
 
 如果后续要做 API/结构层面的整理，我建议优先顺序如下：
 
-1. 统一公开命名风格，停止继续扩散重复别名。
-2. 明确成员方法 vs 自由函数的边界，减少重复入口。
-3. 收紧索引类 `Data()` 可变暴露。
-4. 逐步抽内部 polygon preprocess / graph 模块，服务 search / boolean / offset 共用。
-5. 视中长期计划决定 `Polyline2d` / `Polygon2d` 是否继续保留 PImpl。
+1. 明确成员方法 vs 自由函数的边界，减少重复入口。
+2. 收紧索引类 `Data()` 可变暴露。
+3. 逐步抽内部 polygon preprocess / graph 模块，服务 search / boolean / offset 共用。
+4. 视中长期计划决定 `Polyline2d` / `Polygon2d` 是否继续保留 PImpl。
+5. 持续同步历史设计文档措辞，避免旧 `GetXxx` 风格判断反向污染新设计讨论。
 
 ## Bottom Line
 
 当前类设计没有“必须马上推翻重来”的问题，主线仍然可维护。真正不合适的地方主要不是继承层级本身，而是：
-- 命名风格尚未完全统一
 - 成员接口与自由函数有重复
 - 容器/索引类封装边界偏松
 - polygon 内部图处理逻辑还未形成共享内部层
+- `Polyline2d` / `Polygon2d` 仍是值类型体系中的 PImpl 特例
+- 历史设计文档措辞仍有部分落后于当前 API 状态
 
 这些问题短期不会阻塞算法继续补齐，但如果准备把这个库长期做成稳定 SDK，建议尽早开始收口。
+
