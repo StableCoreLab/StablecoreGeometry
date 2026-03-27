@@ -162,7 +162,7 @@ These areas are still differences, but they are lower priority than the items ab
 
 ### 6.1 Boolean Has Moved Beyond Simple Cell Cases But Is Still Not Delphi-Level
 
-The C++ boolean implementation is no longer just simple scan cells. It now uses relation-aware short-circuit paths for equal/disjoint/containment/touching cases, then rebuilds a segment arrangement when needed, removes repeated undirected edges before arrangement, filters very small bounded faces before result rebuild, and uses stronger interior-face sampling when classifying arrangement faces. This closes more of the previous gap for crossing, contained, equal, touching, simple overlap, and larger multi-step collinear-overlap cases.
+The C++ boolean implementation is no longer just simple scan cells. It now uses relation-aware short-circuit paths for equal/disjoint/containment/touching cases, then rebuilds a segment arrangement when needed, removes repeated undirected edges before arrangement, filters very small bounded faces before result rebuild, and uses stronger interior-face sampling when classifying arrangement faces. This closes more of the previous gap for crossing, contained, equal, touching, simple overlap, larger multi-step collinear-overlap cases, and a broader near-degenerate repeated-overlap family.
 
 Current C++ evidence:
 
@@ -171,7 +171,7 @@ Current C++ evidence:
 
 Still missing compared with Delphi:
 
-- deeper robustness around near-degenerate repeated-overlap families and harder arrangement degeneracies
+- deeper robustness around ultra-thin repeated-overlap families and harder arrangement degeneracies
 - broader cleanup and recovery strategies on more difficult polygon graphs beyond duplicate-edge and tiny-face filtering
 - stronger integration with heavier polygon search workflows
 
@@ -261,4 +261,5 @@ Recommended next tracking focus:
 - branch scoring and ambiguity resolution in polygon search
 - richer polygon relation hierarchy behavior
 - unified geometry preprocessing before all face operations
+
 

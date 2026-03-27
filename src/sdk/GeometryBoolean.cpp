@@ -239,6 +239,100 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     return std::max(256.0 * eps * eps, diagonal * std::max(64.0 * eps, diagonal * 1e-6));
 }
 
+[[nodiscard]] double ComputePolygonScale(const Polygon2d& polygon)
+{
+    const Polyline2d outer = polygon.OuterRing();
+    if (outer.PointCount() == 0)
+    {
+        return 0.0;
+    }
+
+    double minX = outer.PointAt(0).x;
+    double minY = outer.PointAt(0).y;
+    double maxX = minX;
+    double maxY = minY;
+    for (std::size_t i = 1; i < outer.PointCount(); ++i)
+    {
+        const Point2d point = outer.PointAt(i);
+        minX = std::min(minX, point.x);
+        minY = std::min(minY, point.y);
+        maxX = std::max(maxX, point.x);
+        maxY = std::max(maxY, point.y);
+    }
+
+    const double dx = maxX - minX;
+    const double dy = maxY - minY;
+    return std::sqrt(dx * dx + dy * dy);
+}
+
+[[nodiscard]] PointContainment2d ClassifyFaceAgainstPolygon(
+    const Polygon2d& face,
+    const Point2d& sample,
+    const Polygon2d& polygon,
+    double eps)
+{
+    int insideCount = 0;
+    int outsideCount = 0;
+    auto accumulate = [&](const Point2d& candidate) {
+        if (LocatePoint(candidate, face, eps) != PointContainment2d::Inside)
+        {
+            return;
+        }
+
+        const PointContainment2d containment = LocatePoint(candidate, polygon, eps);
+        if (containment == PointContainment2d::Inside)
+        {
+            ++insideCount;
+        }
+        else if (containment == PointContainment2d::Outside)
+        {
+            ++outsideCount;
+        }
+    };
+
+    accumulate(Centroid(face));
+    accumulate(sample);
+
+    const double scale = ComputePolygonScale(face);
+    const double baseStep = std::max(64.0 * eps, std::min(0.05 * scale, 1e-3));
+    const double steps[] = {baseStep, 0.5 * baseStep, 2.0 * baseStep};
+    const Vector2d offsets[] = {
+        {1.0, 0.0},
+        {-1.0, 0.0},
+        {0.0, 1.0},
+        {0.0, -1.0},
+        {0.7071067811865476, 0.7071067811865476},
+        {0.7071067811865476, -0.7071067811865476},
+        {-0.7071067811865476, 0.7071067811865476},
+        {-0.7071067811865476, -0.7071067811865476}};
+    for (double step : steps)
+    {
+        for (const Vector2d& offset : offsets)
+        {
+            accumulate(sample + offset * step);
+        }
+    }
+
+    if (insideCount > 0 && outsideCount == 0)
+    {
+        return PointContainment2d::Inside;
+    }
+    if (outsideCount > 0 && insideCount == 0)
+    {
+        return PointContainment2d::Outside;
+    }
+    if (insideCount > outsideCount)
+    {
+        return PointContainment2d::Inside;
+    }
+    if (outsideCount > insideCount)
+    {
+        return PointContainment2d::Outside;
+    }
+
+    return LocatePoint(sample, polygon, eps);
+}
+
 void AppendSplitEdges(
     const std::vector<RawSegment>& segments,
     std::vector<Point2d>& vertices,
@@ -761,8 +855,8 @@ void AppendFaceBoundaries(const Polygon2d& polygon, MultiPolyline2d& polylines)
     for (const Polygon2d& face : faces)
     {
         const Point2d sample = SampleFacePoint(face, eps);
-        const bool inFirst = LocatePoint(sample, first, eps) == PointContainment2d::Inside;
-        const bool inSecond = LocatePoint(sample, second, eps) == PointContainment2d::Inside;
+        const bool inFirst = ClassifyFaceAgainstPolygon(face, sample, first, eps) == PointContainment2d::Inside;
+        const bool inSecond = ClassifyFaceAgainstPolygon(face, sample, second, eps) == PointContainment2d::Inside;
         if (Evaluate(op, inFirst, inSecond))
         {
             AppendFaceBoundaries(face, selectedBoundaries);
@@ -793,4 +887,6 @@ MultiPolygon2d Difference(const Polygon2d& first, const Polygon2d& second, doubl
     return BooleanCompose(first, second, BooleanOp::Difference, eps);
 }
 } // namespace geometry::sdk
+
+
 
