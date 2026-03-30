@@ -217,6 +217,18 @@ struct GEOMETRY_API BrepEdgeProjection3d
     }
 };
 
+struct GEOMETRY_API BrepVertexProjection3d
+{
+    bool success{false};
+    Point3d point{};
+    double distanceSquared{0.0};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return !success || (point.IsValid() && std::isfinite(distanceSquared) && distanceSquared >= 0.0);
+    }
+};
+
 struct GEOMETRY_API PolyhedronFaceProjection3d
 {
     bool success{false};

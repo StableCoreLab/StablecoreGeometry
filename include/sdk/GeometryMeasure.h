@@ -4,6 +4,7 @@
 
 #include "export/GeometryExport.h"
 #include "sdk/BrepBody.h"
+#include "sdk/BrepVertex.h"
 #include "sdk/CurveOnSurface.h"
 #include "sdk/Curve3d.h"
 #include "sdk/GeometryTypes.h"
@@ -66,6 +67,14 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API double Distance(
     const Point3d& point,
     const BrepEdge& edge,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API double DistanceSquared(
+    const Point3d& point,
+    const BrepVertex& vertex,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API double Distance(
+    const Point3d& point,
+    const BrepVertex& vertex,
     const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API double DistanceSquared(
     const Point3d& point,

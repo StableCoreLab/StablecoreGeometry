@@ -568,6 +568,20 @@ BrepEdgeProjection3d ProjectPointToBrepEdge(
     return RefineCurveProjection(point, curve, bestParameter, tolerance);
 }
 
+BrepVertexProjection3d ProjectPointToBrepVertex(
+    const Point3d& point,
+    const BrepVertex& vertex,
+    const GeometryTolerance3d&)
+{
+    if (!vertex.IsValid())
+    {
+        return {};
+    }
+
+    const Point3d vertexPoint = vertex.Point();
+    return {true, vertexPoint, (point - vertexPoint).LengthSquared()};
+}
+
 BrepBodyProjection3d ProjectPointToBrepBody(
     const Point3d& point,
     const BrepBody& body,

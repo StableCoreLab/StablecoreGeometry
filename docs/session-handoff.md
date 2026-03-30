@@ -322,6 +322,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `GeometryProjection` 已接上 `ProjectPointToBrepFace(...)`，当前优先走支撑曲面投影 + trim containment，落到 trim 外时保守回退到 trim polyline 边界最近点
 - `GeometryProjection` 已接上 `ProjectPointToBrepBody(...)`，当前按 face 聚合最短投影，返回命中的 `faceIndex`
 - `GeometryProjection` 已接上 `ProjectPointToBrepEdge(...)`，当前对 `LineCurve3d` 走解析投影，对一般 `Curve3d` 走采样 + 局部细化
+- `GeometryProjection` 已接上 `ProjectPointToBrepVertex(...)`
 - `GeometryProjection` 已接上通用 `ProjectPointToCurve(...)`，当前对 `LineCurve3d` 走解析投影，对一般 `Curve3d` 走采样 + 局部细化
 - `GeometryProjection` 已接上 `ProjectPointToCurveOnSurface(...)`，当前按 3D polyline segment 做最近点投影，并回写 UV
 - `GeometryProjection` 已接上 `ProjectPointToTriangleMesh(...)`，当前逐 triangle 做最近点投影
@@ -340,6 +341,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `GeometryIntersection3d` 已接上 `Intersect(Plane, CurveOnSurface, ...)`，当前按 3D polyline segment 做逐段平面穿越检测，并回写 UV
 - `GeometryIntersection3d` 已接上 `Intersect(Plane, BrepEdge, ...)`，当前复用 `plane -> curve` 路径
 - `GeometryMeasure` 已接上 `Distance(point, BrepFace)` / `DistanceSquared(point, BrepFace)`，可直接消费 planar / trimmed non-planar `BrepFace`
+- `GeometryMeasure` 已接上 `Distance(point, BrepVertex)` / `DistanceSquared(point, BrepVertex)`
 - `GeometryMeasure` 已接上 `Distance(point, BrepBody)` / `DistanceSquared(point, BrepBody)`，当前复用 `ProjectPointToBrepBody(...)`
 - `GeometryMeasure` 已接上 `Distance(point, BrepEdge)` / `DistanceSquared(point, BrepEdge)`
 - `GeometryIntersection3d` 已接上 `Intersect(Line3d, BrepFace, ...)` 与 `Intersect(Line3d, BrepBody, ...)`，当前复用 `line -> surface` 再走 trim containment / 多 face 聚合
