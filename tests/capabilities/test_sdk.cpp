@@ -368,6 +368,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(planeCurveIntersection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(planeCurveIntersection.curveParameter, 0.0, 1e-12);
     assert(planeCurveIntersection.point.AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
+    assert(geometry::sdk::LocatePoint(Point3d{0.5, 0.0, 0.0}, lowerRail) == geometry::sdk::PointContainment2d::OnBoundary);
+    assert(geometry::sdk::LocatePoint(Point3d{0.5, 1.0, 0.0}, lowerRail) == geometry::sdk::PointContainment2d::Outside);
     const RuledSurface ruledSurface = RuledSurface::FromCurves(lowerRail, upperRail);
     assert(ruledSurface.IsValid());
     assert(ruledSurface.FirstCurve() != nullptr);
@@ -424,6 +426,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(planeCurveOnSurfaceIntersection.IsValid());
     assert(planeCurveOnSurfaceIntersection.uv.AlmostEquals(Point2d{-2.0, -3.0}, 1e-12));
     assert(planeCurveOnSurfaceIntersection.point.AlmostEquals(Point3d{-2.0, -3.0, 5.0}, 1e-12));
+    assert(geometry::sdk::LocatePoint(Point3d{0.0, -1.0, 5.0}, curveOnSurface) == geometry::sdk::PointContainment2d::OnBoundary);
+    assert(geometry::sdk::LocatePoint(Point3d{0.0, -1.0, 6.0}, curveOnSurface) == geometry::sdk::PointContainment2d::Outside);
 
     const auto planeSurfaceProjection = ProjectPointToSurface(Point3d{0.5, -1.0, 8.0}, planeSurface);
     assert(planeSurfaceProjection.success);

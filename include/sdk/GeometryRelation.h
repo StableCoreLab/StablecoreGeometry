@@ -3,6 +3,8 @@
 #include "export/GeometryExport.h"
 #include "sdk/ArcSegment2d.h"
 #include "sdk/BrepFace.h"
+#include "sdk/Curve3d.h"
+#include "sdk/CurveOnSurface.h"
 #include "sdk/GeometryTypes.h"
 #include "sdk/LineSegment2d.h"
 #include "sdk/Polygon2d.h"
@@ -52,6 +54,14 @@ enum class PointPlaneSide3d
 [[nodiscard]] GEOMETRY_API PointPlaneSide3d LocatePoint(
     const Point3d& point,
     const Plane& plane,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
+    const Point3d& point,
+    const Curve3d& curve,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
+    const Point3d& point,
+    const CurveOnSurface& curveOnSurface,
     const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
     const Point3d& point,

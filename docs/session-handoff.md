@@ -331,6 +331,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `GeometryRelation3d` 已接上 `LocatePoint(point, PolyhedronBody, ...)`
 - `GeometryRelation3d` 已接上 `LocatePoint(point, TriangleMesh, ...)`
 - `GeometryRelation3d` 已接上 `LocatePoint(point, BrepBody, ...)`
+- `GeometryRelation3d` 已接上 `LocatePoint(point, Curve3d, ...)` 与 `LocatePoint(point, CurveOnSurface, ...)`
 - `GeometryMeasure` 已接上 `Distance(point, surface)` / `DistanceSquared(point, surface)`，可直接消费 `PlaneSurface` 与当前最小 `NurbsSurface`
 - `GeometryMeasure` 已接上 `Distance(point, Curve3d)` / `DistanceSquared(point, Curve3d)`
 - `GeometryMeasure` 已接上 `Distance(point, CurveOnSurface)` / `DistanceSquared(point, CurveOnSurface)`

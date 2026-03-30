@@ -30,6 +30,49 @@ PointPlaneSide3d LocatePoint(
 
 PointContainment2d LocatePoint(
     const Point3d& point,
+    const Curve3d& curve,
+    const GeometryTolerance3d& tolerance)
+{
+    if (!curve.IsValid(tolerance))
+    {
+        return PointContainment2d::Outside;
+    }
+
+    const CurveProjection3d projection = ProjectPointToCurve(point, curve, tolerance);
+    if (!projection.success)
+    {
+        return PointContainment2d::Outside;
+    }
+
+    return projection.distanceSquared <= tolerance.distanceEpsilon * tolerance.distanceEpsilon
+               ? PointContainment2d::OnBoundary
+               : PointContainment2d::Outside;
+}
+
+PointContainment2d LocatePoint(
+    const Point3d& point,
+    const CurveOnSurface& curveOnSurface,
+    const GeometryTolerance3d& tolerance)
+{
+    if (!curveOnSurface.IsValid(tolerance))
+    {
+        return PointContainment2d::Outside;
+    }
+
+    const CurveOnSurfaceProjection3d projection =
+        ProjectPointToCurveOnSurface(point, curveOnSurface, tolerance);
+    if (!projection.success)
+    {
+        return PointContainment2d::Outside;
+    }
+
+    return projection.distanceSquared <= tolerance.distanceEpsilon * tolerance.distanceEpsilon
+               ? PointContainment2d::OnBoundary
+               : PointContainment2d::Outside;
+}
+
+PointContainment2d LocatePoint(
+    const Point3d& point,
     const PolyhedronFace3d& face,
     const GeometryTolerance3d& tolerance)
 {
