@@ -815,6 +815,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(polyBodyLineIntersection.hits.size() == 1);
     assert(polyBodyLineIntersection.faceIndices[0] == 0);
     assert(polyBodyLineIntersection.hits[0].point.AlmostEquals(Point3d{1.0, 1.0, 1.0}, 1e-12));
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, body) == geometry::sdk::PointContainment2d::OnBoundary);
 
     const PolyhedronFace3d holedFace(
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
@@ -1183,6 +1184,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
                     })),
         });
     assert(cubeBody.IsValid());
+    assert(geometry::sdk::LocatePoint(Point3d{0.5, 0.5, 0.5}, cubeBody) == geometry::sdk::PointContainment2d::Inside);
+    assert(geometry::sdk::LocatePoint(Point3d{1.5, 0.5, 0.5}, cubeBody) == geometry::sdk::PointContainment2d::Outside);
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 0.5, 0.5}, cubeBody) == geometry::sdk::PointContainment2d::OnBoundary);
     const PolyhedronSection3d middleSection = Section(
         cubeBody,
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.5}, Vector3d{0.0, 0.0, 1.0}));

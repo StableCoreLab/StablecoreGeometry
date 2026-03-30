@@ -58,6 +58,44 @@ PointContainment2d LocatePoint(
 
 PointContainment2d LocatePoint(
     const Point3d& point,
+    const PolyhedronBody& body,
+    const GeometryTolerance3d& tolerance)
+{
+    if (!body.IsValid(tolerance.distanceEpsilon))
+    {
+        return PointContainment2d::Outside;
+    }
+
+    const PolyhedronBodyProjection3d projection = ProjectPointToPolyhedronBody(point, body, tolerance);
+    if (projection.success &&
+        projection.projection.distanceSquared <= tolerance.distanceEpsilon * tolerance.distanceEpsilon)
+    {
+        return PointContainment2d::OnBoundary;
+    }
+
+    const Line3d probe = Line3d::FromOriginAndDirection(
+        point,
+        Vector3d{1.0, 0.3713906763541037, 0.52999894000318});
+    const LinePolyhedronBodyIntersection3d intersections = Intersect(probe, body, tolerance);
+    if (!intersections.intersects)
+    {
+        return PointContainment2d::Outside;
+    }
+
+    std::size_t crossingCount = 0;
+    for (const LinePolyhedronFaceIntersection3d& hit : intersections.hits)
+    {
+        if (hit.lineParameter > tolerance.parameterEpsilon)
+        {
+            ++crossingCount;
+        }
+    }
+
+    return (crossingCount % 2 == 1) ? PointContainment2d::Inside : PointContainment2d::Outside;
+}
+
+PointContainment2d LocatePoint(
+    const Point3d& point,
     const BrepFace& face,
     const GeometryTolerance3d& tolerance)
 {
