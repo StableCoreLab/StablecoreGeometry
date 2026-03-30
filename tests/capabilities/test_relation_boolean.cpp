@@ -135,6 +135,18 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(nearDegenerateOverlapA, nearDegenerateOverlapB)), 26.000007, 1e-9);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(nearDegenerateOverlapA, nearDegenerateOverlapB)), 6.000003, 1e-9);
 
+    const Polygon2d ultraThinOverlapA(
+        Polyline2d(
+            {Point2d{0.0, 0.0}, Point2d{8.0, 0.0}, Point2d{8.0, 2.0}, Point2d{5.0, 2.0}, Point2d{5.0, 2.00000001}, Point2d{0.0, 2.00000001}},
+            PolylineClosure::Closed));
+    const Polygon2d ultraThinOverlapB(
+        Polyline2d(
+            {Point2d{3.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 2.00000001}, Point2d{6.0, 2.00000001}, Point2d{6.0, 4.0}, Point2d{3.0, 4.0}},
+            PolylineClosure::Closed));
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(ultraThinOverlapA, ultraThinOverlapB)), 10.00000002, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(ultraThinOverlapA, ultraThinOverlapB)), 26.00000007, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(ultraThinOverlapA, ultraThinOverlapB)), 6.00000003, 1e-9);
+
     const auto equalIntersection = geometry::sdk::Intersect(square, square);
     assert(equalIntersection.Count() >= 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(equalIntersection), 16.0, 1e-9);

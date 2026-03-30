@@ -1,6 +1,7 @@
-# Rename Follow-Up Todo
+﻿# 重命名后续待办
 
-This file is reserved for tasks that require user action or explicit follow-up later.
+此文件保留给需要用户动作或后续明确跟进的事项。
 
-Current entries:
-- none
+## 当前条目
+
+- 暂无

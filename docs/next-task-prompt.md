@@ -1,4 +1,4 @@
-﻿# Next Task Prompt
+﻿# 下一步任务提示
 
 ```text
 你现在在仓库 `D:\code\stablecore-geometry` 中继续工作，目标是继续补齐当前 C++ 几何库与 Delphi / GGP 在面相关几何算法上的剩余差距。

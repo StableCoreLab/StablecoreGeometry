@@ -1,235 +1,128 @@
-﻿# 3D Geometry Services Design
+﻿# 3D Geometry 服务层设计
 
-## 1. Purpose
+## 1. 目的
 
-本文定义 StableCore 三维库中 predicate / projection / intersection / search 等公共服务层。
+本文定义 StableCore 三维库中的公共服务层，重点覆盖 predicate、projection、intersection、measure、search 等能力。
 
-目标是：
-- 把 3D 基础算法从类型和拓扑中分离出来
-- 提前规划容差、空间索引、关系判定、投影和相交的共用内部层
-- 为 section / boolean / offset / validation 提供统一底座
+## 2. 服务层职责
 
-## 2. Why a Dedicated Services Layer Is Necessary
+服务层负责：
 
-如果没有公共服务层，后续很容易出现：
-- curve、surface、BRep、mesh 各写一套 epsilon 规则
-- projection 和 intersection helper 分散在不同 `.cpp`
-- boolean / section / validation 各自维护不同的 search tree 和判定逻辑
+- 面向多个对象的几何算法
+- 使用统一容差与上下文
+- 返回结构化结果
+- 为上层 polyhedron / BRep / mesh 算法提供底座
 
-2D 已经暴露过类似问题，3D 不应重演。
+服务层不负责：
 
-## 3. Reference Direction
+- 保存复杂拓扑状态
+- 承担对象生命周期管理
+- 混入恢复逻辑与编辑逻辑
 
-主要参考：
-- Delphi `GGLSurface3d.pas`
-  - plane/surface 上堆积了大量距离、相交、位置关系、局部几何 helper
-- Delphi `GGLBoxTree3d.pas`
-  - 说明 3D box tree / candidate pruning 在工程实现里是基础设施
-- GGP `Curve3d.cpp` / `Surface.cpp`
-  - 说明 nearest parameter、projection、bounds、subdivide 等能力高度共用
-- GGP `Topology.cpp`
-  - 说明 topology 对缓存状态和 box state 有持续依赖
+## 3. 推荐能力分组
 
-StableCore 的取向应是：
-- 把这些共用能力整理成独立服务层
-- 而不是让每个对象自己长出一堆散乱 helper
+### 3.1 Relation / Predicate
 
-## 4. Service Layer Scope
+负责：
 
-建议至少包含：
-- predicates / relation
-- projection / nearest point
-- distance / measurement
-- intersection
-- spatial search
-- validation helpers
-- tolerance context
+- 点对平面位置
+- 向量平行 / 垂直
+- 基础包含与侧别判断
+- 简单对象关系判定
 
-## 5. Tolerance Infrastructure
+### 3.2 Projection
 
-必须先有统一容差对象，例如：
-- `GeometryTolerance3d`
-  - `distanceEpsilon`
-  - `angleEpsilon`
-  - `parameterEpsilon`
-  - `boxPadding`
+负责：
 
-以及算法上下文：
-- `GeometryContext3d`
-  - `GeometryTolerance3d tolerance`
-  - 可选诊断/日志开关
-  - 可选 search/index cache
+- 点投影到直线
+- 点投影到平面
+- 后续扩展到 curve / surface 投影
 
-规则：
-- 服务默认接收 context 或 tolerance
-- 不在每个实现里散落固定 `1e-6` / `1e-9`
+### 3.3 Intersection
 
-## 6. Predicate / Relation Services
+负责：
 
-建议定义：
-- `GeometryPredicate3d`
-- `GeometryRelation3d`
-
-第一阶段优先支持：
-- point-plane
-- point-line
-- point-segment
-- point-triangle
 - line-plane
 - plane-plane
-- box-box
-- box-plane
-- triangle-plane
+- 后续 curve-surface、surface-surface
 
-对 body/more complex relation，先作为第二阶段。
+### 3.4 Measure / Distance
 
-## 7. Projection Services
+负责：
 
-建议定义：
-- `GeometryProjection3d`
+- 长度
+- 面积
+- 体积
+- 点到线 / 面距离
+- 物体 bounds
 
-建议能力：
-- `Project(point, line)`
-- `Project(point, plane)`
-- `Project(point, segment)`
-- `Project(point, curve)`
-- `Project(point, surface)`
-- `Project(curve, plane)`
-- `Project(body, plane)`
+### 3.5 Search
 
-关键点：
-- point-to-curve / point-to-surface 应统一返回结构化结果
-- 周期参数面的边界吸附规则要走统一逻辑
+负责：
 
-## 8. Distance / Measure Services
+- AABB / box tree 风格查询
+- 最近点 / 最近对象查询
+- 后续 section / validation 的空间加速
 
-建议定义：
-- `GeometryMeasure3d`
+## 4. 结果类型规则
 
-建议能力：
-- point-point distance
-- point-line distance
-- point-plane distance
-- point-triangle distance
-- curve length
-- surface area approximation
-- mesh area / volume
-- body volume
+复杂服务不能只返回 `bool`。
 
-说明：
-- 精确与近似计算要区分接口
-- 不要把所有 measure 都塞进对象成员函数
+应优先返回结构体，例如：
 
-## 9. Intersection Services
+- `LineProjection3d`
+- `PlaneProjection3d`
+- `LinePlaneIntersection3d`
+- `PlanePlaneIntersection3d`
 
-建议拆成：
-- `GeometryIntersection3d`
-- `GeometryIntersectionInternal3d`
+结构体中应尽量明确表达：
 
-公开层负责：
-- `Intersect(line, plane)`
-- `Intersect(segment, triangle)`
-- `Intersect(plane, plane)`
-- `Intersect(curve, plane)`
-- `Intersect(surface, plane)`
-- `Intersect(face, face)`
+- 是否成功
+- 是否平行 / 重合 / 退化
+- 结果对象
+- 参数位置
+- 误差或状态标签
 
-内部层负责：
-- 参数域迭代
-- root finding
-- candidate pruning
-- near-degenerate fallback
+## 5. 容差与上下文
 
-## 10. Search / Spatial Index Services
+3D 服务层必须统一依赖：
 
-建议把搜索服务独立为：
-- `GeometryBoxTree3d`
-- `GeometryKDTree3d`
-- `GeometryAABBTree3d`
-- `GeometrySearch3d`
-
-建议用途划分：
-- `BoxTree3d`
-  - 一般 box candidate query
-- `KDTree3d`
-  - point cloud / nearest neighbor
-- `AABBTree3d`
-  - triangle / face / edge candidate pruning
-
-这层是 section / boolean / validation 的必要前置。
-
-## 11. Validation-Oriented Helpers
-
-建议增加：
-- `GeometryValidation3d`
-- `GeometryValidationInternal3d`
-
-先支持：
-- zero-length edge
-- degenerate triangle
-- nearly-coplanar-but-inconsistent face sets
-- self-intersection candidates
-- open shell / non-manifold edge candidates
-
-## 12. Internal Shared Layers To Reserve Early
-
-建议提前规划这些内部文件族：
-- `GeometryPredicate3dInternal.*`
-- `GeometryProjection3dInternal.*`
-- `GeometryIntersection3dInternal.*`
-- `GeometrySearch3dInternal.*`
-- `GeometryBrepPreprocessInternal.*`
-- `GeometryMeshConversionInternal.*`
-
-这样后续：
-- section
-- body boolean
-- sewing
-- tessellation
-- validation
-
-都能复用同一底层，而不是各写一套局部版本。
-
-## 13. Relationship to Existing 2D SDK
-
-3D 服务层应尽量复用 2D 已经验证过的设计原则：
-- 公开接口短名风格
-- 结果结构化返回
-- 服务与值类型分离
-- shared internal layer 早规划
-
-但不要强行把 2D polygon-only helper 机械搬到 3D。
-
-## 14. Recommended First Public Surface Area
-
-第一阶段建议公开：
 - `GeometryTolerance3d`
-- `GeometryPredicate3d`
-- `GeometryProjection3d`
-- `GeometryIntersection3d`
-- `GeometryMeasure3d`
+- `GeometryContext3d`
 
-第一阶段建议先内部化：
-- 大型 spatial tree 细节
-- face-face / body-body complex intersection plumbing
-- recovery / preprocess internals
+规则：
 
-## 15. Recommended Implementation Order
+- 不在局部算法中散落裸 `1e-6`、`1e-9`
+- angle、distance、parameter 语义分开管理
+- 上下文通过参数传入，不靠全局状态
 
-建议顺序：
-1. `GeometryTolerance3d` / `GeometryContext3d`
-2. point-line-plane 基础 predicates
-3. point / curve / surface projection results
-4. line-plane / plane-plane / segment-triangle intersections
-5. `GeometryBoxTree3d` 或 `GeometryAABBTree3d`
-6. face/mesh candidate pruning helpers
-7. validation helpers
-8. section-ready intersection plumbing
+## 6. 与类型层的边界
 
-## 16. Key Design Decisions
+以下能力不建议重新做成成员函数：
 
-这层最终要固定的结论是：
-- 3D 基础算法必须单独成层，不应散落在类型或 topology 类中
-- tolerance/context 是公共基础设施，不是局部实现细节
-- spatial search 是服务层核心组成部分
-- projection / relation / intersection 必须共享统一的结果类型和 epsilon 语义
+- `ProjectPointToPlane(...)`
+- `Intersect(line, plane, tolerance)`
+- `Distance(point, plane)`
+- `IsParallel(v0, v1, tolerance)`
+
+这些都应保留在自由函数 / 服务层中。
+
+## 7. 与上层模块的关系
+
+服务层是以下模块的共同底座：
+
+- `Curve3d` / `Surface`
+- `PolyhedronBody`
+- `TriangleMesh`
+- `BrepBody`
+- validation / healing
+- section / tessellation
+
+## 8. 当前固定结论
+
+当前 3D 服务层设计应固定：
+
+- 统一结果结构
+- 统一容差入口
+- 统一自由函数风格
+- 不让上层对象各自复制一套基础几何服务

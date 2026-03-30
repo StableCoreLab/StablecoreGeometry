@@ -1,16 +1,16 @@
-# Design Doc Sync Tracker
+# 设计文档同步跟踪
 
-## Purpose
+## 目的
 
-这份文档用于跟踪历史 2D 设计文档与当前代码/API 状态之间的同步修复工作。
+这份文档用于跟踪历史 2D 设计文档与当前代码 / API 状态之间的同步修复工作。
 
-## Status Legend
+## 状态说明
 
-- `pending`: 尚未开始
-- `in_progress`: 正在处理
-- `done`: 已完成当前轮同步
+- `pending`：尚未开始
+- `in_progress`：正在处理中
+- `done`：当前轮同步已完成
 
-## File List
+## 文件列表
 
 ### `docs/segment-design.md`
 
@@ -56,8 +56,8 @@
 
 - status: `done`
 
-## Progress Notes
+## 进度备注
 
-- 2026-03-27:
+- 2026-03-27：
   - 已完成 `segment / polyline / polygon / box` 四份 2D 设计文档重写
-  - 已将成员方法 vs 自由函数边界规则固定到独立清单和 API 收口文档
+  - 已将成员方法 vs 自由函数边界规则固定到独立清单与 API 收敛文档

@@ -224,7 +224,7 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
 {
     if (segments.empty())
     {
-        return 256.0 * eps * eps;
+        return 64.0 * eps * eps;
     }
 
     double minX = segments.front().start.x;
@@ -242,7 +242,33 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     const double dx = maxX - minX;
     const double dy = maxY - minY;
     const double diagonal = std::sqrt(dx * dx + dy * dy);
-    return std::max(256.0 * eps * eps, diagonal * std::max(64.0 * eps, diagonal * 1e-6));
+    // Keep the tiny-face filter conservative enough to suppress numerical slivers,
+    // but not so aggressive that ultra-thin repeated-overlap bands are erased.
+    return std::max(64.0 * eps * eps, 2.0 * diagonal * eps);
+}
+
+[[nodiscard]] bool IsNearlyCollinearVertex(
+    const Point2d& previous,
+    const Point2d& current,
+    const Point2d& next,
+    double eps)
+{
+    const Vector2d incoming = current - previous;
+    const Vector2d outgoing = next - current;
+    const double incomingLength = incoming.Length();
+    const double outgoingLength = outgoing.Length();
+    if (incomingLength <= eps || outgoingLength <= eps)
+    {
+        return true;
+    }
+
+    const double crossMagnitude = std::abs(Cross(incoming, outgoing));
+    if (crossMagnitude > eps * (incomingLength + outgoingLength))
+    {
+        return false;
+    }
+
+    return LocatePoint(current, LineSegment2d(previous, next), eps) == PointContainment2d::OnBoundary;
 }
 
 [[nodiscard]] double ComputePolygonScale(const Polygon2d& polygon)
@@ -442,6 +468,25 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
     while (simplified.size() >= 2 && simplified.front().AlmostEquals(simplified.back(), eps))
     {
         simplified.pop_back();
+    }
+
+    bool changed = true;
+    while (changed && simplified.size() >= 3)
+    {
+        changed = false;
+        for (std::size_t i = 0; i < simplified.size(); ++i)
+        {
+            const std::size_t previousIndex = (i + simplified.size() - 1) % simplified.size();
+            const std::size_t nextIndex = (i + 1) % simplified.size();
+            if (!IsNearlyCollinearVertex(simplified[previousIndex], simplified[i], simplified[nextIndex], eps))
+            {
+                continue;
+            }
+
+            simplified.erase(simplified.begin() + static_cast<std::ptrdiff_t>(i));
+            changed = true;
+            break;
+        }
     }
 
     return simplified;

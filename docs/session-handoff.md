@@ -1,122 +1,135 @@
-# Session Handoff
+﻿# 会话交接
 
-## Current Context
+## 当前上下文
 
-- Workspace: `D:\code\stablecore-geometry`
-- Handoff updated on: `2026-03-27`
-- `python` is available
-- future sessions should focus on writing code and documents only
-- compile/run/build should be done manually by the user
-- do not worry about `gtest` environment provisioning; the user will adjust CMake/build side as needed
+- 工作区：`D:\code\stablecore-geometry`
+- 交接更新时间：`2026-03-30`
+- 可用环境：`python`
+- 后续会话应聚焦于源码与文档编写
+- 编译 / 构建 / 运行由用户手动完成
+- 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
-## Current Focus Order
+## 当前关注优先级
 
-1. boolean degeneracy / overlap robustness
-2. offset recovery in harder cases
-3. SearchPoly-style branch scoring / fake-edge ranking
-4. richer relation hierarchy
-5. polygon cut with holes
+1. boolean 在退化 / 重叠场景下的剩余稳健性
+2. offset 在更困难场景下的恢复能力
+3. SearchPoly 风格的分支评分 / fake-edge 排序
+4. 更丰富的 relation 层级
+5. 带孔 polygon cut
 
-## Current 2D State
+## 当前 2D 状态
 
-### Build / Test State
+### 构建 / 测试状态
 
-- `tests/` gtest migration is real current state
-- current test tree includes:
+- `tests/` 迁移到 gtest 已是当前真实状态
+- 当前测试树包含：
   - `tests/capabilities`
   - `tests/gaps`
   - `tests/support`
-- `tests/CMakeLists.txt` already wires capability and gap gtest executables
-- `stablecore_geometry_capabilities_gtest` has passed after the latest repair pass
+- `tests/CMakeLists.txt` 已接入 capability 与 gap 两个 gtest 可执行目标
+- `stablecore_geometry_capabilities_gtest` 在前一轮修复后已通过
 
-### API / Naming State
+### API / 命名状态
 
-- old `GetXxx`-style 2D API call sites have been cleared from code
-- `MultiPolyline2d::Count()`, `MultiPolygon2d::Count()`, and `PolygonTopology2d::Count()` are the current unified forms
-- rename-related compile fallout and capability-test fallout from this round were already repaired
-- `docs/sdk-type-design-review.md` remains the main API/design review baseline
-- member-method vs free-function boundary was written down explicitly in:
+- 旧的 `GetXxx` 风格 2D API 调用点已从代码中清除
+- `MultiPolyline2d::Count()`、`MultiPolygon2d::Count()`、`PolygonTopology2d::Count()` 是当前统一形式
+- `docs/sdk-type-design-review.md` 仍是主要 API / 设计评审基线
+- 成员方法与自由函数边界已收敛到：
   - `docs/sdk-2d-api-convergence.md`
   - `docs/api-member-free-function-checklist.md`
 
-### 2D Design Doc Sync State
+### 2D 设计文档同步状态
 
-- the core 2D design docs were rewritten/synchronized to current API state:
+- 当前主干设计文档已统一为中文口径
+- 2D 核心设计文档已同步到当前 API 状态：
   - `docs/segment-design.md`
   - `docs/polyline-design.md`
   - `docs/polygon-design.md`
   - `docs/box-design.md`
-- current doc-sync progress is tracked in:
+- 文档同步进度记录在：
   - `docs/design-doc-sync-tracker.md`
-- future sessions should update `docs/session-handoff.md` whenever a meaningful task is completed, not only at the end of a long batch
+- 后续会话在完成有意义任务后，应及时更新 `docs/session-handoff.md`
 
-### Geometry / Algorithm State
+### 几何 / 算法状态
 
-Already implemented:
+已实现：
+
 - `BuildMultiPolygonByLines`
-  - open line-network polygon build
-  - intersection splitting
-  - duplicate-edge cleanup
-  - near-endpoint auto-close
-  - simple projection-style auto-extend
-  - dangling branch pruning
-  - outer / hole nesting merge
-  - synthetic/fake edge tracking
-  - candidate loop area threshold filtering
-  - fake-edge-dominated tiny-loop suppression
-  - real-edge-first duplicate retention
+  - 开放线网建面
+  - 交点切分
+  - 重复边清理
+  - 近端点自动闭合
+  - 简单投影式 auto-extend
+  - dangling branch 裁剪
+  - outer / hole 嵌套归并
+  - synthetic / fake edge 跟踪
+  - 候选闭环面积阈值过滤
+  - fake-edge 主导的小环抑制
+  - 真实边优先的重复边保留
 - Boolean
-  - arrangement face extraction
-  - bounded-face classification
-  - result boundary rebuild
-  - ordinary crossing / containment
-  - duplicate-edge preprocessing
-  - tiny sliver face filtering
-  - stronger face sampling and multi-probe face classification
-  - relation-aware fast path for `Equal`, `Disjoint`, `FirstContainsSecond`, `SecondContainsFirst`, `Touching`
+  - arrangement face 提取
+  - bounded face 分类
+  - 结果边界重建
+  - 常规 crossing / containment
+  - duplicate-edge 预处理
+  - 微小 sliver face 过滤
+  - 更强的 face sampling 与多探针 face 分类
+  - 针对 `Equal`、`Disjoint`、`FirstContainsSecond`、`SecondContainsFirst`、`Touching` 的 relation-aware 快路径
+  - ultra-thin repeated-overlap 家族已提升到 capability 覆盖
+  - ring 简化加入近共线碎顶点清理
+  - tiny-face 面积阈值改为更保守，避免误删极薄但真实的 overlap 结果
 - Offset
-  - rebuild from offset rings
-  - basic concave / multipolygon recovery
-  - collapsed / near-zero ring filtering
-  - better single-polygon candidate selection
-  - split result kept for `MultiPolygon2d` offset
+  - 从 offset ring 重建结果
+  - 基础凹形 / multipolygon 恢复
+  - collapsed / near-zero ring 过滤
+  - 更好的单 polygon 候选选择
+  - `MultiPolygon2d` offset 保留分裂结果
 - Topology / Relation
-  - touching / intersecting / contains / equal distinctions
-  - shared-edge / collinear overlap no longer always misclassified as crossing
-  - stricter interior checks with edge-midpoint assistance
-  - equal duplicate polygon deterministic parent tie-break in topology
+  - 区分 touching / intersecting / contains / equal
+  - shared-edge / 共线重叠不再一律误判为 crossing
+  - 更严格的 interior 判定，并加入边中点辅助
+  - topology 中对 equal duplicate polygon 使用确定性的 parent tie-break
 
-## Current Boolean State
+## 当前 Boolean 状态
 
-Boolean is no longer mainly blocked on ordinary crossing / containment / equal / touching / simple overlap.
+Boolean 当前已不再主要卡在普通 crossing / containment / equal / touching / simple overlap 上。
 
-Current remaining boolean gap:
-- ultra-thin repeated-overlap families
-- harder arrangement degeneracies beyond the current duplicate-edge cleanup, tiny-face filtering, stronger face sampling, and multi-probe face classification
+当前 capability 预期包括：
 
-Current capability expectations include:
-- larger multi-step overlap family
+- 更大的多步 overlap 家族
   - `Intersect = 14.0`
   - `Union = 39.0`
   - `Difference = 12.0`
-- near-degenerate repeated-overlap family
+- 近退化 repeated-overlap 家族
   - `Intersect = 10.000002`
   - `Union = 26.000007`
   - `Difference = 6.000003`
+- ultra-thin repeated-overlap 家族
+  - `Intersect = 10.00000002`
+  - `Union = 26.00000007`
+  - `Difference = 6.00000003`
 
-## Current Offset / Relation Boundary
+当前剩余 boolean gap：
 
-The latest capability cleanup confirmed that some cases still belong to gaps rather than stable capabilities:
-- single-polygon offset does not yet reliably preserve hole semantics after rebuild
-- inward offset of a narrow bridge does not yet reliably split into stable multipolygon output
-- hole-aware polygon containment is not yet stable enough to keep in capability coverage
-- some boolean and polygon-rebuild tests are stable at area/semantic level but not yet at exact result-shape level
+- 低于当前容差尺度的 arrangement 退化
+- 更复杂 repeated-edge family
+- 更难的 near-degenerate arrangement recovery
 
-Gap characterization already reflects this in:
+## 当前 Offset / Relation 边界
+
+最近一次 capability 清理确认，有些场景仍应归类为 gap，而不是稳定 capability：
+
+- 单 polygon offset 在重建后尚不能稳定保留 hole 语义
+- 狭窄连接桥的 inward offset 尚不能稳定分裂为 multipolygon 输出
+- hole-aware polygon containment 仍不够稳定，不能放入 capability 覆盖
+- 某些 boolean 与 polygon rebuild 测试只在面积 / 语义层面稳定，尚未达到精确结果形状层面的稳定
+
+这些 gap 已体现在：
+
 - `tests/gaps/test_offset_gaps.cpp`
 - `docs/test-capability-coverage.md`
 
-## Important Docs To Read First Next Time
+## 下次开始时优先阅读的文档
 
 - `docs/next-task-prompt.md`
 - `docs/delphi-geometry-parity.md`
@@ -124,112 +137,66 @@ Gap characterization already reflects this in:
 - `docs/test-capability-coverage.md`
 - `docs/design-doc-sync-tracker.md`
 
-If working specifically on the current boolean gap, inspect these directly:
+如果专门处理当前 boolean 缺口，直接查看：
+
 - `src/sdk/GeometryBoolean.cpp`
 - `tests/capabilities/test_relation_boolean.cpp`
 - `tests/gaps/test_boolean_gaps.cpp`
 
-## Recommended Next 2D Action
+## 推荐的下一个 2D 动作
 
-The most reliable next task is:
-- continue boolean robustness from the current remaining gap
-  - target `tests/gaps/test_boolean_gaps.cpp`
-  - focus on ultra-thin repeated-overlap families
-  - prefer mechanism-level improvements over one-off case special-casing
+当前最可靠的下一项任务是：
 
-If compile/test feedback becomes necessary:
-- ask for the narrowest useful build/test step
-- prefer one failing target or one focused test executable over broad validation
+- 继续补 boolean 稳健性缺口
+  - 目标文件：`tests/gaps/test_boolean_gaps.cpp`
+  - 聚焦低于当前容差尺度的 arrangement 退化与更复杂 repeated-edge family
+  - 优先做机制级增强，而不是针对单个 case 的特判
 
-## Manual Validation Workflow
+## 手工验证工作流
 
-When feedback is needed:
-- specify the smallest useful build/test step
-- user runs it locally
-- user pastes the relevant output
-- patch code from the exact result
+当需要反馈时：
 
-Preferred output from the user:
-- for compile failure:
-  - target name
-  - first failing file and line
-  - main error text
-  - roughly 20 lines before/after if available
-- for test failure:
-  - executable or ctest target name
-  - failing test case name
-  - assertion text
-  - relevant stdout/stderr
-- for successful validation:
-  - which target/test was run
-  - whether it passed cleanly
+- 先明确最小有用的构建 / 测试步骤
+- 用户在本地运行
+- 用户粘贴相关输出
+- 基于精确结果继续补丁
 
-## Current 3D Design State
+期望用户提供的输出：
 
-The 3D work now has these design layers on disk:
-- overall library direction
-- foundational value types
-- parametric curve/surface layer
-- polyhedron/BRep topology layer
-- triangle mesh / conversion layer
-- shared 3D services layer
-- validation / healing layer
-- first-phase implementation roadmap
-- section / tessellation / validation integration
-- module / package layout
+- 对于编译失败：
+  - 目标名
+  - 首个失败文件与行号
+  - 主要错误文本
+  - 若方便，前后约 20 行上下文
+- 对于测试失败：
+  - 可执行名或 ctest target 名
+  - 失败测试用例名
+  - 断言文本
+  - 相关 stdout / stderr
+- 对于验证成功：
+  - 运行了哪个 target / test
+  - 是否干净通过
 
-Key 3D conclusions:
-- 2D API convergence rules should continue to constrain 3D naming and layering
-- `Plane` and `PlaneSurface` should stay separate
-- `Curve3d` / `Surface` are the core parametric protocols
-- `CurveOnSurface` and preimage curves must be planned before BRep algorithms
-- `PolyhedronBody` and `BrepBody` should not be merged early
-- `BrepCoedge` is required, not optional
+## 当前 3D 设计状态
 
-## Current 3D Code State
+磁盘上已具备以下 3D 设计层：
 
-The first real 3D code slice is present, and the missing Phase A foundational value-type headers were expanded further:
-- value-type headers:
-  - `include/types/Point3.h`
-  - `include/types/Vector3.h`
-  - `include/types/Interval.h`
-  - `include/types/Box3.h`
-  - `include/types/Direction3.h`
-  - `include/types/Matrix3.h`
-  - `include/types/Transform3.h`
-  - `include/types/Plane.h`
-  - `include/types/Line3.h`
-  - `include/types/Ray3.h`
-  - `include/types/LineSegment3.h`
-  - `include/types/Triangle3.h`
-- `include/sdk/GeometryTypes.h`
-  - now exposes `Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`, `Matrix3d`, `Transform3d`, `Plane`, `Line3d`, `Ray3d`, `LineSegment3d`, `Triangle3d`
-  - adds `GeometryTolerance3d`, `GeometryContext3d`, `LineProjection3d`, `PlaneProjection3d`, `LinePlaneIntersection3d`, `PlanePlaneIntersection3d`
-- `include/sdk/GeometryProjection.h`
-  - adds `ProjectPointToLine(...)` and `ProjectPointToPlane(...)`
-- `include/sdk/GeometryIntersection.h`
-  - adds `Intersect(line, plane, tolerance)` and `Intersect(plane, plane, tolerance)`
-- `include/sdk/GeometryRelation.h`
-  - adds `PointPlaneSide3d`, `LocatePoint(point, plane, tolerance)`, `IsParallel(Vector3d, Vector3d, tolerance)`, `IsPerpendicular(Vector3d, Vector3d, tolerance)`
-- `include/sdk/GeometryApi.h`
-  - now pulls `GeometryProjection.h` and `GeometryIntersection.h` into the umbrella API
-- service implementation files:
-  - `src/sdk/GeometryProjection3d.cpp`
-  - `src/sdk/GeometryIntersection3d.cpp`
-  - `src/sdk/GeometryRelation3d.cpp`
-- `CMakeLists.txt`
-  - registers the three new 3D `.cpp` files in `stablecore_geometry`
+- 整体库方向
+- 基础值类型
+- 参数曲线 / 曲面层
+- polyhedron / BRep 拓扑层
+- triangle mesh / conversion 层
+- 共享 3D service 层
+- validation / healing 层
+- 第一阶段实现路线图
+- section / tessellation / validation 集成
+- module / package 布局
 
-Important current constraints:
-- no compile was run yet for the 3D slice
-- no tests were added yet
-- Phase A is much closer to complete at header/API level, but still not validated by compile/test feedback
-- `PlaneSurface`, `LineCurve3d`, and richer 3D object protocols are still design-only
-- this slice intentionally stops before section/tessellation/body code
+关键 3D 结论：
 
-## Recommended Next 3D Action
-
-When returning to 3D code, the most reliable next steps are:
-- manually compile just the library target first and report any compile errors
-- then, if compile is clean, add `PlaneSurface` and `LineCurve3d` headers/skeletons on top of the new value/service layer
-- after that, start the minimal plane-dominant polyhedron section path identified by the design docs
+- 2D API 收敛规则仍应约束 3D 命名与分层
+- `Plane` 与 `PlaneSurface` 应保持分离
+- `Curve3d` / `Surface` 是核心参数协议
+- 在做 BRep 算法前，必须先规划 `CurveOnSurface` 与 preimage curve
+- `PolyhedronBody` 与 `BrepBody` 不应过早合并
+- `BrepCoedge` 是必需项，不是可选项
