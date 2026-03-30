@@ -224,6 +224,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
   - 带孔平面 face 现已通过 projected 2D polygon bridge + hole-bridging triangulation 进入 mesh conversion
   - `GeometryMeshOps` 已加入 triangle normal / vertex normal / triangle adjacency 查询
   - `GeometryMeshOps` 已加入 boundary edge 提取与 closed-mesh 判断
+  - `GeometryMeshOps` 已加入 boundary loop 提取
   - `GeometryMeshOps` 已加入 connected components / non-manifold edge 查询
   - `GeometryMeshOps` 已加入 orientation consistency 与 shell 分组查询
 - `polyhedron-core` 已起步：
@@ -242,7 +243,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
   - `SurfaceEval3d`
   - `TriangleMesh`
   - `TriangleNormal` / `VertexNormal` / `TriangleAdjacency`
-  - `ExtractBoundaryEdges` / `IsClosedTriangleMesh`
+  - `ExtractBoundaryEdges` / `ExtractBoundaryLoops` / `IsClosedTriangleMesh`
   - `ExtractNonManifoldEdges` / `IsManifoldTriangleMesh` / `ComputeTriangleConnectedComponents`
   - `IsConsistentlyOrientedTriangleMesh` / `ComputeMeshShells`
   - `MeshValidation3d`
@@ -261,6 +262,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `TriangleMesh` 已接上 `PlaneSurface -> TriangleMesh` 的最小 tessellation 路径
 - `TriangleMesh` 已接上 triangle normal / vertex normal / triangle adjacency 的最小查询层
 - `TriangleMesh` 已接上 boundary edge 提取与 closed-mesh 判断
+- `TriangleMesh` 已接上 boundary loop 提取
 - `TriangleMesh` 已接上 connected components / non-manifold edge 的最小查询层
 - `TriangleMesh` 已接上 orientation consistency 与 shell 分组的最小查询层
 - `PolyhedronBody` 已接上平面 face / body 到 `TriangleMesh` 的最小 conversion 路径
@@ -274,7 +276,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 如果继续沿路线图推进，当前最合理的下一步是：
 
 - 继续扩展 `trianglemesh-core`
-  - 补更广泛 surface 的 conversion 入口，以及后续需要的 shell-orientation repair / mesh stitching 前置查询
+  - 补更广泛 surface 的 conversion 入口，以及后续需要的 shell-orientation repair / mesh stitching 前置查询与最小修复
 - 或者进入 `polyhedron-core`
   - 将当前平面 face workflow 继续推广到更一般的 planar section / face rebuild / face merge
   - 再补 projected 2D polygon 驱动的多孔 / 更复杂 planar face 路径

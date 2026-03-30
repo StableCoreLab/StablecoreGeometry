@@ -38,6 +38,17 @@ struct GEOMETRY_API MeshBoundaryEdge3d
     }
 };
 
+struct GEOMETRY_API MeshBoundaryLoop3d
+{
+    std::vector<std::size_t> vertexIndices{};
+    bool closed{false};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return vertexIndices.size() >= (closed ? 3U : 2U);
+    }
+};
+
 struct GEOMETRY_API MeshNonManifoldEdge3d
 {
     std::array<std::size_t, 2> vertexIndices{
@@ -92,6 +103,9 @@ struct GEOMETRY_API MeshShell3d
     const TriangleMesh& mesh);
 
 [[nodiscard]] GEOMETRY_API std::vector<MeshBoundaryEdge3d> ExtractBoundaryEdges(
+    const TriangleMesh& mesh);
+
+[[nodiscard]] GEOMETRY_API std::vector<MeshBoundaryLoop3d> ExtractBoundaryLoops(
     const TriangleMesh& mesh);
 
 [[nodiscard]] GEOMETRY_API bool IsClosedTriangleMesh(const TriangleMesh& mesh);

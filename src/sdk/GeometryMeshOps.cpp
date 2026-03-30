@@ -227,6 +227,122 @@ bool IsClosedTriangleMesh(const TriangleMesh& mesh)
     return mesh.IsValid() && ExtractBoundaryEdges(mesh).empty();
 }
 
+std::vector<MeshBoundaryLoop3d> ExtractBoundaryLoops(const TriangleMesh& mesh)
+{
+    std::vector<MeshBoundaryLoop3d> loops;
+    const auto boundaryEdges = ExtractBoundaryEdges(mesh);
+    if (boundaryEdges.empty())
+    {
+        return loops;
+    }
+
+    std::unordered_map<std::size_t, std::vector<std::size_t>> outgoingEdges;
+    outgoingEdges.reserve(boundaryEdges.size());
+    std::unordered_map<std::size_t, std::size_t> incomingCount;
+    incomingCount.reserve(boundaryEdges.size());
+    for (std::size_t i = 0; i < boundaryEdges.size(); ++i)
+    {
+        outgoingEdges[boundaryEdges[i].vertexIndices[0]].push_back(i);
+        ++incomingCount[boundaryEdges[i].vertexIndices[1]];
+        incomingCount.try_emplace(boundaryEdges[i].vertexIndices[0], 0);
+    }
+
+    std::vector<bool> visited(boundaryEdges.size(), false);
+    std::size_t visitedCount = 0;
+    auto nextUnusedOutgoing = [&](std::size_t vertex) -> std::size_t {
+        const auto it = outgoingEdges.find(vertex);
+        if (it == outgoingEdges.end())
+        {
+            return kNoTriangle;
+        }
+
+        for (std::size_t edgeIndex : it->second)
+        {
+            if (!visited[edgeIndex])
+            {
+                return edgeIndex;
+            }
+        }
+
+        return kNoTriangle;
+    };
+
+    while (visitedCount < boundaryEdges.size())
+    {
+        std::size_t seedEdge = kNoTriangle;
+        for (std::size_t i = 0; i < boundaryEdges.size(); ++i)
+        {
+            if (visited[i])
+            {
+                continue;
+            }
+
+            if (incomingCount[boundaryEdges[i].vertexIndices[0]] == 0)
+            {
+                seedEdge = i;
+                break;
+            }
+
+            if (seedEdge == kNoTriangle)
+            {
+                seedEdge = i;
+            }
+        }
+
+        if (seedEdge == kNoTriangle)
+        {
+            break;
+        }
+
+        MeshBoundaryLoop3d loop;
+        std::size_t currentEdge = seedEdge;
+        const std::size_t startVertex = boundaryEdges[currentEdge].vertexIndices[0];
+        loop.vertexIndices.push_back(startVertex);
+        while (currentEdge != kNoTriangle && !visited[currentEdge])
+        {
+            visited[currentEdge] = true;
+            ++visitedCount;
+
+            const auto& edge = boundaryEdges[currentEdge];
+            const std::size_t nextVertex = edge.vertexIndices[1];
+            if (loop.vertexIndices.empty() || loop.vertexIndices.back() != nextVertex)
+            {
+                loop.vertexIndices.push_back(nextVertex);
+            }
+
+            const std::size_t candidate = nextUnusedOutgoing(nextVertex);
+            if (candidate == kNoTriangle)
+            {
+                currentEdge = kNoTriangle;
+                break;
+            }
+
+            if (boundaryEdges[candidate].vertexIndices[1] == startVertex)
+            {
+                visited[candidate] = true;
+                ++visitedCount;
+                loop.closed = true;
+                currentEdge = kNoTriangle;
+                break;
+            }
+
+            currentEdge = candidate;
+        }
+
+        if (loop.closed && !loop.vertexIndices.empty() && loop.vertexIndices.back() == startVertex)
+        {
+            loop.vertexIndices.pop_back();
+        }
+
+        if (loop.IsValid())
+        {
+            loops.push_back(std::move(loop));
+        }
+    }
+
+    return loops;
+}
+
 std::vector<MeshNonManifoldEdge3d> ExtractNonManifoldEdges(const TriangleMesh& mesh)
 {
     std::vector<MeshNonManifoldEdge3d> nonManifoldEdges;
