@@ -321,6 +321,41 @@ BrepFaceProjection3d ProjectPointToBrepFace(
     return best;
 }
 
+BrepBodyProjection3d ProjectPointToBrepBody(
+    const Point3d& point,
+    const BrepBody& body,
+    const GeometryTolerance3d& tolerance)
+{
+    BrepBodyProjection3d best{};
+    if (!body.IsValid(tolerance))
+    {
+        return best;
+    }
+
+    std::size_t faceIndex = 0;
+    for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
+    {
+        const BrepShell shell = body.ShellAt(shellIndex);
+        for (std::size_t localFaceIndex = 0; localFaceIndex < shell.FaceCount(); ++localFaceIndex, ++faceIndex)
+        {
+            const BrepFaceProjection3d projected = ProjectPointToBrepFace(point, shell.FaceAt(localFaceIndex), tolerance);
+            if (!projected.success)
+            {
+                continue;
+            }
+
+            if (!best.success || projected.distanceSquared < best.projection.distanceSquared)
+            {
+                best.success = true;
+                best.faceIndex = faceIndex;
+                best.projection = projected;
+            }
+        }
+    }
+
+    return best;
+}
+
 FaceProjection3d ProjectFaceToPolygon2d(const PolyhedronFace3d& face, const GeometryTolerance3d& tolerance)
 {
     if (!face.IsValid(tolerance.distanceEpsilon))

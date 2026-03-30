@@ -161,6 +161,18 @@ struct GEOMETRY_API BrepFaceProjection3d
     }
 };
 
+struct GEOMETRY_API BrepBodyProjection3d
+{
+    bool success{false};
+    std::size_t faceIndex{0};
+    BrepFaceProjection3d projection{};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return !success || projection.IsValid();
+    }
+};
+
 struct GEOMETRY_API LinePlaneIntersection3d
 {
     bool intersects{false};

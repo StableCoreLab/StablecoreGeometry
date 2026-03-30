@@ -53,6 +53,11 @@ namespace geometry::sdk
     const BrepFace& face,
     const GeometryTolerance3d& tolerance = {});
 
+[[nodiscard]] GEOMETRY_API BrepBodyProjection3d ProjectPointToBrepBody(
+    const Point3d& point,
+    const BrepBody& body,
+    const GeometryTolerance3d& tolerance = {});
+
 struct GEOMETRY_API FaceProjection3d
 {
     bool success{false};
