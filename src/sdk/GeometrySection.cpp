@@ -331,6 +331,15 @@ void SimplifyOpenPolyline(
     return data;
 }
 
+[[nodiscard]] Point3d LiftFromSectionPlane(
+    const Point2d& point,
+    const Point3d& origin,
+    const Vector3d& uAxis,
+    const Vector3d& vAxis)
+{
+    return origin + uAxis * point.x + vAxis * point.y;
+}
+
 void AddUniquePlaneEdgeSegments(
     const PolyhedronLoop3d& loop,
     const Plane& plane,
@@ -749,6 +758,72 @@ PolyhedronSection3d Section(
 
         result.contours.push_back(SectionPolyline3d{true, std::move(contour3d)});
         result.polygons.push_back(std::move(polygon));
+    }
+
+    result.success = true;
+    return result;
+}
+
+SectionFaceRebuild3d RebuildSectionFaces(const PolyhedronSection3d& section, double eps)
+{
+    SectionFaceRebuild3d result{};
+    if (!section.success || !section.IsValid(eps))
+    {
+        result.issue = SectionFaceRebuildIssue3d::InvalidSection;
+        return result;
+    }
+
+    const Vector3d normal = Cross(section.uAxis, section.vAxis);
+    const Plane supportPlane = Plane::FromPointAndNormal(section.origin, normal);
+    if (!supportPlane.IsValid(eps))
+    {
+        result.issue = SectionFaceRebuildIssue3d::InvalidSection;
+        return result;
+    }
+
+    result.faces.reserve(section.polygons.size());
+    for (const Polygon2d& polygon : section.polygons)
+    {
+        if (!polygon.IsValid())
+        {
+            result.issue = SectionFaceRebuildIssue3d::InvalidPolygon;
+            return result;
+        }
+
+        std::vector<Point3d> outerVertices;
+        const Polyline2d outerRing = polygon.OuterRing();
+        outerVertices.reserve(outerRing.PointCount());
+        for (std::size_t i = 0; i < outerRing.PointCount(); ++i)
+        {
+            outerVertices.push_back(LiftFromSectionPlane(
+                outerRing.PointAt(i),
+                section.origin,
+                section.uAxis,
+                section.vAxis));
+        }
+
+        std::vector<PolyhedronLoop3d> holes;
+        holes.reserve(polygon.HoleCount());
+        for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
+        {
+            const Polyline2d holeRing = polygon.HoleAt(holeIndex);
+            std::vector<Point3d> holeVertices;
+            holeVertices.reserve(holeRing.PointCount());
+            for (std::size_t i = 0; i < holeRing.PointCount(); ++i)
+            {
+                holeVertices.push_back(LiftFromSectionPlane(
+                    holeRing.PointAt(i),
+                    section.origin,
+                    section.uAxis,
+                    section.vAxis));
+            }
+            holes.emplace_back(std::move(holeVertices));
+        }
+
+        result.faces.emplace_back(
+            supportPlane,
+            PolyhedronLoop3d(std::move(outerVertices)),
+            std::move(holes));
     }
 
     result.success = true;

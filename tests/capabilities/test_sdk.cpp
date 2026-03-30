@@ -32,6 +32,8 @@ using geometry::sdk::Point3d;
 using geometry::sdk::PolyhedronBody;
 using geometry::sdk::PolyhedronFace3d;
 using geometry::sdk::PolyhedronLoop3d;
+using geometry::sdk::SectionFaceRebuild3d;
+using geometry::sdk::SectionFaceRebuildIssue3d;
 using geometry::sdk::PolyhedronSection3d;
 using geometry::sdk::PolyhedronValidationIssue3d;
 using geometry::sdk::Polygon2d;
@@ -59,6 +61,7 @@ using geometry::sdk::Triangle3d;
 using geometry::sdk::Intervald;
 using geometry::sdk::Section;
 using geometry::sdk::SectionIssue3d;
+using geometry::sdk::RebuildSectionFaces;
 using geometry::sdk::Validate;
 using geometry::sdk::Vector2d;
 using geometry::sdk::Vector3d;
@@ -607,6 +610,14 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(middleSection.polygons.size() == 1);
     GEOMETRY_TEST_ASSERT_NEAR(Area(middleSection.polygons[0]), 1.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(middleSection.origin.z, 0.5, 1e-12);
+    const SectionFaceRebuild3d rebuiltMiddleFaces = RebuildSectionFaces(middleSection);
+    assert(rebuiltMiddleFaces.success);
+    assert(rebuiltMiddleFaces.issue == SectionFaceRebuildIssue3d::None);
+    assert(rebuiltMiddleFaces.IsValid());
+    assert(rebuiltMiddleFaces.faces.size() == 1);
+    const auto rebuiltMiddleMesh = ConvertToTriangleMesh(rebuiltMiddleFaces.faces[0]);
+    assert(rebuiltMiddleMesh.success);
+    GEOMETRY_TEST_ASSERT_NEAR(rebuiltMiddleMesh.mesh.SurfaceArea(), 1.0, 1e-12);
 
     const PolyhedronSection3d disjointSection = Section(
         cubeBody,
@@ -626,6 +637,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(coplanarSection.contours.size() == 1);
     assert(coplanarSection.polygons.size() == 1);
     GEOMETRY_TEST_ASSERT_NEAR(Area(coplanarSection.polygons[0]), 1.0, 1e-12);
+    const SectionFaceRebuild3d rebuiltCoplanarFaces = RebuildSectionFaces(coplanarSection);
+    assert(rebuiltCoplanarFaces.success);
+    assert(rebuiltCoplanarFaces.faces.size() == 1);
 
     const PolyhedronSection3d edgeOnlySection = Section(
         cubeBody,
@@ -638,6 +652,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(!edgeOnlySection.contours[0].closed);
     assert(edgeOnlySection.contours[0].points.size() == 2);
     assert(edgeOnlySection.polygons.empty());
+    const SectionFaceRebuild3d rebuiltEdgeOnlyFaces = RebuildSectionFaces(edgeOnlySection);
+    assert(rebuiltEdgeOnlyFaces.success);
+    assert(rebuiltEdgeOnlyFaces.faces.empty());
 }
 
 
