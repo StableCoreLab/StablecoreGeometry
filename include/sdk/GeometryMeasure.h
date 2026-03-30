@@ -126,6 +126,10 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const Surface& surface);
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const CurveOnSurface& curveOnSurface);
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const TriangleMesh& mesh);
+[[nodiscard]] GEOMETRY_API Box3d Bounds(const PolyhedronFace3d& face);
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const PolyhedronBody& body);
+[[nodiscard]] GEOMETRY_API Box3d Bounds(const BrepVertex& vertex);
+[[nodiscard]] GEOMETRY_API Box3d Bounds(const BrepEdge& edge);
+[[nodiscard]] GEOMETRY_API Box3d Bounds(const BrepFace& face);
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const BrepBody& body);
 } // namespace geometry::sdk

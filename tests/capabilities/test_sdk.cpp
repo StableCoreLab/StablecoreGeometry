@@ -728,6 +728,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(faceBounds.IsValid());
     assert(faceBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
     assert(faceBounds.MaxPoint().AlmostEquals(Point3d{2.0, 2.0, 0.0}, 1e-12));
+    const geometry::Box3d faceMeasureBounds = geometry::sdk::Bounds(face);
+    assert(faceMeasureBounds.IsValid());
+    assert(faceMeasureBounds.MaxPoint().AlmostEquals(Point3d{2.0, 2.0, 0.0}, 1e-12));
     const PolyhedronBody body({face});
     assert(body.IsValid());
     assert(body.FaceCount() == 1);
@@ -844,6 +847,10 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(brepVertexProjection.IsValid());
     assert(brepVertexProjection.point.AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 6.0}, brepVertices[0]), std::sqrt(3.0), 1e-12);
+    const geometry::Box3d brepVertexBounds = geometry::sdk::Bounds(brepVertices[0]);
+    assert(brepVertexBounds.IsValid());
+    assert(brepVertexBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
+    assert(brepVertexBounds.MaxPoint().AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     const auto brepVertexLineIntersection = geometry::sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{0.0, 0.0, 6.0}, Vector3d{0.0, 0.0, -1.0}),
         brepVertices[0]);
@@ -909,6 +916,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(brepFaceBounds.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(brepFaceBounds.MinPoint().z, 5.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(brepFaceBounds.MaxPoint().z, 5.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Bounds(brepFace).MinPoint().z, 5.0, 1e-12);
     const BrepShell brepShell({brepFace}, false);
     assert(brepShell.IsValid());
     const geometry::Box3d brepShellBounds = brepShell.Bounds();
@@ -926,6 +934,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(brepEdgeBounds.IsValid());
     assert(brepEdgeBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     assert(brepEdgeBounds.MaxPoint().AlmostEquals(Point3d{2.0, 0.0, 5.0}, 1e-12));
+    assert(geometry::sdk::Bounds(brepBody.EdgeAt(0)).MaxPoint().AlmostEquals(Point3d{2.0, 0.0, 5.0}, 1e-12));
     const auto brepEdgeProjection = ProjectPointToBrepEdge(Point3d{1.0, 1.0, 5.0}, brepBody.EdgeAt(0));
     assert(brepEdgeProjection.success);
     assert(brepEdgeProjection.IsValid());

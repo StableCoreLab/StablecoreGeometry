@@ -270,9 +270,34 @@ Box3d Bounds(const TriangleMesh& mesh)
     return mesh.Bounds();
 }
 
+Box3d Bounds(const PolyhedronFace3d& face)
+{
+    return face.Bounds();
+}
+
 Box3d Bounds(const PolyhedronBody& body)
 {
     return body.Bounds();
+}
+
+Box3d Bounds(const BrepVertex& vertex)
+{
+    if (!vertex.IsValid())
+    {
+        return {};
+    }
+
+    return Box3d::FromMinMax(vertex.Point(), vertex.Point());
+}
+
+Box3d Bounds(const BrepEdge& edge)
+{
+    return edge.Bounds();
+}
+
+Box3d Bounds(const BrepFace& face)
+{
+    return face.Bounds();
 }
 
 Box3d Bounds(const BrepBody& body)

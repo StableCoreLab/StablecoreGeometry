@@ -346,6 +346,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `GeometryMeasure` 已接上 `Distance(point, BrepVertex)` / `DistanceSquared(point, BrepVertex)`
 - `GeometryMeasure` 已接上 `Distance(point, BrepBody)` / `DistanceSquared(point, BrepBody)`，当前复用 `ProjectPointToBrepBody(...)`
 - `GeometryMeasure` 已接上 `Distance(point, BrepEdge)` / `DistanceSquared(point, BrepEdge)`
+- `GeometryMeasure` 已接上 `Bounds(PolyhedronFace3d)` / `Bounds(BrepVertex)` / `Bounds(BrepEdge)` / `Bounds(BrepFace)`
 - `GeometryIntersection3d` 已接上 `Intersect(Line3d, BrepFace, ...)` 与 `Intersect(Line3d, BrepBody, ...)`，当前复用 `line -> surface` 再走 trim containment / 多 face 聚合
 - `GeometryIntersection3d` 已接上 `Intersect(Line3d, BrepEdge, ...)`，当前对 `LineCurve3d` 走解析求交，对一般 `Curve3d` 走保守采样
 - `Validate(BrepBody, ...)` 已补最小 edge-use adjacency 校验：当前会拒绝 0 次引用或超过 2 次引用的 edge
