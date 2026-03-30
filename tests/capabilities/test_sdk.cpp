@@ -779,6 +779,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(faceMesh.mesh.IsValid());
     assert(faceMesh.mesh.TriangleCount() == 2);
     GEOMETRY_TEST_ASSERT_NEAR(faceMesh.mesh.SurfaceArea(), 4.0, 1e-12);
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, face) == geometry::sdk::PointContainment2d::Inside);
+    assert(geometry::sdk::LocatePoint(Point3d{2.0, 1.0, 0.0}, face) == geometry::sdk::PointContainment2d::OnBoundary);
+    assert(geometry::sdk::LocatePoint(Point3d{3.0, 1.0, 0.0}, face) == geometry::sdk::PointContainment2d::Outside);
     const auto polyFaceProjection = ProjectPointToPolyhedronFace(Point3d{1.0, 1.0, 3.0}, face);
     assert(polyFaceProjection.success);
     assert(polyFaceProjection.IsValid());
@@ -968,6 +971,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(!brepFaceLineIntersection.onBoundary);
     GEOMETRY_TEST_ASSERT_NEAR(brepFaceLineIntersection.lineParameter, 3.0, 1e-12);
     assert(brepFaceLineIntersection.point.AlmostEquals(Point3d{1.0, 1.0, 5.0}, 1e-12));
+    assert(geometry::sdk::LocatePoint(Point3d{-1.0, -2.0, 5.0}, brepFace) == geometry::sdk::PointContainment2d::Inside);
+    assert(geometry::sdk::LocatePoint(Point3d{-2.0, -2.0, 5.0}, brepFace) == geometry::sdk::PointContainment2d::OnBoundary);
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 5.0}, brepFace) == geometry::sdk::PointContainment2d::Outside);
     const auto brepBodyLineIntersection = geometry::sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 8.0}, Vector3d{0.0, 0.0, -1.0}),
         brepBody);

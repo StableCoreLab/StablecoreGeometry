@@ -327,6 +327,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `GeometryProjection` 已接上 `ProjectPointToCurveOnSurface(...)`，当前按 3D polyline segment 做最近点投影，并回写 UV
 - `GeometryProjection` 已接上 `ProjectPointToTriangleMesh(...)`，当前逐 triangle 做最近点投影
 - `GeometryProjection` 已接上 `ProjectPointToPolyhedronFace(...)` / `ProjectPointToPolyhedronBody(...)`，当前优先走支撑平面投影 + projected 2D polygon containment，落到面外时保守回退到边界最近点
+- `GeometryRelation3d` 已接上 `LocatePoint(point, PolyhedronFace3d, ...)` 与 `LocatePoint(point, BrepFace, ...)`
 - `GeometryMeasure` 已接上 `Distance(point, surface)` / `DistanceSquared(point, surface)`，可直接消费 `PlaneSurface` 与当前最小 `NurbsSurface`
 - `GeometryMeasure` 已接上 `Distance(point, Curve3d)` / `DistanceSquared(point, Curve3d)`
 - `GeometryMeasure` 已接上 `Distance(point, CurveOnSurface)` / `DistanceSquared(point, CurveOnSurface)`

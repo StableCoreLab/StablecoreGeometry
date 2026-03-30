@@ -2,9 +2,11 @@
 
 #include "export/GeometryExport.h"
 #include "sdk/ArcSegment2d.h"
+#include "sdk/BrepFace.h"
 #include "sdk/GeometryTypes.h"
 #include "sdk/LineSegment2d.h"
 #include "sdk/Polygon2d.h"
+#include "sdk/PolyhedronFace3d.h"
 #include "sdk/Polyline2d.h"
 #include "sdk/Segment2d.h"
 
@@ -48,6 +50,14 @@ enum class PointPlaneSide3d
 [[nodiscard]] GEOMETRY_API PointPlaneSide3d LocatePoint(
     const Point3d& point,
     const Plane& plane,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
+    const Point3d& point,
+    const PolyhedronFace3d& face,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
+    const Point3d& point,
+    const BrepFace& face,
     const GeometryTolerance3d& tolerance = {});
 
 [[nodiscard]] GEOMETRY_API bool IsParallel(
