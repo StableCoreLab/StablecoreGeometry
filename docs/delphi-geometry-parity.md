@@ -111,6 +111,16 @@
 - 更强的 validation / healing 链路，而不只是 mesh 查询与局部 orientation repair
 - 更复杂 surface、lofting、body 级 boolean / offset / sewing 等成熟 3D 工程能力
 
+当前 3D 中已经明确补上的一段，是 plane-dominant `section` 最小链：
+
+- `Plane x PolyhedronBody` 已可返回 `segments / contours / polygons`
+- 已支持横切、coplanar face、edge-only 零面积截面
+- 已支持 `BuildSectionTopology(...)`
+- 已支持 `RebuildSectionFaces(...)` / `RebuildSectionBody(...)`
+- 已支持 `ConvertSectionToTriangleMesh(...)`
+
+但这仍只是第一阶段的最小 plane-section workflow，距离 Delphi / GGP 风格的更复杂 section graph、face merge 细语义、非平面 / 非平面主导 section 还差明显阶段。
+
 因此，当前仓库与 Delphi 的“尚未达到”状态，2D 与 3D 应分开理解：
 
 - 2D：主要差在恢复深度、歧义消解与更接近生产级的搜索 / 重建策略
