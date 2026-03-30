@@ -42,6 +42,7 @@ struct GEOMETRY_API SectionBodySetRebuild3d
 {
     bool success{false};
     SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
+    std::vector<std::size_t> rootPolygonIndices{};
     std::vector<PolyhedronBody> bodies{};
 
     [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
@@ -49,6 +50,11 @@ struct GEOMETRY_API SectionBodySetRebuild3d
         if (!success)
         {
             return true;
+        }
+
+        if (bodies.size() != rootPolygonIndices.size())
+        {
+            return false;
         }
 
         for (const PolyhedronBody& body : bodies)
@@ -291,6 +297,7 @@ struct GEOMETRY_API SectionMeshSetConversion3d
 {
     bool success{false};
     MeshConversionIssue3d issue{MeshConversionIssue3d::None};
+    std::vector<std::size_t> rootPolygonIndices{};
     std::vector<TriangleMesh> meshes{};
 
     [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
@@ -298,6 +305,11 @@ struct GEOMETRY_API SectionMeshSetConversion3d
         if (!success)
         {
             return true;
+        }
+
+        if (meshes.size() != rootPolygonIndices.size())
+        {
+            return false;
         }
 
         for (const TriangleMesh& mesh : meshes)

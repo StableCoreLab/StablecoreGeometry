@@ -659,6 +659,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(rebuiltMiddleBodies.success);
     assert(rebuiltMiddleBodies.IsValid());
     assert(rebuiltMiddleBodies.bodies.size() == 1);
+    assert(rebuiltMiddleBodies.rootPolygonIndices.size() == 1);
+    assert(rebuiltMiddleBodies.rootPolygonIndices[0] == 0);
     const SectionMeshConversion3d middleSectionMesh = ConvertSectionToTriangleMesh(middleSection);
     assert(middleSectionMesh.success);
     assert(middleSectionMesh.IsValid());
@@ -667,6 +669,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(middleSectionMeshes.success);
     assert(middleSectionMeshes.IsValid());
     assert(middleSectionMeshes.meshes.size() == 1);
+    assert(middleSectionMeshes.rootPolygonIndices.size() == 1);
+    assert(middleSectionMeshes.rootPolygonIndices[0] == 0);
 
     const PolyhedronSection3d disjointSection = Section(
         cubeBody,
@@ -778,12 +782,16 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionBodySetRebuild3d rebuiltMergedBodies = RebuildSectionBodies(nestedSection);
     assert(rebuiltMergedBodies.success);
     assert(rebuiltMergedBodies.bodies.size() == 1);
+    assert(rebuiltMergedBodies.rootPolygonIndices.size() == 1);
+    assert(rebuiltMergedBodies.rootPolygonIndices[0] == 0);
     const SectionMeshConversion3d rebuiltMergedSectionMesh = ConvertSectionToTriangleMesh(nestedSection);
     assert(rebuiltMergedSectionMesh.success);
     GEOMETRY_TEST_ASSERT_NEAR(rebuiltMergedSectionMesh.mesh.SurfaceArea(), 12.0, 1e-12);
     const SectionMeshSetConversion3d rebuiltMergedSectionMeshes = ConvertSectionToTriangleMeshes(nestedSection);
     assert(rebuiltMergedSectionMeshes.success);
     assert(rebuiltMergedSectionMeshes.meshes.size() == 1);
+    assert(rebuiltMergedSectionMeshes.rootPolygonIndices.size() == 1);
+    assert(rebuiltMergedSectionMeshes.rootPolygonIndices[0] == 0);
     assert(ClassifySectionContent(nestedSection) == SectionContentKind3d::Area);
 
     PolyhedronSection3d disjointAreaSection{};
@@ -823,10 +831,16 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(rebuiltDisjointBodies.bodies.size() == 2);
     assert(rebuiltDisjointBodies.bodies[0].FaceCount() == 1);
     assert(rebuiltDisjointBodies.bodies[1].FaceCount() == 1);
+    assert(rebuiltDisjointBodies.rootPolygonIndices.size() == 2);
+    assert(rebuiltDisjointBodies.rootPolygonIndices[0] == 0);
+    assert(rebuiltDisjointBodies.rootPolygonIndices[1] == 1);
     const SectionMeshSetConversion3d rebuiltDisjointMeshes = ConvertSectionToTriangleMeshes(disjointAreaSection);
     assert(rebuiltDisjointMeshes.success);
     assert(rebuiltDisjointMeshes.IsValid());
     assert(rebuiltDisjointMeshes.meshes.size() == 2);
+    assert(rebuiltDisjointMeshes.rootPolygonIndices.size() == 2);
+    assert(rebuiltDisjointMeshes.rootPolygonIndices[0] == 0);
+    assert(rebuiltDisjointMeshes.rootPolygonIndices[1] == 1);
 
     PolyhedronSection3d mixedSection = edgeOnlySection;
     mixedSection.polygons.push_back(middleSection.polygons[0]);

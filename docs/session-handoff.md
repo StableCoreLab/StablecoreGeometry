@@ -311,6 +311,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `GeometrySection` 已接上最小 topology 入口，可显式给出 section polygons 的 parent / child / depth 关系
 - `GeometrySection` 已接上最小 component 入口，可按 root 将 section polygons / rebuilt faces 分组
 - `GeometrySection` 已接上最小 mesh conversion 入口，可直接将闭合 section 结果转成 `TriangleMesh`
+- `GeometrySection` 的 body-set / mesh-set 结果已保留 root polygon 映射，便于上层回溯 component 来源
 - `GeometrySection` 已接上最小内容分类入口，可区分 `Empty / Curve / Area / Mixed`
 - `GeometryValidation` 已接上 `PolyhedronSection3d` 的最小 validation 结果
 - 带孔 `PolyhedronFace3d` 已可经由 projected 2D polygon 工作流转成 `TriangleMesh`

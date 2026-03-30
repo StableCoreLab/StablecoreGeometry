@@ -943,6 +943,7 @@ SectionBodySetRebuild3d RebuildSectionBodies(const PolyhedronSection3d& section,
 
         if (!faces.empty())
         {
+            result.rootPolygonIndices.push_back(rootIndex);
             result.bodies.emplace_back(std::move(faces));
         }
     }
@@ -1046,6 +1047,7 @@ SectionMeshSetConversion3d ConvertSectionToTriangleMeshes(const PolyhedronSectio
     }
 
     result.meshes.reserve(rebuiltBodies.bodies.size());
+    result.rootPolygonIndices = rebuiltBodies.rootPolygonIndices;
     for (const PolyhedronBody& body : rebuiltBodies.bodies)
     {
         const PolyhedronMeshConversion3d bodyMesh = ConvertToTriangleMesh(body, eps);
