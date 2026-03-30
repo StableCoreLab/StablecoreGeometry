@@ -20,6 +20,7 @@ using geometry::sdk::LineCurve3d;
 using geometry::sdk::MeshBoundaryEdge3d;
 using geometry::sdk::MeshBoundaryLoop3d;
 using geometry::sdk::MeshNonManifoldEdge3d;
+using geometry::sdk::MeshRepairIssue3d;
 using geometry::sdk::MeshShell3d;
 using geometry::sdk::MeshTriangleAdjacency3d;
 using geometry::sdk::MeshValidationIssue3d;
@@ -52,6 +53,7 @@ using geometry::sdk::ExtractNonManifoldEdges;
 using geometry::sdk::ConvertToTriangleMesh;
 using geometry::sdk::Curve3d;
 using geometry::sdk::TriangleMesh;
+using geometry::sdk::TriangleMeshRepair3d;
 using geometry::sdk::Triangle3d;
 using geometry::sdk::Intervald;
 using geometry::sdk::Validate;
@@ -62,6 +64,7 @@ using geometry::sdk::ComputeVertexNormals;
 using geometry::sdk::IsClosedTriangleMesh;
 using geometry::sdk::IsConsistentlyOrientedTriangleMesh;
 using geometry::sdk::IsManifoldTriangleMesh;
+using geometry::sdk::OrientTriangleMeshConsistently;
 
 TEST(SdkTest, CoversCurrentCapabilities)
 {
@@ -286,6 +289,13 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(!IsClosedTriangleMesh(mesh));
     assert(IsManifoldTriangleMesh(mesh));
     assert(!IsConsistentlyOrientedTriangleMesh(mesh));
+    const TriangleMeshRepair3d repairedOpenMesh = OrientTriangleMeshConsistently(mesh);
+    assert(repairedOpenMesh.success);
+    assert(repairedOpenMesh.issue == MeshRepairIssue3d::None);
+    assert(repairedOpenMesh.mesh.IsValid());
+    assert(IsConsistentlyOrientedTriangleMesh(repairedOpenMesh.mesh));
+    assert(IsManifoldTriangleMesh(repairedOpenMesh.mesh));
+    GEOMETRY_TEST_ASSERT_NEAR(repairedOpenMesh.mesh.SurfaceArea(), mesh.SurfaceArea(), 1e-12);
     const auto meshComponents = ComputeTriangleConnectedComponents(mesh);
     assert(meshComponents.size() == 1);
     assert(meshComponents[0].size() == 2);
@@ -314,6 +324,11 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(IsClosedTriangleMesh(tetraMesh));
     assert(IsManifoldTriangleMesh(tetraMesh));
     assert(IsConsistentlyOrientedTriangleMesh(tetraMesh));
+    const TriangleMeshRepair3d repairedTetraMesh = OrientTriangleMeshConsistently(tetraMesh);
+    assert(repairedTetraMesh.success);
+    assert(repairedTetraMesh.issue == MeshRepairIssue3d::None);
+    assert(repairedTetraMesh.mesh.IsValid());
+    assert(IsConsistentlyOrientedTriangleMesh(repairedTetraMesh.mesh));
     const std::vector<MeshShell3d> tetraShells = ComputeMeshShells(tetraMesh);
     assert(tetraShells.size() == 1);
     assert(tetraShells[0].closed);
@@ -365,6 +380,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(nonManifoldEdges[0].incidentTriangles.size() == 3);
     assert(!IsManifoldTriangleMesh(nonManifoldMesh));
     assert(!IsConsistentlyOrientedTriangleMesh(nonManifoldMesh));
+    const TriangleMeshRepair3d repairedNonManifoldMesh = OrientTriangleMeshConsistently(nonManifoldMesh);
+    assert(!repairedNonManifoldMesh.success);
+    assert(repairedNonManifoldMesh.issue == MeshRepairIssue3d::NonManifold);
     const auto nonManifoldComponents = ComputeTriangleConnectedComponents(nonManifoldMesh);
     assert(nonManifoldComponents.size() == 1);
     assert(nonManifoldComponents[0].size() == 3);
