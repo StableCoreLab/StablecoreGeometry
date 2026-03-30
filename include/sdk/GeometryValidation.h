@@ -1,6 +1,7 @@
 #pragma once
 
 #include "export/GeometryExport.h"
+#include "sdk/BrepBody.h"
 #include "sdk/Polygon2d.h"
 #include "sdk/GeometrySection.h"
 #include "sdk/PolyhedronBody.h"
@@ -54,6 +55,22 @@ struct GEOMETRY_API PolyhedronValidation3d
     std::size_t faceIndex{0};
 };
 
+enum class BrepValidationIssue3d
+{
+    None,
+    EmptyBody,
+    InvalidVertex,
+    InvalidEdge,
+    InvalidShell
+};
+
+struct GEOMETRY_API BrepValidation3d
+{
+    bool valid{false};
+    BrepValidationIssue3d issue{BrepValidationIssue3d::None};
+    std::size_t elementIndex{0};
+};
+
 enum class SectionValidationIssue3d
 {
     None,
@@ -76,5 +93,8 @@ struct GEOMETRY_API SectionValidation3d
 [[nodiscard]] GEOMETRY_API PolygonValidation2d Validate(const Polygon2d& polygon, double eps = 1e-9);
 [[nodiscard]] GEOMETRY_API MeshValidation3d Validate(const TriangleMesh& mesh, double eps = 1e-9);
 [[nodiscard]] GEOMETRY_API PolyhedronValidation3d Validate(const PolyhedronBody& body, double eps = 1e-9);
+[[nodiscard]] GEOMETRY_API BrepValidation3d Validate(
+    const BrepBody& body,
+    const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API SectionValidation3d Validate(const PolyhedronSection3d& section, double eps = 1e-9);
 } // namespace geometry::sdk

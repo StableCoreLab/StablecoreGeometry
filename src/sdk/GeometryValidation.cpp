@@ -135,6 +135,45 @@ PolyhedronValidation3d Validate(const PolyhedronBody& body, double eps)
     return {true, PolyhedronValidationIssue3d::None, 0};
 }
 
+BrepValidation3d Validate(const BrepBody& body, const GeometryTolerance3d& tolerance)
+{
+    if (body.IsEmpty())
+    {
+        return {false, BrepValidationIssue3d::EmptyBody, 0};
+    }
+
+    for (std::size_t i = 0; i < body.VertexCount(); ++i)
+    {
+        if (!body.VertexAt(i).IsValid())
+        {
+            return {false, BrepValidationIssue3d::InvalidVertex, i};
+        }
+    }
+
+    for (std::size_t i = 0; i < body.EdgeCount(); ++i)
+    {
+        if (!body.EdgeAt(i).IsValid(tolerance))
+        {
+            return {false, BrepValidationIssue3d::InvalidEdge, i};
+        }
+    }
+
+    for (std::size_t i = 0; i < body.ShellCount(); ++i)
+    {
+        if (!body.ShellAt(i).IsValid(tolerance))
+        {
+            return {false, BrepValidationIssue3d::InvalidShell, i};
+        }
+    }
+
+    if (!body.IsValid(tolerance))
+    {
+        return {false, BrepValidationIssue3d::InvalidShell, 0};
+    }
+
+    return {true, BrepValidationIssue3d::None, 0};
+}
+
 SectionValidation3d Validate(const PolyhedronSection3d& section, double eps)
 {
     if (!section.success)
