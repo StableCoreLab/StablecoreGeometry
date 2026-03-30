@@ -34,6 +34,8 @@ using geometry::sdk::PolyhedronFace3d;
 using geometry::sdk::PolyhedronLoop3d;
 using geometry::sdk::SectionFaceRebuild3d;
 using geometry::sdk::SectionFaceRebuildIssue3d;
+using geometry::sdk::SectionBodyRebuild3d;
+using geometry::sdk::SectionBodyRebuildIssue3d;
 using geometry::sdk::PolyhedronSection3d;
 using geometry::sdk::PolyhedronValidationIssue3d;
 using geometry::sdk::Polygon2d;
@@ -62,6 +64,7 @@ using geometry::sdk::Intervald;
 using geometry::sdk::Section;
 using geometry::sdk::SectionIssue3d;
 using geometry::sdk::RebuildSectionFaces;
+using geometry::sdk::RebuildSectionBody;
 using geometry::sdk::Validate;
 using geometry::sdk::Vector2d;
 using geometry::sdk::Vector3d;
@@ -618,6 +621,11 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto rebuiltMiddleMesh = ConvertToTriangleMesh(rebuiltMiddleFaces.faces[0]);
     assert(rebuiltMiddleMesh.success);
     GEOMETRY_TEST_ASSERT_NEAR(rebuiltMiddleMesh.mesh.SurfaceArea(), 1.0, 1e-12);
+    const SectionBodyRebuild3d rebuiltMiddleBody = RebuildSectionBody(middleSection);
+    assert(rebuiltMiddleBody.success);
+    assert(rebuiltMiddleBody.issue == SectionBodyRebuildIssue3d::None);
+    assert(rebuiltMiddleBody.IsValid());
+    assert(rebuiltMiddleBody.body.FaceCount() == 1);
 
     const PolyhedronSection3d disjointSection = Section(
         cubeBody,
@@ -655,6 +663,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionFaceRebuild3d rebuiltEdgeOnlyFaces = RebuildSectionFaces(edgeOnlySection);
     assert(rebuiltEdgeOnlyFaces.success);
     assert(rebuiltEdgeOnlyFaces.faces.empty());
+    const SectionBodyRebuild3d rebuiltEdgeOnlyBody = RebuildSectionBody(edgeOnlySection);
+    assert(rebuiltEdgeOnlyBody.success);
+    assert(rebuiltEdgeOnlyBody.body.IsEmpty());
 
     PolyhedronSection3d nestedSection{};
     nestedSection.success = true;
@@ -687,6 +698,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto rebuiltMergedMesh = ConvertToTriangleMesh(rebuiltMergedFaces.faces[0]);
     assert(rebuiltMergedMesh.success);
     GEOMETRY_TEST_ASSERT_NEAR(rebuiltMergedMesh.mesh.SurfaceArea(), 12.0, 1e-12);
+    const SectionBodyRebuild3d rebuiltMergedBody = RebuildSectionBody(nestedSection);
+    assert(rebuiltMergedBody.success);
+    assert(rebuiltMergedBody.body.FaceCount() == 1);
 }
 
 

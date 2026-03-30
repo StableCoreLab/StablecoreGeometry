@@ -274,6 +274,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
   - `ConvertToTriangleMesh(PolyhedronFace3d / PolyhedronBody, ...)`
   - `Section(PolyhedronBody, Plane, ...)`
   - `RebuildSectionFaces(...)`
+  - `RebuildSectionBody(...)`
   - `ProjectFaceToPolygon2d(...)`
   - `PolyhedronLoop3d`
   - `PolyhedronFace3d`
@@ -298,8 +299,9 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `PolyhedronBody` 已接上 `Plane x PolyhedronBody` 的最小 section 路径，当前支持横切 plane-dominant body、与平面 face 共面的截面回收、以及 edge-only 零面积截面的开链返回
 - `GeometrySection` 已接上最小 face rebuild 入口，可将闭合 section polygons 回建为 `PolyhedronFace3d`
 - `GeometrySection` 已接上最小 face merge 语义，可将嵌套 section polygons 合并成带孔 `PolyhedronFace3d`
+- `GeometrySection` 已接上最小 body rebuild 入口，可将 merged section faces 直接组织为 `PolyhedronBody`
 - 带孔 `PolyhedronFace3d` 已可经由 projected 2D polygon 工作流转成 `TriangleMesh`
-- 当前 `GeometrySection` 仍是保守入口：最小 face merge 已补上，但 richer section topology 与更复杂 merge 语义仍未补
+- 当前 `GeometrySection` 仍是保守入口：最小 body rebuild 已补上，但 richer section topology 与更复杂 merge 语义仍未补
 - `BrepBody` 仍未开始代码落地
 
 ## 推荐的下一个 3D 动作

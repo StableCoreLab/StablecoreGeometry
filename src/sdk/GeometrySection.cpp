@@ -878,4 +878,25 @@ SectionFaceRebuild3d RebuildSectionFaces(const PolyhedronSection3d& section, dou
     result.success = true;
     return result;
 }
+
+SectionBodyRebuild3d RebuildSectionBody(const PolyhedronSection3d& section, double eps)
+{
+    SectionBodyRebuild3d result{};
+    if (!section.success || !section.IsValid(eps))
+    {
+        result.issue = SectionBodyRebuildIssue3d::InvalidSection;
+        return result;
+    }
+
+    const SectionFaceRebuild3d rebuiltFaces = RebuildSectionFaces(section, eps);
+    if (!rebuiltFaces.success)
+    {
+        result.issue = SectionBodyRebuildIssue3d::FaceRebuildFailed;
+        return result;
+    }
+
+    result.body = PolyhedronBody(rebuiltFaces.faces);
+    result.success = true;
+    return result;
+}
 } // namespace geometry::sdk

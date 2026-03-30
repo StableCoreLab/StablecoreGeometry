@@ -29,6 +29,13 @@ enum class SectionFaceRebuildIssue3d
     InvalidPolygon
 };
 
+enum class SectionBodyRebuildIssue3d
+{
+    None,
+    InvalidSection,
+    FaceRebuildFailed
+};
+
 struct GEOMETRY_API SectionPolyline3d
 {
     bool closed{false};
@@ -134,12 +141,28 @@ struct GEOMETRY_API SectionFaceRebuild3d
     }
 };
 
+struct GEOMETRY_API SectionBodyRebuild3d
+{
+    bool success{false};
+    SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
+    PolyhedronBody body{};
+
+    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    {
+        return !success || body.IsValid(eps) || body.IsEmpty();
+    }
+};
+
 [[nodiscard]] GEOMETRY_API PolyhedronSection3d Section(
     const PolyhedronBody& body,
     const Plane& plane,
     const GeometryTolerance3d& tolerance = {});
 
 [[nodiscard]] GEOMETRY_API SectionFaceRebuild3d RebuildSectionFaces(
+    const PolyhedronSection3d& section,
+    double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API SectionBodyRebuild3d RebuildSectionBody(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 } // namespace geometry::sdk
