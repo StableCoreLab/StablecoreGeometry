@@ -38,6 +38,14 @@ enum class SectionBodyRebuildIssue3d
     FaceRebuildFailed
 };
 
+enum class SectionContentKind3d
+{
+    Empty,
+    Curve,
+    Area,
+    Mixed
+};
+
 struct GEOMETRY_API SectionPolyline3d
 {
     bool closed{false};
@@ -254,6 +262,10 @@ struct GEOMETRY_API SectionMeshConversion3d
     double eps = 1e-9);
 
 [[nodiscard]] GEOMETRY_API SectionMeshConversion3d ConvertSectionToTriangleMesh(
+    const PolyhedronSection3d& section,
+    double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API SectionContentKind3d ClassifySectionContent(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 } // namespace geometry::sdk

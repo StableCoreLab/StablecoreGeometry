@@ -36,6 +36,7 @@ using geometry::sdk::SectionFaceRebuild3d;
 using geometry::sdk::SectionFaceRebuildIssue3d;
 using geometry::sdk::SectionBodyRebuild3d;
 using geometry::sdk::SectionBodyRebuildIssue3d;
+using geometry::sdk::SectionContentKind3d;
 using geometry::sdk::SectionMeshConversion3d;
 using geometry::sdk::SectionTopology3d;
 using geometry::sdk::SectionValidation3d;
@@ -71,6 +72,7 @@ using geometry::sdk::RebuildSectionFaces;
 using geometry::sdk::RebuildSectionBody;
 using geometry::sdk::BuildSectionTopology;
 using geometry::sdk::ConvertSectionToTriangleMesh;
+using geometry::sdk::ClassifySectionContent;
 using geometry::sdk::Validate;
 using geometry::sdk::Vector2d;
 using geometry::sdk::Vector3d;
@@ -620,6 +622,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(middleSectionTopology.Count() == 1);
     assert(middleSectionTopology.Roots().size() == 1);
     assert(middleSectionTopology.Node(0).depth == 0);
+    assert(ClassifySectionContent(middleSection) == SectionContentKind3d::Area);
     assert(middleSection.segments.size() >= 4);
     assert(middleSection.contours.size() == 1);
     assert(middleSection.contours[0].closed);
@@ -653,6 +656,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(disjointSection.segments.empty());
     assert(disjointSection.contours.empty());
     assert(disjointSection.polygons.empty());
+    assert(ClassifySectionContent(disjointSection) == SectionContentKind3d::Empty);
 
     const PolyhedronSection3d coplanarSection = Section(
         cubeBody,
@@ -681,6 +685,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionTopology3d edgeOnlyTopology = BuildSectionTopology(edgeOnlySection);
     assert(edgeOnlyTopology.IsValid());
     assert(edgeOnlyTopology.IsEmpty());
+    assert(ClassifySectionContent(edgeOnlySection) == SectionContentKind3d::Curve);
     const SectionFaceRebuild3d rebuiltEdgeOnlyFaces = RebuildSectionFaces(edgeOnlySection);
     assert(rebuiltEdgeOnlyFaces.success);
     assert(rebuiltEdgeOnlyFaces.faces.empty());
@@ -739,6 +744,11 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionMeshConversion3d rebuiltMergedSectionMesh = ConvertSectionToTriangleMesh(nestedSection);
     assert(rebuiltMergedSectionMesh.success);
     GEOMETRY_TEST_ASSERT_NEAR(rebuiltMergedSectionMesh.mesh.SurfaceArea(), 12.0, 1e-12);
+    assert(ClassifySectionContent(nestedSection) == SectionContentKind3d::Area);
+
+    PolyhedronSection3d mixedSection = edgeOnlySection;
+    mixedSection.polygons.push_back(middleSection.polygons[0]);
+    assert(ClassifySectionContent(mixedSection) == SectionContentKind3d::Mixed);
 
     PolyhedronSection3d invalidSection = middleSection;
     invalidSection.uAxis = Vector3d{0.0, 0.0, 0.0};

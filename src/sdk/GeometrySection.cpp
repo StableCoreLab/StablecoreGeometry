@@ -989,4 +989,37 @@ SectionMeshConversion3d ConvertSectionToTriangleMesh(const PolyhedronSection3d& 
     result.success = true;
     return result;
 }
+
+SectionContentKind3d ClassifySectionContent(const PolyhedronSection3d& section, double eps)
+{
+    if (!section.success || !section.IsValid(eps))
+    {
+        return SectionContentKind3d::Empty;
+    }
+
+    const bool hasArea = !section.polygons.empty();
+    bool hasCurve = false;
+    for (const SectionPolyline3d& contour : section.contours)
+    {
+        if (!contour.closed)
+        {
+            hasCurve = true;
+            break;
+        }
+    }
+
+    if (hasArea && hasCurve)
+    {
+        return SectionContentKind3d::Mixed;
+    }
+    if (hasArea)
+    {
+        return SectionContentKind3d::Area;
+    }
+    if (hasCurve || !section.segments.empty())
+    {
+        return SectionContentKind3d::Curve;
+    }
+    return SectionContentKind3d::Empty;
+}
 } // namespace geometry::sdk
