@@ -187,6 +187,35 @@ struct GEOMETRY_API BrepEdgeProjection3d
     }
 };
 
+struct GEOMETRY_API PolyhedronFaceProjection3d
+{
+    bool success{false};
+    bool onFace{false};
+    bool onBoundary{false};
+    Point3d point{};
+    double u{0.0};
+    double v{0.0};
+    double distanceSquared{0.0};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return !success || (point.IsValid() && std::isfinite(u) && std::isfinite(v) &&
+                            std::isfinite(distanceSquared) && distanceSquared >= 0.0);
+    }
+};
+
+struct GEOMETRY_API PolyhedronBodyProjection3d
+{
+    bool success{false};
+    std::size_t faceIndex{0};
+    PolyhedronFaceProjection3d projection{};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return !success || projection.IsValid();
+    }
+};
+
 struct GEOMETRY_API LinePlaneIntersection3d
 {
     bool intersects{false};

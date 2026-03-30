@@ -53,6 +53,8 @@ using geometry::sdk::Polygon2d;
 using geometry::sdk::ProjectPointToBrepFace;
 using geometry::sdk::ProjectPointToBrepBody;
 using geometry::sdk::ProjectFaceToPolygon2d;
+using geometry::sdk::ProjectPointToPolyhedronBody;
+using geometry::sdk::ProjectPointToPolyhedronFace;
 using geometry::sdk::ProjectPointToSurface;
 using geometry::sdk::ProjectPointToSegment;
 using geometry::sdk::Polyline2d;
@@ -722,12 +724,24 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(faceMesh.mesh.IsValid());
     assert(faceMesh.mesh.TriangleCount() == 2);
     GEOMETRY_TEST_ASSERT_NEAR(faceMesh.mesh.SurfaceArea(), 4.0, 1e-12);
+    const auto polyFaceProjection = ProjectPointToPolyhedronFace(Point3d{1.0, 1.0, 3.0}, face);
+    assert(polyFaceProjection.success);
+    assert(polyFaceProjection.IsValid());
+    assert(polyFaceProjection.onFace);
+    assert(polyFaceProjection.point.AlmostEquals(Point3d{1.0, 1.0, 1.0}, 1e-12));
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 3.0}, face), 2.0, 1e-12);
 
     const auto bodyMesh = ConvertToTriangleMesh(body);
     assert(bodyMesh.success);
     assert(bodyMesh.issue == MeshConversionIssue3d::None);
     assert(bodyMesh.mesh.IsValid());
     assert(bodyMesh.mesh.TriangleCount() == 2);
+    const auto polyBodyProjection = ProjectPointToPolyhedronBody(Point3d{3.0, 1.0, 1.0}, body);
+    assert(polyBodyProjection.success);
+    assert(polyBodyProjection.IsValid());
+    assert(polyBodyProjection.faceIndex == 0);
+    assert(polyBodyProjection.projection.point.AlmostEquals(Point3d{2.0, 1.0, 1.0}, 1e-12));
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{3.0, 1.0, 1.0}, body), 1.0, 1e-12);
 
     const PolyhedronFace3d holedFace(
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),

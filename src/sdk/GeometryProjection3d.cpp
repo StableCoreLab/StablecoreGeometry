@@ -454,6 +454,103 @@ BrepBodyProjection3d ProjectPointToBrepBody(
     return best;
 }
 
+PolyhedronFaceProjection3d ProjectPointToPolyhedronFace(
+    const Point3d& point,
+    const PolyhedronFace3d& face,
+    const GeometryTolerance3d& tolerance)
+{
+    PolyhedronFaceProjection3d best{};
+    if (!face.IsValid(tolerance.distanceEpsilon))
+    {
+        return best;
+    }
+
+    const FaceProjection3d faceProjection = ProjectFaceToPolygon2d(face, tolerance);
+    if (!faceProjection.success)
+    {
+        return best;
+    }
+
+    const PlaneProjection3d planeProjection = ProjectPointToPlane(point, face.SupportPlane(), tolerance);
+    const Point2d uv = ProjectToLocalPlaneCoordinates(planeProjection.point, face.SupportPlane(), {faceProjection.uAxis, faceProjection.vAxis});
+    const PointContainment2d containment =
+        LocatePoint(uv, faceProjection.polygon, tolerance.distanceEpsilon);
+    if (containment == PointContainment2d::Inside || containment == PointContainment2d::OnBoundary)
+    {
+        best.success = true;
+        best.onFace = true;
+        best.onBoundary = containment == PointContainment2d::OnBoundary;
+        best.point = planeProjection.point;
+        best.u = uv.x;
+        best.v = uv.y;
+        best.distanceSquared = planeProjection.distanceSquared;
+        return best;
+    }
+
+    auto updateLoop = [&](const PolyhedronLoop3d& loop)
+    {
+        const auto& vertices = loop.Vertices();
+        for (std::size_t i = 0; i < vertices.size(); ++i)
+        {
+            const Point3d& start = vertices[i];
+            const Point3d& end = vertices[(i + 1) % vertices.size()];
+            const LineProjection3d projected =
+                ProjectPointToSegment3d(point, start, end, tolerance.distanceEpsilon);
+            if (!best.success || projected.distanceSquared < best.distanceSquared)
+            {
+                best.success = true;
+                best.onFace = false;
+                best.onBoundary = true;
+                best.point = projected.point;
+                best.distanceSquared = projected.distanceSquared;
+                const Point2d uv0 = ProjectToLocalPlaneCoordinates(start, face.SupportPlane(), {faceProjection.uAxis, faceProjection.vAxis});
+                const Point2d uv1 = ProjectToLocalPlaneCoordinates(end, face.SupportPlane(), {faceProjection.uAxis, faceProjection.vAxis});
+                const Point2d edgeUv = uv0 + (uv1 - uv0) * projected.parameter;
+                best.u = edgeUv.x;
+                best.v = edgeUv.y;
+            }
+        }
+    };
+
+    updateLoop(face.OuterLoop());
+    for (std::size_t i = 0; i < face.HoleCount(); ++i)
+    {
+        updateLoop(face.HoleAt(i));
+    }
+    return best;
+}
+
+PolyhedronBodyProjection3d ProjectPointToPolyhedronBody(
+    const Point3d& point,
+    const PolyhedronBody& body,
+    const GeometryTolerance3d& tolerance)
+{
+    PolyhedronBodyProjection3d best{};
+    if (!body.IsValid(tolerance.distanceEpsilon))
+    {
+        return best;
+    }
+
+    for (std::size_t faceIndex = 0; faceIndex < body.FaceCount(); ++faceIndex)
+    {
+        const PolyhedronFaceProjection3d projected =
+            ProjectPointToPolyhedronFace(point, body.FaceAt(faceIndex), tolerance);
+        if (!projected.success)
+        {
+            continue;
+        }
+
+        if (!best.success || projected.distanceSquared < best.projection.distanceSquared)
+        {
+            best.success = true;
+            best.faceIndex = faceIndex;
+            best.projection = projected;
+        }
+    }
+
+    return best;
+}
+
 FaceProjection3d ProjectFaceToPolygon2d(const PolyhedronFace3d& face, const GeometryTolerance3d& tolerance)
 {
     if (!face.IsValid(tolerance.distanceEpsilon))
