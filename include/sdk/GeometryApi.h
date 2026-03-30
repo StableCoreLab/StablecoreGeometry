@@ -28,6 +28,7 @@
 #include "sdk/GeometryTypes.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryIntersection.h"
+#include "sdk/GeometryMeshOps.h"
 #include "sdk/Curve3d.h"
 #include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
