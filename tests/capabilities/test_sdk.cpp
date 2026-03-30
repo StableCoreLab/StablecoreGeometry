@@ -65,6 +65,7 @@ using geometry::sdk::IsClosedTriangleMesh;
 using geometry::sdk::IsConsistentlyOrientedTriangleMesh;
 using geometry::sdk::IsManifoldTriangleMesh;
 using geometry::sdk::OrientTriangleMeshConsistently;
+using geometry::sdk::CloseSinglePlanarBoundaryLoop;
 
 TEST(SdkTest, CoversCurrentCapabilities)
 {
@@ -296,6 +297,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(IsConsistentlyOrientedTriangleMesh(repairedOpenMesh.mesh));
     assert(IsManifoldTriangleMesh(repairedOpenMesh.mesh));
     GEOMETRY_TEST_ASSERT_NEAR(repairedOpenMesh.mesh.SurfaceArea(), mesh.SurfaceArea(), 1e-12);
+    const TriangleMeshRepair3d closedNonPlanarMesh = CloseSinglePlanarBoundaryLoop(mesh);
+    assert(!closedNonPlanarMesh.success);
+    assert(closedNonPlanarMesh.issue == MeshRepairIssue3d::NonPlanarBoundary);
     const auto meshComponents = ComputeTriangleConnectedComponents(mesh);
     assert(meshComponents.size() == 1);
     assert(meshComponents[0].size() == 2);
@@ -334,6 +338,27 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(tetraShells[0].closed);
     assert(tetraShells[0].manifold);
     assert(tetraShells[0].consistentlyOriented);
+    const TriangleMesh openTetraMesh(
+        {
+            Point3d{0.0, 0.0, 0.0},
+            Point3d{1.0, 0.0, 0.0},
+            Point3d{0.0, 1.0, 0.0},
+            Point3d{0.0, 0.0, 1.0},
+        },
+        {
+            TriangleMesh::TriangleIndices{0, 1, 3},
+            TriangleMesh::TriangleIndices{1, 2, 3},
+            TriangleMesh::TriangleIndices{2, 0, 3},
+        });
+    assert(openTetraMesh.IsValid());
+    assert(!IsClosedTriangleMesh(openTetraMesh));
+    const TriangleMeshRepair3d closedOpenTetraMesh = CloseSinglePlanarBoundaryLoop(openTetraMesh);
+    assert(closedOpenTetraMesh.success);
+    assert(closedOpenTetraMesh.issue == MeshRepairIssue3d::None);
+    assert(closedOpenTetraMesh.mesh.IsValid());
+    assert(IsClosedTriangleMesh(closedOpenTetraMesh.mesh));
+    assert(IsManifoldTriangleMesh(closedOpenTetraMesh.mesh));
+    assert(IsConsistentlyOrientedTriangleMesh(closedOpenTetraMesh.mesh));
     const TriangleMesh disconnectedMesh(
         {
             Point3d{0.0, 0.0, 0.0},
@@ -352,6 +377,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(disconnectedComponents.size() == 2);
     assert(disconnectedComponents[0].size() == 1);
     assert(disconnectedComponents[1].size() == 1);
+    const TriangleMeshRepair3d closedDisconnectedMesh = CloseSinglePlanarBoundaryLoop(disconnectedMesh);
+    assert(!closedDisconnectedMesh.success);
+    assert(closedDisconnectedMesh.issue == MeshRepairIssue3d::UnsupportedBoundaryTopology);
     const std::vector<MeshBoundaryLoop3d> disconnectedBoundaryLoops = ExtractBoundaryLoops(disconnectedMesh);
     assert(disconnectedBoundaryLoops.size() == 2);
     assert(disconnectedBoundaryLoops[0].closed);
