@@ -9,6 +9,7 @@
 #include "sdk/GeometryMeshConversion.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryRelation.h"
+#include "sdk/GeometryTopology.h"
 
 namespace geometry::sdk
 {
@@ -338,6 +339,20 @@ void SimplifyOpenPolyline(
     const Vector3d& vAxis)
 {
     return origin + uAxis * point.x + vAxis * point.y;
+}
+
+[[nodiscard]] std::size_t PolygonDepth(
+    const PolygonTopology2d& topology,
+    std::size_t index)
+{
+    std::size_t depth = 0;
+    std::size_t current = topology.ParentOf(index);
+    while (current != static_cast<std::size_t>(-1))
+    {
+        ++depth;
+        current = topology.ParentOf(current);
+    }
+    return depth;
 }
 
 void AddUniquePlaneEdgeSegments(
@@ -781,7 +796,7 @@ SectionFaceRebuild3d RebuildSectionFaces(const PolyhedronSection3d& section, dou
         return result;
     }
 
-    result.faces.reserve(section.polygons.size());
+    MultiPolygon2d polygons;
     for (const Polygon2d& polygon : section.polygons)
     {
         if (!polygon.IsValid())
@@ -789,6 +804,19 @@ SectionFaceRebuild3d RebuildSectionFaces(const PolyhedronSection3d& section, dou
             result.issue = SectionFaceRebuildIssue3d::InvalidPolygon;
             return result;
         }
+        polygons.Add(polygon);
+    }
+
+    const PolygonTopology2d topology = BuildPolygonTopology(polygons, eps);
+    result.faces.reserve(section.polygons.size());
+    for (std::size_t polygonIndex = 0; polygonIndex < polygons.Count(); ++polygonIndex)
+    {
+        if ((PolygonDepth(topology, polygonIndex) % 2) != 0)
+        {
+            continue;
+        }
+
+        const Polygon2d& polygon = polygons.PolygonAt(polygonIndex);
 
         std::vector<Point3d> outerVertices;
         const Polyline2d outerRing = polygon.OuterRing();
@@ -803,10 +831,31 @@ SectionFaceRebuild3d RebuildSectionFaces(const PolyhedronSection3d& section, dou
         }
 
         std::vector<PolyhedronLoop3d> holes;
-        holes.reserve(polygon.HoleCount());
+        holes.reserve(polygon.HoleCount() + topology.ChildrenOf(polygonIndex).size());
         for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
         {
             const Polyline2d holeRing = polygon.HoleAt(holeIndex);
+            std::vector<Point3d> holeVertices;
+            holeVertices.reserve(holeRing.PointCount());
+            for (std::size_t i = 0; i < holeRing.PointCount(); ++i)
+            {
+                holeVertices.push_back(LiftFromSectionPlane(
+                    holeRing.PointAt(i),
+                    section.origin,
+                    section.uAxis,
+                    section.vAxis));
+            }
+            holes.emplace_back(std::move(holeVertices));
+        }
+
+        for (std::size_t childIndex : topology.ChildrenOf(polygonIndex))
+        {
+            if ((PolygonDepth(topology, childIndex) % 2) == 0)
+            {
+                continue;
+            }
+
+            const Polyline2d holeRing = polygons.PolygonAt(childIndex).OuterRing();
             std::vector<Point3d> holeVertices;
             holeVertices.reserve(holeRing.PointCount());
             for (std::size_t i = 0; i < holeRing.PointCount(); ++i)

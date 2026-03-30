@@ -655,6 +655,38 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionFaceRebuild3d rebuiltEdgeOnlyFaces = RebuildSectionFaces(edgeOnlySection);
     assert(rebuiltEdgeOnlyFaces.success);
     assert(rebuiltEdgeOnlyFaces.faces.empty());
+
+    PolyhedronSection3d nestedSection{};
+    nestedSection.success = true;
+    nestedSection.origin = Point3d{0.0, 0.0, 0.5};
+    nestedSection.uAxis = Vector3d{1.0, 0.0, 0.0};
+    nestedSection.vAxis = Vector3d{0.0, 1.0, 0.0};
+    nestedSection.polygons.push_back(Polygon2d(
+        Polyline2d(
+            {
+                Point2d{0.0, 0.0},
+                Point2d{4.0, 0.0},
+                Point2d{4.0, 4.0},
+                Point2d{0.0, 4.0},
+            },
+            PolylineClosure::Closed)));
+    nestedSection.polygons.push_back(Polygon2d(
+        Polyline2d(
+            {
+                Point2d{1.0, 1.0},
+                Point2d{1.0, 3.0},
+                Point2d{3.0, 3.0},
+                Point2d{3.0, 1.0},
+            },
+            PolylineClosure::Closed)));
+    const SectionFaceRebuild3d rebuiltMergedFaces = RebuildSectionFaces(nestedSection);
+    assert(rebuiltMergedFaces.success);
+    assert(rebuiltMergedFaces.IsValid());
+    assert(rebuiltMergedFaces.faces.size() == 1);
+    assert(rebuiltMergedFaces.faces[0].HoleCount() == 1);
+    const auto rebuiltMergedMesh = ConvertToTriangleMesh(rebuiltMergedFaces.faces[0]);
+    assert(rebuiltMergedMesh.success);
+    GEOMETRY_TEST_ASSERT_NEAR(rebuiltMergedMesh.mesh.SurfaceArea(), 12.0, 1e-12);
 }
 
 
