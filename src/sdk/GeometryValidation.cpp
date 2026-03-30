@@ -134,4 +134,48 @@ PolyhedronValidation3d Validate(const PolyhedronBody& body, double eps)
 
     return {true, PolyhedronValidationIssue3d::None, 0};
 }
+
+SectionValidation3d Validate(const PolyhedronSection3d& section, double eps)
+{
+    if (!section.success)
+    {
+        return {false, SectionValidationIssue3d::InvalidSectionState, 0};
+    }
+
+    if (!section.origin.IsValid() ||
+        !section.uAxis.IsValid() ||
+        !section.vAxis.IsValid() ||
+        section.uAxis.Length() <= eps ||
+        section.vAxis.Length() <= eps ||
+        Cross(section.uAxis, section.vAxis).Length() <= eps)
+    {
+        return {false, SectionValidationIssue3d::InvalidBasis, 0};
+    }
+
+    for (std::size_t i = 0; i < section.segments.size(); ++i)
+    {
+        if (!section.segments[i].IsValid(eps))
+        {
+            return {false, SectionValidationIssue3d::InvalidSegment, i};
+        }
+    }
+
+    for (std::size_t i = 0; i < section.contours.size(); ++i)
+    {
+        if (!section.contours[i].IsValid(eps))
+        {
+            return {false, SectionValidationIssue3d::InvalidContour, i};
+        }
+    }
+
+    for (std::size_t i = 0; i < section.polygons.size(); ++i)
+    {
+        if (!section.polygons[i].IsValid())
+        {
+            return {false, SectionValidationIssue3d::InvalidPolygon, i};
+        }
+    }
+
+    return {true, SectionValidationIssue3d::None, 0};
+}
 } // namespace geometry::sdk

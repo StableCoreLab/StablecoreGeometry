@@ -36,6 +36,8 @@ using geometry::sdk::SectionFaceRebuild3d;
 using geometry::sdk::SectionFaceRebuildIssue3d;
 using geometry::sdk::SectionBodyRebuild3d;
 using geometry::sdk::SectionBodyRebuildIssue3d;
+using geometry::sdk::SectionValidation3d;
+using geometry::sdk::SectionValidationIssue3d;
 using geometry::sdk::PolyhedronSection3d;
 using geometry::sdk::PolyhedronValidationIssue3d;
 using geometry::sdk::Polygon2d;
@@ -606,6 +608,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(middleSection.success);
     assert(middleSection.issue == SectionIssue3d::None);
     assert(middleSection.IsValid());
+    const SectionValidation3d middleSectionValidation = Validate(middleSection);
+    assert(middleSectionValidation.valid);
+    assert(middleSectionValidation.issue == SectionValidationIssue3d::None);
     assert(middleSection.segments.size() >= 4);
     assert(middleSection.contours.size() == 1);
     assert(middleSection.contours[0].closed);
@@ -701,6 +706,12 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionBodyRebuild3d rebuiltMergedBody = RebuildSectionBody(nestedSection);
     assert(rebuiltMergedBody.success);
     assert(rebuiltMergedBody.body.FaceCount() == 1);
+
+    PolyhedronSection3d invalidSection = middleSection;
+    invalidSection.uAxis = Vector3d{0.0, 0.0, 0.0};
+    const SectionValidation3d invalidSectionValidation = Validate(invalidSection);
+    assert(!invalidSectionValidation.valid);
+    assert(invalidSectionValidation.issue == SectionValidationIssue3d::InvalidBasis);
 }
 
 
