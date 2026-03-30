@@ -18,6 +18,7 @@ using geometry::sdk::LineSegment2d;
 using geometry::sdk::Line3d;
 using geometry::sdk::LineCurve3d;
 using geometry::sdk::MeshBoundaryEdge3d;
+using geometry::sdk::MeshNonManifoldEdge3d;
 using geometry::sdk::MeshTriangleAdjacency3d;
 using geometry::sdk::MeshValidationIssue3d;
 using geometry::sdk::MeshConversionIssue3d;
@@ -41,7 +42,9 @@ using geometry::sdk::TriangleAdjacency;
 using geometry::sdk::TriangleNormal;
 using geometry::sdk::ComputeTriangleAdjacency;
 using geometry::sdk::ComputeTriangleNormals;
+using geometry::sdk::ComputeTriangleConnectedComponents;
 using geometry::sdk::ExtractBoundaryEdges;
+using geometry::sdk::ExtractNonManifoldEdges;
 using geometry::sdk::ConvertToTriangleMesh;
 using geometry::sdk::Curve3d;
 using geometry::sdk::TriangleMesh;
@@ -53,6 +56,7 @@ using geometry::sdk::Vector3d;
 using geometry::sdk::VertexNormal;
 using geometry::sdk::ComputeVertexNormals;
 using geometry::sdk::IsClosedTriangleMesh;
+using geometry::sdk::IsManifoldTriangleMesh;
 
 TEST(SdkTest, CoversCurrentCapabilities)
 {
@@ -270,6 +274,10 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(boundaryEdges.size() == 4);
     assert(boundaryEdges[0].IsValid());
     assert(!IsClosedTriangleMesh(mesh));
+    assert(IsManifoldTriangleMesh(mesh));
+    const auto meshComponents = ComputeTriangleConnectedComponents(mesh);
+    assert(meshComponents.size() == 1);
+    assert(meshComponents[0].size() == 2);
     const TriangleMesh tetraMesh(
         {
             Point3d{0.0, 0.0, 0.0},
@@ -286,6 +294,47 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(tetraMesh.IsValid());
     assert(ExtractBoundaryEdges(tetraMesh).empty());
     assert(IsClosedTriangleMesh(tetraMesh));
+    assert(IsManifoldTriangleMesh(tetraMesh));
+    const TriangleMesh disconnectedMesh(
+        {
+            Point3d{0.0, 0.0, 0.0},
+            Point3d{1.0, 0.0, 0.0},
+            Point3d{0.0, 1.0, 0.0},
+            Point3d{3.0, 0.0, 0.0},
+            Point3d{4.0, 0.0, 0.0},
+            Point3d{3.0, 1.0, 0.0},
+        },
+        {
+            TriangleMesh::TriangleIndices{0, 1, 2},
+            TriangleMesh::TriangleIndices{3, 4, 5},
+        });
+    assert(disconnectedMesh.IsValid());
+    const auto disconnectedComponents = ComputeTriangleConnectedComponents(disconnectedMesh);
+    assert(disconnectedComponents.size() == 2);
+    assert(disconnectedComponents[0].size() == 1);
+    assert(disconnectedComponents[1].size() == 1);
+    const TriangleMesh nonManifoldMesh(
+        {
+            Point3d{0.0, 0.0, 0.0},
+            Point3d{1.0, 0.0, 0.0},
+            Point3d{0.0, 1.0, 0.0},
+            Point3d{0.0, 0.0, 1.0},
+            Point3d{0.0, -1.0, 0.0},
+        },
+        {
+            TriangleMesh::TriangleIndices{0, 1, 2},
+            TriangleMesh::TriangleIndices{0, 3, 1},
+            TriangleMesh::TriangleIndices{0, 1, 4},
+        });
+    assert(nonManifoldMesh.IsValid());
+    const auto nonManifoldEdges = ExtractNonManifoldEdges(nonManifoldMesh);
+    assert(nonManifoldEdges.size() == 1);
+    assert(nonManifoldEdges[0].IsValid());
+    assert(nonManifoldEdges[0].incidentTriangles.size() == 3);
+    assert(!IsManifoldTriangleMesh(nonManifoldMesh));
+    const auto nonManifoldComponents = ComputeTriangleConnectedComponents(nonManifoldMesh);
+    assert(nonManifoldComponents.size() == 1);
+    assert(nonManifoldComponents[0].size() == 3);
     const TriangleMesh movedMesh = mesh.Transformed(geometry::Transform3d::Translation(Vector3d{2.0, -1.0, 3.0}));
     assert(movedMesh.IsValid());
     assert(movedMesh.VertexAt(0).AlmostEquals(Point3d{2.0, -1.0, 3.0}, 1e-12));

@@ -1,6 +1,8 @@
 #include "sdk/GeometryMeshOps.h"
 
 #include <algorithm>
+#include <array>
+#include <deque>
 #include <cstddef>
 #include <functional>
 #include <unordered_map>
@@ -13,8 +15,8 @@ constexpr std::size_t kNoTriangle = std::size_t(-1);
 
 struct EdgeRecord
 {
-    std::size_t triangleIndex{kNoTriangle};
-    std::size_t edgeIndex{0};
+    std::vector<std::size_t> triangleIndices{};
+    std::vector<std::size_t> edgeIndices{};
 };
 
 struct EdgeKey
@@ -40,6 +42,34 @@ struct EdgeKeyHash
     return EdgeKey{
         std::min(first, second),
         std::max(first, second)};
+}
+
+[[nodiscard]] const std::array<std::array<std::size_t, 2>, 3> TriangleEdges(
+    const TriangleMesh::TriangleIndices& tri)
+{
+    return {{
+        {tri[0], tri[1]},
+        {tri[1], tri[2]},
+        {tri[2], tri[0]},
+    }};
+}
+
+[[nodiscard]] std::unordered_map<EdgeKey, EdgeRecord, EdgeKeyHash> BuildEdgeRecords(const TriangleMesh& mesh)
+{
+    std::unordered_map<EdgeKey, EdgeRecord, EdgeKeyHash> edgeRecords;
+    edgeRecords.reserve(mesh.TriangleCount() * 3);
+    for (std::size_t triangleIndex = 0; triangleIndex < mesh.TriangleCount(); ++triangleIndex)
+    {
+        const auto edges = TriangleEdges(mesh.TriangleIndicesAt(triangleIndex));
+        for (std::size_t edgeIndex = 0; edgeIndex < edges.size(); ++edgeIndex)
+        {
+            const EdgeKey key = MakeUndirectedEdgeKey(edges[edgeIndex][0], edges[edgeIndex][1]);
+            EdgeRecord& record = edgeRecords[key];
+            record.triangleIndices.push_back(triangleIndex);
+            record.edgeIndices.push_back(edgeIndex);
+        }
+    }
+    return edgeRecords;
 }
 } // namespace
 
@@ -119,29 +149,21 @@ std::vector<MeshTriangleAdjacency3d> ComputeTriangleAdjacency(const TriangleMesh
         return adjacency;
     }
 
-    std::unordered_map<EdgeKey, EdgeRecord, EdgeKeyHash> edgeOwners;
-    edgeOwners.reserve(mesh.TriangleCount() * 3);
-    for (std::size_t triangleIndex = 0; triangleIndex < mesh.TriangleCount(); ++triangleIndex)
+    const auto edgeRecords = BuildEdgeRecords(mesh);
+    for (const auto& [key, record] : edgeRecords)
     {
-        const TriangleMesh::TriangleIndices tri = mesh.TriangleIndicesAt(triangleIndex);
-        const std::array<std::array<std::size_t, 2>, 3> edges{{
-            {tri[0], tri[1]},
-            {tri[1], tri[2]},
-            {tri[2], tri[0]},
-        }};
-
-        for (std::size_t edgeIndex = 0; edgeIndex < edges.size(); ++edgeIndex)
+        (void)key;
+        if (record.triangleIndices.size() != 2)
         {
-            const EdgeKey key = MakeUndirectedEdgeKey(edges[edgeIndex][0], edges[edgeIndex][1]);
-            const auto [it, inserted] = edgeOwners.emplace(key, EdgeRecord{triangleIndex, edgeIndex});
-            if (inserted)
-            {
-                continue;
-            }
-
-            adjacency[triangleIndex].adjacentTriangles[edgeIndex] = it->second.triangleIndex;
-            adjacency[it->second.triangleIndex].adjacentTriangles[it->second.edgeIndex] = triangleIndex;
+            continue;
         }
+
+        const std::size_t firstTriangle = record.triangleIndices[0];
+        const std::size_t secondTriangle = record.triangleIndices[1];
+        const std::size_t firstEdge = record.edgeIndices[0];
+        const std::size_t secondEdge = record.edgeIndices[1];
+        adjacency[firstTriangle].adjacentTriangles[firstEdge] = secondTriangle;
+        adjacency[secondTriangle].adjacentTriangles[secondEdge] = firstTriangle;
     }
 
     return adjacency;
@@ -165,29 +187,23 @@ std::vector<MeshBoundaryEdge3d> ExtractBoundaryEdges(const TriangleMesh& mesh)
         return boundaryEdges;
     }
 
-    const auto adjacency = ComputeTriangleAdjacency(mesh);
+    const auto edgeRecords = BuildEdgeRecords(mesh);
     boundaryEdges.reserve(mesh.TriangleCount());
-    for (std::size_t triangleIndex = 0; triangleIndex < mesh.TriangleCount(); ++triangleIndex)
+    for (const auto& [key, record] : edgeRecords)
     {
-        const TriangleMesh::TriangleIndices tri = mesh.TriangleIndicesAt(triangleIndex);
-        const std::array<std::array<std::size_t, 2>, 3> edges{{
-            {tri[0], tri[1]},
-            {tri[1], tri[2]},
-            {tri[2], tri[0]},
-        }};
-
-        for (std::size_t edgeIndex = 0; edgeIndex < edges.size(); ++edgeIndex)
+        (void)key;
+        if (record.triangleIndices.size() != 1 || record.edgeIndices.size() != 1)
         {
-            if (adjacency[triangleIndex].HasNeighbor(edgeIndex))
-            {
-                continue;
-            }
-
-            boundaryEdges.push_back(MeshBoundaryEdge3d{
-                triangleIndex,
-                edgeIndex,
-                edges[edgeIndex]});
+            continue;
         }
+
+        const std::size_t triangleIndex = record.triangleIndices[0];
+        const std::size_t edgeIndex = record.edgeIndices[0];
+        const auto edges = TriangleEdges(mesh.TriangleIndicesAt(triangleIndex));
+        boundaryEdges.push_back(MeshBoundaryEdge3d{
+            triangleIndex,
+            edgeIndex,
+            edges[edgeIndex]});
     }
 
     return boundaryEdges;
@@ -196,5 +212,92 @@ std::vector<MeshBoundaryEdge3d> ExtractBoundaryEdges(const TriangleMesh& mesh)
 bool IsClosedTriangleMesh(const TriangleMesh& mesh)
 {
     return mesh.IsValid() && ExtractBoundaryEdges(mesh).empty();
+}
+
+std::vector<MeshNonManifoldEdge3d> ExtractNonManifoldEdges(const TriangleMesh& mesh)
+{
+    std::vector<MeshNonManifoldEdge3d> nonManifoldEdges;
+    if (!mesh.IsValid())
+    {
+        return nonManifoldEdges;
+    }
+
+    const auto edgeRecords = BuildEdgeRecords(mesh);
+    for (const auto& [key, record] : edgeRecords)
+    {
+        if (record.triangleIndices.size() <= 2)
+        {
+            continue;
+        }
+
+        nonManifoldEdges.push_back(MeshNonManifoldEdge3d{
+            {key.first, key.second},
+            record.triangleIndices});
+    }
+
+    return nonManifoldEdges;
+}
+
+bool IsManifoldTriangleMesh(const TriangleMesh& mesh)
+{
+    return mesh.IsValid() && ExtractNonManifoldEdges(mesh).empty();
+}
+
+std::vector<std::vector<std::size_t>> ComputeTriangleConnectedComponents(const TriangleMesh& mesh)
+{
+    std::vector<std::vector<std::size_t>> components;
+    if (!mesh.IsValid())
+    {
+        return components;
+    }
+
+    const auto edgeRecords = BuildEdgeRecords(mesh);
+    std::vector<std::vector<std::size_t>> neighbors(mesh.TriangleCount());
+    for (const auto& [key, record] : edgeRecords)
+    {
+        (void)key;
+        for (std::size_t i = 0; i < record.triangleIndices.size(); ++i)
+        {
+            for (std::size_t j = i + 1; j < record.triangleIndices.size(); ++j)
+            {
+                neighbors[record.triangleIndices[i]].push_back(record.triangleIndices[j]);
+                neighbors[record.triangleIndices[j]].push_back(record.triangleIndices[i]);
+            }
+        }
+    }
+
+    std::vector<bool> visited(mesh.TriangleCount(), false);
+    for (std::size_t seed = 0; seed < mesh.TriangleCount(); ++seed)
+    {
+        if (visited[seed])
+        {
+            continue;
+        }
+
+        std::vector<std::size_t> component;
+        std::deque<std::size_t> queue{seed};
+        visited[seed] = true;
+        while (!queue.empty())
+        {
+            const std::size_t triangleIndex = queue.front();
+            queue.pop_front();
+            component.push_back(triangleIndex);
+
+            for (std::size_t neighbor : neighbors[triangleIndex])
+            {
+                if (visited[neighbor])
+                {
+                    continue;
+                }
+
+                visited[neighbor] = true;
+                queue.push_back(neighbor);
+            }
+        }
+
+        components.push_back(std::move(component));
+    }
+
+    return components;
 }
 } // namespace geometry::sdk

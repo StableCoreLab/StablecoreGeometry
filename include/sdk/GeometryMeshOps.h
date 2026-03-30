@@ -38,6 +38,21 @@ struct GEOMETRY_API MeshBoundaryEdge3d
     }
 };
 
+struct GEOMETRY_API MeshNonManifoldEdge3d
+{
+    std::array<std::size_t, 2> vertexIndices{
+        std::size_t(-1),
+        std::size_t(-1)};
+    std::vector<std::size_t> incidentTriangles{};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return vertexIndices[0] != std::size_t(-1) &&
+               vertexIndices[1] != std::size_t(-1) &&
+               incidentTriangles.size() > 2;
+    }
+};
+
 [[nodiscard]] GEOMETRY_API Vector3d TriangleNormal(
     const TriangleMesh& mesh,
     std::size_t triangleIndex,
@@ -67,4 +82,12 @@ struct GEOMETRY_API MeshBoundaryEdge3d
     const TriangleMesh& mesh);
 
 [[nodiscard]] GEOMETRY_API bool IsClosedTriangleMesh(const TriangleMesh& mesh);
+
+[[nodiscard]] GEOMETRY_API std::vector<MeshNonManifoldEdge3d> ExtractNonManifoldEdges(
+    const TriangleMesh& mesh);
+
+[[nodiscard]] GEOMETRY_API bool IsManifoldTriangleMesh(const TriangleMesh& mesh);
+
+[[nodiscard]] GEOMETRY_API std::vector<std::vector<std::size_t>> ComputeTriangleConnectedComponents(
+    const TriangleMesh& mesh);
 } // namespace geometry::sdk
