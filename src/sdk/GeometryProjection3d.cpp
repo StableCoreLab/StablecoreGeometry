@@ -229,6 +229,71 @@ struct PlaneProjectionBasis
 
     return {true, bestParameter, bestPoint, bestDistanceSquared};
 }
+
+[[nodiscard]] Point3d ClosestPointOnTriangle(
+    const Point3d& point,
+    const Triangle3d& triangle,
+    double eps)
+{
+    const Vector3d ab = triangle.b - triangle.a;
+    const Vector3d ac = triangle.c - triangle.a;
+    const Vector3d ap = point - triangle.a;
+
+    const double d1 = Dot(ab, ap);
+    const double d2 = Dot(ac, ap);
+    if (d1 <= 0.0 && d2 <= 0.0)
+    {
+        return triangle.a;
+    }
+
+    const Vector3d bp = point - triangle.b;
+    const double d3 = Dot(ab, bp);
+    const double d4 = Dot(ac, bp);
+    if (d3 >= 0.0 && d4 <= d3)
+    {
+        return triangle.b;
+    }
+
+    const double vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0)
+    {
+        const double v = d1 / (d1 - d3);
+        return triangle.a + ab * v;
+    }
+
+    const Vector3d cp = point - triangle.c;
+    const double d5 = Dot(ab, cp);
+    const double d6 = Dot(ac, cp);
+    if (d6 >= 0.0 && d5 <= d6)
+    {
+        return triangle.c;
+    }
+
+    const double vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0)
+    {
+        const double w = d2 / (d2 - d6);
+        return triangle.a + ac * w;
+    }
+
+    const double va = d3 * d6 - d5 * d4;
+    if (va <= 0.0 && (d4 - d3) >= 0.0 && (d5 - d6) >= 0.0)
+    {
+        const Vector3d bc = triangle.c - triangle.b;
+        const double w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+        return triangle.b + bc * w;
+    }
+
+    const Vector3d normal = Cross(ab, ac);
+    const double normalLengthSquared = normal.LengthSquared();
+    if (normalLengthSquared <= eps * eps)
+    {
+        return triangle.a;
+    }
+
+    const double distance = Dot(point - triangle.a, normal) / normalLengthSquared;
+    return point - normal * distance;
+}
 } // namespace
 
 LineProjection3d ProjectPointToLine(
@@ -629,6 +694,34 @@ PolyhedronBodyProjection3d ProjectPointToPolyhedronBody(
             best.success = true;
             best.faceIndex = faceIndex;
             best.projection = projected;
+        }
+    }
+
+    return best;
+}
+
+TriangleMeshProjection3d ProjectPointToTriangleMesh(
+    const Point3d& point,
+    const TriangleMesh& mesh,
+    const GeometryTolerance3d& tolerance)
+{
+    TriangleMeshProjection3d best{};
+    if (!mesh.IsValid(tolerance.distanceEpsilon))
+    {
+        return best;
+    }
+
+    for (std::size_t triangleIndex = 0; triangleIndex < mesh.TriangleCount(); ++triangleIndex)
+    {
+        const Triangle3d triangle = mesh.TriangleAt(triangleIndex);
+        const Point3d projectedPoint = ClosestPointOnTriangle(point, triangle, tolerance.distanceEpsilon);
+        const double distanceSquared = (point - projectedPoint).LengthSquared();
+        if (!best.success || distanceSquared < best.distanceSquared)
+        {
+            best.success = true;
+            best.triangleIndex = triangleIndex;
+            best.point = projectedPoint;
+            best.distanceSquared = distanceSquared;
         }
     }
 

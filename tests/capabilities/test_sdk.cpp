@@ -493,6 +493,18 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto meshValidation = Validate(mesh);
     assert(meshValidation.valid);
     assert(meshValidation.issue == MeshValidationIssue3d::None);
+    const auto meshProjection = geometry::sdk::ProjectPointToTriangleMesh(Point3d{1.0, 1.0, 3.0}, mesh);
+    assert(meshProjection.success);
+    assert(meshProjection.IsValid());
+    assert(meshProjection.point.AlmostEquals(Point3d{1.0, 1.0, 0.0}, 1e-12));
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 3.0}, mesh), 3.0, 1e-12);
+    const auto meshLineIntersection = geometry::sdk::Intersect(
+        Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 3.0}, Vector3d{0.0, 0.0, -1.0}),
+        mesh);
+    assert(meshLineIntersection.intersects);
+    assert(meshLineIntersection.IsValid());
+    assert(meshLineIntersection.triangleIndices.size() == 2);
+    assert(meshLineIntersection.points[0].AlmostEquals(Point3d{1.0, 1.0, 0.0}, 1e-12));
     const Vector3d firstTriangleNormal = TriangleNormal(mesh, 0);
     assert(firstTriangleNormal.AlmostEquals(Vector3d{0.0, 0.0, 1.0}, 1e-12));
     const auto triangleNormals = ComputeTriangleNormals(mesh);

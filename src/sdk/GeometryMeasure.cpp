@@ -120,6 +120,16 @@ double Distance(const Point3d& point, const PolyhedronBody& body, const Geometry
     return std::sqrt(DistanceSquared(point, body, tolerance));
 }
 
+double DistanceSquared(const Point3d& point, const TriangleMesh& mesh, const GeometryTolerance3d& tolerance)
+{
+    return ProjectPointToTriangleMesh(point, mesh, tolerance).distanceSquared;
+}
+
+double Distance(const Point3d& point, const TriangleMesh& mesh, const GeometryTolerance3d& tolerance)
+{
+    return std::sqrt(DistanceSquared(point, mesh, tolerance));
+}
+
 double Length(const LineSegment3d& segment)
 {
     return (segment.endPoint - segment.startPoint).Length();

@@ -11,6 +11,7 @@
 #include "sdk/BrepFace.h"
 #include "sdk/Segment2d.h"
 #include "sdk/Surface.h"
+#include "sdk/TriangleMesh.h"
 
 namespace geometry::sdk
 {
@@ -83,6 +84,11 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API PolyhedronBodyProjection3d ProjectPointToPolyhedronBody(
     const Point3d& point,
     const PolyhedronBody& body,
+    const GeometryTolerance3d& tolerance = {});
+
+[[nodiscard]] GEOMETRY_API TriangleMeshProjection3d ProjectPointToTriangleMesh(
+    const Point3d& point,
+    const TriangleMesh& mesh,
     const GeometryTolerance3d& tolerance = {});
 
 struct GEOMETRY_API FaceProjection3d

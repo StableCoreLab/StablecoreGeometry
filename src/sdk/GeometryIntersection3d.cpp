@@ -130,6 +130,32 @@ namespace
     onBoundary = containment == PointContainment2d::OnBoundary;
     return containment == PointContainment2d::Inside || onBoundary;
 }
+
+[[nodiscard]] bool PointInTriangle3d(
+    const Point3d& point,
+    const Triangle3d& triangle,
+    double eps)
+{
+    const Vector3d v0 = triangle.c - triangle.a;
+    const Vector3d v1 = triangle.b - triangle.a;
+    const Vector3d v2 = point - triangle.a;
+
+    const double dot00 = Dot(v0, v0);
+    const double dot01 = Dot(v0, v1);
+    const double dot02 = Dot(v0, v2);
+    const double dot11 = Dot(v1, v1);
+    const double dot12 = Dot(v1, v2);
+    const double denominator = dot00 * dot11 - dot01 * dot01;
+    if (std::abs(denominator) <= eps)
+    {
+        return false;
+    }
+
+    const double inverse = 1.0 / denominator;
+    const double u = (dot11 * dot02 - dot01 * dot12) * inverse;
+    const double v = (dot00 * dot12 - dot01 * dot02) * inverse;
+    return u >= -eps && v >= -eps && u + v <= 1.0 + eps;
+}
 } // namespace
 
 LinePlaneIntersection3d Intersect(
@@ -683,6 +709,68 @@ LinePolyhedronBodyIntersection3d Intersect(
     }
 
     result.intersects = !result.hits.empty();
+    return result;
+}
+
+LineTriangleMeshIntersection3d Intersect(
+    const Line3d& line,
+    const TriangleMesh& mesh,
+    const GeometryTolerance3d& tolerance)
+{
+    LineTriangleMeshIntersection3d result{};
+    if (!line.IsValid(tolerance.distanceEpsilon) || !mesh.IsValid(tolerance.distanceEpsilon))
+    {
+        return result;
+    }
+
+    std::set<std::pair<long long, std::size_t>> dedup;
+    struct Hit
+    {
+        std::size_t triangleIndex;
+        double lineParameter;
+        Point3d point;
+    };
+    std::vector<Hit> hits;
+    for (std::size_t triangleIndex = 0; triangleIndex < mesh.TriangleCount(); ++triangleIndex)
+    {
+        const Triangle3d triangle = mesh.TriangleAt(triangleIndex);
+        const Plane plane = Plane::FromPointAndNormal(triangle.a, triangle.Normal());
+        const LinePlaneIntersection3d planeHit = Intersect(line, plane, tolerance);
+        if (!planeHit.intersects)
+        {
+            continue;
+        }
+
+        if (!PointInTriangle3d(planeHit.point, triangle, tolerance.distanceEpsilon))
+        {
+            continue;
+        }
+
+        const long long bucket = static_cast<long long>(
+            std::llround(planeHit.parameter / std::max(tolerance.parameterEpsilon, geometry::kDefaultEpsilon)));
+        if (!dedup.emplace(bucket, triangleIndex).second)
+        {
+            continue;
+        }
+        hits.push_back({triangleIndex, planeHit.parameter, planeHit.point});
+    }
+
+    std::sort(
+        hits.begin(),
+        hits.end(),
+        [](const Hit& lhs, const Hit& rhs)
+        {
+            return lhs.lineParameter < rhs.lineParameter;
+        });
+
+    for (const Hit& hit : hits)
+    {
+        result.triangleIndices.push_back(hit.triangleIndex);
+        result.lineParameters.push_back(hit.lineParameter);
+        result.points.push_back(hit.point);
+    }
+
+    result.intersects = !result.points.empty();
     return result;
 }
 

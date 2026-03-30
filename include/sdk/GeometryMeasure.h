@@ -91,6 +91,14 @@ namespace geometry::sdk
     const Point3d& point,
     const PolyhedronBody& body,
     const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API double DistanceSquared(
+    const Point3d& point,
+    const TriangleMesh& mesh,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API double Distance(
+    const Point3d& point,
+    const TriangleMesh& mesh,
+    const GeometryTolerance3d& tolerance = {});
 
 [[nodiscard]] GEOMETRY_API double Length(const LineSegment3d& segment);
 [[nodiscard]] GEOMETRY_API double Length(const Curve3d& curve, std::size_t sampleCount = 32);

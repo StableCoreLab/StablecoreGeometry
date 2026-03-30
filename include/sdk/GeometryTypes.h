@@ -246,6 +246,19 @@ struct GEOMETRY_API PolyhedronBodyProjection3d
     }
 };
 
+struct GEOMETRY_API TriangleMeshProjection3d
+{
+    bool success{false};
+    std::size_t triangleIndex{0};
+    Point3d point{};
+    double distanceSquared{0.0};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return !success || (point.IsValid() && std::isfinite(distanceSquared) && distanceSquared >= 0.0);
+    }
+};
+
 struct GEOMETRY_API LinePlaneIntersection3d
 {
     bool intersects{false};
@@ -401,6 +414,36 @@ struct GEOMETRY_API LinePolyhedronBodyIntersection3d
         for (const LinePolyhedronFaceIntersection3d& hit : hits)
         {
             if (!hit.IsValid())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+struct GEOMETRY_API LineTriangleMeshIntersection3d
+{
+    bool intersects{false};
+    std::vector<std::size_t> triangleIndices{};
+    std::vector<double> lineParameters{};
+    std::vector<Point3d> points{};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        if (!intersects)
+        {
+            return true;
+        }
+
+        if (triangleIndices.size() != lineParameters.size() || lineParameters.size() != points.size())
+        {
+            return false;
+        }
+
+        for (const Point3d& point : points)
+        {
+            if (!point.IsValid())
             {
                 return false;
             }

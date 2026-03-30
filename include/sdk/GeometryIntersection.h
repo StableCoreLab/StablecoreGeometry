@@ -8,6 +8,7 @@
 #include "sdk/BrepBody.h"
 #include "sdk/PolyhedronBody.h"
 #include "sdk/Surface.h"
+#include "sdk/TriangleMesh.h"
 
 namespace geometry::sdk
 {
@@ -63,6 +64,10 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API LinePolyhedronBodyIntersection3d Intersect(
     const Line3d& line,
     const PolyhedronBody& body,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API LineTriangleMeshIntersection3d Intersect(
+    const Line3d& line,
+    const TriangleMesh& mesh,
     const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API PlanePlaneIntersection3d Intersect(
     const Plane& first,
