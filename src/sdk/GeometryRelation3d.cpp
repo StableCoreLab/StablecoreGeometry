@@ -119,6 +119,44 @@ PointContainment2d LocatePoint(
     return projection.onTrimmedFace ? PointContainment2d::Inside : PointContainment2d::Outside;
 }
 
+PointContainment2d LocatePoint(
+    const Point3d& point,
+    const TriangleMesh& mesh,
+    const GeometryTolerance3d& tolerance)
+{
+    if (!mesh.IsValid(tolerance.distanceEpsilon))
+    {
+        return PointContainment2d::Outside;
+    }
+
+    const TriangleMeshProjection3d projection = ProjectPointToTriangleMesh(point, mesh, tolerance);
+    if (projection.success &&
+        projection.distanceSquared <= tolerance.distanceEpsilon * tolerance.distanceEpsilon)
+    {
+        return PointContainment2d::OnBoundary;
+    }
+
+    const Line3d probe = Line3d::FromOriginAndDirection(
+        point,
+        Vector3d{1.0, 0.3713906763541037, 0.52999894000318});
+    const LineTriangleMeshIntersection3d intersections = Intersect(probe, mesh, tolerance);
+    if (!intersections.intersects)
+    {
+        return PointContainment2d::Outside;
+    }
+
+    std::size_t crossingCount = 0;
+    for (double parameter : intersections.lineParameters)
+    {
+        if (parameter > tolerance.parameterEpsilon)
+        {
+            ++crossingCount;
+        }
+    }
+
+    return (crossingCount % 2 == 1) ? PointContainment2d::Inside : PointContainment2d::Outside;
+}
+
 bool IsParallel(
     const Vector3d& first,
     const Vector3d& second,

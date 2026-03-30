@@ -10,6 +10,7 @@
 #include "sdk/PolyhedronFace3d.h"
 #include "sdk/Polyline2d.h"
 #include "sdk/Segment2d.h"
+#include "sdk/TriangleMesh.h"
 
 namespace geometry::sdk
 {
@@ -63,6 +64,10 @@ enum class PointPlaneSide3d
 [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
     const Point3d& point,
     const BrepFace& face,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
+    const Point3d& point,
+    const TriangleMesh& mesh,
     const GeometryTolerance3d& tolerance = {});
 
 [[nodiscard]] GEOMETRY_API bool IsParallel(

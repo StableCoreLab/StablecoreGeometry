@@ -512,6 +512,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(meshProjection.IsValid());
     assert(meshProjection.point.AlmostEquals(Point3d{1.0, 1.0, 0.0}, 1e-12));
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 3.0}, mesh), 3.0, 1e-12);
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, mesh) == geometry::sdk::PointContainment2d::OnBoundary);
     const auto meshLineIntersection = geometry::sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 3.0}, Vector3d{0.0, 0.0, -1.0}),
         mesh);
@@ -591,6 +592,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(IsManifoldTriangleMesh(tetraMesh));
     assert(IsConsistentlyOrientedTriangleMesh(tetraMesh));
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Volume(tetraMesh), 1.0 / 6.0, 1e-12);
+    assert(geometry::sdk::LocatePoint(Point3d{0.1, 0.1, 0.1}, tetraMesh) == geometry::sdk::PointContainment2d::Inside);
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 1.0}, tetraMesh) == geometry::sdk::PointContainment2d::Outside);
+    assert(geometry::sdk::LocatePoint(Point3d{0.0, 0.2, 0.2}, tetraMesh) == geometry::sdk::PointContainment2d::OnBoundary);
     const TriangleMeshRepair3d repairedTetraMesh = OrientTriangleMeshConsistently(tetraMesh);
     assert(repairedTetraMesh.success);
     assert(repairedTetraMesh.issue == MeshRepairIssue3d::None);
