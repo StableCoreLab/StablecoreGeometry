@@ -1093,4 +1093,53 @@ SectionContentKind3d ClassifySectionContent(const PolyhedronSection3d& section, 
     }
     return SectionContentKind3d::Empty;
 }
+
+SectionComponents3d BuildSectionComponents(const PolyhedronSection3d& section, double eps)
+{
+    SectionComponents3d result{};
+    const SectionTopology3d topology = BuildSectionTopology(section, eps);
+    if (!topology.IsValid())
+    {
+        return result;
+    }
+
+    const SectionFaceRebuild3d rebuiltFaces = RebuildSectionFaces(section, eps);
+    if (!rebuiltFaces.success)
+    {
+        return result;
+    }
+
+    result.valid = true;
+    result.components.reserve(topology.Roots().size());
+    for (std::size_t rootIndex : topology.Roots())
+    {
+        SectionComponent3d component{};
+        component.rootPolygonIndex = rootIndex;
+
+        std::vector<std::size_t> stack{rootIndex};
+        while (!stack.empty())
+        {
+            const std::size_t current = stack.back();
+            stack.pop_back();
+            component.polygonIndices.push_back(current);
+            for (std::size_t child : topology.ChildrenOf(current))
+            {
+                stack.push_back(child);
+            }
+        }
+
+        std::sort(component.polygonIndices.begin(), component.polygonIndices.end());
+        for (std::size_t faceIndex = 0; faceIndex < rebuiltFaces.mappings.size(); ++faceIndex)
+        {
+            if (rebuiltFaces.mappings[faceIndex].outerPolygonIndex == rootIndex)
+            {
+                component.faceIndices.push_back(faceIndex);
+            }
+        }
+
+        result.components.push_back(std::move(component));
+    }
+
+    return result;
+}
 } // namespace geometry::sdk

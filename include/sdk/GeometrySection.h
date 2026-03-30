@@ -257,6 +257,24 @@ private:
     std::vector<std::size_t> roots_{};
 };
 
+struct GEOMETRY_API SectionComponent3d
+{
+    std::size_t rootPolygonIndex{0};
+    std::vector<std::size_t> polygonIndices{};
+    std::vector<std::size_t> faceIndices{};
+};
+
+struct GEOMETRY_API SectionComponents3d
+{
+    bool valid{false};
+    std::vector<SectionComponent3d> components{};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return valid;
+    }
+};
+
 struct GEOMETRY_API SectionMeshConversion3d
 {
     bool success{false};
@@ -324,6 +342,10 @@ struct GEOMETRY_API SectionMeshSetConversion3d
     double eps = 1e-9);
 
 [[nodiscard]] GEOMETRY_API SectionContentKind3d ClassifySectionContent(
+    const PolyhedronSection3d& section,
+    double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API SectionComponents3d BuildSectionComponents(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 } // namespace geometry::sdk
