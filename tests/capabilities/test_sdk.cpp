@@ -835,6 +835,29 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(healedTrimmedMesh.success);
     assert(healedTrimmedMesh.mesh.IsValid());
 
+    const BrepFace nurbsBrepFace(
+        std::shared_ptr<Surface>(nurbsSurface.Clone().release()),
+        BrepLoop({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)}),
+        {},
+        CurveOnSurface(
+            std::shared_ptr<Surface>(nurbsSurface.Clone().release()),
+            Polyline2d(
+                {
+                    Point2d{0.0, 0.0},
+                    Point2d{1.0, 0.0},
+                    Point2d{1.0, 1.0},
+                    Point2d{0.0, 1.0},
+                },
+                PolylineClosure::Closed)));
+    assert(nurbsBrepFace.IsValid());
+    const auto nurbsBrepFaceMesh = ConvertToTriangleMesh(nurbsBrepFace);
+    assert(nurbsBrepFaceMesh.success);
+    assert(nurbsBrepFaceMesh.mesh.IsValid());
+    assert(nurbsBrepFaceMesh.mesh.TriangleCount() == 2);
+    const double nurbsBrepFaceArea = geometry::sdk::Area(nurbsBrepFace);
+    assert(nurbsBrepFaceArea > 4.0);
+    GEOMETRY_TEST_ASSERT_NEAR(nurbsBrepFaceArea, nurbsBrepFaceMesh.mesh.SurfaceArea(), 1e-12);
+
     const PolyhedronBody cubeBody(
         {
             PolyhedronFace3d(

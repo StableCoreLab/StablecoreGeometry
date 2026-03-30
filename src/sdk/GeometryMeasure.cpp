@@ -103,30 +103,13 @@ double Area(const PolyhedronFace3d& face, const GeometryTolerance3d& tolerance)
 
 double Area(const BrepFace& face, double eps)
 {
-    if (face.OuterTrim().SupportSurface() == nullptr || !face.OuterTrim().IsValid())
+    const PolyhedronMeshConversion3d conversion = ConvertToTriangleMesh(face, eps);
+    if (!conversion.success)
     {
         return 0.0;
     }
 
-    Polygon2d polygon(face.OuterTrim().UvCurve());
-    if (!polygon.IsValid())
-    {
-        return 0.0;
-    }
-
-    std::vector<Polyline2d> holes;
-    holes.reserve(face.HoleTrims().size());
-    for (const CurveOnSurface& trim : face.HoleTrims())
-    {
-        if (!trim.IsValid())
-        {
-            return 0.0;
-        }
-        holes.push_back(trim.UvCurve());
-    }
-
-    polygon = Polygon2d(face.OuterTrim().UvCurve(), std::move(holes));
-    return std::abs(geometry::sdk::Area(polygon));
+    return conversion.mesh.SurfaceArea();
 }
 
 double Area(const TriangleMesh& mesh)
