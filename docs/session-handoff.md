@@ -305,6 +305,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `PolyhedronBody` 已接上 `Plane x PolyhedronBody` 的最小 section 路径，当前支持横切 plane-dominant body、与平面 face 共面的截面回收、以及 edge-only 零面积截面的开链返回
 - `GeometrySection` 已接上最小 face rebuild 入口，可将闭合 section polygons 回建为 `PolyhedronFace3d`
 - `GeometrySection` 已接上最小 BRep face/body rebuild 入口，可将 plane-dominant section 结果直接回建为 `BrepFace` / `BrepBody`
+- `GeometrySection` 已接上多 root `BrepBody` set rebuild，可将分离的 area section 直接拆成多个 `BrepBody`
 - `GeometrySection` 已接上最小 face merge 语义，可将嵌套 section polygons 合并成带孔 `PolyhedronFace3d`
 - `GeometrySection` 的 face rebuild 结果已保留 polygon-to-face 映射，可追溯 outer / hole 来源
 - `GeometrySection` 已接上最小 body rebuild 入口，可将 merged section faces 直接组织为 `PolyhedronBody`

@@ -1405,6 +1405,62 @@ SectionBrepBodyRebuild3d RebuildSectionBrepBody(const PolyhedronSection3d& secti
     return result;
 }
 
+SectionBrepBodySetRebuild3d RebuildSectionBrepBodies(const PolyhedronSection3d& section, double eps)
+{
+    SectionBrepBodySetRebuild3d result{};
+    if (!section.success || !section.IsValid(eps))
+    {
+        result.issue = SectionBodyRebuildIssue3d::InvalidSection;
+        return result;
+    }
+
+    const SectionTopology3d topology = BuildSectionTopology(section, eps);
+    if (!topology.IsValid())
+    {
+        result.issue = SectionBodyRebuildIssue3d::InvalidSection;
+        return result;
+    }
+
+    for (std::size_t rootIndex : topology.Roots())
+    {
+        PolyhedronSection3d subSection{};
+        subSection.success = true;
+        subSection.origin = section.origin;
+        subSection.uAxis = section.uAxis;
+        subSection.vAxis = section.vAxis;
+
+        for (std::size_t polygonIndex = 0; polygonIndex < section.polygons.size(); ++polygonIndex)
+        {
+            std::size_t current = polygonIndex;
+            while (current != static_cast<std::size_t>(-1))
+            {
+                if (current == rootIndex)
+                {
+                    subSection.polygons.push_back(section.polygons[polygonIndex]);
+                    break;
+                }
+                current = topology.ParentOf(current);
+            }
+        }
+
+        const SectionBrepBodyRebuild3d rebuilt = RebuildSectionBrepBody(subSection, eps);
+        if (!rebuilt.success)
+        {
+            result.issue = rebuilt.issue;
+            return result;
+        }
+
+        if (!rebuilt.body.IsEmpty())
+        {
+            result.rootPolygonIndices.push_back(rootIndex);
+            result.bodies.push_back(rebuilt.body);
+        }
+    }
+
+    result.success = true;
+    return result;
+}
+
 SectionBodySetRebuild3d RebuildSectionBodies(const PolyhedronSection3d& section, double eps)
 {
     SectionBodySetRebuild3d result{};

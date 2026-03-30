@@ -243,6 +243,37 @@ struct GEOMETRY_API SectionBrepBodyRebuild3d
     }
 };
 
+struct GEOMETRY_API SectionBrepBodySetRebuild3d
+{
+    bool success{false};
+    SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
+    std::vector<std::size_t> rootPolygonIndices{};
+    std::vector<BrepBody> bodies{};
+
+    [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const
+    {
+        if (!success)
+        {
+            return true;
+        }
+
+        if (rootPolygonIndices.size() != bodies.size())
+        {
+            return false;
+        }
+
+        for (const BrepBody& body : bodies)
+        {
+            if (!body.IsValid(tolerance))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
 struct GEOMETRY_API SectionTopologyNode3d
 {
     std::size_t polygonIndex{0};
@@ -385,6 +416,10 @@ struct GEOMETRY_API SectionMeshSetConversion3d
     double eps = 1e-9);
 
 [[nodiscard]] GEOMETRY_API SectionBrepBodyRebuild3d RebuildSectionBrepBody(
+    const PolyhedronSection3d& section,
+    double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API SectionBrepBodySetRebuild3d RebuildSectionBrepBodies(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
