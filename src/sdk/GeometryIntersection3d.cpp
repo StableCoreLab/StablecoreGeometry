@@ -532,6 +532,26 @@ LineBrepEdgeIntersection3d Intersect(
     return {true, bestLineParameter, bestEdgeParameter, curve.PointAt(bestEdgeParameter)};
 }
 
+LineBrepVertexIntersection3d Intersect(
+    const Line3d& line,
+    const BrepVertex& vertex,
+    const GeometryTolerance3d& tolerance)
+{
+    if (!line.IsValid(tolerance.distanceEpsilon) || !vertex.IsValid())
+    {
+        return {};
+    }
+
+    const LineProjection3d projection = ProjectPointToLine(vertex.Point(), line, tolerance);
+    if (!projection.isOnLine ||
+        projection.distanceSquared > tolerance.distanceEpsilon * tolerance.distanceEpsilon)
+    {
+        return {};
+    }
+
+    return {true, projection.parameter, vertex.Point()};
+}
+
 LineBrepFaceIntersection3d Intersect(
     const Line3d& line,
     const BrepFace& face,
@@ -887,6 +907,25 @@ PlaneBrepEdgeIntersection3d Intersect(
         return {};
     }
     return {true, hit.curveParameter, hit.point};
+}
+
+PlaneBrepVertexIntersection3d Intersect(
+    const Plane& plane,
+    const BrepVertex& vertex,
+    const GeometryTolerance3d& tolerance)
+{
+    if (!plane.IsValid(tolerance.distanceEpsilon) || !vertex.IsValid())
+    {
+        return {};
+    }
+
+    if (std::abs(plane.SignedDistanceTo(vertex.Point(), tolerance.distanceEpsilon)) >
+        tolerance.distanceEpsilon)
+    {
+        return {};
+    }
+
+    return {true, vertex.Point()};
 }
 
 PlanePlaneIntersection3d Intersect(

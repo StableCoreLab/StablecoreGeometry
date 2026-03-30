@@ -2,6 +2,7 @@
 
 #include "export/GeometryExport.h"
 #include "sdk/ArcSegment2d.h"
+#include "sdk/BrepVertex.h"
 #include "sdk/GeometryResults.h"
 #include "sdk/LineSegment2d.h"
 #include "sdk/Segment2d.h"
@@ -49,6 +50,10 @@ namespace geometry::sdk
     const Line3d& line,
     const BrepEdge& edge,
     const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API LineBrepVertexIntersection3d Intersect(
+    const Line3d& line,
+    const BrepVertex& vertex,
+    const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API LineBrepFaceIntersection3d Intersect(
     const Line3d& line,
     const BrepFace& face,
@@ -80,6 +85,10 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API PlaneBrepEdgeIntersection3d Intersect(
     const Plane& plane,
     const BrepEdge& edge,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API PlaneBrepVertexIntersection3d Intersect(
+    const Plane& plane,
+    const BrepVertex& vertex,
     const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API PlanePlaneIntersection3d Intersect(
     const Plane& first,

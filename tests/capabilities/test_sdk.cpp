@@ -844,6 +844,19 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(brepVertexProjection.IsValid());
     assert(brepVertexProjection.point.AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 6.0}, brepVertices[0]), std::sqrt(3.0), 1e-12);
+    const auto brepVertexLineIntersection = geometry::sdk::Intersect(
+        Line3d::FromOriginAndDirection(Point3d{0.0, 0.0, 6.0}, Vector3d{0.0, 0.0, -1.0}),
+        brepVertices[0]);
+    assert(brepVertexLineIntersection.intersects);
+    assert(brepVertexLineIntersection.IsValid());
+    GEOMETRY_TEST_ASSERT_NEAR(brepVertexLineIntersection.lineParameter, 1.0, 1e-12);
+    assert(brepVertexLineIntersection.point.AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
+    const auto brepVertexPlaneIntersection = geometry::sdk::Intersect(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 5.0}, Vector3d{0.0, 0.0, 1.0}),
+        brepVertices[0]);
+    assert(brepVertexPlaneIntersection.intersects);
+    assert(brepVertexPlaneIntersection.IsValid());
+    assert(brepVertexPlaneIntersection.point.AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     const std::vector<BrepEdge> brepEdges{
         BrepEdge(
             std::make_shared<LineCurve3d>(LineCurve3d::FromLine(

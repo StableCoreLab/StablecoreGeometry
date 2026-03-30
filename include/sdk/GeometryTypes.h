@@ -360,6 +360,18 @@ struct GEOMETRY_API LineBrepEdgeIntersection3d
     }
 };
 
+struct GEOMETRY_API LineBrepVertexIntersection3d
+{
+    bool intersects{false};
+    double lineParameter{0.0};
+    Point3d point{};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return !intersects || (point.IsValid() && std::isfinite(lineParameter));
+    }
+};
+
 struct GEOMETRY_API LineCurveIntersection3d
 {
     bool intersects{false};
@@ -499,6 +511,17 @@ struct GEOMETRY_API PlaneBrepEdgeIntersection3d
     [[nodiscard]] bool IsValid() const
     {
         return !intersects || (point.IsValid() && std::isfinite(edgeParameter));
+    }
+};
+
+struct GEOMETRY_API PlaneBrepVertexIntersection3d
+{
+    bool intersects{false};
+    Point3d point{};
+
+    [[nodiscard]] bool IsValid() const
+    {
+        return !intersects || point.IsValid();
     }
 };
 
