@@ -269,6 +269,31 @@ struct GEOMETRY_API SectionMeshConversion3d
     }
 };
 
+struct GEOMETRY_API SectionMeshSetConversion3d
+{
+    bool success{false};
+    MeshConversionIssue3d issue{MeshConversionIssue3d::None};
+    std::vector<TriangleMesh> meshes{};
+
+    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    {
+        if (!success)
+        {
+            return true;
+        }
+
+        for (const TriangleMesh& mesh : meshes)
+        {
+            if (!mesh.IsValid(eps))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
 [[nodiscard]] GEOMETRY_API PolyhedronSection3d Section(
     const PolyhedronBody& body,
     const Plane& plane,
@@ -291,6 +316,10 @@ struct GEOMETRY_API SectionMeshConversion3d
     double eps = 1e-9);
 
 [[nodiscard]] GEOMETRY_API SectionMeshConversion3d ConvertSectionToTriangleMesh(
+    const PolyhedronSection3d& section,
+    double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API SectionMeshSetConversion3d ConvertSectionToTriangleMeshes(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 

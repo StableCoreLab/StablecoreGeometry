@@ -1035,6 +1035,32 @@ SectionMeshConversion3d ConvertSectionToTriangleMesh(const PolyhedronSection3d& 
     return result;
 }
 
+SectionMeshSetConversion3d ConvertSectionToTriangleMeshes(const PolyhedronSection3d& section, double eps)
+{
+    SectionMeshSetConversion3d result{};
+    const SectionBodySetRebuild3d rebuiltBodies = RebuildSectionBodies(section, eps);
+    if (!rebuiltBodies.success)
+    {
+        result.issue = MeshConversionIssue3d::InvalidFace;
+        return result;
+    }
+
+    result.meshes.reserve(rebuiltBodies.bodies.size());
+    for (const PolyhedronBody& body : rebuiltBodies.bodies)
+    {
+        const PolyhedronMeshConversion3d bodyMesh = ConvertToTriangleMesh(body, eps);
+        if (!bodyMesh.success)
+        {
+            result.issue = bodyMesh.issue;
+            return result;
+        }
+        result.meshes.push_back(bodyMesh.mesh);
+    }
+
+    result.success = true;
+    return result;
+}
+
 SectionContentKind3d ClassifySectionContent(const PolyhedronSection3d& section, double eps)
 {
     if (!section.success || !section.IsValid(eps))
