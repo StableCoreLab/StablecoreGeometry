@@ -67,6 +67,10 @@ enum class PointPlaneSide3d
     const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
     const Point3d& point,
+    const BrepBody& body,
+    const GeometryTolerance3d& tolerance = {});
+[[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint(
+    const Point3d& point,
     const TriangleMesh& mesh,
     const GeometryTolerance3d& tolerance = {});
 

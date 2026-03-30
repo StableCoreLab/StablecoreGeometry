@@ -988,6 +988,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(brepBodyLineIntersection.hits.size() == 1);
     assert(brepBodyLineIntersection.faceIndices[0] == 0);
     assert(brepBodyLineIntersection.hits[0].point.AlmostEquals(Point3d{1.0, 1.0, 5.0}, 1e-12));
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 5.0}, brepBody) == geometry::sdk::PointContainment2d::OnBoundary);
+    assert(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 8.0}, brepBody) == geometry::sdk::PointContainment2d::Outside);
     const auto brepFaceProjectionInside = ProjectPointToBrepFace(Point3d{1.0, 1.0, 8.0}, brepFace);
     assert(brepFaceProjectionInside.success);
     assert(brepFaceProjectionInside.IsValid());
