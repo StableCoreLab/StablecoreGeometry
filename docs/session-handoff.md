@@ -215,6 +215,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
   - `include/sdk/Surface.h`
   - `include/sdk/LineCurve3d.h`
   - `include/sdk/PlaneSurface.h`
+  - `GeometryProjection` 已加入 `PolyhedronFace3d -> Polygon2d` 的局部平面投影入口
 - `trianglemesh-core` 已起步：
   - `include/sdk/TriangleMesh.h`
   - `GeometryValidation` 已加入 `TriangleMesh` 的最小 validation 结果
@@ -238,6 +239,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
   - `MeshValidation3d`
   - `Tessellate(PlaneSurface, ...)`
   - `ConvertToTriangleMesh(PolyhedronFace3d / PolyhedronBody, ...)`
+  - `ProjectFaceToPolygon2d(...)`
   - `PolyhedronLoop3d`
   - `PolyhedronFace3d`
   - `PolyhedronBody`
@@ -249,6 +251,7 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - `PlaneSurface` 当前按有限参数域平面曲面实现，便于后续 bounds / tessellation / section 直接消费
 - `TriangleMesh` 已接上 `PlaneSurface -> TriangleMesh` 的最小 tessellation 路径
 - `PolyhedronBody` 已接上无孔平面 face / body 到 `TriangleMesh` 的最小 conversion 路径
+- `PolyhedronFace3d` 已接上局部平面 `Polygon2d` 投影入口，开始进入 projected 2D polygon workflow
 - `PolyhedronBody` 已有平面 face / loop / body 的最小骨架，但尚未接 projected 2D polygon workflow
 - 带孔 `PolyhedronFace3d` 当前会在 mesh conversion 中显式返回未支持，而不是静默生成错误结果
 - `BrepBody` 仍未开始代码落地
@@ -260,5 +263,5 @@ Boolean 当前已不再主要卡在普通 crossing / containment / equal / touch
 - 继续扩展 `trianglemesh-core`
   - 补 mesh 法向、邻接，以及带孔 face / 更广泛 surface 的 conversion 入口
 - 或者进入 `polyhedron-core`
-  - 将当前平面 face / loop / body 骨架接到 projected 2D polygon workflow
+  - 将当前 face 投影入口继续接到 projected 2D polygon 驱动的带孔 triangulation / conversion
   - 再补 projected 2D polygon 驱动的带孔平面 face 路径

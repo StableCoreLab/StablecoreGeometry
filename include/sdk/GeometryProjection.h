@@ -4,6 +4,8 @@
 #include "sdk/ArcSegment2d.h"
 #include "sdk/GeometryTypes.h"
 #include "sdk/LineSegment2d.h"
+#include "sdk/Polygon2d.h"
+#include "sdk/PolyhedronFace3d.h"
 #include "sdk/Segment2d.h"
 
 namespace geometry::sdk
@@ -37,6 +39,19 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API PlaneProjection3d ProjectPointToPlane(
     const Point3d& point,
     const Plane& plane,
+    const GeometryTolerance3d& tolerance = {});
+
+struct GEOMETRY_API FaceProjection3d
+{
+    bool success{false};
+    Polygon2d polygon{};
+    Point3d origin{};
+    Vector3d uAxis{};
+    Vector3d vAxis{};
+};
+
+[[nodiscard]] GEOMETRY_API FaceProjection3d ProjectFaceToPolygon2d(
+    const PolyhedronFace3d& face,
     const GeometryTolerance3d& tolerance = {});
 
 [[nodiscard]] GEOMETRY_API Point2d PointAt(const LineSegment2d& segment, double parameter);

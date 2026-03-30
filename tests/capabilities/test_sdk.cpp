@@ -27,6 +27,7 @@ using geometry::sdk::PolyhedronFace3d;
 using geometry::sdk::PolyhedronLoop3d;
 using geometry::sdk::PolyhedronValidationIssue3d;
 using geometry::sdk::Polygon2d;
+using geometry::sdk::ProjectFaceToPolygon2d;
 using geometry::sdk::ProjectPointToSegment;
 using geometry::sdk::Polyline2d;
 using geometry::sdk::PolylineClosure;
@@ -330,6 +331,13 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto holedFaceMesh = ConvertToTriangleMesh(holedFace);
     assert(!holedFaceMesh.success);
     assert(holedFaceMesh.issue == MeshConversionIssue3d::UnsupportedHoles);
+
+    const auto projectedFace = ProjectFaceToPolygon2d(holedFace);
+    assert(projectedFace.success);
+    assert(projectedFace.polygon.IsValid());
+    assert(projectedFace.polygon.HoleCount() == 1);
+    GEOMETRY_TEST_ASSERT_NEAR(projectedFace.origin.z, 0.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::Dot(projectedFace.uAxis, projectedFace.vAxis), 0.0, 1e-12);
 }
 
 
