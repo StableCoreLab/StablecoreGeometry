@@ -906,6 +906,51 @@ SectionBodyRebuild3d RebuildSectionBody(const PolyhedronSection3d& section, doub
     return result;
 }
 
+SectionBodySetRebuild3d RebuildSectionBodies(const PolyhedronSection3d& section, double eps)
+{
+    SectionBodySetRebuild3d result{};
+    if (!section.success || !section.IsValid(eps))
+    {
+        result.issue = SectionBodyRebuildIssue3d::InvalidSection;
+        return result;
+    }
+
+    const SectionTopology3d topology = BuildSectionTopology(section, eps);
+    if (!topology.IsValid())
+    {
+        result.issue = SectionBodyRebuildIssue3d::InvalidSection;
+        return result;
+    }
+
+    const SectionFaceRebuild3d rebuiltFaces = RebuildSectionFaces(section, eps);
+    if (!rebuiltFaces.success)
+    {
+        result.issue = SectionBodyRebuildIssue3d::FaceRebuildFailed;
+        return result;
+    }
+
+    result.bodies.reserve(topology.Roots().size());
+    for (std::size_t rootIndex : topology.Roots())
+    {
+        std::vector<PolyhedronFace3d> faces;
+        for (std::size_t faceIndex = 0; faceIndex < rebuiltFaces.faces.size(); ++faceIndex)
+        {
+            if (rebuiltFaces.mappings[faceIndex].outerPolygonIndex == rootIndex)
+            {
+                faces.push_back(rebuiltFaces.faces[faceIndex]);
+            }
+        }
+
+        if (!faces.empty())
+        {
+            result.bodies.emplace_back(std::move(faces));
+        }
+    }
+
+    result.success = true;
+    return result;
+}
+
 SectionTopology3d BuildSectionTopology(const PolyhedronSection3d& section, double eps)
 {
     SectionTopology3d result{};

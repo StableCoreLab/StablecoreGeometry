@@ -36,6 +36,7 @@ using geometry::sdk::SectionFaceRebuild3d;
 using geometry::sdk::SectionFaceRebuildIssue3d;
 using geometry::sdk::SectionBodyRebuild3d;
 using geometry::sdk::SectionBodyRebuildIssue3d;
+using geometry::sdk::SectionBodySetRebuild3d;
 using geometry::sdk::SectionContentKind3d;
 using geometry::sdk::SectionMeshConversion3d;
 using geometry::sdk::SectionTopology3d;
@@ -70,6 +71,7 @@ using geometry::sdk::Section;
 using geometry::sdk::SectionIssue3d;
 using geometry::sdk::RebuildSectionFaces;
 using geometry::sdk::RebuildSectionBody;
+using geometry::sdk::RebuildSectionBodies;
 using geometry::sdk::BuildSectionTopology;
 using geometry::sdk::ConvertSectionToTriangleMesh;
 using geometry::sdk::ClassifySectionContent;
@@ -643,6 +645,10 @@ TEST(SdkTest, CoversCurrentCapabilities)
     assert(rebuiltMiddleBody.issue == SectionBodyRebuildIssue3d::None);
     assert(rebuiltMiddleBody.IsValid());
     assert(rebuiltMiddleBody.body.FaceCount() == 1);
+    const SectionBodySetRebuild3d rebuiltMiddleBodies = RebuildSectionBodies(middleSection);
+    assert(rebuiltMiddleBodies.success);
+    assert(rebuiltMiddleBodies.IsValid());
+    assert(rebuiltMiddleBodies.bodies.size() == 1);
     const SectionMeshConversion3d middleSectionMesh = ConvertSectionToTriangleMesh(middleSection);
     assert(middleSectionMesh.success);
     assert(middleSectionMesh.IsValid());
@@ -692,6 +698,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionBodyRebuild3d rebuiltEdgeOnlyBody = RebuildSectionBody(edgeOnlySection);
     assert(rebuiltEdgeOnlyBody.success);
     assert(rebuiltEdgeOnlyBody.body.IsEmpty());
+    const SectionBodySetRebuild3d rebuiltEdgeOnlyBodies = RebuildSectionBodies(edgeOnlySection);
+    assert(rebuiltEdgeOnlyBodies.success);
+    assert(rebuiltEdgeOnlyBodies.bodies.empty());
     const SectionMeshConversion3d edgeOnlySectionMesh = ConvertSectionToTriangleMesh(edgeOnlySection);
     assert(edgeOnlySectionMesh.success);
     assert(edgeOnlySectionMesh.mesh.IsEmpty());
@@ -741,10 +750,46 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const SectionBodyRebuild3d rebuiltMergedBody = RebuildSectionBody(nestedSection);
     assert(rebuiltMergedBody.success);
     assert(rebuiltMergedBody.body.FaceCount() == 1);
+    const SectionBodySetRebuild3d rebuiltMergedBodies = RebuildSectionBodies(nestedSection);
+    assert(rebuiltMergedBodies.success);
+    assert(rebuiltMergedBodies.bodies.size() == 1);
     const SectionMeshConversion3d rebuiltMergedSectionMesh = ConvertSectionToTriangleMesh(nestedSection);
     assert(rebuiltMergedSectionMesh.success);
     GEOMETRY_TEST_ASSERT_NEAR(rebuiltMergedSectionMesh.mesh.SurfaceArea(), 12.0, 1e-12);
     assert(ClassifySectionContent(nestedSection) == SectionContentKind3d::Area);
+
+    PolyhedronSection3d disjointAreaSection{};
+    disjointAreaSection.success = true;
+    disjointAreaSection.origin = Point3d{0.0, 0.0, 0.5};
+    disjointAreaSection.uAxis = Vector3d{1.0, 0.0, 0.0};
+    disjointAreaSection.vAxis = Vector3d{0.0, 1.0, 0.0};
+    disjointAreaSection.polygons.push_back(Polygon2d(
+        Polyline2d(
+            {
+                Point2d{0.0, 0.0},
+                Point2d{1.0, 0.0},
+                Point2d{1.0, 1.0},
+                Point2d{0.0, 1.0},
+            },
+            PolylineClosure::Closed)));
+    disjointAreaSection.polygons.push_back(Polygon2d(
+        Polyline2d(
+            {
+                Point2d{3.0, 0.0},
+                Point2d{4.0, 0.0},
+                Point2d{4.0, 1.0},
+                Point2d{3.0, 1.0},
+            },
+            PolylineClosure::Closed)));
+    const SectionTopology3d disjointAreaTopology = BuildSectionTopology(disjointAreaSection);
+    assert(disjointAreaTopology.IsValid());
+    assert(disjointAreaTopology.Roots().size() == 2);
+    const SectionBodySetRebuild3d rebuiltDisjointBodies = RebuildSectionBodies(disjointAreaSection);
+    assert(rebuiltDisjointBodies.success);
+    assert(rebuiltDisjointBodies.IsValid());
+    assert(rebuiltDisjointBodies.bodies.size() == 2);
+    assert(rebuiltDisjointBodies.bodies[0].FaceCount() == 1);
+    assert(rebuiltDisjointBodies.bodies[1].FaceCount() == 1);
 
     PolyhedronSection3d mixedSection = edgeOnlySection;
     mixedSection.polygons.push_back(middleSection.polygons[0]);

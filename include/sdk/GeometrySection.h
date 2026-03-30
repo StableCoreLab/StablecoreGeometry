@@ -38,6 +38,31 @@ enum class SectionBodyRebuildIssue3d
     FaceRebuildFailed
 };
 
+struct GEOMETRY_API SectionBodySetRebuild3d
+{
+    bool success{false};
+    SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
+    std::vector<PolyhedronBody> bodies{};
+
+    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    {
+        if (!success)
+        {
+            return true;
+        }
+
+        for (const PolyhedronBody& body : bodies)
+        {
+            if (!body.IsValid(eps))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
 enum class SectionContentKind3d
 {
     Empty,
@@ -254,6 +279,10 @@ struct GEOMETRY_API SectionMeshConversion3d
     double eps = 1e-9);
 
 [[nodiscard]] GEOMETRY_API SectionBodyRebuild3d RebuildSectionBody(
+    const PolyhedronSection3d& section,
+    double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API SectionBodySetRebuild3d RebuildSectionBodies(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
