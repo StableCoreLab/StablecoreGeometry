@@ -683,7 +683,30 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
     }
 
     const double syntheticRatio = candidate.syntheticPerimeter / candidate.perimeter;
-    return syntheticRatio >= 0.25 && candidate.area <= candidate.syntheticPerimeter * std::max(repairTol, 16.0 * eps);
+    const bool syntheticDominated =
+        syntheticRatio >= 0.25 && candidate.area <= candidate.syntheticPerimeter * std::max(repairTol, 16.0 * eps);
+    const bool syntheticBranchDominated =
+        candidate.syntheticBranchVertexCount > 0 &&
+        candidate.syntheticBranchVertexCount * 2U >= candidate.branchVertexCount + 1U &&
+        syntheticRatio >= 0.2 &&
+        candidate.area <=
+            candidate.syntheticPerimeter * std::max(1.5 * repairTol, 24.0 * eps);
+    return syntheticDominated || syntheticBranchDominated;
+}
+
+[[nodiscard]] double ComputeRingCandidateScore(
+    double area,
+    double syntheticPerimeter,
+    std::size_t branchVertexCount,
+    std::size_t syntheticBranchVertexCount,
+    double repairTol,
+    double eps)
+{
+    const double scale = std::max(repairTol, 16.0 * eps);
+    const double syntheticPenalty = syntheticPerimeter * scale;
+    const double branchPenalty = static_cast<double>(branchVertexCount) * 0.5 * scale;
+    const double syntheticBranchPenalty = static_cast<double>(syntheticBranchVertexCount) * 1.5 * scale;
+    return area - syntheticPenalty - branchPenalty - syntheticBranchPenalty;
 }
 
 [[nodiscard]] std::vector<RingCandidate> ExtractCandidateRings(
@@ -705,6 +728,8 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
         std::vector<Point2d> loopPoints;
         double perimeter = 0.0;
         double syntheticPerimeter = 0.0;
+        std::size_t branchVertexCount = 0;
+        std::size_t syntheticBranchVertexCount = 0;
         std::size_t current = start;
         bool closed = false;
         for (std::size_t steps = 0; steps <= edges.size(); ++steps)
@@ -721,6 +746,14 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
             if (edge.synthetic)
             {
                 syntheticPerimeter += edge.length;
+            }
+            if (edge.from < outgoing.size() && outgoing[edge.from].size() > 2U)
+            {
+                ++branchVertexCount;
+                if (edge.synthetic)
+                {
+                    ++syntheticBranchVertexCount;
+                }
             }
 
             const std::size_t next = NextFaceEdge(edges, outgoing, current);
@@ -757,11 +790,22 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
             continue;
         }
 
+        const double area = std::abs(Area(Polygon2d(ring)));
+        const double score = ComputeRingCandidateScore(
+            area,
+            syntheticPerimeter,
+            branchVertexCount,
+            syntheticBranchVertexCount,
+            repairTol,
+            eps);
         const RingCandidate candidate{
             ring,
-            std::abs(Area(Polygon2d(ring))),
+            area,
             perimeter,
-            syntheticPerimeter};
+            syntheticPerimeter,
+            branchVertexCount,
+            syntheticBranchVertexCount,
+            score};
         if (RejectRingCandidate(candidate, repairTol, areaTol, eps))
         {
             continue;
@@ -769,6 +813,18 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
 
         rings.push_back(candidate);
     }
+
+    std::stable_sort(rings.begin(), rings.end(), [](const RingCandidate& lhs, const RingCandidate& rhs) {
+        if (std::abs(lhs.score - rhs.score) > 1e-12)
+        {
+            return lhs.score > rhs.score;
+        }
+        if (std::abs(lhs.area - rhs.area) > 1e-12)
+        {
+            return lhs.area > rhs.area;
+        }
+        return lhs.perimeter < rhs.perimeter;
+    });
 
     return rings;
 }

@@ -133,6 +133,21 @@ TEST(ShapesPathopsTest, CoversCurrentCapabilities)
     assert(ambiguousFake[0].HoleCount() == 0);
     assert(geometry::sdk::Area(ambiguousFake[0]) >= 15.5);
     assert(geometry::sdk::Area(ambiguousFake[0]) <= 16.5);
+
+    const MultiPolyline2d branchHeavyAmbiguousLines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{6.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{6.0, 0.0}, Point2d{6.0, 6.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{6.0, 6.0}, Point2d{0.0, 6.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 6.0}, Point2d{0.0, 0.4}}, PolylineClosure::Open),
+        Polyline2d({Point2d{-0.2, 0.4}, Point2d{-0.2, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{-0.2, 0.0}, Point2d{0.3, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{3.0, 6.0}, Point2d{3.0, 7.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 3.0}, Point2d{-1.0, 3.0}}, PolylineClosure::Open)};
+    const auto branchHeavyAmbiguous = BuildMultiPolygonByLines(branchHeavyAmbiguousLines);
+    assert(branchHeavyAmbiguous.Count() == 1);
+    assert(branchHeavyAmbiguous[0].HoleCount() == 0);
+    assert(geometry::sdk::Area(branchHeavyAmbiguous[0]) >= 35.0);
+    assert(geometry::sdk::Area(branchHeavyAmbiguous[0]) <= 37.0);
 }
 
 

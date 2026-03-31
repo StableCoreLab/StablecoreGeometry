@@ -103,6 +103,33 @@ void CollectRawSegments(const Polyline2d& polyline, std::vector<RawSegment>& seg
     return segments;
 }
 
+void AppendPolygonBoundaries(const Polygon2d& polygon, MultiPolyline2d& boundaries)
+{
+    boundaries.Add(polygon.OuterRing());
+    for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
+    {
+        boundaries.Add(polygon.HoleAt(holeIndex));
+    }
+}
+
+[[nodiscard]] Polygon2d NormalizeBooleanOperand(const Polygon2d& polygon, double eps)
+{
+    if (!polygon.IsValid())
+    {
+        return {};
+    }
+
+    MultiPolyline2d boundaries;
+    AppendPolygonBoundaries(polygon, boundaries);
+    const MultiPolygon2d rebuilt = BuildMultiPolygonByLines(boundaries, eps);
+    if (rebuilt.Count() == 1 && rebuilt[0].IsValid())
+    {
+        return rebuilt[0];
+    }
+
+    return polygon;
+}
+
 void AddParameter(std::vector<double>& parameters, double value, double eps)
 {
     value = std::clamp(value, 0.0, 1.0);
@@ -218,6 +245,47 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
         }
     }
     return unique;
+}
+
+[[nodiscard]] double ComputeSegmentLengthTolerance(const std::vector<RawSegment>& segments, double eps)
+{
+    if (segments.empty())
+    {
+        return 8.0 * eps;
+    }
+
+    double minX = segments.front().start.x;
+    double minY = segments.front().start.y;
+    double maxX = minX;
+    double maxY = minY;
+    for (const RawSegment& segment : segments)
+    {
+        minX = std::min({minX, segment.start.x, segment.end.x});
+        minY = std::min({minY, segment.start.y, segment.end.y});
+        maxX = std::max({maxX, segment.start.x, segment.end.x});
+        maxY = std::max({maxY, segment.start.y, segment.end.y});
+    }
+
+    const double dx = maxX - minX;
+    const double dy = maxY - minY;
+    const double diagonal = std::sqrt(dx * dx + dy * dy);
+    return std::max(8.0 * eps, diagonal * 1e-9);
+}
+
+[[nodiscard]] std::vector<RawSegment> FilterTinySegments(const std::vector<RawSegment>& segments, double eps)
+{
+    const double lengthTol = ComputeSegmentLengthTolerance(segments, eps);
+    std::vector<RawSegment> filtered;
+    filtered.reserve(segments.size());
+    for (const RawSegment& segment : segments)
+    {
+        if ((segment.end - segment.start).Length() <= lengthTol)
+        {
+            continue;
+        }
+        filtered.push_back(segment);
+    }
+    return filtered;
 }
 
 [[nodiscard]] double ComputeAreaTolerance(const std::vector<RawSegment>& segments, double eps)
@@ -872,21 +940,31 @@ void AppendFaceBoundaries(const Polygon2d& polygon, MultiPolyline2d& polylines)
         return result;
     }
 
-    const PolygonContainment2d relation = Relate(first, second, eps);
-    const BooleanFastPathResult fastPath = BooleanFastPath(first, second, relation, op);
+    const Polygon2d normalizedFirst = NormalizeBooleanOperand(first, eps);
+    const Polygon2d normalizedSecond = NormalizeBooleanOperand(second, eps);
+    if (!normalizedFirst.IsValid() || !normalizedSecond.IsValid())
+    {
+        return result;
+    }
+
+    const PolygonContainment2d relation = Relate(normalizedFirst, normalizedSecond, eps);
+    const BooleanFastPathResult fastPath = BooleanFastPath(normalizedFirst, normalizedSecond, relation, op);
     if (fastPath.handled)
     {
         return fastPath.polygons;
     }
 
-    std::vector<RawSegment> rawSegments = CollectBoundarySegments(first, second, eps);
+    std::vector<RawSegment> rawSegments = CollectBoundarySegments(normalizedFirst, normalizedSecond, eps);
     if (rawSegments.empty())
     {
         return result;
     }
 
     rawSegments = RemoveDuplicateSegments(rawSegments, eps);
-    const std::vector<RawSegment> splitSegments = SubdivideRawSegments(rawSegments, eps);
+    rawSegments = FilterTinySegments(rawSegments, eps);
+    std::vector<RawSegment> splitSegments = SubdivideRawSegments(rawSegments, eps);
+    splitSegments = FilterTinySegments(splitSegments, eps);
+    splitSegments = RemoveDuplicateSegments(splitSegments, eps);
     if (splitSegments.empty())
     {
         return result;
@@ -916,8 +994,10 @@ void AppendFaceBoundaries(const Polygon2d& polygon, MultiPolyline2d& polylines)
     for (const Polygon2d& face : faces)
     {
         const Point2d sample = SampleFacePoint(face, eps);
-        const bool inFirst = ClassifyFaceAgainstPolygon(face, sample, first, eps) == PointContainment2d::Inside;
-        const bool inSecond = ClassifyFaceAgainstPolygon(face, sample, second, eps) == PointContainment2d::Inside;
+        const bool inFirst =
+            ClassifyFaceAgainstPolygon(face, sample, normalizedFirst, eps) == PointContainment2d::Inside;
+        const bool inSecond =
+            ClassifyFaceAgainstPolygon(face, sample, normalizedSecond, eps) == PointContainment2d::Inside;
         if (Evaluate(op, inFirst, inSecond))
         {
             AppendFaceBoundaries(face, selectedBoundaries);

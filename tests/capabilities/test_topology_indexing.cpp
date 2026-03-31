@@ -51,6 +51,7 @@ TEST(TopologyIndexingTest, CoversCurrentCapabilities)
             {Point2d{2.0, 2.0}, Point2d{4.0, 2.0}, Point2d{4.0, 4.0}, Point2d{2.0, 4.0}},
             PolylineClosure::Closed));
     assert(geometry::sdk::Relate(outer, inner) == PolygonContainment2d::FirstContainsSecond);
+    assert(geometry::sdk::Relate(inner, outer) == PolygonContainment2d::SecondContainsFirst);
     const auto topology = geometry::sdk::BuildPolygonTopology(MultiPolygon2d{{outer, inner}});
     assert(topology.Roots().size() == 1); const auto duplicateTopology = geometry::sdk::BuildPolygonTopology(MultiPolygon2d{outer, outer}); assert(duplicateTopology.Roots().size() == 1); assert(duplicateTopology.ParentOf(1) == 0);
 

@@ -155,6 +155,8 @@
 - 在 ring 提取阶段清理近共线碎顶点
 - 用更保守的 tiny-face 阈值，减少误删极薄但真实的 overlap 结果
 - 在 face 分类阶段使用更强的 interior-face sampling
+- 在 boolean 前对输入 polygon 做 pathops 风格边界重建预处理，统一 duplicate-edge / near-collinear 清理口径
+- 在 split 后补充 tiny segment 过滤，降低近退化交点导致的碎段噪声
 
 这使它已覆盖：
 
@@ -182,6 +184,8 @@
 
 当前 C++ 实现已能在开放且带分支的线网中，先做重复边清理、交点切分、近端点自动闭合、简单投影式 auto-extend、dangling branch 裁剪，以及 fake-edge 主导小候选环抑制，然后再进行 polygon 重建。
 
+另外，候选环提取已增加分支复杂度与 synthetic-branch 参与度评分，并在建面前按 score 排序，以降低高歧义分支场景下 fake-edge 候选误选概率。
+
 当前 C++ 证据：
 
 - `src/sdk/GeometryPathOps.cpp`
@@ -196,6 +200,8 @@
 ### 6.3 Offset 已能从生成 ring 重建，但仍未达到 Delphi offset 深度
 
 当前 C++ offset 会将生成的 offset ring 再送回 polygon 重建流程，在重建前过滤 collapsed / near-zero ring，并在单 polygon offset 返回多个候选时尽量选择语义更合理的结果。
+
+本轮进一步补充了 reverse-edge 与多策略恢复：同距离下会并行尝试原始方向、反向补偿和保守 miter 限制候选，再通过 relation-aware 打分选择更符合 outward/inward 语义的结果。
 
 当前 C++ 证据：
 

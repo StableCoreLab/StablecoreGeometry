@@ -169,6 +169,34 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
     const auto touchingDifference = geometry::sdk::Difference(square, edgeTouch);
     assert(touchingDifference.Count() >= 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(touchingDifference), 16.0, 1e-9);
+
+    const Polygon2d duplicateEdgeFamilyA(
+        Polyline2d(
+            {Point2d{0.0, 0.0},
+             Point2d{6.0, 0.0},
+             Point2d{6.0, 1.0},
+             Point2d{4.0, 1.0},
+             Point2d{4.0, 1.000000001},
+             Point2d{6.0, 1.000000001},
+             Point2d{6.0, 4.0},
+             Point2d{0.0, 4.0}},
+            PolylineClosure::Closed));
+    const Polygon2d duplicateEdgeFamilyB(
+        Polyline2d(
+            {Point2d{2.0, -1.0}, Point2d{8.0, -1.0}, Point2d{8.0, 3.0}, Point2d{2.0, 3.0}},
+            PolylineClosure::Closed));
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Intersect(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
+        12.0,
+        1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Union(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
+        36.0,
+        1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Difference(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
+        12.0,
+        1e-8);
 }
 
 

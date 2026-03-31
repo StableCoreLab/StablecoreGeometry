@@ -183,6 +183,25 @@ void AppendOffsetRing(const Polyline2d& ring, MultiPolyline2d& output)
     output.Add(normalized);
 }
 
+void AppendRecoveredOffsetRing(
+    const Polyline2d& ring,
+    double signedDistance,
+    const OffsetOptions2d& options,
+    MultiPolyline2d& output)
+{
+    const Polyline2d primary = Offset(ring, signedDistance, options);
+    AppendOffsetRing(primary, output);
+
+    const Polyline2d reversed = Reverse(ring);
+    const Polyline2d reverseFallback = Offset(reversed, -signedDistance, options);
+    AppendOffsetRing(reverseFallback, output);
+
+    OffsetOptions2d conservativeOptions = options;
+    conservativeOptions.miterLimit = std::max(1.0, std::min(options.miterLimit, 2.0));
+    const Polyline2d conservative = Offset(ring, signedDistance, conservativeOptions);
+    AppendOffsetRing(conservative, output);
+}
+
 [[nodiscard]] MultiPolygon2d BuildOffsetPolygons(const MultiPolyline2d& rings, double eps)
 {
     if (rings.IsEmpty())
@@ -232,11 +251,28 @@ void AppendOffsetRing(const Polyline2d& ring, MultiPolyline2d& output)
         double score = Area(candidate);
         const PointContainment2d referenceContainment = LocatePoint(reference, candidate, eps);
         const PointContainment2d candidateContainment = LocatePoint(Centroid(candidate), source, eps);
+        const PolygonContainment2d relation = Relate(candidate, source, eps);
         if (outward)
         {
             if (referenceContainment != PointContainment2d::Outside)
             {
                 score += 1e9;
+            }
+            if (relation == PolygonContainment2d::FirstContainsSecond)
+            {
+                score += 1e9;
+            }
+            else if (relation == PolygonContainment2d::Touching || relation == PolygonContainment2d::Intersecting)
+            {
+                score += 1e7;
+            }
+            else if (relation == PolygonContainment2d::Disjoint)
+            {
+                score -= 1e7;
+            }
+            if (Area(candidate) + eps < Area(source))
+            {
+                score -= 1e8;
             }
         }
         else
@@ -249,7 +285,22 @@ void AppendOffsetRing(const Polyline2d& ring, MultiPolyline2d& output)
             {
                 score += 1e6;
             }
+            if (relation == PolygonContainment2d::SecondContainsFirst)
+            {
+                score += 1e9;
+            }
+            else if (relation == PolygonContainment2d::Touching || relation == PolygonContainment2d::Intersecting)
+            {
+                score += 1e7;
+            }
+            if (Area(candidate) > Area(source) + eps)
+            {
+                score -= 1e7;
+            }
         }
+
+        score -= static_cast<double>(std::abs(static_cast<int>(candidate.HoleCount()) - static_cast<int>(source.HoleCount()))) *
+                 1e4;
 
         if (score > bestScore)
         {
@@ -324,11 +375,11 @@ Polygon2d Offset(const Polygon2d& polygon, double distance, OffsetOptions2d opti
 
     MultiPolyline2d offsetRings;
     const Polyline2d outerRing = polygon.OuterRing();
-    AppendOffsetRing(Offset(outerRing, RingDistance(outerRing, distance, false), options), offsetRings);
+    AppendRecoveredOffsetRing(outerRing, RingDistance(outerRing, distance, false), options, offsetRings);
     for (std::size_t i = 0; i < polygon.HoleCount(); ++i)
     {
         const Polyline2d hole = polygon.HoleAt(i);
-        AppendOffsetRing(Offset(hole, RingDistance(hole, distance, true), options), offsetRings);
+        AppendRecoveredOffsetRing(hole, RingDistance(hole, distance, true), options, offsetRings);
     }
 
     const MultiPolygon2d rebuilt = BuildOffsetPolygons(offsetRings, geometry::kDefaultEpsilon);
@@ -361,11 +412,11 @@ MultiPolygon2d Offset(const MultiPolygon2d& polygons, double distance, OffsetOpt
         }
 
         const Polyline2d outerRing = polygon.OuterRing();
-        AppendOffsetRing(Offset(outerRing, RingDistance(outerRing, distance, false), options), offsetRings);
+        AppendRecoveredOffsetRing(outerRing, RingDistance(outerRing, distance, false), options, offsetRings);
         for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
         {
             const Polyline2d hole = polygon.HoleAt(holeIndex);
-            AppendOffsetRing(Offset(hole, RingDistance(hole, distance, true), options), offsetRings);
+            AppendRecoveredOffsetRing(hole, RingDistance(hole, distance, true), options, offsetRings);
         }
     }
 

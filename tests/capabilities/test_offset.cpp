@@ -80,6 +80,25 @@ TEST(OffsetTest, CoversCurrentCapabilities)
             PolylineClosure::Closed))};
     const MultiPolygon2d expandedDisjoint = geometry::sdk::Offset(disjoint, 0.5);
     assert(expandedDisjoint.Count() == 2);
+
+    const Polygon2d clockwiseOuter(
+        Polyline2d(
+            {Point2d{0.0, 0.0}, Point2d{0.0, 4.0}, Point2d{4.0, 4.0}, Point2d{4.0, 0.0}},
+            PolylineClosure::Closed));
+    const Polygon2d clockwiseExpanded = geometry::sdk::Offset(clockwiseOuter, 0.5);
+    assert(clockwiseExpanded.IsValid());
+    assert(geometry::sdk::Area(clockwiseExpanded) > geometry::sdk::Area(clockwiseOuter));
+
+    const Polygon2d narrowDonut(
+        Polyline2d(
+            {Point2d{0.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 6.0}, Point2d{0.0, 6.0}},
+            PolylineClosure::Closed),
+        {Polyline2d(
+            {Point2d{3.5, 2.0}, Point2d{3.5, 4.0}, Point2d{6.5, 4.0}, Point2d{6.5, 2.0}},
+            PolylineClosure::Closed)});
+    const Polygon2d inwardRecovered = geometry::sdk::Offset(narrowDonut, -0.75);
+    assert(inwardRecovered.IsValid());
+    assert(geometry::sdk::Area(inwardRecovered) < geometry::sdk::Area(narrowDonut));
 }
 
 
