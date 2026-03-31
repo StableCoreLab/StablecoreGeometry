@@ -208,7 +208,25 @@ void AppendRecoveredOffsetRing(
     {
         return {};
     }
-    return BuildMultiPolygonByLines(rings, eps);
+
+    MultiPolygon2d rebuilt = BuildMultiPolygonByLines(rings, eps);
+    if (!rebuilt.IsEmpty())
+    {
+        return rebuilt;
+    }
+
+    MultiPolyline2d reversedRings;
+    for (std::size_t i = 0; i < rings.Count(); ++i)
+    {
+        reversedRings.Add(Reverse(rings[i]));
+    }
+    rebuilt = BuildMultiPolygonByLines(reversedRings, eps);
+    if (!rebuilt.IsEmpty())
+    {
+        return rebuilt;
+    }
+
+    return BuildMultiPolygonByLines(rings, std::max(eps, 1e-8));
 }
 
 [[nodiscard]] Point2d PrimaryReferencePoint(const Polygon2d& polygon, double eps)

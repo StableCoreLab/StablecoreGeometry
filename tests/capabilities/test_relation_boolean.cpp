@@ -197,6 +197,39 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
         TotalArea(geometry::sdk::Difference(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
         12.0,
         1e-8);
+
+    const Polygon2d repeatedCollinearChainA(
+        Polyline2d(
+            {Point2d{0.0, 0.0},
+             Point2d{2.0, 0.0},
+             Point2d{4.0, 0.0},
+             Point2d{6.0, 0.0},
+             Point2d{6.0, 3.0},
+             Point2d{4.0, 3.0},
+             Point2d{2.0, 3.0},
+             Point2d{0.0, 3.0}},
+            PolylineClosure::Closed));
+    const Polygon2d repeatedCollinearChainB(
+        Polyline2d(
+            {Point2d{3.0, -1.0},
+             Point2d{7.0, -1.0},
+             Point2d{7.0, 2.0},
+             Point2d{5.0, 2.0},
+             Point2d{5.0, 2.000000001},
+             Point2d{3.0, 2.000000001}},
+            PolylineClosure::Closed));
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Intersect(repeatedCollinearChainA, repeatedCollinearChainB)),
+        6.000000003,
+        1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Union(repeatedCollinearChainA, repeatedCollinearChainB)),
+        23.000000001,
+        1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Difference(repeatedCollinearChainA, repeatedCollinearChainB)),
+        11.999999997,
+        1e-8);
 }
 
 

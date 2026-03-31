@@ -18,25 +18,11 @@
 - 几何判定与容差规则
 - 距离、投影、采样与度量
 - 段相交与关系逻辑
-- polyline 与 polygon 算法
-- offset、boolean、topology 与建面逻辑
-- 面向几何的空间索引与搜索
-
-明确排除：
-
-- `GGLCoordTrans.pas`
 - `GGLDrawFunc2d.pas`
 
 ## 3. 当前总体结论
-
-当前 C++ 仓库在 polygon / face 工作流上的几何算法能力，已覆盖比过去更多的 Delphi 能力，但仍未达到完整 Delphi 对齐。
-
-当前状态摘要：
-
-- 基础几何内核：大体覆盖
 - 线网建面：已具备切分、重复边清理、近端点自动闭合、简单 auto-extend 与分支裁剪
-- polygon boolean：已覆盖普通 crossing、containment、equal、touching、simple overlap，以及更广的一类近退化 repeated-overlap 家族
-- polygon relation 与 topology：已具备基础 equal / shared-edge recovery
+- 已进一步增强 relation hierarchy：对 boundary overlap 与 strict interior 联合判定，收敛 shared-edge touching 与 overlap-intersecting 的区分
 - polygon offset：已具备 ring 重建、基础 split recovery 与 collapsed-ring 清理
 - SearchPoly 级别的高歧义恢复、以及更深层 offset / boolean recovery：仍低于 Delphi
 
@@ -157,6 +143,7 @@
 - 在 face 分类阶段使用更强的 interior-face sampling
 - 在 boolean 前对输入 polygon 做 pathops 风格边界重建预处理，统一 duplicate-edge / near-collinear 清理口径
 - 在 split 后补充 tiny segment 过滤，降低近退化交点导致的碎段噪声
+- 在 split 后新增 degree-2 共线链段合并，收敛 repeated-edge family 的细碎共线段噪声
 
 这使它已覆盖：
 
@@ -202,6 +189,7 @@
 当前 C++ offset 会将生成的 offset ring 再送回 polygon 重建流程，在重建前过滤 collapsed / near-zero ring，并在单 polygon offset 返回多个候选时尽量选择语义更合理的结果。
 
 本轮进一步补充了 reverse-edge 与多策略恢复：同距离下会并行尝试原始方向、反向补偿和保守 miter 限制候选，再通过 relation-aware 打分选择更符合 outward/inward 语义的结果。
+在 offset ring 建面阶段也新增了多轮失败恢复：原始 rings 失败后自动尝试反向 rings，再尝试放宽 epsilon 的重建兜底。
 
 当前 C++ 证据：
 

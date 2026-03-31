@@ -14,6 +14,7 @@ enum class BoundaryContact2d
 {
     None,
     Touching,
+    Overlapping,
     Crossing
 };
 
@@ -66,7 +67,7 @@ void CollectRingSegments(const Polyline2d& ring, std::vector<LineSegment2d>& seg
             }
             if (intersection.kind == IntersectionKind2d::Overlap)
             {
-                contact = BoundaryContact2d::Touching;
+                contact = BoundaryContact2d::Overlapping;
                 continue;
             }
 
@@ -88,6 +89,12 @@ void CollectRingSegments(const Polyline2d& ring, std::vector<LineSegment2d>& seg
 
 [[nodiscard]] bool HasStrictInteriorPoint(const Polygon2d& container, const Polygon2d& candidate, double eps)
 {
+    const Point2d candidateCentroid = Centroid(candidate);
+    if (LocatePoint(candidateCentroid, container, eps) == PointContainment2d::Inside)
+    {
+        return true;
+    }
+
     const Polyline2d& ring = candidate.OuterRing();
     for (std::size_t i = 0; i < ring.PointCount(); ++i)
     {
@@ -221,17 +228,21 @@ PolygonContainment2d Relate(const Polygon2d& first, const Polygon2d& second, dou
 
     const bool firstContainsSecond = Contains(first, second, eps);
     const bool secondContainsFirst = Contains(second, first, eps);
+    const bool secondHasStrictInteriorInFirst = HasStrictInteriorPoint(first, second, eps);
+    const bool firstHasStrictInteriorInSecond = HasStrictInteriorPoint(second, first, eps);
     if (firstContainsSecond && secondContainsFirst)
     {
         return PolygonContainment2d::Equal;
     }
     if (firstContainsSecond)
     {
-        return PolygonContainment2d::FirstContainsSecond;
+        return secondHasStrictInteriorInFirst ? PolygonContainment2d::FirstContainsSecond
+                                              : PolygonContainment2d::Touching;
     }
     if (secondContainsFirst)
     {
-        return PolygonContainment2d::SecondContainsFirst;
+        return firstHasStrictInteriorInSecond ? PolygonContainment2d::SecondContainsFirst
+                                              : PolygonContainment2d::Touching;
     }
 
     const BoundaryContact2d contact = ClassifyBoundaryContact(first, second, eps);
@@ -239,12 +250,18 @@ PolygonContainment2d Relate(const Polygon2d& first, const Polygon2d& second, dou
     {
         return PolygonContainment2d::Intersecting;
     }
+    if (contact == BoundaryContact2d::Overlapping)
+    {
+        return (secondHasStrictInteriorInFirst || firstHasStrictInteriorInSecond)
+                   ? PolygonContainment2d::Intersecting
+                   : PolygonContainment2d::Touching;
+    }
     if (contact == BoundaryContact2d::Touching)
     {
         return PolygonContainment2d::Touching;
     }
 
-    if (HasStrictInteriorPoint(first, second, eps) || HasStrictInteriorPoint(second, first, eps))
+    if (secondHasStrictInteriorInFirst || firstHasStrictInteriorInSecond)
     {
         return PolygonContainment2d::Intersecting;
     }

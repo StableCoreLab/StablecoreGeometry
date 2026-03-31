@@ -71,6 +71,18 @@ TEST(TopologyIndexingTest, CoversCurrentCapabilities)
             {Point2d{8.0, 8.0}, Point2d{12.0, 8.0}, Point2d{12.0, 12.0}, Point2d{8.0, 12.0}},
             PolylineClosure::Closed));
     assert(geometry::sdk::Relate(outer, intersecting) == PolygonContainment2d::Intersecting);
+
+    const Polygon2d sharedEdgeTouch(
+        Polyline2d(
+            {Point2d{10.0, 0.0}, Point2d{12.0, 0.0}, Point2d{12.0, 10.0}, Point2d{10.0, 10.0}},
+            PolylineClosure::Closed));
+    assert(geometry::sdk::Relate(outer, sharedEdgeTouch) == PolygonContainment2d::Touching);
+
+    const Polygon2d overlapWithInterior(
+        Polyline2d(
+            {Point2d{8.0, 0.0}, Point2d{12.0, 0.0}, Point2d{12.0, 6.0}, Point2d{8.0, 6.0}},
+            PolylineClosure::Closed));
+    assert(geometry::sdk::Relate(outer, overlapWithInterior) == PolygonContainment2d::Intersecting);
 }
 
 

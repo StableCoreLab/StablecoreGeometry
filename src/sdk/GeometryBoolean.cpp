@@ -288,6 +288,101 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     return filtered;
 }
 
+[[nodiscard]] std::vector<RawSegment> MergeCollinearChainSegments(const std::vector<RawSegment>& segments, double eps)
+{
+    std::vector<RawSegment> working = segments;
+    bool changed = true;
+    while (changed)
+    {
+        changed = false;
+
+        std::vector<Point2d> vertices;
+        std::vector<std::size_t> degree;
+        std::vector<std::vector<std::size_t>> incident;
+        struct IndexedSegment
+        {
+            std::size_t from{0};
+            std::size_t to{0};
+        };
+        std::vector<IndexedSegment> indexed;
+        indexed.reserve(working.size());
+
+        for (const RawSegment& segment : working)
+        {
+            const std::size_t from = FindOrAddVertex(vertices, segment.start, eps);
+            const std::size_t to = FindOrAddVertex(vertices, segment.end, eps);
+            if (degree.size() < vertices.size())
+            {
+                degree.resize(vertices.size(), 0);
+                incident.resize(vertices.size());
+            }
+
+            const std::size_t segmentIndex = indexed.size();
+            indexed.push_back(IndexedSegment{from, to});
+            if (from != to)
+            {
+                ++degree[from];
+                ++degree[to];
+                incident[from].push_back(segmentIndex);
+                incident[to].push_back(segmentIndex);
+            }
+        }
+
+        for (std::size_t vertexIndex = 0; vertexIndex < vertices.size(); ++vertexIndex)
+        {
+            if (vertexIndex >= degree.size() || degree[vertexIndex] != 2 || incident[vertexIndex].size() != 2)
+            {
+                continue;
+            }
+
+            const std::size_t firstIndex = incident[vertexIndex][0];
+            const std::size_t secondIndex = incident[vertexIndex][1];
+            if (firstIndex >= indexed.size() || secondIndex >= indexed.size() || firstIndex == secondIndex)
+            {
+                continue;
+            }
+
+            const IndexedSegment& first = indexed[firstIndex];
+            const IndexedSegment& second = indexed[secondIndex];
+            const std::size_t firstOther = first.from == vertexIndex ? first.to : first.from;
+            const std::size_t secondOther = second.from == vertexIndex ? second.to : second.from;
+            if (firstOther == secondOther)
+            {
+                continue;
+            }
+
+            if (!IsNearlyCollinearVertex(vertices[firstOther], vertices[vertexIndex], vertices[secondOther], eps))
+            {
+                continue;
+            }
+
+            std::vector<RawSegment> merged;
+            merged.reserve(working.size() - 1);
+            for (std::size_t i = 0; i < working.size(); ++i)
+            {
+                if (i == firstIndex || i == secondIndex)
+                {
+                    continue;
+                }
+                merged.push_back(working[i]);
+            }
+
+            const Point2d mergedStart = vertices[firstOther];
+            const Point2d mergedEnd = vertices[secondOther];
+            if (!mergedStart.AlmostEquals(mergedEnd, eps))
+            {
+                merged.push_back(RawSegment{mergedStart, mergedEnd});
+            }
+
+            working = RemoveDuplicateSegments(merged, eps);
+            changed = true;
+            break;
+        }
+    }
+
+    return working;
+}
+
 [[nodiscard]] double ComputeAreaTolerance(const std::vector<RawSegment>& segments, double eps)
 {
     if (segments.empty())
@@ -964,6 +1059,7 @@ void AppendFaceBoundaries(const Polygon2d& polygon, MultiPolyline2d& polylines)
     rawSegments = FilterTinySegments(rawSegments, eps);
     std::vector<RawSegment> splitSegments = SubdivideRawSegments(rawSegments, eps);
     splitSegments = FilterTinySegments(splitSegments, eps);
+    splitSegments = MergeCollinearChainSegments(splitSegments, eps);
     splitSegments = RemoveDuplicateSegments(splitSegments, eps);
     if (splitSegments.empty())
     {
