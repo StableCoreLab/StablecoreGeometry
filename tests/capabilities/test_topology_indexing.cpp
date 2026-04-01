@@ -83,6 +83,44 @@ TEST(TopologyIndexingTest, CoversCurrentCapabilities)
             {Point2d{8.0, 0.0}, Point2d{12.0, 0.0}, Point2d{12.0, 6.0}, Point2d{8.0, 6.0}},
             PolylineClosure::Closed));
     assert(geometry::sdk::Relate(outer, overlapWithInterior) == PolygonContainment2d::Intersecting);
+
+    const Polygon2d sameOuterWithHole(
+        Polyline2d(
+            {Point2d{0.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 10.0}, Point2d{0.0, 10.0}},
+            PolylineClosure::Closed),
+        {Polyline2d(
+            {Point2d{3.0, 3.0}, Point2d{3.0, 7.0}, Point2d{7.0, 7.0}, Point2d{7.0, 3.0}},
+            PolylineClosure::Closed)});
+    assert(geometry::sdk::Relate(outer, sameOuterWithHole) == PolygonContainment2d::FirstContainsSecond);
+
+    const Polygon2d sameOuterWithDifferentHole(
+        Polyline2d(
+            {Point2d{0.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 10.0}, Point2d{0.0, 10.0}},
+            PolylineClosure::Closed),
+        {Polyline2d(
+            {Point2d{1.0, 1.0}, Point2d{1.0, 2.0}, Point2d{2.0, 2.0}, Point2d{2.0, 1.0}},
+            PolylineClosure::Closed)});
+    assert(geometry::sdk::Relate(sameOuterWithHole, sameOuterWithDifferentHole) == PolygonContainment2d::Intersecting);
+
+    const Polygon2d noisyOuter(
+        Polyline2d(
+            {Point2d{0.0, 0.0},
+             Point2d{10.0, 0.0},
+             Point2d{10.0, 5.0},
+             Point2d{10.0, 5.000000001},
+             Point2d{10.0, 10.0},
+             Point2d{0.0, 10.0},
+             Point2d{0.0, 5.000000001},
+             Point2d{0.0, 5.0}},
+            PolylineClosure::Closed));
+    const Polygon2d smallInner(
+        Polyline2d(
+            {Point2d{2.0, 2.0}, Point2d{3.0, 2.0}, Point2d{3.0, 3.0}, Point2d{2.0, 3.0}},
+            PolylineClosure::Closed));
+    const auto normalizedTopology = geometry::sdk::BuildPolygonTopology(MultiPolygon2d{noisyOuter, smallInner});
+    assert(normalizedTopology.Roots().size() == 1);
+    assert(normalizedTopology.ParentOf(1) == 0);
+    assert(geometry::sdk::Relate(noisyOuter, smallInner) == PolygonContainment2d::FirstContainsSecond);
 }
 
 

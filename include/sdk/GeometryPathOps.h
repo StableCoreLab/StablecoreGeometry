@@ -29,4 +29,8 @@ struct GEOMETRY_API PolygonCutResult2d
 [[nodiscard]] GEOMETRY_API MultiPolygon2d BuildMultiPolygonByLines(
     const MultiPolyline2d& polylines,
     double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API Polygon2d NormalizePolygonByLines(
+    const Polygon2d& polygon,
+    double eps = 1e-9);
 } // namespace geometry::sdk

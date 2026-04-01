@@ -232,6 +232,78 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
         1e-8);
 }
 
+TEST(RelationBooleanTest, HandlesHigherDegreeRepeatedCollinearFamilyOverlap)
+{
+    constexpr double delta = 1e-9;
+
+    const Polygon2d repeatedFamilyA(
+        Polyline2d(
+            {Point2d{0.0, 0.0},
+             Point2d{6.0, 0.0},
+             Point2d{6.0, 4.0},
+             Point2d{5.0, 4.0},
+             Point2d{5.0, 4.0 - delta},
+             Point2d{4.0, 4.0 - delta},
+             Point2d{4.0, 4.0},
+             Point2d{3.0, 4.0},
+             Point2d{3.0, 4.0 - delta},
+             Point2d{2.0, 4.0 - delta},
+             Point2d{2.0, 4.0},
+             Point2d{0.0, 4.0}},
+            PolylineClosure::Closed));
+    const Polygon2d repeatedFamilyB(
+        Polyline2d(
+            {Point2d{3.0, -1.0}, Point2d{5.0, -1.0}, Point2d{5.0, 5.0}, Point2d{3.0, 5.0}},
+            PolylineClosure::Closed));
+
+    ASSERT_TRUE(geometry::sdk::Validate(repeatedFamilyA).valid);
+    ASSERT_TRUE(geometry::sdk::Validate(repeatedFamilyB).valid);
+
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Intersect(repeatedFamilyA, repeatedFamilyB)),
+        8.0 - delta,
+        1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Union(repeatedFamilyA, repeatedFamilyB)),
+        28.0 - delta,
+        1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(
+        TotalArea(geometry::sdk::Difference(repeatedFamilyA, repeatedFamilyB)),
+        16.0 - delta,
+        1e-8);
+}
+
+TEST(RelationBooleanTest, HandlesNearDegenerateIntersectionClusters)
+{
+    constexpr double delta = 1e-8;
+
+    const Polygon2d clusterA(
+        Polyline2d(
+            {Point2d{0.0, 0.0},
+             Point2d{8.0, 0.0},
+             Point2d{8.0, 4.0 - delta},
+             Point2d{8.0, 4.0 + delta},
+             Point2d{8.0, 8.0},
+             Point2d{0.0, 8.0}},
+            PolylineClosure::Closed));
+    const Polygon2d clusterB(
+        Polyline2d(
+            {Point2d{3.0, -1.0},
+             Point2d{5.0, -1.0},
+             Point2d{5.0, 4.0 - delta},
+             Point2d{5.0, 4.0 + delta},
+             Point2d{5.0, 9.0},
+             Point2d{3.0, 9.0}},
+            PolylineClosure::Closed));
+
+    ASSERT_TRUE(geometry::sdk::Validate(clusterA).valid);
+    ASSERT_TRUE(geometry::sdk::Validate(clusterB).valid);
+
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(clusterA, clusterB)), 16.0, 1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(clusterA, clusterB)), 68.0, 1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(clusterA, clusterB)), 48.0, 1e-8);
+}
+
 
 
 

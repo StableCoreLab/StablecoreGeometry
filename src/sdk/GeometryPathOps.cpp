@@ -11,6 +11,7 @@
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
 #include "sdk/GeometryEditing.h"
+#include "sdk/GeometryBoolean.h"
 #include "sdk/GeometryIntersection.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryRelation.h"
@@ -182,6 +183,70 @@ struct VertexGraph2d
     return Polygon2d(Polyline2d(std::move(output), PolylineClosure::Closed));
 }
 
+[[nodiscard]] Polygon2d BuildHalfPlaneClipPolygon(
+    const Polygon2d& polygon,
+    const LineSegment2d& cutter,
+    bool keepLeft,
+    double eps)
+{
+    if (!polygon.IsValid())
+    {
+        return {};
+    }
+
+    const Box2d bounds = polygon.Bounds();
+    if (!bounds.IsValid())
+    {
+        return {};
+    }
+
+    const Vector2d direction = cutter.endPoint - cutter.startPoint;
+    const double length = direction.Length();
+    if (length <= eps)
+    {
+        return {};
+    }
+
+    const Vector2d tangent = direction / length;
+    Vector2d normal{-tangent.y, tangent.x};
+    if (!keepLeft)
+    {
+        normal = normal * -1.0;
+    }
+
+    const Point2d minPoint = bounds.MinPoint();
+    const Point2d maxPoint = bounds.MaxPoint();
+    const double diagonal = std::sqrt((maxPoint.x - minPoint.x) * (maxPoint.x - minPoint.x) +
+                                      (maxPoint.y - minPoint.y) * (maxPoint.y - minPoint.y));
+    const double extent = std::max(1.0, 8.0 * diagonal + 1.0);
+
+    const Vector2d along = tangent * extent;
+    const Vector2d side = normal * (2.0 * extent);
+    const Point2d anchor = cutter.startPoint;
+    const Point2d lineStart = anchor - along;
+    const Point2d lineEnd = anchor + along;
+
+    Polyline2d ring(
+        {
+            lineStart,
+            lineEnd,
+            lineEnd + side,
+            lineStart + side,
+        },
+        PolylineClosure::Closed);
+    if (Orientation(ring) != RingOrientation2d::CounterClockwise)
+    {
+        ring = Reverse(ring);
+    }
+
+    const Polygon2d clip(ring);
+    if (!clip.IsValid() || !Validate(clip, eps).valid)
+    {
+        return {};
+    }
+    return clip;
+}
+
 void CollectRawSegments(const Polyline2d& polyline, std::vector<RawSegment>& segments, double eps)
 {
     const Polyline2d normalized = Normalize(polyline, eps);
@@ -200,6 +265,41 @@ void CollectRawSegments(const Polyline2d& polyline, std::vector<RawSegment>& seg
             segments.push_back(RawSegment{start, end, false});
         }
     }
+}
+
+void AppendPolygonBoundaries(const Polygon2d& polygon, MultiPolyline2d& boundaries)
+{
+    if (!polygon.OuterRing().IsValid())
+    {
+        return;
+    }
+
+    boundaries.Add(polygon.OuterRing());
+    for (std::size_t i = 0; i < polygon.HoleCount(); ++i)
+    {
+        boundaries.Add(polygon.HoleAt(i));
+    }
+}
+
+[[nodiscard]] Polygon2d SelectLargestValidPolygon(const MultiPolygon2d& polygons)
+{
+    Polygon2d best;
+    double bestArea = 0.0;
+    for (std::size_t i = 0; i < polygons.Count(); ++i)
+    {
+        if (!polygons[i].IsValid())
+        {
+            continue;
+        }
+
+        const double candidateArea = std::abs(Area(polygons[i]));
+        if (candidateArea > bestArea)
+        {
+            best = polygons[i];
+            bestArea = candidateArea;
+        }
+    }
+    return best;
 }
 
 [[nodiscard]] std::vector<RawSegment> CollectRawSegments(const MultiPolyline2d& polylines, double eps)
@@ -223,6 +323,66 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
         }
     }
     parameters.push_back(value);
+}
+
+[[nodiscard]] double ComputeParameterTolerance(const LineSegment2d& segment, double eps)
+{
+    const double length = segment.Length();
+    if (length <= eps)
+    {
+        return 1e-12;
+    }
+
+    return std::min(1e-4, std::max(1e-12, 8.0 * eps / length));
+}
+
+[[nodiscard]] std::vector<double> CompactSortedParameters(std::vector<double> parameters, double parameterTol)
+{
+    if (parameters.empty())
+    {
+        return parameters;
+    }
+
+    std::sort(parameters.begin(), parameters.end());
+    std::vector<double> compacted;
+    compacted.reserve(parameters.size());
+
+    std::size_t clusterStart = 0;
+    while (clusterStart < parameters.size())
+    {
+        std::size_t clusterEnd = clusterStart + 1;
+        double weighted = parameters[clusterStart];
+        while (clusterEnd < parameters.size() &&
+               parameters[clusterEnd] <= parameters[clusterEnd - 1] + parameterTol)
+        {
+            weighted += parameters[clusterEnd];
+            ++clusterEnd;
+        }
+
+        const double representative = weighted / static_cast<double>(clusterEnd - clusterStart);
+        compacted.push_back(std::clamp(representative, 0.0, 1.0));
+        clusterStart = clusterEnd;
+    }
+
+    if (compacted.front() > parameterTol)
+    {
+        compacted.insert(compacted.begin(), 0.0);
+    }
+    else
+    {
+        compacted.front() = 0.0;
+    }
+
+    if (compacted.back() < 1.0 - parameterTol)
+    {
+        compacted.push_back(1.0);
+    }
+    else
+    {
+        compacted.back() = 1.0;
+    }
+
+    return compacted;
 }
 
 [[nodiscard]] std::vector<RawSegment> SubdivideRawSegments(const std::vector<RawSegment>& rawSegments, double eps)
@@ -252,23 +412,36 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     for (std::size_t i = 0; i < rawSegments.size(); ++i)
     {
         LineSegment2d segment(rawSegments[i].start, rawSegments[i].end);
-        std::vector<double>& params = parameters[i];
-        std::sort(params.begin(), params.end());
-        params.erase(
-            std::unique(params.begin(), params.end(), [eps](double lhs, double rhs) {
-                return std::abs(lhs - rhs) <= eps;
-            }),
-            params.end());
+        const double parameterTol = ComputeParameterTolerance(segment, eps);
+        std::vector<double> params = CompactSortedParameters(parameters[i], parameterTol);
 
         for (std::size_t k = 0; k + 1 < params.size(); ++k)
         {
-            if (params[k + 1] <= params[k] + eps)
+            if (params[k + 1] <= params[k] + parameterTol)
             {
                 continue;
             }
 
-            const Point2d start = segment.PointAt(params[k]);
-            const Point2d end = segment.PointAt(params[k + 1]);
+            Point2d start = segment.PointAt(params[k]);
+            Point2d end = segment.PointAt(params[k + 1]);
+            if (params[k] <= parameterTol)
+            {
+                start = segment.startPoint;
+            }
+            else if (params[k] >= 1.0 - parameterTol)
+            {
+                start = segment.endPoint;
+            }
+
+            if (params[k + 1] <= parameterTol)
+            {
+                end = segment.startPoint;
+            }
+            else if (params[k + 1] >= 1.0 - parameterTol)
+            {
+                end = segment.endPoint;
+            }
+
             if (!start.AlmostEquals(end, eps))
             {
                 splitSegments.push_back(RawSegment{start, end, rawSegments[i].synthetic});
@@ -952,8 +1125,28 @@ Polyline2d SubPolyline(const Polyline2d& polyline, double startLength, double en
 
 PolygonCutResult2d CutPolygon(const Polygon2d& polygon, const LineSegment2d& cutter, double eps)
 {
-    (void)eps;
     PolygonCutResult2d result;
+
+    if (!polygon.IsValid())
+    {
+        return result;
+    }
+
+    if (polygon.HoleCount() > 0)
+    {
+        const Polygon2d leftClip = BuildHalfPlaneClipPolygon(polygon, cutter, true, eps);
+        const Polygon2d rightClip = BuildHalfPlaneClipPolygon(polygon, cutter, false, eps);
+        if (!leftClip.IsValid() || !rightClip.IsValid())
+        {
+            return result;
+        }
+
+        result.left = Intersect(polygon, leftClip, eps);
+        result.right = Intersect(polygon, rightClip, eps);
+        result.success = !result.left.IsEmpty() && !result.right.IsEmpty();
+        return result;
+    }
+
     const Polygon2d left = ClipPolygonHalfPlane(polygon, cutter, true);
     const Polygon2d right = ClipPolygonHalfPlane(polygon, cutter, false);
     if (!left.IsValid() || !right.IsValid())
@@ -1007,6 +1200,37 @@ MultiPolygon2d BuildMultiPolygonByLines(const MultiPolyline2d& polylines, double
     const std::vector<RingCandidate> rings =
         ExtractCandidateRings(edges, vertices, outgoing, repairTol, areaTol, eps);
     return BuildFilledPolygonsFromCandidateRings(rings, eps);
+}
+
+Polygon2d NormalizePolygonByLines(const Polygon2d& polygon, double eps)
+{
+    MultiPolyline2d boundaries;
+    AppendPolygonBoundaries(polygon, boundaries);
+    if (boundaries.IsEmpty())
+    {
+        return {};
+    }
+
+    const MultiPolygon2d rebuilt = BuildMultiPolygonByLines(boundaries, eps);
+    if (rebuilt.Count() == 1 && rebuilt[0].IsValid())
+    {
+        return rebuilt[0];
+    }
+
+    Polygon2d best = SelectLargestValidPolygon(rebuilt);
+    if (best.IsValid())
+    {
+        return best;
+    }
+
+    const MultiPolygon2d rebuiltRelaxed = BuildMultiPolygonByLines(boundaries, std::max(eps, 1e-8));
+    best = SelectLargestValidPolygon(rebuiltRelaxed);
+    if (best.IsValid())
+    {
+        return best;
+    }
+
+    return {};
 }
 } // namespace geometry::sdk
 

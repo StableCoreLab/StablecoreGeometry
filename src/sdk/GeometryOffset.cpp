@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "common/Epsilon.h"
+#include "sdk/GeometryBoolean.h"
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometryMetrics.h"
 #include "sdk/GeometryPathOps.h"
@@ -369,6 +370,239 @@ void AppendRecoveredOffsetRing(
 
     return polygons[bestIndex];
 }
+
+[[nodiscard]] Polygon2d SelectLargestPolygon(const MultiPolygon2d& polygons)
+{
+    Polygon2d best;
+    double bestArea = 0.0;
+    for (std::size_t i = 0; i < polygons.Count(); ++i)
+    {
+        if (!polygons[i].IsValid())
+        {
+            continue;
+        }
+
+        const double candidateArea = std::abs(Area(polygons[i]));
+        if (candidateArea > bestArea)
+        {
+            best = polygons[i];
+            bestArea = candidateArea;
+        }
+    }
+    return best;
+}
+
+[[nodiscard]] Polygon2d RecoverOffsetSemanticFlip(
+    const Polygon2d& source,
+    const Polygon2d& candidate,
+    double distance,
+    double eps)
+{
+    if (!candidate.IsValid())
+    {
+        return candidate;
+    }
+
+    const bool outward = distance >= 0.0;
+    const double sourceArea = std::abs(Area(source));
+    const double candidateArea = std::abs(Area(candidate));
+    const PolygonContainment2d relation = Relate(candidate, source, eps);
+
+    if (outward)
+    {
+        const bool needsRepair = relation == PolygonContainment2d::SecondContainsFirst ||
+                                 candidateArea + eps < sourceArea;
+        if (!needsRepair)
+        {
+            return candidate;
+        }
+
+        const MultiPolygon2d repairedCandidates = Union(candidate, source, eps);
+        const Polygon2d repaired = SelectLargestPolygon(repairedCandidates);
+        if (repaired.IsValid() && std::abs(Area(repaired)) + eps >= sourceArea)
+        {
+            return repaired;
+        }
+
+        return candidate;
+    }
+
+    const bool needsRepair = relation == PolygonContainment2d::FirstContainsSecond ||
+                             relation == PolygonContainment2d::Disjoint ||
+                             candidateArea > sourceArea + eps;
+    if (!needsRepair)
+    {
+        return candidate;
+    }
+
+    const MultiPolygon2d repairedCandidates = Intersect(candidate, source, eps);
+    const Polygon2d repaired = SelectLargestPolygon(repairedCandidates);
+    if (repaired.IsValid() && std::abs(Area(repaired)) <= sourceArea + eps)
+    {
+        return repaired;
+    }
+
+    return candidate;
+}
+
+[[nodiscard]] bool IsPointInsideAnyPolygon(const Point2d& point, const MultiPolygon2d& polygons, double eps)
+{
+    for (std::size_t i = 0; i < polygons.Count(); ++i)
+    {
+        if (LocatePoint(point, polygons[i], eps) != PointContainment2d::Outside)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+[[nodiscard]] Polygon2d PickMostRelatedSourcePolygon(
+    const Polygon2d& candidate,
+    const MultiPolygon2d& sources,
+    double eps)
+{
+    if (!candidate.IsValid() || sources.IsEmpty())
+    {
+        return {};
+    }
+
+    const Point2d candidateReference = PrimaryReferencePoint(candidate, eps);
+    std::size_t bestIndex = static_cast<std::size_t>(-1);
+    double bestScore = -1e100;
+    for (std::size_t i = 0; i < sources.Count(); ++i)
+    {
+        const Polygon2d& source = sources[i];
+        if (!source.IsValid())
+        {
+            continue;
+        }
+
+        double score = -std::abs(std::abs(Area(candidate)) - std::abs(Area(source)));
+        if (LocatePoint(candidateReference, source, eps) != PointContainment2d::Outside)
+        {
+            score += 1e9;
+        }
+
+        const PolygonContainment2d relation = Relate(candidate, source, eps);
+        if (relation == PolygonContainment2d::Equal)
+        {
+            score += 1e10;
+        }
+        else if (relation == PolygonContainment2d::Touching || relation == PolygonContainment2d::Intersecting)
+        {
+            score += 1e7;
+        }
+        else if (relation == PolygonContainment2d::FirstContainsSecond ||
+                 relation == PolygonContainment2d::SecondContainsFirst)
+        {
+            score += 1e6;
+        }
+
+        if (score > bestScore)
+        {
+            bestScore = score;
+            bestIndex = i;
+        }
+    }
+
+    if (bestIndex == static_cast<std::size_t>(-1))
+    {
+        return {};
+    }
+
+    return sources[bestIndex];
+}
+
+[[nodiscard]] MultiPolygon2d RecoverMultiPolygonSemanticFlip(
+    const MultiPolygon2d& sources,
+    const MultiPolygon2d& candidates,
+    double distance,
+    double eps)
+{
+    if (candidates.IsEmpty() || sources.IsEmpty())
+    {
+        return candidates;
+    }
+
+    const bool outward = distance >= 0.0;
+    MultiPolygon2d repaired;
+    for (std::size_t i = 0; i < candidates.Count(); ++i)
+    {
+        const Polygon2d& candidate = candidates[i];
+        if (!candidate.IsValid())
+        {
+            continue;
+        }
+
+        const Polygon2d bestSource = PickMostRelatedSourcePolygon(candidate, sources, eps);
+        Polygon2d recovered = candidate;
+        if (bestSource.IsValid())
+        {
+            recovered = RecoverOffsetSemanticFlip(bestSource, candidate, distance, eps);
+        }
+
+        if (!recovered.IsValid())
+        {
+            continue;
+        }
+
+        const Point2d reference = PrimaryReferencePoint(recovered, eps);
+        const bool insideAnySource = IsPointInsideAnyPolygon(reference, sources, eps);
+        if (!outward && !insideAnySource)
+        {
+            continue;
+        }
+
+        if (outward)
+        {
+            bool related = false;
+            for (std::size_t sourceIndex = 0; sourceIndex < sources.Count(); ++sourceIndex)
+            {
+                const PolygonContainment2d relation = Relate(recovered, sources[sourceIndex], eps);
+                if (relation != PolygonContainment2d::Disjoint)
+                {
+                    related = true;
+                    break;
+                }
+            }
+            if (!related)
+            {
+                continue;
+            }
+        }
+
+        repaired.Add(std::move(recovered));
+    }
+
+    if (!outward)
+    {
+        return repaired;
+    }
+
+    // For outward offsets, keep at least one related result per source polygon
+    // to avoid rare semantic-flip shrink where a source component disappears.
+    for (std::size_t sourceIndex = 0; sourceIndex < sources.Count(); ++sourceIndex)
+    {
+        const Polygon2d& source = sources[sourceIndex];
+        bool represented = false;
+        for (std::size_t candidateIndex = 0; candidateIndex < repaired.Count(); ++candidateIndex)
+        {
+            if (Relate(repaired[candidateIndex], source, eps) != PolygonContainment2d::Disjoint)
+            {
+                represented = true;
+                break;
+            }
+        }
+
+        if (!represented && source.IsValid())
+        {
+            repaired.Add(Polygon2d(source));
+        }
+    }
+
+    return repaired;
+}
 } // namespace
 
 LineSegment2d Offset(const LineSegment2d& segment, double distance)
@@ -426,7 +660,11 @@ Polyline2d Offset(const Polyline2d& polyline, double distance, OffsetOptions2d o
 
 Polygon2d Offset(const Polygon2d& polygon, double distance, OffsetOptions2d options)
 {
-    Polygon2d source = polygon;
+    Polygon2d source = NormalizePolygonByLines(polygon, geometry::kDefaultEpsilon);
+    if (!source.IsValid())
+    {
+        source = polygon;
+    }
     if (!source.IsValid())
     {
         source = NormalizePolygonOrientationForOffset(polygon);
@@ -476,7 +714,8 @@ Polygon2d Offset(const Polygon2d& polygon, double distance, OffsetOptions2d opti
         return {};
     }
 
-    return SelectBestOffsetPolygon(source, rebuilt, distance, geometry::kDefaultEpsilon);
+    const Polygon2d selected = SelectBestOffsetPolygon(source, rebuilt, distance, geometry::kDefaultEpsilon);
+    return RecoverOffsetSemanticFlip(source, selected, distance, geometry::kDefaultEpsilon);
 }
 
 MultiPolyline2d Offset(const MultiPolyline2d& polylines, double distance, OffsetOptions2d options)
@@ -496,23 +735,35 @@ MultiPolyline2d Offset(const MultiPolyline2d& polylines, double distance, Offset
 MultiPolygon2d Offset(const MultiPolygon2d& polygons, double distance, OffsetOptions2d options)
 {
     MultiPolyline2d offsetRings;
+    MultiPolygon2d normalizedSources;
     for (std::size_t i = 0; i < polygons.Count(); ++i)
     {
-        const Polygon2d& polygon = polygons[i];
-        if (!polygon.IsValid())
+        Polygon2d source = NormalizePolygonByLines(polygons[i], geometry::kDefaultEpsilon);
+        if (!source.IsValid())
+        {
+            source = polygons[i];
+        }
+        if (!source.IsValid())
+        {
+            source = NormalizePolygonOrientationForOffset(polygons[i]);
+        }
+        if (!source.IsValid())
         {
             continue;
         }
 
-        const Polyline2d outerRing = polygon.OuterRing();
+        normalizedSources.Add(Polygon2d(source));
+
+        const Polyline2d outerRing = source.OuterRing();
         AppendRecoveredOffsetRing(outerRing, RingDistance(outerRing, distance, false), options, offsetRings);
-        for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
+        for (std::size_t holeIndex = 0; holeIndex < source.HoleCount(); ++holeIndex)
         {
-            const Polyline2d hole = polygon.HoleAt(holeIndex);
+            const Polyline2d hole = source.HoleAt(holeIndex);
             AppendRecoveredOffsetRing(hole, RingDistance(hole, distance, true), options, offsetRings);
         }
     }
 
-    return BuildOffsetPolygons(offsetRings, geometry::kDefaultEpsilon);
+    const MultiPolygon2d rebuilt = BuildOffsetPolygons(offsetRings, geometry::kDefaultEpsilon);
+    return RecoverMultiPolygonSemanticFlip(normalizedSources, rebuilt, distance, geometry::kDefaultEpsilon);
 }
 } // namespace geometry::sdk

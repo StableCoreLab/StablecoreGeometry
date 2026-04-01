@@ -11,6 +11,7 @@ using geometry::sdk::CutPolygon;
 using geometry::sdk::Ellipse2d;
 using geometry::sdk::LineSegment2d;
 using geometry::sdk::MultiPolyline2d;
+using geometry::sdk::NormalizePolygonByLines;
 using geometry::sdk::Point2d;
 using geometry::sdk::Polygon2d;
 using geometry::sdk::Polyline2d;
@@ -54,6 +55,28 @@ TEST(ShapesPathopsTest, CoversCurrentCapabilities)
     assert(cut.right.Count() == 1);
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(cut.left[0]), 8.0, 1e-9);
     GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(cut.right[0]), 8.0, 1e-9);
+
+    const Polygon2d donut(
+        Polyline2d(
+            {Point2d{0.0, 0.0}, Point2d{8.0, 0.0}, Point2d{8.0, 8.0}, Point2d{0.0, 8.0}},
+            PolylineClosure::Closed),
+        {Polyline2d(
+            {Point2d{3.0, 3.0}, Point2d{3.0, 5.0}, Point2d{5.0, 5.0}, Point2d{5.0, 3.0}},
+            PolylineClosure::Closed)});
+    const auto donutCut = CutPolygon(donut, LineSegment2d(Point2d{4.0, -2.0}, Point2d{4.0, 10.0}));
+    assert(donutCut.success);
+    double leftArea = 0.0;
+    double rightArea = 0.0;
+    for (std::size_t i = 0; i < donutCut.left.Count(); ++i)
+    {
+        leftArea += geometry::sdk::Area(donutCut.left[i]);
+    }
+    for (std::size_t i = 0; i < donutCut.right.Count(); ++i)
+    {
+        rightArea += geometry::sdk::Area(donutCut.right[i]);
+    }
+    GEOMETRY_TEST_ASSERT_NEAR(leftArea, 30.0, 1e-6);
+    GEOMETRY_TEST_ASSERT_NEAR(rightArea, 30.0, 1e-6);
 
     const MultiPolyline2d closedLines{
         Polyline2d(
@@ -148,6 +171,21 @@ TEST(ShapesPathopsTest, CoversCurrentCapabilities)
     assert(branchHeavyAmbiguous[0].HoleCount() == 0);
     assert(geometry::sdk::Area(branchHeavyAmbiguous[0]) >= 35.0);
     assert(geometry::sdk::Area(branchHeavyAmbiguous[0]) <= 37.0);
+
+    const Polygon2d noisyBoundary(
+        Polyline2d(
+            {Point2d{0.0, 0.0},
+             Point2d{4.0, 0.0},
+             Point2d{4.0, 2.0},
+             Point2d{4.0, 2.000000001},
+             Point2d{4.0, 4.0},
+             Point2d{0.0, 4.0},
+             Point2d{0.0, 2.000000001},
+             Point2d{0.0, 2.0}},
+            PolylineClosure::Closed));
+    const Polygon2d normalizedByLines = NormalizePolygonByLines(noisyBoundary);
+    assert(normalizedByLines.IsValid());
+    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(normalizedByLines), 16.0, 1e-6);
 }
 
 

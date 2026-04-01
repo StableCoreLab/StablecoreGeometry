@@ -26,8 +26,9 @@
 
 ## 3. 当前总体结论
 - 线网建面：已具备切分、重复边清理、近端点自动闭合、简单 auto-extend 与分支裁剪
-- polygon boolean：已进一步补上 operand 归一化、bounds-guarded containment fast path 与 axis-aligned box fallback，duplicate-edge overlap 家族的稳定性比前一阶段更高
+- polygon boolean：已进一步补上 operand 归一化、bounds-guarded containment fast path、split 后的 collinear-family 压缩与 axis-aligned box fallback，duplicate-edge overlap 家族的稳定性比前一阶段更高
 - 已进一步增强 relation hierarchy：对 boundary overlap 与 strict interior 联合判定，收敛 shared-edge touching 与 overlap-intersecting 的区分
+- 已进一步增强 relation hierarchy：补充严格内部采样点判定，收敛“外边界重合但内部有 hole 差异”场景下 touching/contains 误分层
 - polygon offset：已具备 ring 重建、基础 split recovery、collapsed-ring 清理，以及 reverse-edge / conservative-miter / reversed-rings recovery
 - SearchPoly 级别的高歧义恢复、以及更深层 offset / boolean recovery：仍低于 Delphi
 
@@ -153,7 +154,13 @@
 - 在 boolean 前对输入 polygon 做 pathops 风格边界重建预处理，统一 duplicate-edge / near-collinear 清理口径
 - 在 split 后补充 tiny segment 过滤，降低近退化交点导致的碎段噪声
 - 在 split 后新增 degree-2 共线链段合并，收敛 repeated-edge family 的细碎共线段噪声
+- 在 split 后新增保守的 collinear-family 压缩，在保留非共线 branch 顶点的前提下继续折叠 higher-degree repeated-edge family
+- 在 split 参数处理中新增近退化交点簇聚类与端点吸附，降低 repeated-near-intersection 在 subdivision 阶段引入的参数抖动
 - 在 arrangement 失败或结果过小时，对 axis-aligned box overlap / difference 增加受限 fallback，提升 duplicate-edge 矩形家族恢复率
+- 已抽出 `NormalizePolygonByLines(...)` 作为 search/boolean/offset 共用预处理入口，并在 boolean operand 与 offset 输入阶段接入统一重建口径
+- topology 构建链路也已接入 `NormalizePolygonByLines(...)`，search/boolean/offset/topology 的输入重建口径进一步统一
+- relation hierarchy 已补 strict-interior 采样增强：当候选面 centroid 落在 hole 或边界时，改用 outer-edge inward 采样识别真实内部点
+- `Contains(...)` / `Relate(...)` 输入链路已接入共享 `NormalizePolygonByLines(...)`，提升 noisy 边界下的 contains/touching/intersecting 判定稳定性
 
 这使它已覆盖：
 
@@ -195,12 +202,18 @@
 - 更丰富的 fake-edge 插入策略
 - 对高度歧义线网更强的恢复
 
+本轮补充：
+
+- `CutPolygon(...)` 已支持带孔 polygon 输入：在保持原有无孔快速裁切路径不变的前提下，为带孔输入新增半平面 clip polygon + boolean 的回退路径
+- 新增 capability 回归覆盖带孔 polygon 的左右半平面切分面积守恒场景
+
 ### 6.3 Offset 已能从生成 ring 重建，但仍未达到 Delphi offset 深度
 
 当前 C++ offset 会将生成的 offset ring 再送回 polygon 重建流程，在重建前过滤 collapsed / near-zero ring，并在单 polygon offset 返回多个候选时尽量选择语义更合理的结果。
 
 本轮进一步补充了 reverse-edge 与多策略恢复：同距离下会并行尝试原始方向、反向补偿和保守 miter 限制候选，再通过 relation-aware 打分选择更符合 outward/inward 语义的结果。
 在 offset ring 建面阶段也新增了多轮失败恢复：原始 rings 失败后自动尝试反向 rings，再尝试放宽 epsilon 的重建兜底。
+在单 polygon offset 与 multipolygon offset 结果后处理阶段，新增语义翻转修复：对 outward 内缩候选尝试并集修复，对 inward 外翻/漂移候选尝试交集修复，并在 multipolygon inward 情况下剔除漂移到源集合外的异常候选。
 
 对应 capability tests 里，当前已明确覆盖：clockwise outer ring、reverse-edge recovery、以及 inward-hole semantics recovery。
 
@@ -215,6 +228,18 @@
 - 更深的无效圆 / loop 过滤
 - 更复杂歧义输出的恢复
 - narrow-channel、loop-collapse、hole-inversion 等边界场景处理
+
+本轮补充：
+
+- 在单 polygon offset 的候选选择后新增语义翻转修复：
+	- outward 候选若出现内缩（`SecondContainsFirst` 或面积异常偏小），自动尝试 `Union(candidate, source)` 修复
+	- inward 候选若出现外翻/漂移（`FirstContainsSecond` / `Disjoint` 或面积异常偏大），自动尝试 `Intersect(candidate, source)` 修复
+- 上述修复作为候选后处理，不改变现有 API，仅在检测到语义异常时触发
+- 在 multipolygon offset 输出阶段补充统一后处理：
+	- 每个候选先按 relation + 参考点匹配最相关 source polygon，再复用语义翻转修复
+	- inward 输出若整体漂移到 source 集合外会被过滤，避免复杂自交时产生异地伪面
+	- outward 输出若出现 source 组件丢失，会保守补回对应 source 组件，避免语义反转为“收缩”
+- offset 输入预处理已接入共享 `NormalizePolygonByLines(...)`，与 boolean 的 operand 归一化保持一致，降低模块间容差口径漂移
 
 ## 7. 当前对比基线
 

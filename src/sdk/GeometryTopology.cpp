@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "sdk/GeometryIntersection.h"
+#include "sdk/GeometryPathOps.h"
 #include "sdk/GeometryRelation.h"
 
 namespace geometry::sdk
@@ -87,10 +88,57 @@ void CollectRingSegments(const Polyline2d& ring, std::vector<LineSegment2d>& seg
     return contact;
 }
 
+[[nodiscard]] bool TryFindStrictInteriorSample(const Polygon2d& polygon, double eps, Point2d& sample)
+{
+    const Point2d centroid = Centroid(polygon);
+    if (LocatePoint(centroid, polygon, eps) == PointContainment2d::Inside)
+    {
+        sample = centroid;
+        return true;
+    }
+
+    const Polyline2d ring = polygon.OuterRing();
+    if (!ring.IsValid() || ring.PointCount() < 3)
+    {
+        return false;
+    }
+
+    const RingOrientation2d orientation = Orientation(ring);
+    for (std::size_t i = 0; i < ring.PointCount(); ++i)
+    {
+        const Point2d start = ring.PointAt(i);
+        const Point2d end = ring.PointAt((i + 1) % ring.PointCount());
+        const Vector2d edge = end - start;
+        const double length = edge.Length();
+        if (length <= eps)
+        {
+            continue;
+        }
+
+        Vector2d inward{-edge.y / length, edge.x / length};
+        if (orientation == RingOrientation2d::Clockwise)
+        {
+            inward = inward * -1.0;
+        }
+
+        const Point2d midpoint{0.5 * (start.x + end.x), 0.5 * (start.y + end.y)};
+        const double step = std::max(16.0 * eps, std::min(0.2 * length, 1e-3));
+        const Point2d candidatePoint = midpoint + inward * step;
+        if (LocatePoint(candidatePoint, polygon, eps) == PointContainment2d::Inside)
+        {
+            sample = candidatePoint;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 [[nodiscard]] bool HasStrictInteriorPoint(const Polygon2d& container, const Polygon2d& candidate, double eps)
 {
-    const Point2d candidateCentroid = Centroid(candidate);
-    if (LocatePoint(candidateCentroid, container, eps) == PointContainment2d::Inside)
+    Point2d strictInterior{};
+    if (TryFindStrictInteriorSample(candidate, eps, strictInterior) &&
+        LocatePoint(strictInterior, container, eps) == PointContainment2d::Inside)
     {
         return true;
     }
@@ -122,29 +170,38 @@ PolygonTopology2d::PolygonTopology2d(const MultiPolygon2d& polygons, double eps)
 
 bool PolygonTopology2d::Build(const MultiPolygon2d& polygons, double eps)
 {
-    polygons_ = polygons;
+    polygons_.Clear();
+    for (std::size_t i = 0; i < polygons.Count(); ++i)
+    {
+        Polygon2d normalized = NormalizePolygonByLines(polygons[i], eps);
+        if (!normalized.IsValid())
+        {
+            normalized = polygons[i];
+        }
+        polygons_.Add(std::move(normalized));
+    }
     nodes_.clear();
     roots_.clear();
-    nodes_.resize(polygons.Count());
-    for (std::size_t i = 0; i < polygons.Count(); ++i)
+    nodes_.resize(polygons_.Count());
+    for (std::size_t i = 0; i < polygons_.Count(); ++i)
     {
         nodes_[i].polygonIndex = i;
         std::size_t bestParent = static_cast<std::size_t>(-1);
         double bestArea = 0.0;
-        for (std::size_t j = 0; j < polygons.Count(); ++j)
+        for (std::size_t j = 0; j < polygons_.Count(); ++j)
         {
             if (i == j)
             {
                 continue;
             }
 
-            const PolygonContainment2d relation = Relate(polygons[j], polygons[i], eps);
+            const PolygonContainment2d relation = Relate(polygons_[j], polygons_[i], eps);
             if (relation != PolygonContainment2d::FirstContainsSecond && !(relation == PolygonContainment2d::Equal && j < i))
             {
                 continue;
             }
 
-            const double area = Area(polygons[j]);
+            const double area = Area(polygons_[j]);
             if (bestParent == static_cast<std::size_t>(-1) || area < bestArea)
             {
                 bestParent = j;
@@ -198,19 +255,61 @@ bool ContainsPoint(const Polygon2d& polygon, const Point2d& point, double eps)
 
 bool Contains(const Polygon2d& outer, const Polygon2d& inner, double eps)
 {
-    if (!outer.IsValid() || !inner.IsValid())
+    Polygon2d normalizedOuter = NormalizePolygonByLines(outer, eps);
+    if (!normalizedOuter.IsValid())
+    {
+        normalizedOuter = outer;
+    }
+
+    Polygon2d normalizedInner = NormalizePolygonByLines(inner, eps);
+    if (!normalizedInner.IsValid())
+    {
+        normalizedInner = inner;
+    }
+
+    if (!normalizedOuter.IsValid() || !normalizedInner.IsValid())
     {
         return false;
     }
 
-    if (ClassifyBoundaryContact(outer, inner, eps) == BoundaryContact2d::Crossing)
+    if (ClassifyBoundaryContact(normalizedOuter, normalizedInner, eps) == BoundaryContact2d::Crossing)
     {
         return false;
     }
 
-    for (std::size_t i = 0; i < inner.OuterRing().PointCount(); ++i)
+    for (std::size_t i = 0; i < normalizedInner.OuterRing().PointCount(); ++i)
     {
-        if (LocatePoint(inner.OuterRing().PointAt(i), outer, eps) == PointContainment2d::Outside)
+        if (LocatePoint(normalizedInner.OuterRing().PointAt(i), normalizedOuter, eps) == PointContainment2d::Outside)
+        {
+            return false;
+        }
+    }
+
+    Point2d strictInnerSample{};
+    if (TryFindStrictInteriorSample(normalizedInner, eps, strictInnerSample) &&
+        LocatePoint(strictInnerSample, normalizedOuter, eps) == PointContainment2d::Outside)
+    {
+        return false;
+    }
+
+    // If an outer-hole interior point lies inside the candidate, containment
+    // cannot hold even when the two outer boundaries coincide.
+    for (std::size_t holeIndex = 0; holeIndex < normalizedOuter.HoleCount(); ++holeIndex)
+    {
+        Polyline2d holeRing = normalizedOuter.HoleAt(holeIndex);
+        Polygon2d holeRegion(holeRing);
+        if (!holeRegion.IsValid())
+        {
+            holeRegion = Polygon2d(Reverse(holeRing));
+        }
+        if (!holeRegion.IsValid())
+        {
+            continue;
+        }
+
+        Point2d holeSample{};
+        if (TryFindStrictInteriorSample(holeRegion, eps, holeSample) &&
+            LocatePoint(holeSample, normalizedInner, eps) != PointContainment2d::Outside)
         {
             return false;
         }
@@ -221,15 +320,27 @@ bool Contains(const Polygon2d& outer, const Polygon2d& inner, double eps)
 
 PolygonContainment2d Relate(const Polygon2d& first, const Polygon2d& second, double eps)
 {
-    if (!first.IsValid() || !second.IsValid())
+    Polygon2d normalizedFirst = NormalizePolygonByLines(first, eps);
+    if (!normalizedFirst.IsValid())
+    {
+        normalizedFirst = first;
+    }
+
+    Polygon2d normalizedSecond = NormalizePolygonByLines(second, eps);
+    if (!normalizedSecond.IsValid())
+    {
+        normalizedSecond = second;
+    }
+
+    if (!normalizedFirst.IsValid() || !normalizedSecond.IsValid())
     {
         return PolygonContainment2d::Disjoint;
     }
 
-    const bool firstContainsSecond = Contains(first, second, eps);
-    const bool secondContainsFirst = Contains(second, first, eps);
-    const bool secondHasStrictInteriorInFirst = HasStrictInteriorPoint(first, second, eps);
-    const bool firstHasStrictInteriorInSecond = HasStrictInteriorPoint(second, first, eps);
+    const bool firstContainsSecond = Contains(normalizedFirst, normalizedSecond, eps);
+    const bool secondContainsFirst = Contains(normalizedSecond, normalizedFirst, eps);
+    const bool secondHasStrictInteriorInFirst = HasStrictInteriorPoint(normalizedFirst, normalizedSecond, eps);
+    const bool firstHasStrictInteriorInSecond = HasStrictInteriorPoint(normalizedSecond, normalizedFirst, eps);
     if (firstContainsSecond && secondContainsFirst)
     {
         return PolygonContainment2d::Equal;
@@ -245,7 +356,7 @@ PolygonContainment2d Relate(const Polygon2d& first, const Polygon2d& second, dou
                                               : PolygonContainment2d::Touching;
     }
 
-    const BoundaryContact2d contact = ClassifyBoundaryContact(first, second, eps);
+    const BoundaryContact2d contact = ClassifyBoundaryContact(normalizedFirst, normalizedSecond, eps);
     if (contact == BoundaryContact2d::Crossing)
     {
         return PolygonContainment2d::Intersecting;

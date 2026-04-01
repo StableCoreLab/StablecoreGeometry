@@ -446,45 +446,13 @@ void AppendPolygons(const MultiPolygon2d& source, MultiPolygon2d& destination)
 
 [[nodiscard]] Polygon2d NormalizeBooleanOperand(const Polygon2d& polygon, double eps)
 {
-    const bool inputValid = polygon.IsValid();
-    MultiPolyline2d boundaries;
-    AppendPolygonBoundaries(polygon, boundaries);
-    if (!boundaries.IsEmpty())
+    const Polygon2d rebuilt = NormalizePolygonByLines(polygon, eps);
+    if (rebuilt.IsValid())
     {
-        const MultiPolygon2d rebuilt = BuildMultiPolygonByLines(boundaries, eps);
-        if (rebuilt.Count() == 1 && rebuilt[0].IsValid())
-        {
-            return rebuilt[0];
-        }
-
-        if (!inputValid)
-        {
-            // Retry with a slightly relaxed tolerance and keep the largest valid
-            // component. Near-duplicate edge families often split into tiny loops
-            // at strict eps and recover under this pass.
-            const MultiPolygon2d rebuiltRelaxed = BuildMultiPolygonByLines(boundaries, std::max(eps, 1e-8));
-            Polygon2d best;
-            double bestArea = 0.0;
-            for (std::size_t i = 0; i < rebuiltRelaxed.Count(); ++i)
-            {
-                if (!rebuiltRelaxed[i].IsValid())
-                {
-                    continue;
-                }
-
-                const double candidateArea = std::abs(Area(rebuiltRelaxed[i]));
-                if (candidateArea > bestArea)
-                {
-                    best = rebuiltRelaxed[i];
-                    bestArea = candidateArea;
-                }
-            }
-            if (best.IsValid())
-            {
-                return best;
-            }
-        }
+        return rebuilt;
     }
+
+    const bool inputValid = polygon.IsValid();
 
     if (inputValid)
     {
@@ -534,6 +502,68 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     parameters.push_back(value);
 }
 
+[[nodiscard]] double ComputeParameterTolerance(const LineSegment2d& segment, double eps)
+{
+    const double length = segment.Length();
+    if (length <= eps)
+    {
+        return 1e-12;
+    }
+
+    // Convert world-space tolerance into param-space tolerance so that
+    // near-degenerate intersection clusters collapse consistently.
+    return std::min(1e-4, std::max(1e-12, 8.0 * eps / length));
+}
+
+[[nodiscard]] std::vector<double> CompactSortedParameters(std::vector<double> parameters, double parameterTol)
+{
+    if (parameters.empty())
+    {
+        return parameters;
+    }
+
+    std::sort(parameters.begin(), parameters.end());
+    std::vector<double> compacted;
+    compacted.reserve(parameters.size());
+
+    std::size_t clusterStart = 0;
+    while (clusterStart < parameters.size())
+    {
+        std::size_t clusterEnd = clusterStart + 1;
+        double weighted = parameters[clusterStart];
+        while (clusterEnd < parameters.size() &&
+               parameters[clusterEnd] <= parameters[clusterEnd - 1] + parameterTol)
+        {
+            weighted += parameters[clusterEnd];
+            ++clusterEnd;
+        }
+
+        const double representative = weighted / static_cast<double>(clusterEnd - clusterStart);
+        compacted.push_back(std::clamp(representative, 0.0, 1.0));
+        clusterStart = clusterEnd;
+    }
+
+    if (compacted.front() > parameterTol)
+    {
+        compacted.insert(compacted.begin(), 0.0);
+    }
+    else
+    {
+        compacted.front() = 0.0;
+    }
+
+    if (compacted.back() < 1.0 - parameterTol)
+    {
+        compacted.push_back(1.0);
+    }
+    else
+    {
+        compacted.back() = 1.0;
+    }
+
+    return compacted;
+}
+
 [[nodiscard]] std::vector<RawSegment> SubdivideRawSegments(const std::vector<RawSegment>& rawSegments, double eps)
 {
     std::vector<std::vector<double>> parameters(rawSegments.size(), std::vector<double>{0.0, 1.0});
@@ -561,23 +591,36 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     for (std::size_t i = 0; i < rawSegments.size(); ++i)
     {
         LineSegment2d segment(rawSegments[i].start, rawSegments[i].end);
-        std::vector<double>& params = parameters[i];
-        std::sort(params.begin(), params.end());
-        params.erase(
-            std::unique(params.begin(), params.end(), [eps](double lhs, double rhs) {
-                return std::abs(lhs - rhs) <= eps;
-            }),
-            params.end());
+        const double parameterTol = ComputeParameterTolerance(segment, eps);
+        std::vector<double> params = CompactSortedParameters(parameters[i], parameterTol);
 
         for (std::size_t k = 0; k + 1 < params.size(); ++k)
         {
-            if (params[k + 1] <= params[k] + eps)
+            if (params[k + 1] <= params[k] + parameterTol)
             {
                 continue;
             }
 
-            const Point2d start = segment.PointAt(params[k]);
-            const Point2d end = segment.PointAt(params[k + 1]);
+            Point2d start = segment.PointAt(params[k]);
+            Point2d end = segment.PointAt(params[k + 1]);
+            if (params[k] <= parameterTol)
+            {
+                start = segment.startPoint;
+            }
+            else if (params[k] >= 1.0 - parameterTol)
+            {
+                start = segment.endPoint;
+            }
+
+            if (params[k + 1] <= parameterTol)
+            {
+                end = segment.startPoint;
+            }
+            else if (params[k + 1] >= 1.0 - parameterTol)
+            {
+                end = segment.endPoint;
+            }
+
             if (!start.AlmostEquals(end, eps))
             {
                 splitSegments.push_back(RawSegment{start, end});
@@ -778,6 +821,253 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     }
 
     return working;
+}
+
+[[nodiscard]] bool LiesOnSupportLine(
+    const Point2d& point,
+    const Point2d& lineOrigin,
+    const Vector2d& lineDirection,
+    double eps)
+{
+    const double lineLength = lineDirection.Length();
+    if (lineLength <= eps)
+    {
+        return false;
+    }
+
+    return std::abs(Cross(lineDirection, point - lineOrigin)) <= eps * lineLength;
+}
+
+[[nodiscard]] bool SegmentLiesOnSupportLine(
+    const RawSegment& segment,
+    const Point2d& lineOrigin,
+    const Vector2d& lineDirection,
+    double eps)
+{
+    return LiesOnSupportLine(segment.start, lineOrigin, lineDirection, eps) &&
+           LiesOnSupportLine(segment.end, lineOrigin, lineDirection, eps);
+}
+
+[[nodiscard]] std::vector<RawSegment> CollapseCollinearSegmentFamilies(const std::vector<RawSegment>& segments, double eps)
+{
+    if (segments.size() <= 1)
+    {
+        return segments;
+    }
+
+    struct IndexedSegment
+    {
+        std::size_t from{0};
+        std::size_t to{0};
+    };
+
+    const double vertexTol = ComputeVertexMergeTolerance(segments, eps);
+    std::vector<Point2d> vertices;
+    std::vector<IndexedSegment> indexed;
+    std::vector<std::vector<std::size_t>> incident;
+    indexed.reserve(segments.size());
+
+    for (const RawSegment& segment : segments)
+    {
+        const std::size_t from = FindOrAddVertex(vertices, segment.start, vertexTol);
+        const std::size_t to = FindOrAddVertex(vertices, segment.end, vertexTol);
+        indexed.push_back(IndexedSegment{from, to});
+
+        const std::size_t required = std::max(from, to) + 1;
+        if (incident.size() < required)
+        {
+            incident.resize(required);
+        }
+
+        incident[from].push_back(indexed.size() - 1);
+        incident[to].push_back(indexed.size() - 1);
+    }
+
+    std::vector<bool> visited(segments.size(), false);
+    std::vector<bool> componentMask(segments.size(), false);
+    std::vector<RawSegment> collapsed;
+    collapsed.reserve(segments.size());
+
+    for (std::size_t segmentIndex = 0; segmentIndex < segments.size(); ++segmentIndex)
+    {
+        if (visited[segmentIndex])
+        {
+            continue;
+        }
+
+        const IndexedSegment& seed = indexed[segmentIndex];
+        const Point2d lineOrigin = vertices[seed.from];
+        const Vector2d lineDirection = vertices[seed.to] - vertices[seed.from];
+        if (lineDirection.Length() <= eps)
+        {
+            visited[segmentIndex] = true;
+            continue;
+        }
+
+        std::vector<std::size_t> stack{segmentIndex};
+        std::vector<std::size_t> component;
+        visited[segmentIndex] = true;
+        componentMask[segmentIndex] = true;
+        while (!stack.empty())
+        {
+            const std::size_t currentIndex = stack.back();
+            stack.pop_back();
+            component.push_back(currentIndex);
+
+            const IndexedSegment& current = indexed[currentIndex];
+            const std::size_t endpoints[] = {current.from, current.to};
+            for (const std::size_t vertexIndex : endpoints)
+            {
+                for (const std::size_t neighbourIndex : incident[vertexIndex])
+                {
+                    if (visited[neighbourIndex])
+                    {
+                        continue;
+                    }
+                    if (!SegmentLiesOnSupportLine(segments[neighbourIndex], lineOrigin, lineDirection, std::max(vertexTol, eps)))
+                    {
+                        continue;
+                    }
+
+                    visited[neighbourIndex] = true;
+                    componentMask[neighbourIndex] = true;
+                    stack.push_back(neighbourIndex);
+                }
+            }
+        }
+
+        if (component.size() == 1)
+        {
+            collapsed.push_back(segments[segmentIndex]);
+            componentMask[segmentIndex] = false;
+            continue;
+        }
+
+        std::vector<std::size_t> componentVertices;
+        componentVertices.reserve(component.size() * 2);
+        for (const std::size_t index : component)
+        {
+            componentVertices.push_back(indexed[index].from);
+            componentVertices.push_back(indexed[index].to);
+        }
+        std::sort(componentVertices.begin(), componentVertices.end());
+        componentVertices.erase(std::unique(componentVertices.begin(), componentVertices.end()), componentVertices.end());
+
+        const Vector2d directionUnit = lineDirection / lineDirection.Length();
+        struct OrderedVertex
+        {
+            std::size_t index{0};
+            double parameter{0.0};
+        };
+
+        std::vector<OrderedVertex> orderedVertices;
+        orderedVertices.reserve(componentVertices.size());
+        for (const std::size_t vertexIndex : componentVertices)
+        {
+            orderedVertices.push_back(OrderedVertex{
+                vertexIndex,
+                Dot(vertices[vertexIndex] - lineOrigin, directionUnit)});
+        }
+
+        std::sort(orderedVertices.begin(), orderedVertices.end(), [](const OrderedVertex& lhs, const OrderedVertex& rhs) {
+            return lhs.parameter < rhs.parameter;
+        });
+
+        if (orderedVertices.size() < 2)
+        {
+            for (const std::size_t index : component)
+            {
+                collapsed.push_back(segments[index]);
+                componentMask[index] = false;
+            }
+            continue;
+        }
+
+        std::unordered_map<std::size_t, bool> branchVertices;
+        for (const OrderedVertex& vertex : orderedVertices)
+        {
+            bool branch = false;
+            for (const std::size_t incidentIndex : incident[vertex.index])
+            {
+                if (componentMask[incidentIndex])
+                {
+                    continue;
+                }
+                if (!SegmentLiesOnSupportLine(segments[incidentIndex], lineOrigin, lineDirection, std::max(vertexTol, eps)))
+                {
+                    branch = true;
+                    break;
+                }
+            }
+            branchVertices.emplace(vertex.index, branch);
+        }
+
+        std::vector<bool> covered(orderedVertices.size() - 1, false);
+        for (const std::size_t index : component)
+        {
+            const IndexedSegment& current = indexed[index];
+            const double minParameter = std::min(
+                Dot(vertices[current.from] - lineOrigin, directionUnit),
+                Dot(vertices[current.to] - lineOrigin, directionUnit));
+            const double maxParameter = std::max(
+                Dot(vertices[current.from] - lineOrigin, directionUnit),
+                Dot(vertices[current.to] - lineOrigin, directionUnit));
+
+            for (std::size_t i = 0; i + 1 < orderedVertices.size(); ++i)
+            {
+                if (orderedVertices[i].parameter + vertexTol < minParameter ||
+                    orderedVertices[i + 1].parameter > maxParameter + vertexTol)
+                {
+                    continue;
+                }
+                covered[i] = true;
+            }
+        }
+
+        std::size_t mergedStart = static_cast<std::size_t>(-1);
+        for (std::size_t i = 0; i < covered.size(); ++i)
+        {
+            if (!covered[i])
+            {
+                if (mergedStart != static_cast<std::size_t>(-1))
+                {
+                    collapsed.push_back(RawSegment{
+                        vertices[orderedVertices[mergedStart].index],
+                        vertices[orderedVertices[i].index]});
+                    mergedStart = static_cast<std::size_t>(-1);
+                }
+                continue;
+            }
+
+            if (mergedStart == static_cast<std::size_t>(-1))
+            {
+                mergedStart = i;
+                continue;
+            }
+
+            if (branchVertices[orderedVertices[i].index])
+            {
+                collapsed.push_back(RawSegment{
+                    vertices[orderedVertices[mergedStart].index],
+                    vertices[orderedVertices[i].index]});
+                mergedStart = i;
+            }
+        }
+
+        if (mergedStart != static_cast<std::size_t>(-1))
+        {
+            collapsed.push_back(RawSegment{
+                vertices[orderedVertices[mergedStart].index],
+                vertices[orderedVertices.back().index]});
+        }
+
+        for (const std::size_t index : component)
+        {
+            componentMask[index] = false;
+        }
+    }
+
+    return RemoveDuplicateSegments(collapsed, eps);
 }
 
 [[nodiscard]] double ComputeAreaTolerance(const std::vector<RawSegment>& segments, double eps)
@@ -1532,6 +1822,7 @@ void AppendFaceBoundaries(const Polygon2d& polygon, MultiPolyline2d& polylines)
     std::vector<RawSegment> splitSegments = SubdivideRawSegments(rawSegments, eps);
     splitSegments = FilterTinySegments(splitSegments, eps);
     splitSegments = MergeCollinearChainSegments(splitSegments, eps);
+    splitSegments = CollapseCollinearSegmentFamilies(splitSegments, eps);
     splitSegments = RemoveDuplicateSegments(splitSegments, eps);
     if (splitSegments.empty())
     {

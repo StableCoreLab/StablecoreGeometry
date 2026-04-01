@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "sdk/GeometryOffset.h"
+#include "sdk/GeometryRelation.h"
 #include "sdk/GeometryShapeOps.h"
 #include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
@@ -13,6 +14,7 @@ using geometry::sdk::ArcSegment2d;
 using geometry::sdk::LineSegment2d;
 using geometry::sdk::MultiPolygon2d;
 using geometry::sdk::Point2d;
+using geometry::sdk::PointContainment2d;
 using geometry::sdk::Polygon2d;
 using geometry::sdk::Polyline2d;
 using geometry::sdk::PolylineClosure;
@@ -99,6 +101,33 @@ TEST(OffsetTest, CoversCurrentCapabilities)
     const Polygon2d inwardRecovered = geometry::sdk::Offset(narrowDonut, -0.75);
     assert(inwardRecovered.IsValid());
     assert(geometry::sdk::Area(inwardRecovered) < geometry::sdk::Area(narrowDonut));
+    for (std::size_t i = 0; i < inwardRecovered.OuterRing().PointCount(); ++i)
+    {
+        const PointContainment2d containment =
+            geometry::sdk::LocatePoint(inwardRecovered.OuterRing().PointAt(i), narrowDonut);
+        assert(containment != PointContainment2d::Outside);
+    }
+
+    const MultiPolygon2d multiWithHole{
+        narrowDonut,
+        Polygon2d(
+            Polyline2d(
+                {Point2d{14.0, 0.0}, Point2d{20.0, 0.0}, Point2d{20.0, 5.0}, Point2d{14.0, 5.0}},
+                PolylineClosure::Closed))};
+    const MultiPolygon2d inwardMultiRecovered = geometry::sdk::Offset(multiWithHole, -0.8);
+    assert(!inwardMultiRecovered.IsEmpty());
+    for (std::size_t polygonIndex = 0; polygonIndex < inwardMultiRecovered.Count(); ++polygonIndex)
+    {
+        const Polygon2d& recovered = inwardMultiRecovered[polygonIndex];
+        for (std::size_t pointIndex = 0; pointIndex < recovered.OuterRing().PointCount(); ++pointIndex)
+        {
+            const Point2d point = recovered.OuterRing().PointAt(pointIndex);
+            const bool inFirst = geometry::sdk::LocatePoint(point, narrowDonut) != PointContainment2d::Outside;
+            const bool inSecond =
+                geometry::sdk::LocatePoint(point, multiWithHole[1]) != PointContainment2d::Outside;
+            assert(inFirst || inSecond);
+        }
+    }
 }
 
 
