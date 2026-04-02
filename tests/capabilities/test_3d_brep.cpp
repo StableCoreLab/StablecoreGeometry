@@ -199,6 +199,42 @@ TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoPolyhedronBodie
     }
 }
 
+// Demonstrates end-to-end Brep path stability on multi-component section:
+// convert polyhedron to Brep, section the Brep body, then rebuild two Brep
+// section bodies from the section result.
+TEST(Brep3dCapabilityTest, TwoSeparatedCubeBrepSectionRebuildsIntoTwoBrepBodies)
+{
+    const PolyhedronBody source = BuildTwoSeparatedUnitCubes();
+    assert(source.IsValid());
+    assert(source.FaceCount() == 12);
+
+    const auto converted = ConvertToBrepBody(source);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+    assert(converted.body.FaceCount() == 12);
+
+    const Plane cutPlane = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cutPlane);
+    assert(section.success);
+    assert(section.IsValid());
+    assert(section.polygons.size() == 2);
+
+    const SectionBrepBodySetRebuild3d rebuilt = RebuildSectionBrepBodies(section);
+    assert(rebuilt.success);
+    assert(rebuilt.bodies.size() == 2);
+    assert(rebuilt.rootPolygonIndices.size() == 2);
+    for (const BrepBody& rebuiltBody : rebuilt.bodies)
+    {
+        assert(rebuiltBody.IsValid());
+        assert(rebuiltBody.ShellCount() == 1);
+        assert(!rebuiltBody.ShellAt(0).IsClosed());
+        assert(rebuiltBody.FaceCount() == 1);
+    }
+}
+
 // Demonstrates a minimal non-trivial coedge-loop edit chain:
 // insert -> flip orientation -> remove, with deterministic recovery.
 TEST(Brep3dCapabilityTest, CoedgeLoopEditingInsertFlipRemoveRoundTrips)

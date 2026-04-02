@@ -293,6 +293,12 @@
 - 已补强 healing capability 断言：`tests/capabilities/test_3d_healing.cpp` 在 mixed support-mismatch + ineligible multiface 系列场景中新增每个 shell 的 `FaceCount` 分布断言。
 - 覆盖目标：把原有“总 FaceCount 正确”升级为“各 shell 面数分配正确”，降低 partial/mixed 修复中 shell 归属回归风险。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-02，brep-section-to-rebuild-end2end-capability）
+
+- 已新增 brep capability：`tests/capabilities/test_3d_brep.cpp` 新增 `TwoSeparatedCubeBrepSectionRebuildsIntoTwoBrepBodies`，覆盖端到端路径：`ConvertToBrepBody` -> `Section(BrepBody, Plane)` -> `RebuildSectionBrepBodies`。
+- 在双组件输入下，输出稳定满足 `2 bodies / 每 body 1 shell(open) / 1 face`，验证 Brep 路径 section 结果可稳定驱动后续重建。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 ## 本轮新增（2026-04-02，continuation-closed-shell-tetrahedron）
 
 - 已新增 conversion capability：`ConvertToBrepBody(...)` 在 tiny-scale closed-shell tetrahedron（4 triangular faces, all support planes mismatched）输入上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6）。
