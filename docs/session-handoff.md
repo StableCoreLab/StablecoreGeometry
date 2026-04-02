@@ -266,6 +266,13 @@
 - 已新增 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepBodySectionBuildsTwoAreaComponents`，验证 `Section(BrepBody, Plane)` 在双立方体输入上可稳定产出 2 个独立 area components。
 - 能力路径：2-cubes poly body -> `ConvertToBrepBody(...)` -> `Section(converted.body, z=0.5)`，并验证 polygon/contour/topology/components 的确定性（2 polygons / 2 closed contours / 2 roots / 2 components）。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-02，conversion-dual-deformed-cube-capability）
+
+- 已新增 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `DualDeformedCubeRepairsToClosedSharedTopologyBrepBody`，覆盖“双顶点位移导致 6 个面均非平面”的更强 non-planar 修复子样例。
+- 输入为 dual-deformed unit cube（`v0` 与 `v6` 同时位移，保留原 axis-aligned support planes）；输出稳定满足 `FaceCount=6 / VertexCount=8 / EdgeCount=12 / ShellCount=1 / IsClosed=true`。
+- 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，纳入 dual-displaced-vertices 子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 ## 本轮新增（2026-04-02，continuation-closed-shell-tetrahedron）
 
 - 已新增 conversion capability：`ConvertToBrepBody(...)` 在 tiny-scale closed-shell tetrahedron（4 triangular faces, all support planes mismatched）输入上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6）。

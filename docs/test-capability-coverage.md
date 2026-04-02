@@ -89,6 +89,7 @@
   - `ConvertToBrepBody(...)` 已开始引入跨面联合修复步骤：repair 后执行 representative-id global snapping pass（并回投影到各自 face support plane），用于进一步降低 shared-vertex 跨面漂移并为 topology-changing non-planar repair 打基础
   - `ConvertToBrepBody(...)` 已为代表性 repair 场景补齐壳体语义断言：cube-like 输入稳定满足 `ShellCount()==1 && IsClosed()==true`，shared-chain sheet-like 输入稳定满足 `ShellCount()==1 && IsClosed()==false`
   - `ConvertToBrepBody(...)` 在 deformed unit cube（单顶点位移，三面同时非平面）场景下可经 per-face refit 逐面修复并通过 representative-id 复用保证共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
+  - `ConvertToBrepBody(...)` 在 dual-deformed unit cube（双顶点位移，六面均非平面）场景下同样可经 per-face refit 逐面修复并保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
 
 ## 共享测试支持
 

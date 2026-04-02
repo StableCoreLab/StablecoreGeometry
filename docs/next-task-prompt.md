@@ -107,6 +107,7 @@
 - 已开始 topology-changing non-planar repair 算法预备：在 `TryRepairPolyhedronBodyForBrepConversion(...)` 后新增 representative-id global snapping pass（并回投影到各自 face support plane），作为跨面联合修复第一步
 - 已扩展 conversion capability 语义断言：cube-like repair 子场景补齐 `ShellCount()==1 && IsClosed()==true`，shared-chain sheet-like 子场景补齐 `ShellCount()==1 && IsClosed()==false`
 - 已新增 conversion capability：deformed unit cube（单顶点位移导致三面同时非平面）可经 per-face refit + representative-id 复用收敛为有效 closed BrepBody（FaceCount=6/VertexCount=8/EdgeCount=12/IsClosed=true）；gap 文案已纳入 deformed-cube multi-face 子集
+- 已新增 conversion capability：dual-deformed unit cube（双顶点位移导致六面均非平面）可经 per-face refit + representative-id 复用收敛为有效 closed BrepBody（FaceCount=6/VertexCount=8/EdgeCount=12/IsClosed=true）；gap 文案已纳入 dual-displaced-vertices 子集
 - 下一步聚焦更一般 topology-changing non-planar repair（超出当前 representative-id + shared-refit 子集），继续保留 `GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen` 作为总 gap
 
 ### P4-B：aggressive shell policy 分层落地（已完成最小子集）
