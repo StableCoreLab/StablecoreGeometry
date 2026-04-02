@@ -25,6 +25,15 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
+      - name: Cache googletest downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/../StablecoreGeometryBuild/_deps
+          key: gtest-windows-v1.17.0-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            gtest-windows-v1.17.0-
+            gtest-windows-
+
       - name: Collect failure context
         id: context
         uses: actions/github-script@v7
@@ -81,10 +90,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
-          "=== Verify Configure (after autofix) ===" | Tee-Object -FilePath artifacts\autofix-repro.log -Append
-          cmake --preset vs2022-x64 2>&1 | Tee-Object -FilePath artifacts\autofix-repro.log -Append
-
-          "=== Verify Build (after autofix) ===" | Tee-Object -FilePath artifacts\autofix-repro.log -Append
+          "=== Verify Build (after autofix, reusing build dir) ===" | Tee-Object -FilePath artifacts\autofix-repro.log -Append
           cmake --build --preset vs2022-x64-build --config RelWithDebInfo 2>&1 | Tee-Object -FilePath artifacts\autofix-repro.log -Append
 
           "=== Verify Test (after autofix) ===" | Tee-Object -FilePath artifacts\autofix-repro.log -Append

@@ -15,6 +15,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache googletest downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/../StablecoreGeometryBuild/_deps
+          key: gtest-windows-v1.17.0-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            gtest-windows-v1.17.0-
+            gtest-windows-
+
       - name: Show tool versions
         shell: pwsh
         run: |
