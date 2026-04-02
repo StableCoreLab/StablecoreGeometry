@@ -857,6 +857,8 @@ TEST(Conversion3dCapabilityTest, SkewedCubePolyhedronBodyConvertsToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 6);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
 }
 
 // Demonstrates the conversion can repair face support-plane mismatch and still
@@ -871,6 +873,8 @@ TEST(Conversion3dCapabilityTest, SupportPlaneMismatchedCubeCanBeRepairedToBrepBo
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 6);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
 }
 
 // Demonstrates conversion can repair mildly non-planar face loops by
@@ -885,6 +889,8 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 6);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
 }
 
 // Demonstrates refit-plane projection repair also handles mildly non-planar
@@ -899,6 +905,8 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarHoleLoopCanBeRepairedToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 8);
 }
 
 // Demonstrates refit-plane repair remains robust when leading loop vertices
@@ -913,6 +921,8 @@ TEST(Conversion3dCapabilityTest, CollinearLeadingLoopStillRepairsToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+    assert(result.body.VertexCount() == 5);
+    assert(result.body.EdgeCount() == 5);
 }
 
 // Demonstrates conversion repair can normalize consecutive duplicate loop
@@ -927,6 +937,8 @@ TEST(Conversion3dCapabilityTest, DuplicateVertexLoopStillRepairsToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+    assert(result.body.VertexCount() == 4);
+    assert(result.body.EdgeCount() == 4);
 }
 
 // Demonstrates duplicate vertices in a hole loop are normalized before
@@ -941,6 +953,8 @@ TEST(Conversion3dCapabilityTest, DuplicateVertexHoleLoopStillRepairsToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 8);
 }
 
 // Demonstrates repair sub-strategies compose deterministically on one face:
@@ -956,6 +970,8 @@ TEST(Conversion3dCapabilityTest, CompositeRepairStressFaceStillConvertsToBrepBod
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+    assert(result.body.VertexCount() == 10);
+    assert(result.body.EdgeCount() == 10);
 }
 
 // Demonstrates robust refit can recover a tiny-scale non-planar loop even
@@ -970,6 +986,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarFaceStillRepairsToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+    assert(result.body.VertexCount() == 4);
+    assert(result.body.EdgeCount() == 4);
 }
 
 // Demonstrates tiny-scale refit/projection repair also stabilizes holed
@@ -984,6 +1002,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarHoledFaceStillRepairsToBrepBo
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 8);
 }
 
 // Demonstrates tiny-scale non-planar repair remains stable for multi-face

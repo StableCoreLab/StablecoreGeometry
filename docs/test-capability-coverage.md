@@ -80,6 +80,7 @@
   - `ConvertToBrepBody(...)` 在 shared-chain mixed-content 子集上已补齐确定性共享拓扑计数断言：duplicate-hole、support-plane mismatch、以及二者组合（support-mismatch + duplicate-hole）场景均稳定满足 VertexCount=12 / EdgeCount=14
   - `ConvertToBrepBody(...)` 在 shared-chain 组合子场景（shared-edge duplicate-loop、mixed-content collinear-leading、support-mismatch+collinear、full-composition、dual-duplicate full-composition）上也已补齐确定性共享拓扑计数断言，分别稳定满足 VertexCount=8/13 与 EdgeCount=10/15 的预期拓扑计数
   - `ConvertToBrepBody(...)` 在 tiny-scale 基础子场景（non-planar multi-face、non-planar mixed-content、non-planar shared-edge faces、non-planar shared-edge-chain mixed-content）上也已补齐确定性共享拓扑计数断言（分别为 8/8、12/12、6/7、12/14）
+  - `ConvertToBrepBody(...)` 在早期 repair 子场景（skewed cube、support-plane mismatched cube、mildly non-planar cube face、mildly non-planar holed face、collinear-leading loop、duplicate loop / duplicate-hole loop、composite stress face、tiny-scale face / holed-face）上也已补齐确定性拓扑计数断言（分别覆盖 8/12、8/8、5/5、4/4、10/10 等代表性计数）
 
 ## 共享测试支持
 
