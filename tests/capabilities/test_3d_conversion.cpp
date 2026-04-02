@@ -1115,6 +1115,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedEdgeChainWithDuplicateLoopRepair
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 3);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 10);
 }
 
 // Demonstrates duplicate-hole-loop normalization composes with shared-edge
@@ -1147,6 +1149,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentCollinearLeadin
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 3);
+    assert(result.body.VertexCount() == 13);
+    assert(result.body.EdgeCount() == 15);
 }
 
 // Demonstrates support-plane mismatch composes with shared-chain mixed-content
@@ -1197,6 +1201,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainSupportMismatchAndCollinear
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 3);
+    assert(result.body.VertexCount() == 13);
+    assert(result.body.EdgeCount() == 15);
 }
 
 // Demonstrates shared-chain mixed-content tiny-scale conversion remains stable
@@ -1213,6 +1219,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainFullCompositionRepairsToBre
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 3);
+    assert(result.body.VertexCount() == 13);
+    assert(result.body.EdgeCount() == 15);
 }
 
 // Demonstrates shared-chain mixed-content tiny-scale conversion remains stable
@@ -1229,6 +1237,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainDualDuplicateFullCompositio
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 3);
+    assert(result.body.VertexCount() == 13);
+    assert(result.body.EdgeCount() == 15);
 }
 
 // Demonstrates that a tiny-scale closed tetrahedron polyhedron (4 triangular
