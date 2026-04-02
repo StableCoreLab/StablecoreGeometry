@@ -859,6 +859,8 @@ TEST(Conversion3dCapabilityTest, SkewedCubePolyhedronBodyConvertsToBrepBody)
     assert(result.body.FaceCount() == 6);
     assert(result.body.VertexCount() == 8);
     assert(result.body.EdgeCount() == 12);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates the conversion can repair face support-plane mismatch and still
@@ -875,6 +877,8 @@ TEST(Conversion3dCapabilityTest, SupportPlaneMismatchedCubeCanBeRepairedToBrepBo
     assert(result.body.FaceCount() == 6);
     assert(result.body.VertexCount() == 8);
     assert(result.body.EdgeCount() == 12);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates conversion can repair mildly non-planar face loops by
@@ -891,6 +895,8 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody)
     assert(result.body.FaceCount() == 6);
     assert(result.body.VertexCount() == 8);
     assert(result.body.EdgeCount() == 12);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates refit-plane projection repair also handles mildly non-planar
@@ -1093,6 +1099,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSupportMismatchSharedEdgeChainRepairsW
     assert(result.body.FaceCount() == 3);
     assert(result.body.VertexCount() == 8);
     assert(result.body.EdgeCount() == 10);
+    assert(result.body.ShellCount() == 1);
+    assert(!result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates representative-id propagation through normalization can keep
@@ -1111,6 +1119,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSupportMismatchSharedEdgeChainWithDupl
     assert(result.body.FaceCount() == 3);
     assert(result.body.VertexCount() == 8);
     assert(result.body.EdgeCount() == 10);
+    assert(result.body.ShellCount() == 1);
+    assert(!result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates tiny-scale shared-edge adjacency chain repair also supports
@@ -1214,6 +1224,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentSupportMismatch
     assert(result.body.FaceCount() == 3);
     assert(result.body.VertexCount() == 12);
     assert(result.body.EdgeCount() == 14);
+    assert(result.body.ShellCount() == 1);
+    assert(!result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates support-plane mismatch and collinear-leading fallback can

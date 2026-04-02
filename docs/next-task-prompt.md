@@ -101,6 +101,7 @@
 - 已扩展 tiny-scale 基础子场景计数断言能力：non-planar multi-face、non-planar mixed-content、non-planar shared-edge faces、non-planar shared-edge-chain mixed-content 现均补齐 VertexCount/EdgeCount 确定性断言
 - 已扩展早期 repair 子场景计数断言能力：skewed/mismatched/non-planar cube、single-face holed/collinear/duplicate/composite、tiny-scale face/holed-face 等代表性输入均补齐 VertexCount/EdgeCount 确定性断言
 - 已开始 topology-changing non-planar repair 算法预备：在 `TryRepairPolyhedronBodyForBrepConversion(...)` 后新增 representative-id global snapping pass（并回投影到各自 face support plane），作为跨面联合修复第一步
+- 已扩展 conversion capability 语义断言：cube-like repair 子场景补齐 `ShellCount()==1 && IsClosed()==true`，shared-chain sheet-like 子场景补齐 `ShellCount()==1 && IsClosed()==false`
 - 下一步聚焦更一般 topology-changing non-planar repair（超出当前 representative-id + shared-refit 子集），继续保留 `GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen` 作为总 gap
 
 ### P4-B：aggressive shell policy 分层落地（已完成最小子集）
