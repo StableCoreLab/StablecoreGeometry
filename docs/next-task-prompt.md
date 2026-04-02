@@ -99,6 +99,7 @@
 - 已覆盖 support-plane mismatch 的 eligible shell 与 ineligible multi-face shell 共存下的 deterministic 闭壳/保留 open 子策略
 - 已覆盖 support-plane mismatch + trim-backfill 的 eligible shell 与 ineligible multi-face shell 共存下的 deterministic 闭壳/保留 open 子策略
 - 已覆盖 support-plane mismatch 的 eligible holed shell（缺失 outer/hole trims）与 ineligible multi-face shell 共存下的 deterministic 回填后闭壳/保留 open 子策略
+- 已覆盖 support-plane mismatch 的 eligible multi-face（holed+plain，缺失 trims）与 ineligible multi-face shell 共存下的 deterministic 回填后闭壳/保留 open 子策略
 - 下一步转向更一般 topology-changing aggressive policy（保留为 gap）
 
 ---
