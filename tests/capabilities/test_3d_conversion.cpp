@@ -104,6 +104,29 @@ PolyhedronBody BuildMildlyNonPlanarCubeFaceBody()
 
     return PolyhedronBody(std::move(faces));
 }
+
+PolyhedronBody BuildMildlyNonPlanarHoledFaceBody()
+{
+    const PolyhedronLoop3d outer(
+        {
+            Point3d{0.0, 0.0, 0.0},
+            Point3d{4.0, 0.0, 0.0},
+            Point3d{4.0, 4.0, 0.0},
+            Point3d{0.0, 4.0, 0.0},
+        });
+    std::vector<Point3d> holeVertices{
+        Point3d{1.0, 1.0, 0.0},
+        Point3d{3.0, 1.0, 0.0},
+        Point3d{3.0, 3.0, 0.0},
+        Point3d{1.0, 3.0, 0.0}};
+    holeVertices[2].z += 0.03;
+
+    const PolyhedronFace3d face(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+        outer,
+        {PolyhedronLoop3d(std::move(holeVertices))});
+    return PolyhedronBody({face});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -182,4 +205,18 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 6);
+}
+
+// Demonstrates refit-plane projection repair also handles mildly non-planar
+// hole loops in a planar-holed face.
+TEST(Conversion3dCapabilityTest, MildlyNonPlanarHoleLoopCanBeRepairedToBrepBody)
+{
+    const PolyhedronBody nonPlanarHoledBody = BuildMildlyNonPlanarHoledFaceBody();
+    assert(!nonPlanarHoledBody.IsValid());
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(nonPlanarHoledBody);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 1);
 }
