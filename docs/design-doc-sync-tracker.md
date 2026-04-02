@@ -125,6 +125,7 @@
   - 已扩展 aggressive healing 组合子能力：三壳 mixed 输入下可与 trim-backfill 协同（eligible open shell 先回填 trims 再闭壳）
   - 已扩展 aggressive healing 子能力：三壳 mixed 输入下可对 eligible multi-face open-sheet 执行确定性闭壳，同时保持 closed/ineligible shell 状态稳定
   - 已扩展 aggressive healing 组合子能力：三壳 mixed 输入下可对 eligible holed shell（缺失 outer/hole trims）执行回填后闭壳
+  - 已扩展 aggressive healing 组合子能力：三壳 mixed 输入下可对 eligible multi-face holed shell（缺失 trims）执行回填后闭壳
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成
