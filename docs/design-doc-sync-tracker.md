@@ -95,6 +95,7 @@
   - 已补齐最小 coedge-loop editing API 与 capability：`InsertCoedge(...)` / `FlipCoedgeDirection(...)` / `RemoveCoedge(...)` 非平凡编辑链路可稳定 round-trip
   - 已新增 conversion 子能力收敛：affine-skew 非轴对齐 `PolyhedronBody` 可稳定 `ConvertToBrepBody(...)`
   - 已新增 conversion repair 子能力收敛：support-plane mismatch 的 `PolyhedronBody` 可通过 support-plane refit 稳定转换到 `BrepBody`
+  - 已新增 conversion repair 子能力收敛：mild non-planar face loop 可通过 refit-plane 投影修复后稳定转换到 `BrepBody`
   - 已新增 healing 子能力收敛：带孔平面 `BrepFace` 缺失 outer/hole trims 时可被 `Heal(BrepBody)` 同步回填
   - 已新增 aggressive healing 子能力收敛：`Heal(..., policy=Aggressive)` 支持 open planar single-face shell 的确定性闭壳修复
   - 已扩展 aggressive healing 子能力：覆盖 open planar multi-face sheet 的确定性闭壳修复

@@ -83,6 +83,27 @@ PolyhedronBody BuildSupportPlaneMismatchedCubeBody()
 
     return PolyhedronBody(std::move(faces));
 }
+
+PolyhedronBody BuildMildlyNonPlanarCubeFaceBody()
+{
+    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = cube.Faces();
+
+    const std::size_t topFaceIndex = 1;
+    const PolyhedronFace3d top = faces[topFaceIndex];
+    std::vector<Point3d> topVertices;
+    topVertices.reserve(top.OuterLoop().VertexCount());
+    for (std::size_t i = 0; i < top.OuterLoop().VertexCount(); ++i)
+    {
+        topVertices.push_back(top.OuterLoop().VertexAt(i));
+    }
+
+    // Introduce mild non-coplanarity on one vertex.
+    topVertices[2].z += 0.05;
+    faces[topFaceIndex] = PolyhedronFace3d(top.SupportPlane(), PolyhedronLoop3d(std::move(topVertices)));
+
+    return PolyhedronBody(std::move(faces));
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -143,6 +164,20 @@ TEST(Conversion3dCapabilityTest, SupportPlaneMismatchedCubeCanBeRepairedToBrepBo
     assert(!mismatchedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(mismatchedBody);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 6);
+}
+
+// Demonstrates conversion can repair mildly non-planar face loops by
+// projecting vertices onto a refit support plane.
+TEST(Conversion3dCapabilityTest, MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody)
+{
+    const PolyhedronBody nonPlanarBody = BuildMildlyNonPlanarCubeFaceBody();
+    assert(!nonPlanarBody.IsValid());
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(nonPlanarBody);
     assert(result.success);
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());

@@ -199,6 +199,8 @@ namespace
         return false;
     }
 
+    const Plane refitPlane = Plane::FromPointAndNormal(p0, normal);
+
     std::vector<PolyhedronLoop3d> holes;
     holes.reserve(face.HoleCount());
     for (std::size_t i = 0; i < face.HoleCount(); ++i)
@@ -211,7 +213,44 @@ namespace
         holes.push_back(hole);
     }
 
-    repairedFace = PolyhedronFace3d(Plane::FromPointAndNormal(p0, normal), outer, std::move(holes));
+    repairedFace = PolyhedronFace3d(refitPlane, outer, holes);
+    if (repairedFace.IsValid(eps))
+    {
+        return true;
+    }
+
+    auto projectLoopToPlane = [&](const PolyhedronLoop3d& loop) {
+        std::vector<Point3d> projected;
+        projected.reserve(loop.VertexCount());
+        const Vector3d unitNormal = refitPlane.UnitNormal(eps);
+        for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+        {
+            const Point3d point = loop.VertexAt(i);
+            const double signedDistance = refitPlane.SignedDistanceTo(point, eps);
+            projected.push_back(point - unitNormal * signedDistance);
+        }
+        return PolyhedronLoop3d(std::move(projected));
+    };
+
+    PolyhedronLoop3d projectedOuter = projectLoopToPlane(outer);
+    if (!projectedOuter.IsValid(eps))
+    {
+        return false;
+    }
+
+    std::vector<PolyhedronLoop3d> projectedHoles;
+    projectedHoles.reserve(holes.size());
+    for (const PolyhedronLoop3d& hole : holes)
+    {
+        PolyhedronLoop3d projectedHole = projectLoopToPlane(hole);
+        if (!projectedHole.IsValid(eps))
+        {
+            return false;
+        }
+        projectedHoles.push_back(std::move(projectedHole));
+    }
+
+    repairedFace = PolyhedronFace3d(refitPlane, std::move(projectedOuter), std::move(projectedHoles));
     return repairedFace.IsValid(eps);
 }
 
