@@ -109,6 +109,7 @@
   - 已扩展 aggressive healing 子能力：覆盖 open planar multi-face sheet 的确定性闭壳修复
   - 已扩展 aggressive healing 子能力：覆盖 open planar holed shell 的确定性闭壳修复
   - 已扩展 aggressive healing 组合子能力：在 open holed shell 且 trims 缺失场景下，闭壳与 trim-backfill 可协同稳定生效
+  - 已扩展 aggressive healing 子能力：同一 `BrepBody` 中多个可恢复 open shell 可在单次 healing 中确定性闭壳
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成

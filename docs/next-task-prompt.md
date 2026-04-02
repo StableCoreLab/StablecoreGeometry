@@ -71,8 +71,9 @@
 ### P4-A：鲁棒 non-planar repair（优先）
 - 针对 `GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen`，尝试引入最小 non-planar 失配样例与可解释 repair 策略
 
-### P4-B：aggressive shell policy 分层落地
-- 在已完成 single-face planar closure 子策略基础上，扩展到 multi-face open shell 的最小 deterministic 修复
+### P4-B：aggressive shell policy 分层落地（已完成最小子集）
+- 已覆盖 single-face / multi-face / holed / multi-shell open-shell 的最小 deterministic closure 子策略
+- 下一步转向更一般 topology-changing aggressive policy（保留为 gap）
 
 ---
 

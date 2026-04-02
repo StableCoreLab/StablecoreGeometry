@@ -364,3 +364,64 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCompositeHoledOpenShellWithMissin
     assert(firstFace.HoleTrims().size() == 1);
     assert(firstFace.HoleTrims()[0].IsValid());
 }
+
+// Demonstrates aggressive policy can deterministically close multiple
+// recoverable open shells within the same BrepBody.
+TEST(Healing3dCapabilityTest, AggressiveHealingClosesMultipleOpenShells)
+{
+    std::vector<BrepVertex> vertices{
+        // Shell A
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        // Shell B
+        BrepVertex(Point3d{3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 1.0, 0.0}),
+        BrepVertex(Point3d{3.0, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Shell A edges
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+    // Shell B edges
+    addEdge(4, 5);
+    addEdge(5, 6);
+    addEdge(6, 7);
+    addEdge(7, 4);
+
+    const BrepLoop loopA({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop loopB({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+    const PlaneSurface planeSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+
+    const BrepFace faceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), loopA);
+    const BrepFace faceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), loopB);
+    const BrepBody openBody(vertices, edges, {BrepShell({faceA}, false), BrepShell({faceB}, false)});
+    assert(openBody.IsValid());
+    assert(!openBody.ShellAt(0).IsClosed());
+    assert(!openBody.ShellAt(1).IsClosed());
+
+    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 2);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(healed.body.ShellAt(1).IsClosed());
+    // Each open single-face shell is mirrored into 2 faces.
+    assert(healed.body.FaceCount() == 4);
+}
