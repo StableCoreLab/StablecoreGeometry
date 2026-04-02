@@ -98,6 +98,7 @@
   - 已新增 non-axis-aligned multi-face section capability：`x+y+z=1.5` 截单位立方体时 contour/polygon 计数稳定
   - 已新增 section 子能力：`Section(BrepBody, Plane)` 在 oblique cut（`x+y+z=1.5`）下稳定得到单区域闭合结果（1 polygon / 1 contour / 6 points）
   - 已新增 section 子能力：`Section(BrepBody, Plane)` 在 coplanar 邻接片段输入下稳定合并为单 polygon（area=2.0），补齐 Brep 路径 face-merge 代表性子样例
+  - 已新增 section 子能力：`Section(BrepBody, Plane)` 在双组件输入下稳定得到 2 个 area components（2 polygons / 2 roots / 2 components）
   - 已收敛 section gap 文案：`FaceMergeSemanticsAfterSectionRemainsOpen` 现明确仅覆盖“超出 Polyhedron/Brep 相邻 coplanar union 子集”的更高阶语义
   - 已补齐最小 coedge-loop editing API 与 capability：`InsertCoedge(...)` / `FlipCoedgeDirection(...)` / `RemoveCoedge(...)` 非平凡编辑链路可稳定 round-trip
   - 已新增 conversion 子能力收敛：affine-skew 非轴对齐 `PolyhedronBody` 可稳定 `ConvertToBrepBody(...)`

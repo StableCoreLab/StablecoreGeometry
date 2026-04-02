@@ -43,6 +43,48 @@ PolyhedronBody BuildAdjacentCoplanarFaceBody()
                 Point3d{1.0, 1.0, 0.0},
             }))});
 }
+
+PolyhedronLoop3d TranslateLoop(const PolyhedronLoop3d& loop, const Vector3d& delta)
+{
+    std::vector<Point3d> vertices;
+    vertices.reserve(loop.VertexCount());
+    for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+    {
+        vertices.push_back(loop.VertexAt(i) + delta);
+    }
+    return PolyhedronLoop3d(std::move(vertices));
+}
+
+PolyhedronFace3d TranslateFace(const PolyhedronFace3d& face, const Vector3d& delta)
+{
+    const Plane translatedPlane = Plane::FromPointAndNormal(
+        face.SupportPlane().origin + delta,
+        face.SupportPlane().normal);
+
+    PolyhedronLoop3d outer = TranslateLoop(face.OuterLoop(), delta);
+    std::vector<PolyhedronLoop3d> holes;
+    holes.reserve(face.HoleCount());
+    for (std::size_t i = 0; i < face.HoleCount(); ++i)
+    {
+        holes.push_back(TranslateLoop(face.HoleAt(i), delta));
+    }
+
+    return PolyhedronFace3d(translatedPlane, std::move(outer), std::move(holes));
+}
+
+PolyhedronBody BuildTwoSeparatedUnitCubesBody()
+{
+    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = first.Faces();
+
+    const Vector3d delta{3.0, 0.0, 0.0};
+    for (const PolyhedronFace3d& face : first.Faces())
+    {
+        faces.push_back(TranslateFace(face, delta));
+    }
+
+    return PolyhedronBody(std::move(faces));
+}
 } // namespace
 
 TEST(Section3dCapabilityTest, SlantedCubeSectionBuildsSingleAreaComponent)
@@ -169,6 +211,41 @@ TEST(Section3dCapabilityTest, BrepBodyAdjacentCoplanarFacesMergeIntoSinglePolygo
     assert(components.components.size() == 1);
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
     assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 2.0) < 1e-12);
+}
+
+// Demonstrates Section(BrepBody, Plane) also supports multi-component area
+// output: two separated cubes sectioned at z=0.5 produce two independent
+// section polygons/components.
+TEST(Section3dCapabilityTest, BrepBodySectionBuildsTwoAreaComponents)
+{
+    const PolyhedronBody polyBody = BuildTwoSeparatedUnitCubesBody();
+    assert(polyBody.IsValid());
+    assert(polyBody.FaceCount() == 12);
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+    assert(section.polygons.size() == 2);
+    assert(section.contours.size() == 2);
+    assert(section.contours[0].closed);
+    assert(section.contours[1].closed);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 2);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 2);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
 }
 
 // Demonstrates coplanar adjacent face fragments are merged into one area

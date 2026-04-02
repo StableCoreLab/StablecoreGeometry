@@ -260,6 +260,12 @@
 - 已补强 brep section rebuild capability 语义断言：`tests/capabilities/test_3d_brep.cpp` 现在对 `RebuildSectionBrepBody(...)` 与 `RebuildSectionBrepBodies(...)` 输出统一断言 `ShellCount()==1 && IsClosed()==false`。
 - 本轮目标是把“section 重建后 open-shell 语义”从隐含行为提升为显式回归保护，减少后续壳体标志回归风险。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-02，section-brep-multi-component-capability）
+
+- 已新增 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepBodySectionBuildsTwoAreaComponents`，验证 `Section(BrepBody, Plane)` 在双立方体输入上可稳定产出 2 个独立 area components。
+- 能力路径：2-cubes poly body -> `ConvertToBrepBody(...)` -> `Section(converted.body, z=0.5)`，并验证 polygon/contour/topology/components 的确定性（2 polygons / 2 closed contours / 2 roots / 2 components）。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 ## 本轮新增（2026-04-02，continuation-closed-shell-tetrahedron）
 
 - 已新增 conversion capability：`ConvertToBrepBody(...)` 在 tiny-scale closed-shell tetrahedron（4 triangular faces, all support planes mismatched）输入上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6）。
