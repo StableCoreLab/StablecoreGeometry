@@ -33,6 +33,12 @@
 - 本轮目标为 conversion 跨面联合修复稳定性增强（iterative snapping hardening）。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
+## 本轮新增（2026-04-02，continuation-33）
+
+- 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `SupportMismatchNearEqualApexFanRepairsWithRepresentativeAverageTarget`，验证 support-plane mismatch + near-equal shared-apex fan 输入经 refit 后保持 representative-average 共享 apex 顶点落点（VertexCount=5 / EdgeCount=8）。
+- 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，纳入 support-mismatch near-equal shared-apex fan representative-average 子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
 ## 本轮新增（2026-04-02，continuation）
 
 - 已新增 capability：`Heal(..., policy=Aggressive)` 在同一个 `BrepBody` 内可同时闭合多个可恢复 open shells（`tests/capabilities/test_3d_healing.cpp`）。

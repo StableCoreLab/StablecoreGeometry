@@ -93,6 +93,7 @@
   - `ConvertToBrepBody(...)` 已开始引入跨面联合修复步骤：repair 后执行 representative-id global snapping pass（并回投影到各自 face support plane），用于进一步降低 shared-vertex 跨面漂移并为 topology-changing non-planar repair 打基础
   - `ConvertToBrepBody(...)` 已扩展 representative-id 全局目标点聚合：在 near-equal shared-edge 输入中，共享 `BrepVertex` 落点由跨面代表点全局平均驱动，不再依赖首个面点，进一步使共享边一致性约束参与最终顶点位置决策
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-edge 输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（2 faces -> VertexCount=6 / EdgeCount=7）
+  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-apex triangular-fan 输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（4 faces -> VertexCount=5 / EdgeCount=8）
   - `ConvertToBrepBody(...)` 已增加 representative-target 聚合失败回退：若全局平均目标点构建失败，将自动回退到原 representative-id 复用路径，避免把可转换输入误判为失败
   - `ConvertToBrepBody(...)` 的 repair 后 representative snapping 已从单轮提升为最多两轮小步迭代（每轮保持 body 有效性约束），以增强跨面共享顶点对齐稳定性
   - `ConvertToBrepBody(...)` 已为代表性 repair 场景补齐壳体语义断言：cube-like 输入稳定满足 `ShellCount()==1 && IsClosed()==true`，shared-chain sheet-like 输入稳定满足 `ShellCount()==1 && IsClosed()==false`

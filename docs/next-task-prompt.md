@@ -110,6 +110,7 @@
 - 已新增 conversion capability：dual-deformed unit cube（双顶点位移导致六面均非平面）可经 per-face refit + representative-id 复用收敛为有效 closed BrepBody（FaceCount=6/VertexCount=8/EdgeCount=12/IsClosed=true）；gap 文案已纳入 dual-displaced-vertices 子集
 - 已扩展 representative-id 全局目标点聚合 capability：near-equal shared-edge（<eps 顶点扰动）输入下，共享 `BrepVertex` 落点由跨面代表点全局平均驱动，不再依赖首个面点
 - 已扩展 support-plane mismatch + near-equal shared-edge capability：`ConvertToBrepBody(...)` 经 refit 后仍可保持 representative-average 共享顶点落点与确定性拓扑计数（VertexCount=6 / EdgeCount=7）
+- 已扩展 support-plane mismatch + near-equal shared-apex triangular-fan capability：`ConvertToBrepBody(...)` 经 refit 后仍可保持 representative-average 共享 apex 顶点落点与确定性拓扑计数（VertexCount=5 / EdgeCount=8）
 - 已完成 representative-target 聚合失败回退硬化：聚合失败时自动回退到 representative-id 复用路径，不再直接 `InvalidBody`
 - 已增强 repair 后 representative snapping：由单轮提升为最多两轮小步迭代（每轮保持有效性约束）
 - 下一步聚焦更一般 topology-changing non-planar repair（超出当前 representative-id + shared-refit + representative-average vertex placement + fallback-hardening + iterative-snapping 子集），继续保留 `GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen` 作为总 gap

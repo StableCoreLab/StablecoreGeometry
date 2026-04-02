@@ -960,6 +960,33 @@ PolyhedronBody BuildSupportMismatchNearEqualSharedEdgeQuadPairBody()
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({a, b, c, d})),
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({b2, e, f, c2}))});
 }
+
+PolyhedronBody BuildSupportMismatchNearEqualApexTriangularFanBody()
+{
+    // Four triangles share a near-equal apex (<eps perturbations), with
+    // mismatched support planes forcing repair before Brep conversion.
+    // Representative-id averaging should converge the shared apex to the
+    // cross-face average target point.
+    const double s = 1e-5;
+    const Point3d apex0{0.0,    0.0, s};
+    const Point3d apex1{1.0e-7, 0.0, s};
+    const Point3d apex2{2.0e-7, 0.0, s};
+    const Point3d apex3{-1.0e-7, 0.0, s};
+
+    const Point3d v0{s, 0.0, 0.0};
+    const Point3d v1{0.0, s, 0.0};
+    const Point3d v2{-s, 0.0, 0.0};
+    const Point3d v3{0.0, -s, 0.0};
+
+    const Plane mismatched =
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 3e-6}, Vector3d{0.0, 0.0, 1.0});
+
+    return PolyhedronBody({
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({apex0, v0, v1})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({apex1, v1, v2})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({apex2, v2, v3})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({apex3, v3, v0}))});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -1074,6 +1101,43 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeRepairsWithRe
     }
 
     assert(sharedBLikeCount == 1);
+}
+
+// Demonstrates representative-id global averaging with support-plane refit on
+// a multi-face shared-apex fan: near-equal apex variants merge to one shared
+// Brep vertex at the expected average position.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualApexFanRepairsWithRepresentativeAverageTarget)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualApexTriangularFanBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 4);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 4);
+    assert(result.body.ShellCount() == 1);
+    assert(!result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 5);
+    assert(result.body.EdgeCount() == 8);
+
+    const double s = 1e-5;
+    const double expectedApexX = 5e-8;
+
+    std::size_t apexLikeCount = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (point.z > 0.5 * s)
+        {
+            ++apexLikeCount;
+            assert(std::abs(point.x - expectedApexX) < 1e-12);
+            assert(std::abs(point.y) < 1e-12);
+        }
+    }
+
+    assert(apexLikeCount == 1);
 }
 
 // Demonstrates a non-axis-aligned (affine-skewed) polyhedron subset can be
