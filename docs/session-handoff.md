@@ -255,6 +255,7 @@
 
 - 已在 `ConvertToBrepBody(...)` 落地 source representative-id 贯穿复用机制：从输入 `PolyhedronBody` 提取跨面代表点 ID，并在 `AppendSharedBrepLoopFromPolyLoop(...)` 中优先按代表点 ID 复用 `BrepVertex`，不再仅依赖修复后几何点位的 eps 近邻。
 - 结果：`TinyScaleNonPlanarSharedEdgeChainStillRepairsToBrepBody` 已恢复确定性拓扑断言（VertexCount=8 / EdgeCount=10）。
+- 已新增 capability：`TinyScaleSupportMismatchSharedEdgeChainRepairsWithSharedTopology`，覆盖 support-plane mismatch 的 tiny-scale 3-quad shared-edge chain，验证共享拓扑断言（VertexCount=8 / EdgeCount=10）。
 - `tests/gaps/test_3d_conversion_gaps.cpp` 的显式靶点已收敛为更一般组合场景：`QuadSharedEdgeChainWithNormalizationVertexConsistencyRemainsOpen`（support-plane mismatch + duplicate-loop normalization）。
 ## 当前关注优先级
 

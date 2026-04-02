@@ -75,6 +75,7 @@
   - `ConvertToBrepBody(...)` 在 tiny-scale triangular-fan（4 个三角面共享 apex，mismatched support planes）上可确定性地保持共享 apex 顶点一致性（apex 是所有 4 个三角面的定义顶点，distance=0 → 精确保留），结果满足 VertexCount=5 / EdgeCount=8（4 条径向共享边 + 4 条外边）
   - `ConvertToBrepBody(...)` 的 per-face refit 已引入 shared-vertex-aware support-plane 估计启发式：当 outer loop 顶点在 body 内出现多次（跨面共享）时，优先使用包含更多 shared vertices 的三点组估计 refit plane，以减少 shared-edge 顶点跨面投影偏差
   - `ConvertToBrepBody(...)` 已引入 source representative-id 贯穿复用：即使修复后共享顶点出现微小跨面漂移，也能按输入拓扑代表点强制复用同一 BrepVertex，从而恢复 tiny-scale quad shared-edge chain 的确定性拓扑断言（VertexCount=8 / EdgeCount=10）
+  - `ConvertToBrepBody(...)` 在 support-plane mismatch 的 tiny-scale quad shared-edge chain（3 quads）上可稳定收敛到共享拓扑（VertexCount=8 / EdgeCount=10），验证 representative-id 驱动复用在非三角面链场景下的代表性有效性
 
 ## 共享测试支持
 

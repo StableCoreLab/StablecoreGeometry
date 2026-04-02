@@ -94,6 +94,7 @@
 - 已扩展 triangular-face fan（4 个三角面共享 apex，mismatched support planes）的代表性子样例，验证 per-face refit 下共享 apex 顶点精确一致性（VertexCount=5 / EdgeCount=8）；下一步聚焦 quad-face 场景下共享边一致性约束真正参与 refit 决策（需要修改 `ConvertToBrepBody` 的 repair 算法，在 per-face 独立投影后引入跨面顶点位置 snapping 步骤）
 - 已在 `src/sdk/GeometryBrepConversion.cpp` 落地 shared-vertex-aware refit 启发式：outer loop 中跨面共享顶点优先参与 support-plane 三点组选取，以减少 shared-edge 顶点跨面投影偏差；下一步仍需实现 quad-face 场景下的跨面顶点 snapping/联合约束以彻底消除 residual mismatch
 - 已在 `ConvertToBrepBody(...)` 落地 source representative-id 贯穿复用（输入拓扑代表点驱动 BrepVertex 复用），并已恢复 tiny-scale quad shared-edge chain 的确定性拓扑断言（VertexCount=8 / EdgeCount=10）
+- 已扩展 support-plane mismatch 的 tiny-scale quad shared-edge chain（3 quads）capability：`ConvertToBrepBody(...)` 可稳定保持共享拓扑（VertexCount=8 / EdgeCount=10）
 - 显式 gap 已收敛为更一般组合场景：`Conversion3dGapTest::QuadSharedEdgeChainWithNormalizationVertexConsistencyRemainsOpen`（support-plane mismatch + duplicate-loop normalization）；下一步以该用例为靶点推进跨面 snapping/约束重投影
 
 ### P4-B：aggressive shell policy 分层落地（已完成最小子集）

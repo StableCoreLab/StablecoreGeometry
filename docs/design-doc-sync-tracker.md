@@ -126,6 +126,7 @@
     - 已扩展 conversion repair 子能力：tiny-scale triangular-fan（4 triangular faces sharing apex, mismatched support planes）在 per-face refit 后共享 apex 精确一致（VertexCount=5 / EdgeCount=8），验证多面共享顶点拓扑精确性
     - 已实现 conversion repair 启发式增强：shared-vertex-aware support-plane refit（三点组优先包含跨面共享顶点）以降低 shared-edge 顶点跨面投影偏差
     - 已实现 conversion topology 复用增强：source representative-id 贯穿到 Brep vertex 复用，降低修复后微漂移对 shared-edge 去重的影响
+    - 已扩展 conversion capability：support-plane mismatch 的 tiny-scale 3-quad shared-edge chain 可稳定保持共享拓扑（VertexCount=8 / EdgeCount=10）
     - quad shared-edge 显式 gap 已收敛为组合场景：`QuadSharedEdgeChainWithNormalizationVertexConsistencyRemainsOpen`（support-plane mismatch + duplicate-loop normalization）
   - 已扩展 Brep->mesh 子能力：planar multi-face `BrepBody` 的 representative area-preserving conversion capability
   - 已扩展 Brep->mesh 子能力：planar holed+multi-face 混合 `BrepBody` 的 representative area-preserving conversion capability
