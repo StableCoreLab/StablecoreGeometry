@@ -131,6 +131,7 @@
   - 已扩展 aggressive healing 组合子能力：三壳 mixed 输入下可对 eligible multi-face holed shell（缺失 trims）执行回填后闭壳
   - 已扩展 aggressive healing 组合子能力：三壳 mixed 输入下可对 eligible multi-face（holed+plain）两面 trims 缺失场景执行回填后闭壳
   - 已扩展 aggressive healing 组合子能力：三壳 mixed 输入下可对 eligible multi-face holed shell 的 support-plane mismatch + missing trims 执行回填后闭壳
+  - 已扩展 aggressive healing 组合子能力：support-plane mismatch 的 eligible shell 与 ineligible multi-face shell 共存时，仍可保持 deterministic 闭壳/保留 open 行为
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成

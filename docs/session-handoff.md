@@ -141,6 +141,12 @@
 - 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，纳入 support-plane+collinear shared-chain composition 子集。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
+## 本轮新增（2026-04-02，continuation-23）
+
+- 已新增 healing 组合 capability：support-plane mismatch 的 eligible shell 与 ineligible multi-face shell 共存时，`Heal(..., policy=Aggressive)` 仍可保持 deterministic（eligible 闭壳、ineligible 保持 open），见 `tests/capabilities/test_3d_healing.cpp`。
+- 已同步收敛 `tests/gaps/test_3d_healing_gaps.cpp` 文案，纳入 support-mismatch eligible + ineligible multiface 子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
 ## 当前关注优先级
 
 1. **3D robust non-planar repair**：从 affine-skew 子类走向真实 non-planar 失配修复
