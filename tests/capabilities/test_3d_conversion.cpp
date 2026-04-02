@@ -698,6 +698,35 @@ PolyhedronBody BuildTinyScaleTriangularFaceChainBody()
         PolyhedronFace3d(mismatchedPlane, PolyhedronLoop3d({b, d, c})),
         PolyhedronFace3d(mismatchedPlane, PolyhedronLoop3d({c, d, e}))});
 }
+
+PolyhedronBody BuildTinyScaleTriangularFanBody()
+{
+    // Four triangular faces sharing a common apex vertex, arranged like a
+    // square pyramid cap (open base). All support planes mismatched.
+    //   T0=(apex,v0,v1), T1=(apex,v1,v2), T2=(apex,v2,v3), T3=(apex,v3,v0)
+    // Each radial edge (apex-vk) is shared by exactly two triangles, the four
+    // outer edges (vk-v(k+1 mod 4)) are each used once.
+    // Key: apex is one of the 3 defining vertices of all 4 triangles → after
+    // per-face refit its distance to each refit-plane is exactly 0 → apex is
+    // never projected → it is preserved at its original position in all faces
+    // → FindOrAddBrepVertex merges it exactly once.
+    // Expected: VertexCount=5, EdgeCount=8 (4 radial + 4 outer).
+    const double s = 1e-5;
+    const Point3d apex{0.0,  0.0,  s};
+    const Point3d v0  {s,    0.0,  0.0};
+    const Point3d v1  {0.0,  s,    0.0};
+    const Point3d v2  {-s,   0.0,  0.0};
+    const Point3d v3  {0.0,  -s,   0.0};
+
+    const Plane mismatchedPlane =
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0});
+
+    return PolyhedronBody({
+        PolyhedronFace3d(mismatchedPlane, PolyhedronLoop3d({apex, v0, v1})),
+        PolyhedronFace3d(mismatchedPlane, PolyhedronLoop3d({apex, v1, v2})),
+        PolyhedronFace3d(mismatchedPlane, PolyhedronLoop3d({apex, v2, v3})),
+        PolyhedronFace3d(mismatchedPlane, PolyhedronLoop3d({apex, v3, v0}))});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -1111,6 +1140,29 @@ TEST(Conversion3dCapabilityTest, TinyScaleTriangularFaceChainRepairsToBrepBodyWi
     assert(result.body.FaceCount() == 3);
     assert(result.body.VertexCount() == 5);
     assert(result.body.EdgeCount() == 7);
+}
+
+// Demonstrates planar holed BrepBody conversion keeps representative area by
+// honoring hole trims in mesh triangulation.
+// Demonstrates that four triangular faces sharing a common apex vertex (square
+// pyramid cap without base), all with mismatched support planes, produce a
+// BrepBody with exactly VertexCount=5 and EdgeCount=8. The shared apex is a
+// defining vertex of all four triangles → distance 0 from each refit-plane →
+// never projected → exact merge.  Four radial edges are each used twice;
+// four outer edges are each used once — the open boundary is deterministic.
+TEST(Conversion3dCapabilityTest, TinyScaleTriangularFanRepairsToBrepBodyWithSharedApex)
+{
+    const PolyhedronBody body = BuildTinyScaleTriangularFanBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 4);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 4);
+    assert(result.body.VertexCount() == 5);
+    assert(result.body.EdgeCount() == 8);
 }
 
 // Demonstrates planar holed BrepBody conversion keeps representative area by

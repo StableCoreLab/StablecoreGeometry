@@ -72,6 +72,7 @@
   - `ConvertToBrepBody(...)` 在 tiny-scale closed-shell 代表性输入（tetrahedron：4 triangular faces, 6 edges, 4 vertices, 所有 support planes mismatched）上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6），验证 closed-shell 下的共享拓扑代表性路径
   - `ConvertToTriangleMesh(BrepBody)` 在 planar shared-edge 相邻面上可全局复用共享 3D 顶点，避免 face-by-face 拼接导致的重复顶点子集
   - `ConvertToBrepBody(...)` 在 tiny-scale triangular-face chain（3 个三角面，mismatched support planes）上可确定性地保持共享边顶点一致性（每个共享顶点是所有相关三角面的定义顶点，distance=0 → 无投影偏差），结果满足 VertexCount=5 / EdgeCount=7 的精确拓扑共享断言
+  - `ConvertToBrepBody(...)` 在 tiny-scale triangular-fan（4 个三角面共享 apex，mismatched support planes）上可确定性地保持共享 apex 顶点一致性（apex 是所有 4 个三角面的定义顶点，distance=0 → 精确保留），结果满足 VertexCount=5 / EdgeCount=8（4 条径向共享边 + 4 条外边）
 
 ## 共享测试支持
 

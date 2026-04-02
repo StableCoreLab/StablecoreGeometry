@@ -225,6 +225,13 @@
 - 已更新：`docs/test-capability-coverage.md`、`docs/next-task-prompt.md`、`docs/design-doc-sync-tracker.md`。
 - **下一步**：聚焦共享边一致性约束真正参与 support-plane/refit 决策（not just topology deduplication）。
 - **下一步**：聚焦共享边一致性约束真正参与 support-plane/refit 决策（not just topology deduplication），具体为 quad-face chain 共享顶点的 refit-plane 锚定机制。
+- **下一步**：聚焦 quad-face chain 共享边顶点一致性算法（per-face 独立投影后 snapping pass），triangular-face 变体（chain/fan/tetrahedron）已全部覆盖。
+
+## 本轮新增（2026-04-02，continuation-triangular-fan）
+
+- 已新增 conversion capability：tiny-scale triangular-fan（4 个三角面共享 apex，mismatched support planes），per-face refit 后共享 apex 精确保持（VertexCount=5 / EdgeCount=8，4 条径向共享边 + 4 条外边）。
+- Test: `TinyScaleTriangularFanRepairsToBrepBodyWithSharedApex`。
+- 已更新：`docs/test-capability-coverage.md`、`docs/next-task-prompt.md`、`docs/design-doc-sync-tracker.md`。
 
 ## 本轮新增（2026-04-02，continuation-triangular-chain）
 

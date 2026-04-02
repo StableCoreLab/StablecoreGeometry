@@ -91,6 +91,7 @@
 - 已扩展 closed-shell 代表性输入（tiny-scale tetrahedron：4 triangular faces, 6 edges, 4 vertices, 所有 support planes mismatched）的共享拓扑 BrepBody 子样例；已完成
 - 已说明独立 per-face refit 下四边形面链共享顶点不一致的原因，并已修正 quad-chain test 中错误的 VertexCount/EdgeCount 断言；下一步已转向显式 triangular-face chain 验证
 - 已扩展 triangular-face chain（3 个三角面，mismatched support planes，T1/T2/T3 共享边）的代表性子样例，验证 per-face refit 下三角面共享顶点精确一致性（VertexCount=5 / EdgeCount=7）；下一步聚焦 quad-face 场景下共享边一致性约束真正参与 refit 决策（需要修改 `ConvertToBrepBody` 的 repair 算法）
+- 已扩展 triangular-face fan（4 个三角面共享 apex，mismatched support planes）的代表性子样例，验证 per-face refit 下共享 apex 顶点精确一致性（VertexCount=5 / EdgeCount=8）；下一步聚焦 quad-face 场景下共享边一致性约束真正参与 refit 决策（需要修改 `ConvertToBrepBody` 的 repair 算法，在 per-face 独立投影后引入跨面顶点位置 snapping 步骤）
 
 ### P4-B：aggressive shell policy 分层落地（已完成最小子集）
 - 已覆盖 single-face / multi-face / holed / multi-shell open-shell 的最小 deterministic closure 子策略
