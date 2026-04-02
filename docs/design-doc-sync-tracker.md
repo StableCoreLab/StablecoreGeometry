@@ -132,6 +132,7 @@
     - 已扩展 conversion capability：shared-chain 其余组合子场景（duplicate-loop、collinear-leading、support-mismatch+collinear、full-composition、dual-duplicate full-composition）也已补齐确定性拓扑计数断言（VertexCount=8/13，EdgeCount=10/15）
     - 已扩展 conversion capability：tiny-scale 基础子场景（non-planar multi-face / mixed-content / shared-edge faces / shared-edge-chain mixed-content）均已补齐确定性拓扑计数断言（8/8、12/12、6/7、12/14）
     - 已扩展 conversion capability：早期 repair 子场景（skewed/mismatched/non-planar cube、single-face holed/collinear/duplicate/composite、tiny-scale face/holed-face）均已补齐确定性拓扑计数断言
+    - 已开始 conversion 跨面联合修复预备：representative-id global snapping pass（repair 后聚合 representative 点并回投影到各自 face support plane）已接入
   - 已扩展 Brep->mesh 子能力：planar multi-face `BrepBody` 的 representative area-preserving conversion capability
   - 已扩展 Brep->mesh 子能力：planar holed+multi-face 混合 `BrepBody` 的 representative area-preserving conversion capability
   - 已扩展 Brep->mesh 子能力：planar shared-edge 相邻面转换时可全局复用共享 3D 顶点，收敛到 shared-edge feature-preserving 子集

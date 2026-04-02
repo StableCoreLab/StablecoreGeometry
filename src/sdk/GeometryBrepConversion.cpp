@@ -18,6 +18,12 @@ struct FaceLoopRepresentativeIds
     std::vector<std::vector<std::size_t>> holes;
 };
 
+struct RepresentativePointAccumulator
+{
+    Vector3d sum{};
+    std::size_t count{0};
+};
+
 [[nodiscard]] std::size_t FindOrAddRepresentativePoint(
     const Point3d& point,
     std::vector<Point3d>& representativePoints,
@@ -67,6 +73,125 @@ void BuildBodyLoopRepresentativeIds(
             }
         }
     }
+}
+
+[[nodiscard]] bool ApplyRepresentativeVertexSnapping(
+    const std::vector<FaceLoopRepresentativeIds>& representativeIds,
+    std::vector<PolyhedronFace3d>& faces,
+    double eps)
+{
+    if (representativeIds.size() != faces.size())
+    {
+        return false;
+    }
+
+    std::unordered_map<std::size_t, RepresentativePointAccumulator> accumulators;
+
+    auto accumulateLoop = [&](const PolyhedronLoop3d& loop, const std::vector<std::size_t>& loopIds) {
+        if (loop.VertexCount() != loopIds.size())
+        {
+            return false;
+        }
+
+        for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+        {
+            const Point3d point = loop.VertexAt(i);
+            auto& accumulator = accumulators[loopIds[i]];
+            accumulator.sum = accumulator.sum + (point - Point3d{});
+            ++accumulator.count;
+        }
+        return true;
+    };
+
+    for (std::size_t faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
+    {
+        const PolyhedronFace3d& face = faces[faceIndex];
+        const FaceLoopRepresentativeIds& ids = representativeIds[faceIndex];
+
+        if (!accumulateLoop(face.OuterLoop(), ids.outer))
+        {
+            return false;
+        }
+
+        if (ids.holes.size() != face.HoleCount())
+        {
+            return false;
+        }
+
+        for (std::size_t holeIndex = 0; holeIndex < face.HoleCount(); ++holeIndex)
+        {
+            if (!accumulateLoop(face.HoleAt(holeIndex), ids.holes[holeIndex]))
+            {
+                return false;
+            }
+        }
+    }
+
+    std::unordered_map<std::size_t, Point3d> representativeTargets;
+    representativeTargets.reserve(accumulators.size());
+    for (const auto& [id, accumulator] : accumulators)
+    {
+        if (accumulator.count == 0)
+        {
+            return false;
+        }
+
+        const Vector3d average = accumulator.sum / static_cast<double>(accumulator.count);
+        representativeTargets.emplace(id, Point3d{average.x, average.y, average.z});
+    }
+
+    auto snapLoopToFacePlane = [&](const PolyhedronLoop3d& loop, const std::vector<std::size_t>& loopIds, const Plane& plane) {
+        std::vector<Point3d> snapped;
+        snapped.reserve(loop.VertexCount());
+
+        const Vector3d unitNormal = plane.UnitNormal(eps);
+        for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+        {
+            const auto targetIt = representativeTargets.find(loopIds[i]);
+            const Point3d target = targetIt != representativeTargets.end() ? targetIt->second : loop.VertexAt(i);
+
+            // Keep each snapped point on this face support plane.
+            const double signedDistance = plane.SignedDistanceTo(target, eps);
+            snapped.push_back(target - unitNormal * signedDistance);
+        }
+
+        return PolyhedronLoop3d(std::move(snapped));
+    };
+
+    for (std::size_t faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
+    {
+        const PolyhedronFace3d& face = faces[faceIndex];
+        const FaceLoopRepresentativeIds& ids = representativeIds[faceIndex];
+        const Plane plane = face.SupportPlane();
+
+        PolyhedronLoop3d outer = snapLoopToFacePlane(face.OuterLoop(), ids.outer, plane);
+        if (!outer.IsValid(eps))
+        {
+            return false;
+        }
+
+        std::vector<PolyhedronLoop3d> holes;
+        holes.reserve(face.HoleCount());
+        for (std::size_t holeIndex = 0; holeIndex < face.HoleCount(); ++holeIndex)
+        {
+            PolyhedronLoop3d hole = snapLoopToFacePlane(face.HoleAt(holeIndex), ids.holes[holeIndex], plane);
+            if (!hole.IsValid(eps))
+            {
+                return false;
+            }
+            holes.push_back(std::move(hole));
+        }
+
+        PolyhedronFace3d snappedFace(plane, std::move(outer), std::move(holes));
+        if (!snappedFace.IsValid(eps))
+        {
+            return false;
+        }
+
+        faces[faceIndex] = std::move(snappedFace);
+    }
+
+    return true;
 }
 
 [[nodiscard]] bool AppendLoopVerticesFromBody(
@@ -749,6 +874,19 @@ void BuildBodyLoopRepresentativeIds(
         if (repairedRepresentativeIds != nullptr)
         {
             (*repairedRepresentativeIds)[i] = std::move(repairedIds);
+        }
+    }
+
+    if (repairedRepresentativeIds != nullptr)
+    {
+        std::vector<PolyhedronFace3d> snappedFaces = repairedFaces;
+        if (ApplyRepresentativeVertexSnapping(*repairedRepresentativeIds, snappedFaces, eps))
+        {
+            PolyhedronBody snappedBody(snappedFaces);
+            if (snappedBody.IsValid(eps))
+            {
+                repairedFaces = std::move(snappedFaces);
+            }
         }
     }
 
