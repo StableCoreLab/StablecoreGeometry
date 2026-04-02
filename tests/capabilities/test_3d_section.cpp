@@ -135,6 +135,42 @@ TEST(Section3dCapabilityTest, BrepBodyObliqueSectionHasSingleHexLikeContour)
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
 }
 
+// Demonstrates coplanar fragment merge also holds for Section(BrepBody,
+// Plane): after Polyhedron->Brep conversion, adjacent coplanar faces are still
+// merged into one area polygon instead of staying split.
+TEST(Section3dCapabilityTest, BrepBodyAdjacentCoplanarFacesMergeIntoSinglePolygon)
+{
+    const PolyhedronBody polyBody = BuildAdjacentCoplanarFaceBody();
+    assert(polyBody.IsValid());
+    assert(polyBody.FaceCount() == 2);
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.0},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 1);
+    assert(section.contours[0].closed);
+    assert(section.contours[0].points.size() == 4);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+    assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 2.0) < 1e-12);
+}
+
 // Demonstrates coplanar adjacent face fragments are merged into one area
 // polygon instead of remaining as two disjoint coplanar pieces.
 TEST(Section3dCapabilityTest, AdjacentCoplanarFacesMergeIntoSingleSectionPolygon)

@@ -236,6 +236,13 @@
 - 已新增 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepBodyObliqueSectionHasSingleHexLikeContour`，验证 `Section(BrepBody, Plane)` 在 oblique cut（`x+y+z=1.5`）下稳定产出单闭合区域。
 - 能力路径：先 `ConvertToBrepBody(unit cube)`，再执行 `Section(converted.body, cut)`，并验证 polygon/contour/topology/components 的确定性（1 polygon / 1 contour / 6 points / 1 root）。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-02，section-brep-coplanar-merge-capability）
+
+- 已新增 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepBodyAdjacentCoplanarFacesMergeIntoSinglePolygon`，验证 `Section(BrepBody, Plane)` 在 coplanar 邻接片段上同样可合并为单 polygon（而非分裂输出）。
+- 能力路径：先构造 2-face coplanar poly body，再 `ConvertToBrepBody(...)`，最后执行 `Section(converted.body, z=0)`，并验证 1 polygon / 1 contour / 4 points / area=2.0 / 1 topology root。
+- 该子样例直接对应并收敛“face-merge 仅在 polyhedron 路径验证”的残余风险。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 ## 本轮新增（2026-04-02，continuation-closed-shell-tetrahedron）
 
 - 已新增 conversion capability：`ConvertToBrepBody(...)` 在 tiny-scale closed-shell tetrahedron（4 triangular faces, all support planes mismatched）输入上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6）。
