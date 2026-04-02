@@ -240,6 +240,17 @@ HealingIssue3d MapMeshRepairIssue(const MeshRepairIssue3d issue)
     return BrepLoop(std::move(reversed));
 }
 
+[[nodiscard]] std::vector<BrepLoop> ReversedLoops(const std::vector<BrepLoop>& loops)
+{
+    std::vector<BrepLoop> reversed;
+    reversed.reserve(loops.size());
+    for (const BrepLoop& loop : loops)
+    {
+        reversed.push_back(ReversedLoop(loop));
+    }
+    return reversed;
+}
+
 [[nodiscard]] bool TryAggressivelyCloseShells(
     const BrepBody& body,
     const GeometryTolerance3d& tolerance,
@@ -263,7 +274,7 @@ HealingIssue3d MapMeshRepairIssue(const MeshRepairIssue3d issue)
         for (std::size_t faceIndex = 0; faceIndex < shell.FaceCount() && eligible; ++faceIndex)
         {
             const BrepFace face = shell.FaceAt(faceIndex);
-            if (face.HoleCount() != 0 || dynamic_cast<const PlaneSurface*>(face.SupportSurface()) == nullptr)
+            if (dynamic_cast<const PlaneSurface*>(face.SupportSurface()) == nullptr)
             {
                 eligible = false;
                 break;
@@ -304,12 +315,13 @@ HealingIssue3d MapMeshRepairIssue(const MeshRepairIssue3d issue)
             closedFaces.push_back(frontFace);
 
             const BrepLoop reversedOuter = ReversedLoop(frontFace.OuterLoop());
+            const std::vector<BrepLoop> reversedHoles = ReversedLoops(frontFace.HoleLoops());
             BrepFace backFace(
                 std::shared_ptr<Surface>(frontFace.SupportSurface()->Clone().release()),
                 reversedOuter,
-                {},
+                reversedHoles,
                 frontFace.OuterTrim(),
-                {});
+                frontFace.HoleTrims());
             if (!backFace.IsValid(tolerance))
             {
                 eligible = false;
