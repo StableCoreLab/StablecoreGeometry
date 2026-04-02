@@ -682,6 +682,10 @@ TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 6);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
 }
 
 // Demonstrates a non-axis-aligned (affine-skewed) polyhedron subset can be
