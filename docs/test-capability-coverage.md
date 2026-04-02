@@ -95,7 +95,7 @@
 ## Gap Characterization Tests
 
 - `tests/gaps/test_3d_section_gaps.cpp`
-  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与 coplanar fragment merge 语义仍未闭合
+  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合（相邻 coplanar union 子集已在 Polyhedron/Brep 路径覆盖）
 - `tests/gaps/test_3d_brep_gaps.cpp`
   - 记录 coedge-loop ownership 编辑链路、non-planar trimmed face topology repair 仍未闭合
 - `tests/gaps/test_3d_healing_gaps.cpp`

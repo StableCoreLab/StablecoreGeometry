@@ -243,6 +243,11 @@
 - 能力路径：先构造 2-face coplanar poly body，再 `ConvertToBrepBody(...)`，最后执行 `Section(converted.body, z=0)`，并验证 1 polygon / 1 contour / 4 points / area=2.0 / 1 topology root。
 - 该子样例直接对应并收敛“face-merge 仅在 polyhedron 路径验证”的残余风险。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-02，section-gap-wording-convergence）
+
+- 已更新 `tests/gaps/test_3d_section_gaps.cpp`：`FaceMergeSemanticsAfterSectionRemainsOpen` 文案明确为“超出已覆盖的 Polyhedron/Brep 相邻 coplanar union 子集”的更高阶语义缺口。
+- 已同步 `docs/next-task-prompt.md` 与 `docs/test-capability-coverage.md`，确保 gap 定义与当前 capability 覆盖边界一致。
 ## 本轮新增（2026-04-02，continuation-closed-shell-tetrahedron）
 
 - 已新增 conversion capability：`ConvertToBrepBody(...)` 在 tiny-scale closed-shell tetrahedron（4 triangular faces, all support planes mismatched）输入上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6）。

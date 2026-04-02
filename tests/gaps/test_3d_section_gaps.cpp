@@ -30,5 +30,5 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
 
     const auto section = Section(body, cuttingPlane);
     (void)section;
-    GTEST_SKIP() << "Known 3D gap: section face-merge policy for ambiguous coplanar fragments beyond adjacent coplanar face union subset is not closed yet.";
+    GTEST_SKIP() << "Known 3D gap: section face-merge policy for ambiguous coplanar fragments beyond adjacent coplanar union subsets already covered on both Polyhedron and Brep paths is not closed yet.";
 }
