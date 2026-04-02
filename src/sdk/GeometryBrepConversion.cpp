@@ -184,8 +184,29 @@ namespace
     PolyhedronFace3d& repairedFace,
     double eps)
 {
-    const PolyhedronLoop3d outer = face.OuterLoop();
-    if (!outer.IsValid(eps) || outer.VertexCount() < 3)
+    auto normalizeLoop = [&](const PolyhedronLoop3d& loop, PolyhedronLoop3d& normalized) {
+        std::vector<Point3d> vertices;
+        vertices.reserve(loop.VertexCount());
+        for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+        {
+            const Point3d point = loop.VertexAt(i);
+            if (vertices.empty() || !vertices.back().AlmostEquals(point, eps))
+            {
+                vertices.push_back(point);
+            }
+        }
+
+        while (vertices.size() >= 2 && vertices.front().AlmostEquals(vertices.back(), eps))
+        {
+            vertices.pop_back();
+        }
+
+        normalized = PolyhedronLoop3d(std::move(vertices));
+        return normalized.IsValid(eps);
+    };
+
+    PolyhedronLoop3d outer{};
+    if (!normalizeLoop(face.OuterLoop(), outer) || outer.VertexCount() < 3)
     {
         return false;
     }
@@ -225,8 +246,8 @@ namespace
     holes.reserve(face.HoleCount());
     for (std::size_t i = 0; i < face.HoleCount(); ++i)
     {
-        const PolyhedronLoop3d hole = face.HoleAt(i);
-        if (!hole.IsValid(eps))
+        PolyhedronLoop3d hole{};
+        if (!normalizeLoop(face.HoleAt(i), hole))
         {
             return false;
         }

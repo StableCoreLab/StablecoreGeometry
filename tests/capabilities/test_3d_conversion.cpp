@@ -159,6 +159,21 @@ PolyhedronBody BuildSupportPlaneMismatchedCollinearLeadingLoopBody()
             }));
     return PolyhedronBody({face});
 }
+
+PolyhedronBody BuildDuplicateVertexLoopBody()
+{
+    const PolyhedronFace3d face(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.2}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d(
+            {
+                Point3d{0.0, 0.0, 0.0},
+                Point3d{2.0, 0.0, 0.0},
+                Point3d{2.0, 0.0, 0.0},
+                Point3d{2.0, 1.0, 0.0},
+                Point3d{0.0, 1.0, 0.0},
+            }));
+    return PolyhedronBody({face});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -258,6 +273,20 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarHoleLoopCanBeRepairedToBrepBody)
 TEST(Conversion3dCapabilityTest, CollinearLeadingLoopStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildSupportPlaneMismatchedCollinearLeadingLoopBody();
+    assert(!body.IsValid());
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 1);
+}
+
+// Demonstrates conversion repair can normalize consecutive duplicate loop
+// vertices before support-plane refit and Brep reconstruction.
+TEST(Conversion3dCapabilityTest, DuplicateVertexLoopStillRepairsToBrepBody)
+{
+    const PolyhedronBody body = BuildDuplicateVertexLoopBody();
     assert(!body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
