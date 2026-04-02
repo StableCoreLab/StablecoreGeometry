@@ -114,6 +114,7 @@
   - 已扩展 conversion repair 组合子能力：shared-edge 邻接链 mixed-content 下，collinear-leading normal fallback 与 duplicate/hole normalization 可稳定叠加
   - 已扩展 conversion repair 组合子能力：shared-edge 邻接链 mixed-content 下，support-plane refit 可与逐面 projection/normalization 稳定叠加
   - 已扩展 conversion repair 组合子能力：shared-edge 邻接链 mixed-content 下，support-plane mismatch refit 与 collinear-leading fallback 可稳定叠加
+  - 已扩展 conversion repair 组合子能力：shared-edge 邻接链 mixed-content 下，support-plane mismatch + collinear-leading + duplicate-hole normalization 可稳定叠加
   - 已扩展 Brep->mesh 子能力：planar multi-face `BrepBody` 的 representative area-preserving conversion capability
   - 已扩展 Brep->mesh 子能力：planar holed+multi-face 混合 `BrepBody` 的 representative area-preserving conversion capability
   - 已新增 healing 子能力收敛：带孔平面 `BrepFace` 缺失 outer/hole trims 时可被 `Heal(BrepBody)` 同步回填
