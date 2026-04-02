@@ -9,6 +9,12 @@
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
+## 本轮新增（2026-04-02，continuation-47）
+
+- 已新增云端执行工作流：`.github/workflows/ci-windows-cmake.yml`，触发 push(main)/PR/manual，执行 configure/build/test。
+- 已新增关机接力说明：`docs/cloud-ci-handoff.md`，包含触发方式、云端命令、失败定位顺序、下轮优先项。
+- 该工作流复用仓库既有 CMake preset（`vs2022-x64` / `vs2022-x64-build` / `vs2022-x64-test`），避免重复维护本地与云端构建参数。
+
 ## 本轮新增（2026-04-02，continuation-29）
 
 - 已更新 `src/sdk/GeometryBrepConversion.cpp`：`ConvertToBrepBody(...)` 在 representative-id 驱动复用时新增全局目标点聚合（跨 face 平均）并用于共享 `BrepVertex` 首次落点，不再默认采用首个面点。

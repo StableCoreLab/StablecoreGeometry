@@ -1,0 +1,33 @@
+# 云端执行与关机接力
+
+## 目标
+
+你本地关机后，构建和测试由云端持续执行。
+
+## 已新增
+
+- GitHub Actions 工作流：Windows + CMake preset 自动执行 configure/build/test
+- 触发条件：push 到 main、pull request、手动触发
+
+## 使用方式
+
+1. 推送当前提交到远端。
+2. 打开仓库 Actions 页面查看流水线 `ci-windows-cmake`。
+3. 等待 `build-and-test` 完成，查看失败用例与日志。
+
+## 对应命令（云端执行内容）
+
+- `cmake --preset vs2022-x64`
+- `cmake --build --preset vs2022-x64-build --config RelWithDebInfo`
+- `ctest --preset vs2022-x64-test -C RelWithDebInfo --output-on-failure`
+
+## 失败时定位建议
+
+1. 先看 Configure 步骤是否成功（CMake 生成阶段错误）。
+2. 再看 Build 步骤（编译错误，含文件与行号）。
+3. 最后看 Test 步骤（断言失败与具体测试名）。
+
+## 下轮接力优先项
+
+1. 必需-3：`GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen` 继续收敛 capability 子集。
+2. 钢筋线后处理：补齐去重、共线合并、根数统计稳定断言。
