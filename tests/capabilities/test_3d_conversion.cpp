@@ -329,6 +329,26 @@ PolyhedronBody BuildTinyScaleNonPlanarMixedContentBody()
             Plane::FromPointAndNormal(Point3d{2.0 * s, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0}),
             PolyhedronLoop3d(std::move(plain)))});
 }
+
+PolyhedronBody BuildTinyScaleNonPlanarSharedEdgeBody()
+{
+    const double s = 1e-5;
+    const Point3d a{0.0, 0.0, 0.0};
+    const Point3d b{s, 0.0, 0.0};
+    const Point3d c{s, s, 0.0};
+    const Point3d d{0.0, s, 1.8e-6};
+    const Point3d e{2.0 * s, 0.0, 1.4e-6};
+    const Point3d f{2.0 * s, s, 0.0};
+
+    // Face A and Face B share edge (b, c), while each has tiny non-planar drift.
+    const PolyhedronFace3d faceA(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({a, b, c, d}));
+    const PolyhedronFace3d faceB(
+        Plane::FromPointAndNormal(Point3d{s, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({b, e, f, c}));
+    return PolyhedronBody({faceA, faceB});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -528,6 +548,21 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMultiFaceStillRepairsToBrepBo
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMixedContentStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarMixedContentBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 2);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 2);
+}
+
+// Demonstrates tiny-scale non-planar repair remains stable when adjacent faces
+// share an edge and each face needs local refit/projection.
+TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeFacesStillRepairToBrepBody)
+{
+    const PolyhedronBody body = BuildTinyScaleNonPlanarSharedEdgeBody();
     assert(!body.IsValid());
     assert(body.FaceCount() == 2);
 

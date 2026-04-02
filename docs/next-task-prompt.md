@@ -74,6 +74,7 @@
 - 已扩展 tiny-scale holed non-planar face capability 子样例；下一步聚焦跨 face 拓扑关联的 non-planar 修复策略
 - 已扩展 tiny-scale non-planar multi-face capability 子样例；下一步聚焦跨 face 拓扑耦合（共享边/邻接约束）下的修复策略
 - 已扩展 tiny-scale non-planar mixed-content（holed+plain）multi-face capability 子样例；下一步聚焦共享边一致性与全局约束驱动的修复策略
+- 已扩展 tiny-scale non-planar shared-edge 邻接面 capability 子样例；下一步聚焦共享边一致性约束真正参与修复决策
 
 ### P4-B：aggressive shell policy 分层落地（已完成最小子集）
 - 已覆盖 single-face / multi-face / holed / multi-shell open-shell 的最小 deterministic closure 子策略
