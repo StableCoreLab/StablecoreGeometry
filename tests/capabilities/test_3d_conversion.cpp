@@ -1332,6 +1332,47 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedPrismDualVerticesBody()
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1, v2, v5, v4c})),
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v2, v0c, v3, v5}))});
 }
+
+PolyhedronBody BuildSupportMismatchNearEqualClosedPrismAllVerticesBody()
+{
+    // Closed triangular prism where all six logical shared vertices each have
+    // near-equal variants across their incident faces.
+    const double s = 1e-5;
+
+    const Point3d v0a{1.0e-7, 0.0, 0.0};
+    const Point3d v0b{-1.0e-7, 0.0, 0.0};
+    const Point3d v0c{0.0, 0.0, 0.0};
+
+    const Point3d v1a{s + 2.0e-7, 0.0, 0.0};
+    const Point3d v1b{s - 1.0e-7, 0.0, 0.0};
+    const Point3d v1c{s, 0.0, 0.0};
+
+    const Point3d v2a{0.5 * s + 1.0e-7, 0.866 * s, 0.0};
+    const Point3d v2b{0.5 * s - 1.0e-7, 0.866 * s, 0.0};
+    const Point3d v2c{0.5 * s, 0.866 * s + 1.0e-7, 0.0};
+
+    const Point3d v3a{0.0, 0.0, s};
+    const Point3d v3b{1.0e-7, 0.0, s};
+    const Point3d v3c{-1.0e-7, 0.0, s};
+
+    const Point3d v4a{s + 3.0e-7, 0.0, s};
+    const Point3d v4b{s - 2.0e-7, 0.0, s};
+    const Point3d v4c{s + 1.0e-7, 0.0, s};
+
+    const Point3d v5a{0.5 * s, 0.866 * s, s};
+    const Point3d v5b{0.5 * s + 1.0e-7, 0.866 * s, s};
+    const Point3d v5c{0.5 * s - 1.0e-7, 0.866 * s, s};
+
+    const Plane mismatched =
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 3e-6}, Vector3d{0.0, 0.0, 1.0});
+
+    return PolyhedronBody({
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0a, v1a, v2a})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v3a, v4a, v5a})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0b, v1b, v4b, v3b})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v2b, v5b, v4c})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v2c, v0c, v3c, v5c}))});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -1900,6 +1941,51 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
     }
 
     assert(sharedV0Count == 1);
+    assert(sharedV4Count == 1);
+}
+
+// Demonstrates representative-average placement also stabilizes all shared
+// vertices on a closed triangular prism when every logical shared vertex is
+// near-equal perturbed across incident faces.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesRepairsWithRepresentativeAverageTarget)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismAllVerticesBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 5);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 5);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 6);
+    assert(result.body.EdgeCount() == 9);
+
+    const double s = 1e-5;
+    const double expectedV1X = s + 1.0e-7 / 3.0;
+    const double expectedV4X = s + 2.0e-7 / 3.0;
+
+    std::size_t sharedV1Count = 0;
+    std::size_t sharedV4Count = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
+        {
+            ++sharedV1Count;
+            assert(std::abs(point.x - expectedV1X) < 1e-10);
+        }
+        if (std::abs(point.y) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s
+            && point.z > 0.5 * s && point.z < 1.5 * s)
+        {
+            ++sharedV4Count;
+            assert(std::abs(point.x - expectedV4X) < 1e-10);
+        }
+    }
+
+    assert(sharedV1Count == 1);
     assert(sharedV4Count == 1);
 }
 
