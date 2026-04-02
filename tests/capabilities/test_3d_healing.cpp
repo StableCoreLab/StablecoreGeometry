@@ -1151,3 +1151,115 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceBothTr
     assert(holedHealedFace.HoleTrims()[0].IsValid());
     assert(plainHealedFace.OuterTrim().IsValid());
 }
+
+// Demonstrates composition under support-plane mismatch: eligible multi-face
+// holed shell with missing trims is backfilled and deterministically closed.
+TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceHoledSupportPlaneMismatch)
+{
+    std::vector<BrepVertex> vertices{
+        // Closed shell vertices
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        // Eligible face A (holed)
+        BrepVertex(Point3d{3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{7.0, 0.0, 0.0}),
+        BrepVertex(Point3d{7.0, 4.0, 0.0}),
+        BrepVertex(Point3d{3.0, 4.0, 0.0}),
+        BrepVertex(Point3d{4.0, 1.0, 0.0}),
+        BrepVertex(Point3d{6.0, 1.0, 0.0}),
+        BrepVertex(Point3d{6.0, 3.0, 0.0}),
+        BrepVertex(Point3d{4.0, 3.0, 0.0}),
+        // Eligible face B (plain)
+        BrepVertex(Point3d{8.0, 0.0, 0.0}),
+        BrepVertex(Point3d{9.0, 0.0, 0.0}),
+        BrepVertex(Point3d{9.0, 1.0, 0.0}),
+        BrepVertex(Point3d{8.0, 1.0, 0.0}),
+        // Ineligible shell
+        BrepVertex(Point3d{11.0, 0.0, 0.0}),
+        BrepVertex(Point3d{12.0, 0.0, 0.0}),
+        BrepVertex(Point3d{12.0, 1.0, 0.10}),
+        BrepVertex(Point3d{11.0, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Closed shell
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+    // Eligible holed face
+    addEdge(4, 5);
+    addEdge(5, 6);
+    addEdge(6, 7);
+    addEdge(7, 4);
+    addEdge(8, 9);
+    addEdge(9, 10);
+    addEdge(10, 11);
+    addEdge(11, 8);
+    // Eligible plain face
+    addEdge(12, 13);
+    addEdge(13, 14);
+    addEdge(14, 15);
+    addEdge(15, 12);
+    // Ineligible face
+    addEdge(16, 17);
+    addEdge(17, 18);
+    addEdge(18, 19);
+    addEdge(19, 16);
+
+    const BrepLoop closedOuter({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop closedOuterReversed({BrepCoedge(3, true), BrepCoedge(2, true), BrepCoedge(1, true), BrepCoedge(0, true)});
+    const BrepLoop eligibleHoledOuter({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+    const BrepLoop eligibleHoledHole({BrepCoedge(8, false), BrepCoedge(9, false), BrepCoedge(10, false), BrepCoedge(11, false)});
+    const BrepLoop eligiblePlain({BrepCoedge(12, false), BrepCoedge(13, false), BrepCoedge(14, false), BrepCoedge(15, false)});
+    const BrepLoop ineligibleLoop({BrepCoedge(16, false), BrepCoedge(17, false), BrepCoedge(18, false), BrepCoedge(19, false)});
+
+    const PlaneSurface closedSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    // Deliberately offset eligible support plane to force support-plane mismatch.
+    const PlaneSurface eligibleMismatchedSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{3.0, 0.0, 0.2}, Vector3d{0.0, 0.0, 1.0}));
+    const PlaneSurface ineligibleSupport = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{11.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+
+    const BrepFace closedFaceA(std::shared_ptr<Surface>(closedSurface.Clone().release()), closedOuter);
+    const BrepFace closedFaceB(std::shared_ptr<Surface>(closedSurface.Clone().release()), closedOuterReversed);
+    const BrepFace eligibleFaceA(std::shared_ptr<Surface>(eligibleMismatchedSurface.Clone().release()), eligibleHoledOuter, {eligibleHoledHole});
+    const BrepFace eligibleFaceB(std::shared_ptr<Surface>(eligibleMismatchedSurface.Clone().release()), eligiblePlain);
+    const BrepFace ineligibleFace(std::shared_ptr<Surface>(ineligibleSupport.Clone().release()), ineligibleLoop);
+
+    const BrepBody body(
+        vertices,
+        edges,
+        {
+            BrepShell({closedFaceA, closedFaceB}, true),
+            BrepShell({eligibleFaceA, eligibleFaceB}, false),
+            BrepShell({ineligibleFace}, false),
+        });
+    assert(body.IsValid());
+
+    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 3);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(healed.body.ShellAt(1).IsClosed());
+    assert(!healed.body.ShellAt(2).IsClosed());
+    assert(healed.body.FaceCount() == 7);
+    const auto eligibleHealedFace = healed.body.ShellAt(1).FaceAt(0);
+    assert(eligibleHealedFace.OuterTrim().IsValid());
+    assert(eligibleHealedFace.HoleTrims().size() == 1);
+    assert(eligibleHealedFace.HoleTrims()[0].IsValid());
+}
