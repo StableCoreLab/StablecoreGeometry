@@ -73,6 +73,7 @@
   - `ConvertToTriangleMesh(BrepBody)` 在 planar shared-edge 相邻面上可全局复用共享 3D 顶点，避免 face-by-face 拼接导致的重复顶点子集
   - `ConvertToBrepBody(...)` 在 tiny-scale triangular-face chain（3 个三角面，mismatched support planes）上可确定性地保持共享边顶点一致性（每个共享顶点是所有相关三角面的定义顶点，distance=0 → 无投影偏差），结果满足 VertexCount=5 / EdgeCount=7 的精确拓扑共享断言
   - `ConvertToBrepBody(...)` 在 tiny-scale triangular-fan（4 个三角面共享 apex，mismatched support planes）上可确定性地保持共享 apex 顶点一致性（apex 是所有 4 个三角面的定义顶点，distance=0 → 精确保留），结果满足 VertexCount=5 / EdgeCount=8（4 条径向共享边 + 4 条外边）
+  - `ConvertToBrepBody(...)` 的 per-face refit 已引入 shared-vertex-aware support-plane 估计启发式：当 outer loop 顶点在 body 内出现多次（跨面共享）时，优先使用包含更多 shared vertices 的三点组估计 refit plane，以减少 shared-edge 顶点跨面投影偏差
 
 ## 共享测试支持
 

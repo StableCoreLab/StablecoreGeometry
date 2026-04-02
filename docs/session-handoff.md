@@ -239,6 +239,12 @@
 - 已新增 conversion capability：tiny-scale triangular-face chain（T1/T2/T3 共享边，mismatched support planes），per-face refit 后共享顶点精确保持（定义顶点 distance=0），结果满足 VertexCount=5 / EdgeCount=7（test: `TinyScaleTriangularFaceChainRepairsToBrepBodyWithSharedEdgeConsistency`）。
 - 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，明确下一开放前沿：quad-face shared-edge 顶点投影一致性需新的修复策略。
 - 已更新：`docs/test-capability-coverage.md`、`docs/next-task-prompt.md`、`docs/design-doc-sync-tracker.md`。
+
+## 本轮新增（2026-04-02，continuation-shared-vertex-aware-refit）
+
+- 已在 `src/sdk/GeometryBrepConversion.cpp` 实现 shared-vertex-aware refit 启发式：在 `TryRepairPolyhedronBodyForBrepConversion(...)` 中先统计 outer loop 跨面共享顶点，再在 `BuildFaceWithRefitSupportPlane(...)` 中优先选择包含更多 shared vertices 的三点组估计 support-plane。
+- 目标是减少 per-face 独立 refit 下 shared-edge 顶点的跨面投影偏差；该策略对 triangular-face chain/fan/tetrahedron 子样例保持兼容。
+- 仍未完全闭合：quad-face chain 仍可能存在 residual mismatch，下一步需引入跨面顶点 snapping 或联合约束重投影。
 ## 当前关注优先级
 
 1. **3D robust non-planar repair**：从 closed-shell tetrahedron 子类走向共享边一致性约束驱动的 support-plane/refit 决策

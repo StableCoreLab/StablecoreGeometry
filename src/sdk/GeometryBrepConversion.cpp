@@ -325,10 +325,17 @@ namespace
 [[nodiscard]] bool BuildFaceWithRefitSupportPlane(
     const PolyhedronFace3d& face,
     PolyhedronFace3d& repairedFace,
-    double eps)
+    double eps,
+    const std::vector<bool>& preferredOuterVertices)
 {
-    auto normalizeLoop = [&](const PolyhedronLoop3d& loop, PolyhedronLoop3d& normalized) {
+    auto normalizeLoop = [&](const PolyhedronLoop3d& loop, PolyhedronLoop3d& normalized, std::vector<std::size_t>* keptIndices) {
         std::vector<Point3d> vertices;
+        if (keptIndices != nullptr)
+        {
+            keptIndices->clear();
+            keptIndices->reserve(loop.VertexCount());
+        }
+
         vertices.reserve(loop.VertexCount());
         for (std::size_t i = 0; i < loop.VertexCount(); ++i)
         {
@@ -336,12 +343,20 @@ namespace
             if (vertices.empty() || !vertices.back().AlmostEquals(point, eps))
             {
                 vertices.push_back(point);
+                if (keptIndices != nullptr)
+                {
+                    keptIndices->push_back(i);
+                }
             }
         }
 
         while (vertices.size() >= 2 && vertices.front().AlmostEquals(vertices.back(), eps))
         {
             vertices.pop_back();
+            if (keptIndices != nullptr && !keptIndices->empty())
+            {
+                keptIndices->pop_back();
+            }
         }
 
         normalized = PolyhedronLoop3d(std::move(vertices));
@@ -349,9 +364,23 @@ namespace
     };
 
     PolyhedronLoop3d outer{};
-    if (!normalizeLoop(face.OuterLoop(), outer) || outer.VertexCount() < 3)
+    std::vector<std::size_t> outerKeptIndices;
+    if (!normalizeLoop(face.OuterLoop(), outer, &outerKeptIndices) || outer.VertexCount() < 3)
     {
         return false;
+    }
+
+    std::vector<bool> normalizedPreferredOuter(outer.VertexCount(), false);
+    if (!preferredOuterVertices.empty())
+    {
+        for (std::size_t i = 0; i < outerKeptIndices.size(); ++i)
+        {
+            const std::size_t sourceIndex = outerKeptIndices[i];
+            if (sourceIndex < preferredOuterVertices.size())
+            {
+                normalizedPreferredOuter[i] = preferredOuterVertices[sourceIndex];
+            }
+        }
     }
 
     auto maxLoopScaleSquared = [&](const PolyhedronLoop3d& loop) {
@@ -377,10 +406,16 @@ namespace
     double bestNormalLength = -1.0;
     Point3d bestP0{};
     Vector3d bestNormal{};
-    for (std::size_t i = 0; i + 2 < outer.VertexCount() && !foundSupport; ++i)
+
+    int bestPreferredCount = -1;
+    double bestPreferredNormalLength = -1.0;
+    Point3d preferredP0{};
+    Vector3d preferredNormal{};
+
+    for (std::size_t i = 0; i + 2 < outer.VertexCount(); ++i)
     {
         const Point3d a = outer.VertexAt(i);
-        for (std::size_t j = i + 1; j + 1 < outer.VertexCount() && !foundSupport; ++j)
+        for (std::size_t j = i + 1; j + 1 < outer.VertexCount(); ++j)
         {
             const Point3d b = outer.VertexAt(j);
             for (std::size_t k = j + 1; k < outer.VertexCount(); ++k)
@@ -395,18 +430,33 @@ namespace
                     bestNormal = candidateNormal;
                 }
 
-                if (candidateNormal.Length() > eps)
+                if (candidateLength > eps)
                 {
-                    p0 = a;
-                    normal = candidateNormal;
-                    foundSupport = true;
-                    break;
+                    const int preferredCount =
+                        static_cast<int>(normalizedPreferredOuter[i]) +
+                        static_cast<int>(normalizedPreferredOuter[j]) +
+                        static_cast<int>(normalizedPreferredOuter[k]);
+
+                    if (!foundSupport || preferredCount > bestPreferredCount ||
+                        (preferredCount == bestPreferredCount && candidateLength > bestPreferredNormalLength))
+                    {
+                        foundSupport = true;
+                        bestPreferredCount = preferredCount;
+                        bestPreferredNormalLength = candidateLength;
+                        preferredP0 = a;
+                        preferredNormal = candidateNormal;
+                    }
                 }
             }
         }
     }
 
-    if (!foundSupport)
+    if (foundSupport)
+    {
+        p0 = preferredP0;
+        normal = preferredNormal;
+    }
+    else
     {
         const double scaleAwareThreshold = maxLoopScaleSquared(outer) * eps;
         if (bestNormalLength <= scaleAwareThreshold)
@@ -426,7 +476,7 @@ namespace
     for (std::size_t i = 0; i < face.HoleCount(); ++i)
     {
         PolyhedronLoop3d hole{};
-        if (!normalizeLoop(face.HoleAt(i), hole))
+        if (!normalizeLoop(face.HoleAt(i), hole, nullptr))
         {
             return false;
         }
@@ -484,12 +534,62 @@ namespace
         return false;
     }
 
+    std::vector<std::vector<bool>> facePreferredOuterVertices(body.FaceCount());
+    {
+        std::vector<Point3d> representatives;
+        std::vector<std::size_t> representativeCounts;
+        std::vector<std::vector<std::size_t>> faceRepresentativeIndices(body.FaceCount());
+
+        for (std::size_t faceIndex = 0; faceIndex < body.FaceCount(); ++faceIndex)
+        {
+            const PolyhedronLoop3d outer = body.FaceAt(faceIndex).OuterLoop();
+            auto& indices = faceRepresentativeIndices[faceIndex];
+            indices.reserve(outer.VertexCount());
+
+            for (std::size_t vertexIndex = 0; vertexIndex < outer.VertexCount(); ++vertexIndex)
+            {
+                const Point3d point = outer.VertexAt(vertexIndex);
+
+                std::size_t representativeIndex = static_cast<std::size_t>(-1);
+                for (std::size_t i = 0; i < representatives.size(); ++i)
+                {
+                    if (representatives[i].AlmostEquals(point, eps))
+                    {
+                        representativeIndex = i;
+                        break;
+                    }
+                }
+
+                if (representativeIndex == static_cast<std::size_t>(-1))
+                {
+                    representatives.push_back(point);
+                    representativeCounts.push_back(0);
+                    representativeIndex = representatives.size() - 1;
+                }
+
+                ++representativeCounts[representativeIndex];
+                indices.push_back(representativeIndex);
+            }
+        }
+
+        for (std::size_t faceIndex = 0; faceIndex < body.FaceCount(); ++faceIndex)
+        {
+            const auto& indices = faceRepresentativeIndices[faceIndex];
+            auto& preferred = facePreferredOuterVertices[faceIndex];
+            preferred.resize(indices.size(), false);
+            for (std::size_t i = 0; i < indices.size(); ++i)
+            {
+                preferred[i] = representativeCounts[indices[i]] > 1;
+            }
+        }
+    }
+
     std::vector<PolyhedronFace3d> repairedFaces;
     repairedFaces.reserve(body.FaceCount());
     for (std::size_t i = 0; i < body.FaceCount(); ++i)
     {
         PolyhedronFace3d repairedFace{};
-        if (!BuildFaceWithRefitSupportPlane(body.FaceAt(i), repairedFace, eps))
+        if (!BuildFaceWithRefitSupportPlane(body.FaceAt(i), repairedFace, eps, facePreferredOuterVertices[i]))
         {
             return false;
         }
