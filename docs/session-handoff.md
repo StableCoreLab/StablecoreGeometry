@@ -245,6 +245,11 @@
 - 已在 `src/sdk/GeometryBrepConversion.cpp` 实现 shared-vertex-aware refit 启发式：在 `TryRepairPolyhedronBodyForBrepConversion(...)` 中先统计 outer loop 跨面共享顶点，再在 `BuildFaceWithRefitSupportPlane(...)` 中优先选择包含更多 shared vertices 的三点组估计 support-plane。
 - 目标是减少 per-face 独立 refit 下 shared-edge 顶点的跨面投影偏差；该策略对 triangular-face chain/fan/tetrahedron 子样例保持兼容。
 - 仍未完全闭合：quad-face chain 仍可能存在 residual mismatch，下一步需引入跨面顶点 snapping 或联合约束重投影。
+
+## 本轮新增（2026-04-02，continuation-quad-gap-target）
+
+- 已在 `tests/gaps/test_3d_conversion_gaps.cpp` 新增显式用例：`QuadSharedEdgeChainVertexConsistencyRemainsOpen`，将 quad-face shared-edge chain + support-plane mismatch 的开放问题从文案固化为可跟踪测试条目（`GTEST_SKIP`）。
+- 后续算法推进以该用例为主靶点：`ConvertToBrepBody(...)` 需要跨面 shared-vertex snapping / 约束重投影步骤，才能把该 gap 转正。
 ## 当前关注优先级
 
 1. **3D robust non-planar repair**：从 closed-shell tetrahedron 子类走向共享边一致性约束驱动的 support-plane/refit 决策
