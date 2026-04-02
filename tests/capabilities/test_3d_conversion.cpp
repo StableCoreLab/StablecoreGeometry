@@ -25,6 +25,7 @@ using geometry::sdk::LineCurve3d;
 using geometry::sdk::MeshConversionIssue3d;
 using geometry::sdk::Plane;
 using geometry::sdk::PlaneSurface;
+using geometry::sdk::Point3d;
 using geometry::sdk::PolyhedronBody;
 using geometry::sdk::PolyhedronFace3d;
 using geometry::sdk::PolyhedronLoop3d;
@@ -33,6 +34,7 @@ using geometry::sdk::PolyhedronBrepBodyConversion3d;
 using geometry::sdk::Polyline2d;
 using geometry::sdk::PolylineClosure;
 using geometry::sdk::Surface;
+using geometry::sdk::Vector3d;
 
 namespace
 {

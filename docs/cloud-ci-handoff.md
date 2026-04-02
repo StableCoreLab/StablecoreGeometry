@@ -14,10 +14,16 @@
 
 - 会自动重跑 configure/build/test 并保存复现场景日志
 - 会执行确定性修复钩子：`scripts/ci-autofix.ps1`
-- 若产生代码改动：自动创建修复 PR（不自动合并）
+- 若产生代码改动：会先二次执行 configure/build/test 验证；验证通过才自动创建修复 PR（不自动合并）
 - 若未产生改动：自动创建 issue，提示人工修复并附日志定位入口
+- 若产生改动但二次验证失败：自动创建 issue，提示人工修复并附日志定位入口
+- 对于同类失败会做 issue 去重：若已有同标题 open issue，则只追加评论记录新 run，不重复开新 issue
 
 注意：当前自动修复是“可控规则型”而非通用 AI 改码器，默认只做安全、可预测的修复步骤。
+
+当前已内置的确定性规则包括：
+- workflow/doc 的行尾归一化（LF）
+- 针对 3D capability 测试常见编译故障的 using 别名补齐（`test_3d_brep.cpp` / `test_3d_conversion.cpp`）
 
 ## 使用方式
 

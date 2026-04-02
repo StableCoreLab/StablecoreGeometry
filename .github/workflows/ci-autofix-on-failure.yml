@@ -64,12 +64,6 @@ jobs:
             Write-Host "No scripts/ci-autofix.ps1 found. Skipping deterministic fixes."
           }
 
-      - name: Upload autofix artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: autofix-run-${{ steps.context.outputs.run_id }}
-          path: artifacts/
-
       - name: Detect workspace changes
         id: diff
         shell: pwsh
@@ -81,8 +75,23 @@ jobs:
             "changed=true" >> $env:GITHUB_OUTPUT
           }
 
-      - name: Create autofix pull request
+      - name: Verify autofix patch (rebuild and test)
+        id: verify
         if: ${{ steps.diff.outputs.changed == 'true' }}
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          "=== Verify Configure (after autofix) ===" | Tee-Object -FilePath artifacts\autofix-repro.log -Append
+          cmake --preset vs2022-x64 2>&1 | Tee-Object -FilePath artifacts\autofix-repro.log -Append
+
+          "=== Verify Build (after autofix) ===" | Tee-Object -FilePath artifacts\autofix-repro.log -Append
+          cmake --build --preset vs2022-x64-build --config RelWithDebInfo 2>&1 | Tee-Object -FilePath artifacts\autofix-repro.log -Append
+
+          "=== Verify Test (after autofix) ===" | Tee-Object -FilePath artifacts\autofix-repro.log -Append
+          ctest --preset vs2022-x64-test -C RelWithDebInfo --output-on-failure 2>&1 | Tee-Object -FilePath artifacts\autofix-repro.log -Append
+
+      - name: Create autofix pull request
+        if: ${{ steps.diff.outputs.changed == 'true' && steps.verify.outcome == 'success' }}
         uses: peter-evans/create-pull-request@v7
         with:
           commit-message: "ci(autofix): deterministic fixes for failed run #${{ steps.context.outputs.run_id }}"
@@ -98,6 +107,7 @@ jobs:
 
             Scope:
             - Applied deterministic fixes from `scripts/ci-autofix.ps1`
+            - Verified by rerunning configure/build/test after autofix
             - Attached reproduction logs in workflow artifacts
 
             Safety:
@@ -116,11 +126,12 @@ jobs:
             const runId = `${{ steps.context.outputs.run_id }}`;
             const headBranch = `${{ steps.context.outputs.head_branch }}`;
             const headSha = `${{ steps.context.outputs.head_sha }}`;
-            const title = `CI autofix could not produce patch (run #${runId})`;
+            const title = 'CI autofix could not produce patch';
             const body = [
               'Autofix workflow executed but no deterministic patch was produced.',
               '',
               `- Source run: ${runUrl}`,
+              `- Run id: ${runId}`,
               `- Head branch: ${headBranch}`,
               `- Head sha: ${headSha}`,
               '',
@@ -129,10 +140,98 @@ jobs:
               '2. Apply a manual fix or extend `scripts/ci-autofix.ps1` with additional deterministic rules.',
             ].join('\n');
 
-            await github.rest.issues.create({
+            const list = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title,
-              body,
-              labels: ['ci', 'autofix', 'needs-manual-fix'],
+              state: 'open',
+              labels: 'ci,autofix,needs-manual-fix',
+              per_page: 100,
             });
+
+            const existing = list.data.find((i) => i.title === title && !i.pull_request);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: [
+                  'Another run hit the same autofix outcome.',
+                  '',
+                  `- Source run: ${runUrl}`,
+                  `- Run id: ${runId}`,
+                  `- Head branch: ${headBranch}`,
+                  `- Head sha: ${headSha}`,
+                ].join('\n'),
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['ci', 'autofix', 'needs-manual-fix'],
+              });
+            }
+
+      - name: Create issue when autofix patch failed verification
+        if: ${{ steps.diff.outputs.changed == 'true' && steps.verify.outcome != 'success' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${{ steps.context.outputs.run_url }}`;
+            const runId = `${{ steps.context.outputs.run_id }}`;
+            const headBranch = `${{ steps.context.outputs.head_branch }}`;
+            const headSha = `${{ steps.context.outputs.head_sha }}`;
+            const title = 'CI autofix produced patch but verify failed';
+            const body = [
+              'Autofix generated a deterministic patch, but post-fix verification failed.',
+              '',
+              `- Source run: ${runUrl}`,
+              `- Run id: ${runId}`,
+              `- Head branch: ${headBranch}`,
+              `- Head sha: ${headSha}`,
+              '',
+              'Next actions:',
+              '1. Open the workflow artifact `autofix-run-<run_id>` and inspect `autofix-repro.log` (including verify sections).',
+              '2. Refine `scripts/ci-autofix.ps1` to avoid partial or incorrect fixes.',
+            ].join('\n');
+
+            const list = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'ci,autofix,needs-manual-fix',
+              per_page: 100,
+            });
+
+            const existing = list.data.find((i) => i.title === title && !i.pull_request);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: [
+                  'Another run hit the same autofix verification failure.',
+                  '',
+                  `- Source run: ${runUrl}`,
+                  `- Run id: ${runId}`,
+                  `- Head branch: ${headBranch}`,
+                  `- Head sha: ${headSha}`,
+                ].join('\n'),
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['ci', 'autofix', 'needs-manual-fix'],
+              });
+            }
+
+      - name: Upload autofix artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofix-run-${{ steps.context.outputs.run_id }}
+          path: artifacts/

@@ -11,6 +11,7 @@ using geometry::sdk::BrepShell;
 using geometry::sdk::BrepBody;
 using geometry::sdk::BrepConversionIssue3d;
 using geometry::sdk::BrepBodyEdit3d;
+using geometry::sdk::BrepLoop;
 using geometry::sdk::BrepLoopEdit3d;
 using geometry::sdk::BrepLoopEditIssue3d;
 using geometry::sdk::BrepShellEdit3d;
