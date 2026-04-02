@@ -494,3 +494,68 @@ TEST(Healing3dCapabilityTest, AggressiveHealingPreservesClosedShellAndClosesOpen
     // Closed shell keeps 2 faces, open shell is mirrored from 1 to 2 faces.
     assert(healed.body.FaceCount() == 4);
 }
+
+// Demonstrates aggressive policy can partially repair a mixed open-shell set:
+// eligible planar shell is closed, unsupported non-planar shell remains open.
+TEST(Healing3dCapabilityTest, AggressiveHealingPartiallyRepairsMixedOpenShells)
+{
+    std::vector<BrepVertex> vertices{
+        // Planar open shell (eligible)
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        // Non-planar open shell (ineligible for aggressive closure)
+        BrepVertex(Point3d{3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 1.0, 0.1}),
+        BrepVertex(Point3d{3.0, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Eligible planar shell edges.
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+    // Ineligible non-planar shell edges.
+    addEdge(4, 5);
+    addEdge(5, 6);
+    addEdge(6, 7);
+    addEdge(7, 4);
+
+    const BrepLoop planarLoop({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop nonPlanarLoop({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+
+    const PlaneSurface planarSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    const PlaneSurface nonPlanarSupport = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{3.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+
+    const BrepFace planarFace(std::shared_ptr<Surface>(planarSurface.Clone().release()), planarLoop);
+    const BrepFace nonPlanarFace(std::shared_ptr<Surface>(nonPlanarSupport.Clone().release()), nonPlanarLoop);
+    const BrepBody mixedOpenBody(vertices, edges, {BrepShell({planarFace}, false), BrepShell({nonPlanarFace}, false)});
+    assert(mixedOpenBody.IsValid());
+    assert(!mixedOpenBody.ShellAt(0).IsClosed());
+    assert(!mixedOpenBody.ShellAt(1).IsClosed());
+    assert(mixedOpenBody.FaceCount() == 2);
+
+    const BrepHealing3d healed = Heal(mixedOpenBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 2);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(!healed.body.ShellAt(1).IsClosed());
+    // Shell 0 is mirrored (1->2 faces), shell 1 remains single-face open.
+    assert(healed.body.FaceCount() == 3);
+}
