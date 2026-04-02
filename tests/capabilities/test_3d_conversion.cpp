@@ -508,6 +508,41 @@ PolyhedronBody BuildTinyScaleSharedChainMixedContentWithCollinearLeadingBody()
 
     return PolyhedronBody({faceA, faceB, faceC});
 }
+
+PolyhedronBody BuildTinyScaleSharedChainMixedContentSupportPlaneMismatchBody()
+{
+    const double s = 1e-5;
+    const Point3d a{0.0, 0.0, 0.0};
+    const Point3d b{s, 0.0, 0.0};
+    const Point3d c{s, s, 0.0};
+    const Point3d d{0.0, s, 1.5e-6};
+
+    const Point3d e{2.0 * s, 0.0, 1.2e-6};
+    const Point3d f{2.0 * s, s, 0.0};
+    const Point3d g{3.0 * s, 0.0, 1.0e-6};
+    const Point3d h{3.0 * s, s, 0.0};
+
+    std::vector<Point3d> hole{
+        Point3d{1.2 * s, 0.3 * s, 0.0},
+        Point3d{1.8 * s, 0.3 * s, 8e-7},
+        Point3d{1.8 * s, 0.7 * s, 0.0},
+        Point3d{1.2 * s, 0.7 * s, 0.0}};
+
+    // Deliberately offset support planes to require refit in combination with
+    // shared-chain mixed-content tiny-scale projection repair.
+    const PolyhedronFace3d faceA(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 4e-6}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({a, b, c, d}));
+    const PolyhedronFace3d faceB(
+        Plane::FromPointAndNormal(Point3d{s, 0.0, 4e-6}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({b, e, f, c}),
+        {PolyhedronLoop3d(std::move(hole))});
+    const PolyhedronFace3d faceC(
+        Plane::FromPointAndNormal(Point3d{2.0 * s, 0.0, 4e-6}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({e, g, h, f}));
+
+    return PolyhedronBody({faceA, faceB, faceC});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -797,6 +832,21 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentDuplicateHoleRe
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentCollinearLeadingRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedChainMixedContentWithCollinearLeadingBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 3);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 3);
+}
+
+// Demonstrates support-plane mismatch composes with shared-chain mixed-content
+// tiny-scale repair and still yields stable Brep conversion.
+TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentSupportPlaneMismatchRepairsToBrepBody)
+{
+    const PolyhedronBody body = BuildTinyScaleSharedChainMixedContentSupportPlaneMismatchBody();
     assert(!body.IsValid());
     assert(body.FaceCount() == 3);
 
