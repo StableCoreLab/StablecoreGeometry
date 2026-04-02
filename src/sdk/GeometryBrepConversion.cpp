@@ -409,7 +409,10 @@ void BuildBodyLoopRepresentativeIds(
     const PolyhedronFace3d& face,
     PolyhedronFace3d& repairedFace,
     double eps,
-    const std::vector<bool>& preferredOuterVertices)
+    const std::vector<bool>& preferredOuterVertices,
+    const std::vector<std::size_t>* sourceOuterRepresentativeIds,
+    const std::vector<std::vector<std::size_t>>* sourceHoleRepresentativeIds,
+    FaceLoopRepresentativeIds* repairedRepresentativeIds)
 {
     auto normalizeLoop = [&](const PolyhedronLoop3d& loop, PolyhedronLoop3d& normalized, std::vector<std::size_t>* keptIndices) {
         std::vector<Point3d> vertices;
@@ -451,6 +454,16 @@ void BuildBodyLoopRepresentativeIds(
     if (!normalizeLoop(face.OuterLoop(), outer, &outerKeptIndices) || outer.VertexCount() < 3)
     {
         return false;
+    }
+
+    std::vector<std::size_t> normalizedOuterRepresentativeIds;
+    if (sourceOuterRepresentativeIds != nullptr && sourceOuterRepresentativeIds->size() == face.OuterLoop().VertexCount())
+    {
+        normalizedOuterRepresentativeIds.reserve(outerKeptIndices.size());
+        for (const std::size_t sourceIndex : outerKeptIndices)
+        {
+            normalizedOuterRepresentativeIds.push_back((*sourceOuterRepresentativeIds)[sourceIndex]);
+        }
     }
 
     std::vector<bool> normalizedPreferredOuter(outer.VertexCount(), false);
@@ -555,20 +568,42 @@ void BuildBodyLoopRepresentativeIds(
     const Plane refitPlane = Plane::FromPointAndNormal(p0, normal);
 
     std::vector<PolyhedronLoop3d> holes;
+    std::vector<std::vector<std::size_t>> normalizedHoleRepresentativeIds;
     holes.reserve(face.HoleCount());
+    normalizedHoleRepresentativeIds.reserve(face.HoleCount());
     for (std::size_t i = 0; i < face.HoleCount(); ++i)
     {
         PolyhedronLoop3d hole{};
-        if (!normalizeLoop(face.HoleAt(i), hole, nullptr))
+        std::vector<std::size_t> keptIndices;
+        if (!normalizeLoop(face.HoleAt(i), hole, &keptIndices))
         {
             return false;
         }
         holes.push_back(hole);
+
+        std::vector<std::size_t> normalizedHoleIds;
+        if (sourceHoleRepresentativeIds != nullptr &&
+            i < sourceHoleRepresentativeIds->size() &&
+            (*sourceHoleRepresentativeIds)[i].size() == face.HoleAt(i).VertexCount())
+        {
+            const auto& sourceHoleIds = (*sourceHoleRepresentativeIds)[i];
+            normalizedHoleIds.reserve(keptIndices.size());
+            for (const std::size_t sourceIndex : keptIndices)
+            {
+                normalizedHoleIds.push_back(sourceHoleIds[sourceIndex]);
+            }
+        }
+        normalizedHoleRepresentativeIds.push_back(std::move(normalizedHoleIds));
     }
 
     repairedFace = PolyhedronFace3d(refitPlane, outer, holes);
     if (repairedFace.IsValid(eps))
     {
+        if (repairedRepresentativeIds != nullptr)
+        {
+            repairedRepresentativeIds->outer = std::move(normalizedOuterRepresentativeIds);
+            repairedRepresentativeIds->holes = std::move(normalizedHoleRepresentativeIds);
+        }
         return true;
     }
 
@@ -604,12 +639,24 @@ void BuildBodyLoopRepresentativeIds(
     }
 
     repairedFace = PolyhedronFace3d(refitPlane, std::move(projectedOuter), std::move(projectedHoles));
-    return repairedFace.IsValid(eps);
+    if (!repairedFace.IsValid(eps))
+    {
+        return false;
+    }
+
+    if (repairedRepresentativeIds != nullptr)
+    {
+        repairedRepresentativeIds->outer = std::move(normalizedOuterRepresentativeIds);
+        repairedRepresentativeIds->holes = std::move(normalizedHoleRepresentativeIds);
+    }
+    return true;
 }
 
 [[nodiscard]] bool TryRepairPolyhedronBodyForBrepConversion(
     const PolyhedronBody& body,
     PolyhedronBody& repairedBody,
+    const std::vector<FaceLoopRepresentativeIds>* sourceRepresentativeIds,
+    std::vector<FaceLoopRepresentativeIds>* repairedRepresentativeIds,
     double eps)
 {
     if (body.IsEmpty())
@@ -669,14 +716,40 @@ void BuildBodyLoopRepresentativeIds(
 
     std::vector<PolyhedronFace3d> repairedFaces;
     repairedFaces.reserve(body.FaceCount());
+    if (repairedRepresentativeIds != nullptr)
+    {
+        repairedRepresentativeIds->clear();
+        repairedRepresentativeIds->resize(body.FaceCount());
+    }
+
     for (std::size_t i = 0; i < body.FaceCount(); ++i)
     {
+        const std::vector<std::size_t>* sourceOuterIds = nullptr;
+        const std::vector<std::vector<std::size_t>>* sourceHoleIds = nullptr;
+        if (sourceRepresentativeIds != nullptr && i < sourceRepresentativeIds->size())
+        {
+            sourceOuterIds = &(*sourceRepresentativeIds)[i].outer;
+            sourceHoleIds = &(*sourceRepresentativeIds)[i].holes;
+        }
+
+        FaceLoopRepresentativeIds repairedIds;
         PolyhedronFace3d repairedFace{};
-        if (!BuildFaceWithRefitSupportPlane(body.FaceAt(i), repairedFace, eps, facePreferredOuterVertices[i]))
+        if (!BuildFaceWithRefitSupportPlane(
+                body.FaceAt(i),
+                repairedFace,
+                eps,
+                facePreferredOuterVertices[i],
+                sourceOuterIds,
+                sourceHoleIds,
+                repairedRepresentativeIds != nullptr ? &repairedIds : nullptr))
         {
             return false;
         }
         repairedFaces.push_back(std::move(repairedFace));
+        if (repairedRepresentativeIds != nullptr)
+        {
+            (*repairedRepresentativeIds)[i] = std::move(repairedIds);
+        }
     }
 
     repairedBody = PolyhedronBody(std::move(repairedFaces));
@@ -775,11 +848,22 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
     std::vector<FaceLoopRepresentativeIds> sourceRepresentativeIds;
     BuildBodyLoopRepresentativeIds(body, sourceRepresentativeIds, eps);
 
+    std::vector<FaceLoopRepresentativeIds> repairedRepresentativeIds;
     PolyhedronBody sourceBody = body;
-    if (!sourceBody.IsValid(eps) && !TryRepairPolyhedronBodyForBrepConversion(body, sourceBody, eps))
+    const bool requiresRepair = !sourceBody.IsValid(eps);
+    if (requiresRepair &&
+        !TryRepairPolyhedronBodyForBrepConversion(
+            body,
+            sourceBody,
+            &sourceRepresentativeIds,
+            &repairedRepresentativeIds,
+            eps))
     {
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
     }
+
+    const std::vector<FaceLoopRepresentativeIds>& representativeIds =
+        requiresRepair ? repairedRepresentativeIds : sourceRepresentativeIds;
 
     std::vector<BrepVertex> vertices;
     std::vector<BrepEdge> edges;
@@ -799,9 +883,9 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         auto surface = std::make_shared<PlaneSurface>(planeSurface);
 
         const std::vector<std::size_t>* outerRepresentativeIds = nullptr;
-        if (faceIndex < sourceRepresentativeIds.size())
+        if (faceIndex < representativeIds.size())
         {
-            const auto& candidateOuterIds = sourceRepresentativeIds[faceIndex].outer;
+            const auto& candidateOuterIds = representativeIds[faceIndex].outer;
             if (candidateOuterIds.size() == face.OuterLoop().VertexCount())
             {
                 outerRepresentativeIds = &candidateOuterIds;
@@ -838,10 +922,10 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             const PolyhedronLoop3d hole = face.HoleAt(holeIndex);
 
             const std::vector<std::size_t>* holeRepresentativeIds = nullptr;
-            if (faceIndex < sourceRepresentativeIds.size() &&
-                holeIndex < sourceRepresentativeIds[faceIndex].holes.size())
+            if (faceIndex < representativeIds.size() &&
+                holeIndex < representativeIds[faceIndex].holes.size())
             {
-                const auto& candidateHoleIds = sourceRepresentativeIds[faceIndex].holes[holeIndex];
+                const auto& candidateHoleIds = representativeIds[faceIndex].holes[holeIndex];
                 if (candidateHoleIds.size() == hole.VertexCount())
                 {
                     holeRepresentativeIds = &candidateHoleIds;

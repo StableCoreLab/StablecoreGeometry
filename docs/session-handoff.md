@@ -248,15 +248,16 @@
 
 ## 本轮新增（2026-04-02，continuation-quad-gap-target）
 
-- 已在 `tests/gaps/test_3d_conversion_gaps.cpp` 新增显式用例：`QuadSharedEdgeChainVertexConsistencyRemainsOpen`，将 quad-face shared-edge chain + support-plane mismatch 的开放问题从文案固化为可跟踪测试条目（`GTEST_SKIP`）。
-- 后续算法推进以该用例为主靶点：`ConvertToBrepBody(...)` 需要跨面 shared-vertex snapping / 约束重投影步骤，才能把该 gap 转正。
+- 历史说明：本节最初引入了显式 quad-chain gap 靶点以驱动算法推进。
+- 当前状态：该靶点对应子问题已转正为 capability（含 duplicate-normalization 组合），显式子 gap 已从 `tests/gaps/test_3d_conversion_gaps.cpp` 移除。
 
 ## 本轮新增（2026-04-02，continuation-representative-id-reuse）
 
 - 已在 `ConvertToBrepBody(...)` 落地 source representative-id 贯穿复用机制：从输入 `PolyhedronBody` 提取跨面代表点 ID，并在 `AppendSharedBrepLoopFromPolyLoop(...)` 中优先按代表点 ID 复用 `BrepVertex`，不再仅依赖修复后几何点位的 eps 近邻。
 - 结果：`TinyScaleNonPlanarSharedEdgeChainStillRepairsToBrepBody` 已恢复确定性拓扑断言（VertexCount=8 / EdgeCount=10）。
 - 已新增 capability：`TinyScaleSupportMismatchSharedEdgeChainRepairsWithSharedTopology`，覆盖 support-plane mismatch 的 tiny-scale 3-quad shared-edge chain，验证共享拓扑断言（VertexCount=8 / EdgeCount=10）。
-- `tests/gaps/test_3d_conversion_gaps.cpp` 的显式靶点已收敛为更一般组合场景：`QuadSharedEdgeChainWithNormalizationVertexConsistencyRemainsOpen`（support-plane mismatch + duplicate-loop normalization）。
+- 已新增 capability：`TinyScaleSupportMismatchSharedEdgeChainWithDuplicateRepairsWithSharedTopology`，覆盖 support-plane mismatch + duplicate-loop-normalization 的 tiny-scale 3-quad shared-edge chain，验证共享拓扑断言（VertexCount=8 / EdgeCount=10）。
+- `tests/gaps/test_3d_conversion_gaps.cpp` 已移除显式 quad-chain gap 子项，当前保留 `GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen` 作为总 gap 入口。
 ## 当前关注优先级
 
 1. **3D robust non-planar repair**：从 closed-shell tetrahedron 子类走向共享边一致性约束驱动的 support-plane/refit 决策
