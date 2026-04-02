@@ -884,6 +884,8 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeChainStillRepairsTo
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 3);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 10);
 }
 
 // Demonstrates tiny-scale shared-edge adjacency chain repair also supports

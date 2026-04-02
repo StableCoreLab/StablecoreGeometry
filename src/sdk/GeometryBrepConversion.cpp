@@ -180,6 +180,148 @@ namespace
     return loop.IsValid();
 }
 
+[[nodiscard]] std::size_t FindOrAddBrepVertex(
+    const Point3d& point,
+    std::vector<BrepVertex>& vertices,
+    double eps)
+{
+    for (std::size_t i = 0; i < vertices.size(); ++i)
+    {
+        if (vertices[i].Point().AlmostEquals(point, eps))
+        {
+            return i;
+        }
+    }
+
+    vertices.emplace_back(point);
+    return vertices.size() - 1;
+}
+
+[[nodiscard]] bool FindReusableBrepEdge(
+    const std::vector<BrepEdge>& edges,
+    std::size_t startVertexIndex,
+    std::size_t endVertexIndex,
+    std::size_t& edgeIndex,
+    bool& reversed)
+{
+    for (std::size_t i = 0; i < edges.size(); ++i)
+    {
+        const BrepEdge& edge = edges[i];
+        if (edge.StartVertexIndex() == startVertexIndex && edge.EndVertexIndex() == endVertexIndex)
+        {
+            edgeIndex = i;
+            reversed = false;
+            return true;
+        }
+
+        if (edge.StartVertexIndex() == endVertexIndex && edge.EndVertexIndex() == startVertexIndex)
+        {
+            edgeIndex = i;
+            reversed = true;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+[[nodiscard]] bool AppendSharedBrepLoopFromPolyLoop(
+    const PolyhedronLoop3d& polyLoop,
+    std::vector<BrepVertex>& vertices,
+    std::vector<BrepEdge>& edges,
+    BrepLoop& loop,
+    std::vector<Point2d>& uvPoints,
+    double eps)
+{
+    if (!polyLoop.IsValid(eps))
+    {
+        return false;
+    }
+
+    const std::size_t vertexCount = polyLoop.VertexCount();
+    std::vector<std::size_t> loopVertexIndices;
+    loopVertexIndices.reserve(vertexCount);
+    for (std::size_t i = 0; i < vertexCount; ++i)
+    {
+        loopVertexIndices.push_back(FindOrAddBrepVertex(polyLoop.VertexAt(i), vertices, eps));
+    }
+
+    std::vector<BrepCoedge> coedges;
+    coedges.reserve(vertexCount);
+    for (std::size_t i = 0; i < vertexCount; ++i)
+    {
+        const std::size_t next = (i + 1) % vertexCount;
+        const std::size_t startVertexIndex = loopVertexIndices[i];
+        const std::size_t endVertexIndex = loopVertexIndices[next];
+
+        std::size_t edgeIndex = static_cast<std::size_t>(-1);
+        bool reversed = false;
+        if (!FindReusableBrepEdge(edges, startVertexIndex, endVertexIndex, edgeIndex, reversed))
+        {
+            const Point3d first = vertices[startVertexIndex].Point();
+            const Point3d second = vertices[endVertexIndex].Point();
+            edges.emplace_back(
+                std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                    Line3d::FromOriginAndDirection(first, second - first),
+                    Intervald{0.0, 1.0})),
+                startVertexIndex,
+                endVertexIndex);
+            edgeIndex = edges.size() - 1;
+        }
+
+        coedges.emplace_back(edgeIndex, reversed);
+    }
+
+    loop = BrepLoop(std::move(coedges));
+    uvPoints.clear();
+    uvPoints.reserve(vertexCount);
+    return loop.IsValid();
+}
+
+[[nodiscard]] bool ComputeSharedShellClosed(
+    const std::vector<BrepFace>& faces)
+{
+    std::vector<std::size_t> edgeUseCounts;
+    for (const BrepFace& face : faces)
+    {
+        for (const BrepCoedge& coedge : face.OuterLoop().Coedges())
+        {
+            if (coedge.EdgeIndex() >= edgeUseCounts.size())
+            {
+                edgeUseCounts.resize(coedge.EdgeIndex() + 1, 0);
+            }
+            ++edgeUseCounts[coedge.EdgeIndex()];
+        }
+
+        for (const BrepLoop& holeLoop : face.HoleLoops())
+        {
+            for (const BrepCoedge& coedge : holeLoop.Coedges())
+            {
+                if (coedge.EdgeIndex() >= edgeUseCounts.size())
+                {
+                    edgeUseCounts.resize(coedge.EdgeIndex() + 1, 0);
+                }
+                ++edgeUseCounts[coedge.EdgeIndex()];
+            }
+        }
+    }
+
+    if (edgeUseCounts.empty())
+    {
+        return false;
+    }
+
+    for (const std::size_t count : edgeUseCounts)
+    {
+        if (count != 2)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 [[nodiscard]] bool BuildFaceWithRefitSupportPlane(
     const PolyhedronFace3d& face,
     PolyhedronFace3d& repairedFace,
@@ -471,7 +613,7 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
 
         BrepLoop outerLoop;
         std::vector<Point2d> outerUv;
-        if (!AppendBrepLoopFromPolyLoop(face.OuterLoop(), vertices, edges, outerLoop, outerUv))
+        if (!AppendSharedBrepLoopFromPolyLoop(face.OuterLoop(), vertices, edges, outerLoop, outerUv, eps))
         {
             return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
         }
@@ -491,7 +633,7 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             const PolyhedronLoop3d hole = face.HoleAt(holeIndex);
             BrepLoop holeLoop;
             std::vector<Point2d> holeUv;
-            if (!AppendBrepLoopFromPolyLoop(hole, vertices, edges, holeLoop, holeUv))
+            if (!AppendSharedBrepLoopFromPolyLoop(hole, vertices, edges, holeLoop, holeUv, eps))
             {
                 return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
             }
@@ -514,7 +656,8 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         faces.push_back(std::move(brepFace));
     }
 
-    BrepBody brepBody(std::move(vertices), std::move(edges), {BrepShell(std::move(faces), false)});
+    const bool shellClosed = ComputeSharedShellClosed(faces);
+    BrepBody brepBody(std::move(vertices), std::move(edges), {BrepShell(std::move(faces), shellClosed)});
     if (!brepBody.IsValid(GeometryTolerance3d{eps, eps, eps}))
     {
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
