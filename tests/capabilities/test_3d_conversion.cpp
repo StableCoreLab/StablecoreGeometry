@@ -1252,6 +1252,48 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesBody()
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v3, v2})),
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0c, v2, v3}))});
 }
+
+PolyhedronBody BuildSupportMismatchNearEqualClosedTetrahedronAllVerticesBody()
+{
+    // Closed tetrahedron where all four logical shared vertices each have
+    // near-equal (<eps) position variants across their three incident faces,
+    // exercising simultaneous representative-average placement for every
+    // shared vertex at once.
+    const double s = 1e-5;
+
+    // v0 near {0,0,0}: faces 0,1,3
+    const Point3d v0a{0.0, 0.0, 0.0};
+    const Point3d v0b{1.0e-7, 0.0, 0.0};
+    const Point3d v0c{-1.0e-7, 0.0, 0.0};
+    // avg x = 0
+
+    // v1 near {s,0,1.2e-6}: faces 0,1,2
+    const Point3d v1a{s + 2.0e-7, 0.0, 1.2e-6};
+    const Point3d v1b{s - 1.0e-7, 0.0, 1.2e-6};
+    const Point3d v1c{s, 0.0, 1.2e-6};
+    // avg x = s + 1e-7/3
+
+    // v2 near {0.5*s, 0.866*s, 0.8e-6}: faces 0,2,3
+    const Point3d v2a{0.5 * s + 1.0e-7, 0.866 * s, 0.8e-6};
+    const Point3d v2b{0.5 * s - 1.0e-7, 0.866 * s, 0.8e-6};
+    const Point3d v2c{0.5 * s, 0.866 * s + 1.0e-7, 0.8e-6};
+    // avg x = 0.5*s, avg y = 0.866*s + 1e-7/3
+
+    // v3 near {0.5*s, 0.289*s, 0.816*s}: faces 1,2,3
+    const Point3d v3a{0.5 * s + 2.0e-7, 0.289 * s, 0.816 * s};
+    const Point3d v3b{0.5 * s - 1.0e-7, 0.289 * s, 0.816 * s};
+    const Point3d v3c{0.5 * s, 0.289 * s, 0.816 * s};
+    // avg x = 0.5*s + 1e-7/3
+
+    const Plane mismatched =
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 3e-6}, Vector3d{0.0, 0.0, 1.0});
+
+    return PolyhedronBody({
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0a, v1a, v2a})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0b, v3a, v1b})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v3b, v2b})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0c, v2c, v3c}))});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -1735,6 +1777,49 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVe
 
     assert(sharedV0Count == 1);
     assert(sharedV1Count == 1);
+}
+
+// Demonstrates representative-average placement scales to all four shared
+// vertices simultaneously on a support-mismatch closed tetrahedron.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVerticesRepairsWithRepresentativeAverageTarget)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronAllVerticesBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 4);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 4);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 4);
+    assert(result.body.EdgeCount() == 6);
+
+    const double s = 1e-5;
+    const double expectedV1X = s + 1.0e-7 / 3.0;
+    const double expectedV3X = 0.5 * s + 1.0e-7 / 3.0;
+
+    std::size_t sharedV1Count = 0;
+    std::size_t sharedV3Count = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.y) < 1e-12 && point.z > 0.5e-6 && point.z < 2.0e-6 && point.x > 0.5 * s)
+        {
+            ++sharedV1Count;
+            assert(std::abs(point.x - expectedV1X) < 1e-10);
+        }
+        if (point.z > 0.7 * s && point.x > 0.3 * s && point.x < 0.7 * s)
+        {
+            ++sharedV3Count;
+            assert(std::abs(point.x - expectedV3X) < 1e-10);
+        }
+    }
+
+    assert(sharedV1Count == 1);
+    assert(sharedV3Count == 1);
 }
 
 // Demonstrates a non-axis-aligned (affine-skewed) polyhedron subset can be
