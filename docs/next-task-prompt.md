@@ -96,6 +96,7 @@
 - 已覆盖三壳 mixed 输入下 eligible multi-face（holed+plain）两面 trims 缺失回填后 deterministic 闭壳子策略
 - 已覆盖三壳 mixed 输入下 eligible multi-face holed shell 的 support-plane mismatch + missing trims 回填后 deterministic 闭壳子策略
 - 已覆盖 support-plane mismatch 的 eligible shell 与 ineligible multi-face shell 共存下的 deterministic 闭壳/保留 open 子策略
+- 已覆盖 support-plane mismatch + trim-backfill 的 eligible shell 与 ineligible multi-face shell 共存下的 deterministic 闭壳/保留 open 子策略
 - 下一步转向更一般 topology-changing aggressive policy（保留为 gap）
 
 ---
