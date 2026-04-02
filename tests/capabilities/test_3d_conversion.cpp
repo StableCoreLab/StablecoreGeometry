@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cmath>
+#include <memory>
 
 #include <gtest/gtest.h>
 
@@ -9,12 +10,28 @@
 using geometry::sdk::ConvertToTriangleMesh;
 using geometry::sdk::ConvertToBrepBody;
 using geometry::sdk::BrepConversionIssue3d;
+using geometry::sdk::BrepBody;
+using geometry::sdk::BrepCoedge;
+using geometry::sdk::BrepEdge;
+using geometry::sdk::BrepFace;
+using geometry::sdk::BrepLoop;
+using geometry::sdk::BrepShell;
+using geometry::sdk::BrepVertex;
+using geometry::sdk::CurveOnSurface;
+using geometry::sdk::Intervald;
+using geometry::sdk::Line3d;
+using geometry::sdk::LineCurve3d;
 using geometry::sdk::MeshConversionIssue3d;
+using geometry::sdk::Plane;
+using geometry::sdk::PlaneSurface;
 using geometry::sdk::PolyhedronBody;
 using geometry::sdk::PolyhedronFace3d;
 using geometry::sdk::PolyhedronLoop3d;
 using geometry::sdk::PolyhedronMeshConversion3d;
 using geometry::sdk::PolyhedronBrepBodyConversion3d;
+using geometry::sdk::Polyline2d;
+using geometry::sdk::PolylineClosure;
+using geometry::sdk::Surface;
 
 namespace
 {
@@ -219,4 +236,81 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarHoleLoopCanBeRepairedToBrepBody)
     assert(result.issue == BrepConversionIssue3d::None);
     assert(result.body.IsValid());
     assert(result.body.FaceCount() == 1);
+}
+
+// Demonstrates planar holed BrepBody conversion keeps representative area by
+// honoring hole trims in mesh triangulation.
+TEST(Conversion3dCapabilityTest, PlanarHoledBrepBodyConvertsToMeshWithExpectedArea)
+{
+    std::vector<BrepVertex> vertices{
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 4.0, 0.0}),
+        BrepVertex(Point3d{0.0, 4.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{3.0, 1.0, 0.0}),
+        BrepVertex(Point3d{3.0, 3.0, 0.0}),
+        BrepVertex(Point3d{1.0, 3.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+    addEdge(4, 5);
+    addEdge(5, 6);
+    addEdge(6, 7);
+    addEdge(7, 4);
+
+    const BrepLoop outerLoop({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop holeLoop({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+
+    const PlaneSurface planeSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    auto supportSurface = std::shared_ptr<Surface>(planeSurface.Clone().release());
+    const CurveOnSurface outerTrim(
+        supportSurface,
+        Polyline2d(
+            {
+                Point2d{0.0, 0.0},
+                Point2d{4.0, 0.0},
+                Point2d{4.0, 4.0},
+                Point2d{0.0, 4.0},
+            },
+            PolylineClosure::Closed));
+    const CurveOnSurface holeTrim(
+        supportSurface,
+        Polyline2d(
+            {
+                Point2d{1.0, 1.0},
+                Point2d{3.0, 1.0},
+                Point2d{3.0, 3.0},
+                Point2d{1.0, 3.0},
+            },
+            PolylineClosure::Closed));
+
+    const BrepFace face(
+        std::shared_ptr<Surface>(planeSurface.Clone().release()),
+        outerLoop,
+        {holeLoop},
+        outerTrim,
+        {holeTrim});
+    const BrepBody body(vertices, edges, {BrepShell({face}, false)});
+    assert(body.IsValid());
+
+    const PolyhedronMeshConversion3d mesh = ConvertToTriangleMesh(body);
+    assert(mesh.success);
+    assert(mesh.mesh.IsValid());
+    // Expected area: 4x4 outer minus 2x2 hole = 12.
+    assert(std::abs(mesh.mesh.SurfaceArea() - 12.0) < 1e-8);
 }
