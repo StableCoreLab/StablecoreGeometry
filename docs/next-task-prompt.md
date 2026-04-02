@@ -86,6 +86,7 @@
 - 已覆盖三壳 mixed 输入下“closed 保持 + eligible 闭壳 + ineligible 保持”的 deterministic 子策略
 - 已覆盖三壳 mixed 输入下“eligible 先 trim-backfill 再闭壳 + ineligible 保持”的 deterministic 组合子策略
 - 已覆盖三壳 mixed 输入下 eligible multi-face open-sheet 的 deterministic 闭壳子策略
+- 已覆盖三壳 mixed 输入下 eligible holed shell（缺失 outer/hole trims）回填后 deterministic 闭壳子策略
 - 下一步转向更一般 topology-changing aggressive policy（保留为 gap）
 
 ---
