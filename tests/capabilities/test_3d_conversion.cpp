@@ -296,6 +296,39 @@ PolyhedronBody BuildTinyScaleNonPlanarMultiFaceRepairBody()
             Plane::FromPointAndNormal(Point3d{2.0 * s, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0}),
             PolyhedronLoop3d(std::move(faceB)))});
 }
+
+PolyhedronBody BuildTinyScaleNonPlanarMixedContentBody()
+{
+    const double s = 1e-5;
+    std::vector<Point3d> outer{
+        Point3d{0.0, 0.0, 0.0},
+        Point3d{s, 0.0, 0.0},
+        Point3d{s, s, 0.0},
+        Point3d{0.0, s, 0.0}};
+    std::vector<Point3d> hole{
+        Point3d{0.3 * s, 0.3 * s, 0.0},
+        Point3d{0.7 * s, 0.3 * s, 0.0},
+        Point3d{0.7 * s, 0.7 * s, 0.0},
+        Point3d{0.3 * s, 0.7 * s, 0.0}};
+    std::vector<Point3d> plain{
+        Point3d{2.0 * s, 0.0, 0.0},
+        Point3d{3.0 * s, 0.0, 0.0},
+        Point3d{3.0 * s, s, 0.0},
+        Point3d{2.0 * s, s, 0.0}};
+
+    outer[2].z += 2e-6;
+    hole[1].z += 1.3e-6;
+    plain[0].z += 1.1e-6;
+
+    return PolyhedronBody({
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{0.0, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d(std::move(outer)),
+            {PolyhedronLoop3d(std::move(hole))}),
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{2.0 * s, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d(std::move(plain)))});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -480,6 +513,21 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarHoledFaceStillRepairsToBrepBo
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMultiFaceStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarMultiFaceRepairBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 2);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 2);
+}
+
+// Demonstrates tiny-scale non-planar repair remains stable for mixed-content
+// multi-face inputs (holed + plain) in one conversion.
+TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMixedContentStillRepairsToBrepBody)
+{
+    const PolyhedronBody body = BuildTinyScaleNonPlanarMixedContentBody();
     assert(!body.IsValid());
     assert(body.FaceCount() == 2);
 

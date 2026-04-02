@@ -105,6 +105,7 @@
   - 已扩展 conversion repair 子能力：tiny-scale non-planar outer loop 输入下，`ConvertToBrepBody` 可通过 scale-aware 法向回退稳定完成 refit 修复
   - 已扩展 conversion repair 子能力：tiny-scale non-planar holed face 输入下，`ConvertToBrepBody` 同样可稳定执行 outer/hole 投影修复
   - 已扩展 conversion repair 子能力：tiny-scale non-planar multi-face 输入下，`ConvertToBrepBody` 可稳定逐面 refit 并保持 `FaceCount` 一致
+  - 已扩展 conversion repair 子能力：tiny-scale non-planar mixed-content（holed+plain）multi-face 输入下，`ConvertToBrepBody` 可稳定逐面修复并保持拓扑计数稳定
   - 已扩展 Brep->mesh 子能力：planar multi-face `BrepBody` 的 representative area-preserving conversion capability
   - 已扩展 Brep->mesh 子能力：planar holed+multi-face 混合 `BrepBody` 的 representative area-preserving conversion capability
   - 已新增 healing 子能力收敛：带孔平面 `BrepFace` 缺失 outer/hole trims 时可被 `Heal(BrepBody)` 同步回填
