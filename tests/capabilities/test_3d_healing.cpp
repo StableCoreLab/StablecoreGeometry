@@ -649,3 +649,90 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellMixedDeterministicBehav
     // Closed shell keeps 2 faces, eligible open shell becomes 2 faces, ineligible remains 1.
     assert(healed.body.FaceCount() == 5);
 }
+
+// Demonstrates mixed three-shell behavior remains deterministic even when the
+// eligible open shell also requires conservative trim backfill.
+TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellMixedWithEligibleTrimBackfill)
+{
+    std::vector<BrepVertex> vertices{
+        // Closed shell vertices
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        // Eligible open shell vertices
+        BrepVertex(Point3d{3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 1.0, 0.0}),
+        BrepVertex(Point3d{3.0, 1.0, 0.0}),
+        // Ineligible open shell vertices
+        BrepVertex(Point3d{6.0, 0.0, 0.0}),
+        BrepVertex(Point3d{7.0, 0.0, 0.0}),
+        BrepVertex(Point3d{7.0, 1.0, 0.12}),
+        BrepVertex(Point3d{6.0, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Closed shell.
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+    // Eligible open shell.
+    addEdge(4, 5);
+    addEdge(5, 6);
+    addEdge(6, 7);
+    addEdge(7, 4);
+    // Ineligible open shell.
+    addEdge(8, 9);
+    addEdge(9, 10);
+    addEdge(10, 11);
+    addEdge(11, 8);
+
+    const BrepLoop closedOuter({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop closedOuterReversed({BrepCoedge(3, true), BrepCoedge(2, true), BrepCoedge(1, true), BrepCoedge(0, true)});
+    const BrepLoop eligibleOpen({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+    const BrepLoop ineligibleOpen({BrepCoedge(8, false), BrepCoedge(9, false), BrepCoedge(10, false), BrepCoedge(11, false)});
+
+    const PlaneSurface planarSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    const PlaneSurface ineligibleSupport = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{6.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+
+    const BrepFace closedFaceA(std::shared_ptr<Surface>(planarSurface.Clone().release()), closedOuter);
+    const BrepFace closedFaceB(std::shared_ptr<Surface>(planarSurface.Clone().release()), closedOuterReversed);
+    // Omit trims on eligible face to force conservative backfill before aggressive closure.
+    const BrepFace eligibleFace(std::shared_ptr<Surface>(planarSurface.Clone().release()), eligibleOpen);
+    const BrepFace ineligibleFace(std::shared_ptr<Surface>(ineligibleSupport.Clone().release()), ineligibleOpen);
+
+    const BrepBody body(
+        vertices,
+        edges,
+        {
+            BrepShell({closedFaceA, closedFaceB}, true),
+            BrepShell({eligibleFace}, false),
+            BrepShell({ineligibleFace}, false),
+        });
+    assert(body.IsValid());
+
+    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 3);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(healed.body.ShellAt(1).IsClosed());
+    assert(!healed.body.ShellAt(2).IsClosed());
+    assert(healed.body.FaceCount() == 5);
+    const auto eligibleFrontFace = healed.body.ShellAt(1).FaceAt(0);
+    assert(eligibleFrontFace.OuterTrim().IsValid());
+}

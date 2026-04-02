@@ -119,6 +119,7 @@
   - 已扩展 aggressive healing 子能力：mixed closed/open-shell 输入下，已闭壳保持稳定且可恢复 open shell 可被单次 deterministic 闭壳
   - 已扩展 aggressive healing 子能力：mixed open-shell 输入下支持部分修复（eligible shell 闭壳，ineligible shell 保持 open）
   - 已扩展 aggressive healing 子能力：三壳 mixed 输入下可保持 deterministic（closed shell 保持稳定，eligible open shell 闭壳，ineligible open shell 保持 open）
+  - 已扩展 aggressive healing 组合子能力：三壳 mixed 输入下可与 trim-backfill 协同（eligible open shell 先回填 trims 再闭壳）
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成
