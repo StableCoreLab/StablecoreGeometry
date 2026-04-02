@@ -106,6 +106,7 @@
   - 已新增 aggressive healing 子能力收敛：`Heal(..., policy=Aggressive)` 支持 open planar single-face shell 的确定性闭壳修复
   - 已扩展 aggressive healing 子能力：覆盖 open planar multi-face sheet 的确定性闭壳修复
   - 已扩展 aggressive healing 子能力：覆盖 open planar holed shell 的确定性闭壳修复
+  - 已扩展 aggressive healing 组合子能力：在 open holed shell 且 trims 缺失场景下，闭壳与 trim-backfill 可协同稳定生效
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成

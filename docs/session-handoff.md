@@ -328,6 +328,7 @@
 - `tests/capabilities/test_3d_conversion.cpp` 已扩展 affine-skew 非轴对齐 `PolyhedronBody` 的 `ConvertToBrepBody(...)` capability
 - `tests/capabilities/test_3d_conversion.cpp` 已扩展 support-plane mismatch 输入的 `ConvertToBrepBody(...)` repair capability（support-plane refit）
 - `tests/capabilities/test_3d_healing.cpp` 已扩展 `Heal(..., policy=Aggressive)`：open planar single/multi-face sheet 与 holed shell 的确定性闭壳子策略
+- `tests/capabilities/test_3d_healing.cpp` 已扩展 aggressive+trim-backfill 组合子场景：open holed shell 且 trims 缺失时可协同稳定修复
 - `tests/capabilities/test_3d_conversion.cpp` 已扩展 mild non-planar loop 输入的 `ConvertToBrepBody(...)` repair capability（refit-plane 投影）
 - `tests/capabilities/test_3d_conversion.cpp` 已扩展 mild non-planar hole loop 输入的 `ConvertToBrepBody(...)` repair capability（refit-plane 投影）
 - `tests/capabilities/test_3d_conversion.cpp` 已新增 planar holed `BrepBody -> TriangleMesh` 的面积保持子场景
