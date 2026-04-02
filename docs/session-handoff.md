@@ -248,6 +248,12 @@
 
 - 已更新 `tests/gaps/test_3d_section_gaps.cpp`：`FaceMergeSemanticsAfterSectionRemainsOpen` 文案明确为“超出已覆盖的 Polyhedron/Brep 相邻 coplanar union 子集”的更高阶语义缺口。
 - 已同步 `docs/next-task-prompt.md` 与 `docs/test-capability-coverage.md`，确保 gap 定义与当前 capability 覆盖边界一致。
+
+## 本轮新增（2026-04-02，brep-polyhedron-section-rebuild-capability）
+
+- 已扩展 brep capability（section rebuild 子集）：`tests/capabilities/test_3d_brep.cpp` 新增 `SlantedCubeRebuildsSingleFacePolyhedronBody`，验证 `RebuildSectionBody(...)` 在倾斜截面输入下可稳定重建单面 `PolyhedronBody`（FaceCount=1，外环 VertexCount=4）。
+- 已扩展 brep capability（multi-component 子集）：新增 `TwoSeparatedCubeSectionsRebuildIntoTwoPolyhedronBodies`，验证 `RebuildSectionBodies(...)` 可将双组件截面稳定重建为 2 个独立 `PolyhedronBody`。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 ## 本轮新增（2026-04-02，continuation-closed-shell-tetrahedron）
 
 - 已新增 conversion capability：`ConvertToBrepBody(...)` 在 tiny-scale closed-shell tetrahedron（4 triangular faces, all support planes mismatched）输入上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6）。

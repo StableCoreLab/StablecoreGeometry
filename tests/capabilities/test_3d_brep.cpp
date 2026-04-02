@@ -26,9 +26,13 @@ using geometry::sdk::ReplaceShell;
 using geometry::sdk::RemoveCoedge;
 using geometry::sdk::RebuildSectionBrepBodies;
 using geometry::sdk::RebuildSectionBrepBody;
+using geometry::sdk::RebuildSectionBodies;
+using geometry::sdk::RebuildSectionBody;
 using geometry::sdk::Section;
 using geometry::sdk::SectionBrepBodySetRebuild3d;
 using geometry::sdk::SectionBrepBodyRebuild3d;
+using geometry::sdk::SectionBodySetRebuild3d;
+using geometry::sdk::SectionBodyRebuild3d;
 using geometry::sdk::Vector3d;
 
 namespace
@@ -111,6 +115,31 @@ TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFaceBrepWithValidOuterLoop)
     assert(firstFace.OuterLoop().CoedgeCount() == 4);
 }
 
+// Demonstrates the Polyhedron rebuild path from section is also stable:
+// slanted cube section can be rebuilt into a valid single-face PolyhedronBody.
+TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFacePolyhedronBody)
+{
+    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    assert(cubeBody.IsValid());
+
+    const Plane slantedCut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{1.0, 0.0, 1.0});
+    const auto section = Section(cubeBody, slantedCut);
+    assert(section.success);
+    assert(section.IsValid());
+    assert(!section.polygons.empty());
+
+    const SectionBodyRebuild3d rebuilt = RebuildSectionBody(section);
+    assert(rebuilt.success);
+    assert(rebuilt.body.IsValid());
+    assert(rebuilt.body.FaceCount() == 1);
+
+    const PolyhedronFace3d face = rebuilt.body.FaceAt(0);
+    assert(face.OuterLoop().IsValid());
+    assert(face.OuterLoop().VertexCount() == 4);
+}
+
 // Demonstrates multi-component section rebuild: a horizontal cut through two
 // separated cubes yields two independent area components and two Brep bodies.
 TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoBrepBodies)
@@ -132,6 +161,33 @@ TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoBrepBodies)
     assert(rebuilt.bodies.size() == 2);
     assert(rebuilt.rootPolygonIndices.size() == 2);
     for (const BrepBody& rebuiltBody : rebuilt.bodies)
+    {
+        assert(rebuiltBody.IsValid());
+        assert(rebuiltBody.FaceCount() == 1);
+    }
+}
+
+// Demonstrates multi-component Polyhedron rebuild path:
+// two separated cube section components can be rebuilt into two bodies.
+TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoPolyhedronBodies)
+{
+    const PolyhedronBody body = BuildTwoSeparatedUnitCubes();
+    assert(body.IsValid());
+    assert(body.FaceCount() == 12);
+
+    const Plane cutPlane = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cutPlane);
+    assert(section.success);
+    assert(section.IsValid());
+    assert(section.polygons.size() == 2);
+
+    const SectionBodySetRebuild3d rebuilt = RebuildSectionBodies(section);
+    assert(rebuilt.success);
+    assert(rebuilt.bodies.size() == 2);
+    assert(rebuilt.rootPolygonIndices.size() == 2);
+    for (const PolyhedronBody& rebuiltBody : rebuilt.bodies)
     {
         assert(rebuiltBody.IsValid());
         assert(rebuiltBody.FaceCount() == 1);

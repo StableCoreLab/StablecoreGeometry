@@ -28,7 +28,7 @@
 | --- | --- | --- |
 | tests/support/Fixtures3d.h |  | 共享 BuildUnitCubeBody() 单位立方体 |
 | tests/capabilities/test_3d_section.cpp | Section3dCapabilityTest | Section+Topology+Components 倾斜截面 + non-axis-aligned contour count |
-| tests/capabilities/test_3d_brep.cpp | Brep3dCapabilityTest | RebuildSectionBrepBody 单面 BrepBody + RebuildSectionBrepBodies 双组件重建 + coedge-loop 最小编辑链路 |
+| tests/capabilities/test_3d_brep.cpp | Brep3dCapabilityTest | RebuildSectionBrepBody/Body 单面重建 + RebuildSectionBrepBodies/Bodies 双组件重建 + coedge-loop 最小编辑链路 |
 | tests/capabilities/test_3d_healing.cpp | Healing3dCapabilityTest | Heal(PolyhedronBody) 幂等 6 faces + Heal(BrepBody) trim 回填（含 holed face） + Aggressive 平面 open-sheet/holed-shell 闭壳子策略 + Aggressive+trim-backfill 组合子场景 |
 | tests/capabilities/test_3d_conversion.cpp | Conversion3dCapabilityTest | ConvertToTriangleMesh 12 triangles area6.0 + ConvertToBrepBody FaceCount=6 + affine-skew 子类 + support-plane refit + mild outer/hole loop-projection + collinear-leading-loop + duplicate outer/hole loop-normalization + 组合病理输入可叠加修复 + planar holed/multi-face/holed+multi-face Brep->mesh 面积保持 |
 
