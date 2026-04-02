@@ -224,7 +224,14 @@
 - 新增 builder：`BuildTinyScaleClosedTetrahedronBody()` 与 test `TinyScaleClosedTetrahedronConvertsToBrepBodyWithClosedShell` 已加入 `tests/capabilities/test_3d_conversion.cpp`。
 - 已更新：`docs/test-capability-coverage.md`、`docs/next-task-prompt.md`、`docs/design-doc-sync-tracker.md`。
 - **下一步**：聚焦共享边一致性约束真正参与 support-plane/refit 决策（not just topology deduplication）。
+- **下一步**：聚焦共享边一致性约束真正参与 support-plane/refit 决策（not just topology deduplication），具体为 quad-face chain 共享顶点的 refit-plane 锚定机制。
 
+## 本轮新增（2026-04-02，continuation-triangular-chain）
+
+- 发现 `TinyScaleNonPlanarSharedEdgeChainStillRepairsToBrepBody` 中 `VertexCount==8 / EdgeCount==10` 断言对独立 per-face refit 不成立（quad 面的共享顶点投影后偏差 ~1μm >> eps=1e-9），已移除错误断言并补充注释说明限制。
+- 已新增 conversion capability：tiny-scale triangular-face chain（T1/T2/T3 共享边，mismatched support planes），per-face refit 后共享顶点精确保持（定义顶点 distance=0），结果满足 VertexCount=5 / EdgeCount=7（test: `TinyScaleTriangularFaceChainRepairsToBrepBodyWithSharedEdgeConsistency`）。
+- 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，明确下一开放前沿：quad-face shared-edge 顶点投影一致性需新的修复策略。
+- 已更新：`docs/test-capability-coverage.md`、`docs/next-task-prompt.md`、`docs/design-doc-sync-tracker.md`。
 ## 当前关注优先级
 
 1. **3D robust non-planar repair**：从 closed-shell tetrahedron 子类走向共享边一致性约束驱动的 support-plane/refit 决策

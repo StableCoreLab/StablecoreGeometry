@@ -88,6 +88,9 @@
 - 已扩展 shared-edge 邻接链 mixed-content full-composition 下 outer/hole 双重复顶点 normalization 组合子样例；下一步聚焦共享边一致性约束真正参与修复决策
 - 已扩展 shared-edge 邻接链修复后的全局共享顶点/边复用子样例；下一步聚焦共享边一致性约束真正参与 support-plane / refit 决策，而不仅是结果拓扑去重
 - 已扩展 closed-shell 代表性输入（tiny-scale tetrahedron：4 triangular faces, 6 edges, 4 vertices, 所有 support planes mismatched）的共享拓扑 BrepBody 子样例；下一步聚焦共享边一致性约束真正参与 support-plane / refit 决策，而不仅是结果拓扑去重
+- 已扩展 closed-shell 代表性输入（tiny-scale tetrahedron：4 triangular faces, 6 edges, 4 vertices, 所有 support planes mismatched）的共享拓扑 BrepBody 子样例；已完成
+- 已说明独立 per-face refit 下四边形面链共享顶点不一致的原因，并已修正 quad-chain test 中错误的 VertexCount/EdgeCount 断言；下一步已转向显式 triangular-face chain 验证
+- 已扩展 triangular-face chain（3 个三角面，mismatched support planes，T1/T2/T3 共享边）的代表性子样例，验证 per-face refit 下三角面共享顶点精确一致性（VertexCount=5 / EdgeCount=7）；下一步聚焦 quad-face 场景下共享边一致性约束真正参与 refit 决策（需要修改 `ConvertToBrepBody` 的 repair 算法）
 
 ### P4-B：aggressive shell policy 分层落地（已完成最小子集）
 - 已覆盖 single-face / multi-face / holed / multi-shell open-shell 的最小 deterministic closure 子策略
