@@ -1106,6 +1106,45 @@ PolyhedronBody BuildSupportMismatchNearEqualSharedEdgeChainWithDuplicateBody()
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({b2, b2, e, f, c2})),
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({e2, g, h, f2}))});
 }
+
+PolyhedronBody BuildSupportMismatchNearEqualSharedChainMixedContentWithDuplicateHoleBody()
+{
+    // Shared-edge chain mixed-content variant with near-equal perturbations on
+    // shared vertices and duplicate hole vertices on middle face.
+    const double s = 1e-5;
+    const double dx = 2e-7;
+
+    const Point3d a{0.0, 0.0, 0.0};
+    const Point3d b{s, 0.0, 0.0};
+    const Point3d c{s, s, 0.0};
+    const Point3d d{0.0, s, 1.5e-6};
+
+    const Point3d e{2.0 * s + dx, 0.0, 1.2e-6};
+    const Point3d f{2.0 * s + dx, s, 0.0};
+    const Point3d g{3.0 * s, 0.0, 1.0e-6};
+    const Point3d h{3.0 * s, s, 0.0};
+
+    const Point3d e2{2.0 * s, 0.0, 1.2e-6};
+    const Point3d f2{2.0 * s, s, 0.0};
+
+    std::vector<Point3d> hole{
+        Point3d{1.2 * s, 0.3 * s, 0.0},
+        Point3d{1.8 * s, 0.3 * s, 8e-7},
+        Point3d{1.8 * s, 0.3 * s, 8e-7},
+        Point3d{1.8 * s, 0.7 * s, 0.0},
+        Point3d{1.2 * s, 0.7 * s, 0.0}};
+
+    const Plane mismatched =
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 4e-6}, Vector3d{0.0, 0.0, 1.0});
+
+    return PolyhedronBody({
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({a, b, c, d})),
+        PolyhedronFace3d(
+            mismatched,
+            PolyhedronLoop3d({b + Vector3d{dx, 0.0, 0.0}, e, f, c + Vector3d{dx, 0.0, 0.0}}),
+            {PolyhedronLoop3d(std::move(hole))}),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({e2, g, h, f2}))});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -1385,6 +1424,52 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeChainWithDupl
     assert(!result.body.ShellAt(0).IsClosed());
     assert(result.body.VertexCount() == 8);
     assert(result.body.EdgeCount() == 10);
+
+    const double s = 1e-5;
+    const double dx = 2e-7;
+    const double expectedXLeft = s + 0.5 * dx;
+    const double expectedXRight = 2.0 * s + 0.5 * dx;
+
+    std::size_t leftCount = 0;
+    std::size_t rightCount = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.y) < 1e-12 || std::abs(point.y - s) < 1e-12)
+        {
+            if (std::abs(point.x - expectedXLeft) < 1e-12)
+            {
+                ++leftCount;
+            }
+            if (std::abs(point.x - expectedXRight) < 1e-12)
+            {
+                ++rightCount;
+            }
+        }
+    }
+
+    assert(leftCount == 2);
+    assert(rightCount == 2);
+}
+
+// Demonstrates representative-average placement remains stable when
+// support-mismatch shared-chain mixed-content also requires duplicate-hole
+// normalization on middle face.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainMixedContentWithDuplicateHoleRepairsToBrepBody)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualSharedChainMixedContentWithDuplicateHoleBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 3);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 3);
+    assert(result.body.ShellCount() == 1);
+    assert(!result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 12);
+    assert(result.body.EdgeCount() == 14);
 
     const double s = 1e-5;
     const double dx = 2e-7;
