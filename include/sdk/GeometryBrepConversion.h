@@ -43,11 +43,28 @@ struct GEOMETRY_API BrepBodyConversion3d
     }
 };
 
+struct GEOMETRY_API PolyhedronBrepBodyConversion3d
+{
+    bool success{false};
+    BrepConversionIssue3d issue{BrepConversionIssue3d::None};
+    std::size_t faceIndex{0};
+    BrepBody body{};
+
+    [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const
+    {
+        return !success || body.IsValid(tolerance);
+    }
+};
+
 [[nodiscard]] GEOMETRY_API BrepFaceConversion3d ConvertToPolyhedronFace(
     const BrepFace& face,
     double eps = 1e-9);
 
 [[nodiscard]] GEOMETRY_API BrepBodyConversion3d ConvertToPolyhedronBody(
     const BrepBody& body,
+    double eps = 1e-9);
+
+[[nodiscard]] GEOMETRY_API PolyhedronBrepBodyConversion3d ConvertToBrepBody(
+    const PolyhedronBody& body,
     double eps = 1e-9);
 } // namespace geometry::sdk

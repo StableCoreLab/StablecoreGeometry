@@ -21,6 +21,7 @@ add_library(stablecore_geometry
     src/sdk/Circle2d.cpp
     src/sdk/Ellipse2d.cpp
     src/sdk/GeometryBoolean.cpp
+    src/sdk/GeometryBrepEditing.cpp
     src/sdk/GeometryBrepConversion.cpp
     src/sdk/GeometryEditing.cpp
     src/sdk/GeometryAxisOps.cpp

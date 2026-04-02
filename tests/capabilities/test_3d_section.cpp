@@ -42,3 +42,30 @@ TEST(Section3dCapabilityTest, SlantedCubeSectionBuildsSingleAreaComponent)
 
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
 }
+
+
+// Demonstrates non-axis-aligned multi-face sectioning remains stable on a
+// generic cube cut: contour/polygon counts stay deterministic.
+TEST(Section3dCapabilityTest, NonAxisAlignedCubeSectionHasSingleHexLikeContour)
+{
+    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    assert(cubeBody.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.5, 0.5, 0.5},
+        Vector3d{1.0, 1.0, 1.0});
+    const auto section = Section(cubeBody, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 1);
+    assert(section.contours[0].closed);
+    // For x+y+z=1.5 slicing a unit cube, the expected closed contour has 6 corners.
+    assert(section.contours[0].points.size() == 6);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+}

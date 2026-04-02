@@ -5,6 +5,7 @@
 #include "sdk/Ellipse2d.h"
 #include "sdk/GeometryBoolean.h"
 #include "sdk/GeometryAlgorithms.h"
+#include "sdk/GeometryBrepEditing.h"
 #include "sdk/GeometryBrepConversion.h"
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometryHealing.h"

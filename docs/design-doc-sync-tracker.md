@@ -87,6 +87,14 @@
   - 已新增 `test_3d_brep.cpp`：`RebuildSectionBrepBody` 单面 BrepBody rebuild 转正为 capability
   - 已新增 `test_3d_healing.cpp`：保守 `Heal(PolyhedronBody)` 幂等性转正为 capability
   - 已新增 `test_3d_conversion.cpp`：`ConvertToTriangleMesh(PolyhedronBody)` 12 triangles / area≈6.0 转正为 capability
+- 2026-04-02：
+  - 已扩展 `Heal(BrepBody)` 能力验证：plane-surface + line-edge 且缺失 trim 的 `BrepFace` 可稳定回填 outer trim
+  - 已补齐 `ConvertToBrepBody(PolyhedronBody)` 最小 conversion API 与 capability test，单位立方体可转换为有效 `BrepBody` 且 `FaceCount()==6`
+  - 已新增 `RebuildSectionBrepBodies(...)` 多组件能力验证：双立方体截面可稳定重建为 2 个独立 `BrepBody`
+  - 已新增 non-axis-aligned multi-face section capability：`x+y+z=1.5` 截单位立方体时 contour/polygon 计数稳定
+  - 已补齐最小 coedge-loop editing API 与 capability：`InsertCoedge(...)` / `FlipCoedgeDirection(...)` / `RemoveCoedge(...)` 非平凡编辑链路可稳定 round-trip
+  - 已新增 conversion 子能力收敛：affine-skew 非轴对齐 `PolyhedronBody` 可稳定 `ConvertToBrepBody(...)`
+  - 已新增 healing 子能力收敛：带孔平面 `BrepFace` 缺失 outer/hole trims 时可被 `Heal(BrepBody)` 同步回填
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成
@@ -113,7 +121,7 @@
 - 2D SearchPoly 分支评分与 fake-edge candidate ranking：当前已补齐一组代表性误选场景，仍需继续向 Delphi 级评分策略逼近
 - 2D relation hierarchy 向 Delphi `GGLPolyRelation` 聚合语义补齐：当前已补齐一组 shared-boundary contained 场景，但公开枚举仍未扩展到更细层级
 - 3D gap 测试体系落地（section / brep / healing / conversion）：骨架已完成；基础 brep rebuild / healing / conversion 已转正为 capability tests
-- 3D 第一阶段向第二阶段推进：基础 section→rebuild→heal→convert 闭环已建立，下一步扩展 non-planar section graph 与 coedge-editing
+- 3D 第一阶段向第二阶段推进：P1/P2 已完成，P3 已收敛 affine-skew conversion 与 holed-trim healing 子能力；下一步聚焦真正鲁棒 non-planar repair
 
 ## 两周执行顺序建议（更新）
 

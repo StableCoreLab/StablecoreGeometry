@@ -13,7 +13,7 @@
 
 ---
 
-## 二、当前状态快照（2026-04-01）
+## 二、当前状态快照（2026-04-02）
 
 ### 2D：已全部稳定，无需继续
 
@@ -22,15 +22,15 @@
 
 ### 3D：第一阶段已完成，进入第二阶段
 
-**已落地的 capability tests（上次会话写完，用户将手工编译）：**
+**已落地的 capability tests（截至本次会话）：**
 
 | 文件 | 测试 | 验证内容 |
 | --- | --- | --- |
 | tests/support/Fixtures3d.h |  | 共享 BuildUnitCubeBody() 单位立方体 |
-| tests/capabilities/test_3d_section.cpp | Section3dCapabilityTest | Section+Topology+Components 倾斜截面 |
-| tests/capabilities/test_3d_brep.cpp | Brep3dCapabilityTest | RebuildSectionBrepBody 单面 BrepBody |
-| tests/capabilities/test_3d_healing.cpp | Healing3dCapabilityTest | Heal(PolyhedronBody) 幂等 6 faces |
-| tests/capabilities/test_3d_conversion.cpp | Conversion3dCapabilityTest | ConvertToTriangleMesh 12 triangles area6.0 |
+| tests/capabilities/test_3d_section.cpp | Section3dCapabilityTest | Section+Topology+Components 倾斜截面 + non-axis-aligned contour count |
+| tests/capabilities/test_3d_brep.cpp | Brep3dCapabilityTest | RebuildSectionBrepBody 单面 BrepBody + RebuildSectionBrepBodies 双组件重建 + coedge-loop 最小编辑链路 |
+| tests/capabilities/test_3d_healing.cpp | Healing3dCapabilityTest | Heal(PolyhedronBody) 幂等 6 faces + Heal(BrepBody) trim 回填（含 holed face） |
+| tests/capabilities/test_3d_conversion.cpp | Conversion3dCapabilityTest | ConvertToTriangleMesh 12 triangles area6.0 + ConvertToBrepBody FaceCount=6 + affine-skew 子类 |
 
 **仍为 gap 的 3D 场景（tests/gaps/ 中已用 GTEST_SKIP 标记）：**
 
@@ -38,7 +38,7 @@
 | --- | --- |
 | Section3dGapTest::NonPlanarDominantSectionGraphRemainsOpen | 非平面主导下的歧义 contour stitching |
 | Section3dGapTest::FaceMergeSemanticsAfterSectionRemainsOpen | coplanar fragment merge 语义 |
-| Brep3dGapTest::CoedgeLoopOwnershipEditingWorkflowRemainsOpen | coedge-loop 编辑 API |
+| Brep3dGapTest::CoedgeLoopOwnershipEditingWorkflowRemainsOpen | coedge-loop ownership/关联拓扑级编辑语义 |
 | Brep3dGapTest::NonPlanarTrimmedFaceTopologyRepairRemainsOpen | non-planar trimmed face shell repair |
 | Healing3dGapTest::AggressiveShellRepairPolicyRemainsOpen | 激进 shell 修复策略 |
 | Healing3dGapTest::MultiStepMeshBodyJointHealingRemainsOpen | mesh/body 联合多阶段修复 |
@@ -47,31 +47,29 @@
 
 ---
 
-## 三、本次任务：立即开始，按优先级执行
+## 三、下一次任务：立即开始，按优先级执行
 
-### P1-A：扩展 Heal(BrepBody) 并转正为 capability test
+### P1 已完成（本次）
 
-在 `tests/capabilities/test_3d_healing.cpp` 中新增测试：
-- 构造一个 plane-surface + line-edge 主导但缺失 trim 的 BrepBody
-- 调用 `Heal(BrepBody)` → 验证 `success == true`，`body.IsValid()`，trim 已补齐
-- 相关实现在 `src/sdk/GeometryHealing.cpp` 的 `Heal(BrepBody, ...)`
+- P1-A：`Heal(BrepBody)` 缺失 trim 回填 capability 已落地
+- P1-B：`ConvertToBrepBody(PolyhedronBody)` capability 已落地
+- P1-C：多组件 section -> `RebuildSectionBrepBodies` capability 已落地
 
-### P1-B：ConvertToBrepBody(PolyhedronBody) 转正为 capability test
+### P2 已完成（本次）
 
-在 `tests/capabilities/test_3d_conversion.cpp` 中新增测试：
-- 调用 `ConvertToBrepBody(cubeBody)` → 验证 `success == true`，`body.IsValid()`，`FaceCount() == 6`
-- 相关实现在 `src/sdk/GeometryBrepConversion.cpp`
+- P2-A：non-axis-aligned multi-face section contour count capability 已落地
+- P2-B：coedge-loop editing 最小 non-trivial capability 已落地
 
-### P1-C：多组件 section → RebuildSectionBrepBodies
+### P3 已完成（本次）
 
-在 `tests/capabilities/test_3d_brep.cpp` 中新增测试：
-- 构造两个分离的立方体（或一个立方体 + 一个足够远的独立面），截面产生 2 个独立 area component
-- 调用 `RebuildSectionBrepBodies(section)` → 验证返回 bodies 数量 == 2
-- 如果独立 fixture 难以构造，也可以先只验证 `ClassifySectionContent` 对 Mixed/Multi 场景正确分类
+- P3-A：`ConvertToBrepBody` 已转正 affine-skew 非轴对齐子类
+- P3-B：`Heal(BrepBody)` 已转正 holed-face 的 outer/hole trims 同步回填子场景
 
-### P2（若 P1 完成有余力）
-- 扩展 non-planar section graph：verifying contour count for a non-axis-aligned multi-face body
-- coedge-loop editing：若 API 已存在，转正一个最小 non-trivial coedge 编辑用例
+### P4-A：鲁棒 non-planar repair（优先）
+- 针对 `GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen`，尝试引入最小 non-planar 失配样例与可解释 repair 策略
+
+### P4-B：aggressive shell policy 分层落地
+- 针对 `AggressiveShellRepairPolicyRemainsOpen`，拆出可验证的 topology-changing 最小策略（保持 deterministic）
 
 ---
 

@@ -18,7 +18,7 @@ TEST(Brep3dGapTest, CoedgeLoopOwnershipEditingWorkflowRemainsOpen)
     (void)v0;
     (void)v1;
     (void)edge;
-    GTEST_SKIP() << "Known 3D gap: Brep coedge-loop ownership editing workflow is still skeleton-level.";
+    GTEST_SKIP() << "Known 3D gap: Brep coedge-loop ownership/shell-consistency editing workflow is still open.";
 }
 
 TEST(Brep3dGapTest, NonPlanarTrimmedFaceTopologyRepairRemainsOpen)

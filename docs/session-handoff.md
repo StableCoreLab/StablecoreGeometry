@@ -3,7 +3,7 @@
 ## 当前上下文
 
 - 工作区：`D:\code\stablecore-geometry`
-- 交接更新时间：`2026-04-01`
+- 交接更新时间：`2026-04-02`
 - 可用环境：`python`
 - 后续会话应聚焦于源码与文档编写
 - 编译 / 构建 / 运行由用户手动完成
@@ -11,9 +11,9 @@
 
 ## 当前关注优先级
 
-1. **3D 第二阶段**：多组件 section graph + multiple BrepBody rebuild
-2. **3D BrepBody healing**：平面 trim 自动回填（`Heal(BrepBody)` 扩展）
-3. **3D PolyhedronBody → BrepBody conversion**
+1. **3D robust non-planar repair**：从 affine-skew 子类走向真实 non-planar 失配修复
+2. **3D aggressive shell policy**：从 trim-backfill 扩展到 topology-changing 最小策略
+3. **3D coedge ownership 深化**：从 loop 级编辑走向 shell/face ownership 一致性
 4. 2D SearchPoly 分支评分 / fake-edge 排序（仍有提升空间但不是当前阻塞点）
 5. 2D relation 层级细化（当前稳定，不是当前阻塞点）
 
@@ -33,7 +33,7 @@
 当前最重要的解释是：
 
 - 2D 已全面稳定：所有 2D gap 测试已转正为 capability tests，`tests/gaps/` 中的 2D 条目已清空
-- 3D 完成了第一阶段基础能力（section / brep rebuild / healing / conversion 最小闭环），正进入第二阶段（multi-component / non-planar 场景扩展）
+- 3D 完成了第一阶段基础能力（section / brep rebuild / healing / conversion 最小闭环），且 P2 与 P3 子能力已转正；当前进入 robust non-planar repair 深水区
 
 ## 当前 2D 状态
 
@@ -265,6 +265,8 @@
 - `GeometrySection` 已接上最小 face rebuild 入口，可将闭合 section polygons 回建为 `PolyhedronFace3d`
 - `GeometrySection` 已接上最小 BRep face/body rebuild 入口，可将 plane-dominant section 结果直接回建为 `BrepFace` / `BrepBody`
 - `GeometrySection` 已接上多 root `BrepBody` set rebuild，可将分离的 area section 直接拆成多个 `BrepBody`
+- `tests/capabilities/test_3d_brep.cpp` 已新增双立方体截面多组件重建用例，验证 `RebuildSectionBrepBodies(...)` 返回 2 个独立 body
+- `tests/capabilities/test_3d_brep.cpp` 已新增最小 coedge-loop 编辑链路用例：`InsertCoedge(...) -> FlipCoedgeDirection(...) -> RemoveCoedge(...)`
 - `GeometrySection` 已接上最小 face merge 语义，可将嵌套 section polygons 合并成带孔 `PolyhedronFace3d`
 - `GeometrySection` 的 face rebuild 结果已保留 polygon-to-face 映射，可追溯 outer / hole 来源
 - `GeometrySection` 已接上最小 body rebuild 入口，可将 merged section faces 直接组织为 `PolyhedronBody`
@@ -316,8 +318,14 @@
 - `Validate(BrepBody, ...)` 已补最小 edge-use adjacency 校验：当前会拒绝 0 次引用或超过 2 次引用的 edge
 - `GeometryIntersection3d` 已接上 `Intersect(Line3d, Surface, ...)`，当前对 `PlaneSurface` 走解析求交，对一般 `Surface` 走保守采样 + 局部细化
 - `BrepVertex`、`BrepEdge`、`BrepCoedge`、`BrepLoop`、`BrepFace`、`BrepShell`、`BrepBody` 已不再只是名字 skeleton，已具备最小 topology ownership、bounds、validation 与 conservative healing 入口
+- `GeometryBrepConversion` 已新增 `ConvertToBrepBody(PolyhedronBody, ...)` 最小 conversion 入口（plane-surface + line-edge 主导）
+- `GeometryBrepEditing` 已新增最小 loop 编辑入口：`InsertCoedge(...)` / `RemoveCoedge(...)` / `FlipCoedgeDirection(...)`
 - 3D 服务层公开函数名已补齐并落了最小实现：`GeometryMeasure` / `GeometryHealing` / `Validate(BrepBody, ...)`
 - `BrepBody` 已接上受限 `TriangleMesh` conversion，当前支持 plane-surface + line-edge 主导的平面 BRep face
+- `tests/capabilities/test_3d_healing.cpp` 已新增 `Heal(BrepBody)` 缺失 trim 回填 capability
+- `tests/capabilities/test_3d_section.cpp` 已新增 non-axis-aligned multi-face 截面的稳定 contour count capability
+- `tests/capabilities/test_3d_healing.cpp` 已扩展 holed-face 缺失 outer/hole trims 同步回填 capability
+- `tests/capabilities/test_3d_conversion.cpp` 已扩展 affine-skew 非轴对齐 `PolyhedronBody` 的 `ConvertToBrepBody(...)` capability
 - `BrepFace` 已接上基于 trim/UV triangulation 的最小 `TriangleMesh` conversion
 - `GeometryMeasure::Area(BrepFace)` 已改为消费 `BrepFace -> TriangleMesh`，因此不再局限于平面 trim 面积
 - 已新增 `GeometryBrepConversion`，支持 `BrepFace -> PolyhedronFace3d` 与 `BrepBody -> PolyhedronBody` 的平面 trim 回建桥

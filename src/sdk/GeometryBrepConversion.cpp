@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
 
 namespace geometry::sdk
@@ -122,6 +123,61 @@ namespace
         std::move(holes));
     return polyFace.IsValid(eps);
 }
+
+[[nodiscard]] Point2d ProjectPointToPlaneUv(const Point3d& point, const PlaneSurface& planeSurface)
+{
+    const Plane plane = planeSurface.SupportPlane();
+    const Vector3d delta = point - plane.origin;
+    const Vector3d uAxis = planeSurface.UAxis();
+    const Vector3d vAxis = planeSurface.VAxis();
+    const double uDenom = std::max(uAxis.LengthSquared(), geometry::kDefaultEpsilon);
+    const double vDenom = std::max(vAxis.LengthSquared(), geometry::kDefaultEpsilon);
+    return Point2d{
+        Dot(delta, uAxis) / uDenom,
+        Dot(delta, vAxis) / vDenom};
+}
+
+[[nodiscard]] bool AppendBrepLoopFromPolyLoop(
+    const PolyhedronLoop3d& polyLoop,
+    std::vector<BrepVertex>& vertices,
+    std::vector<BrepEdge>& edges,
+    BrepLoop& loop,
+    std::vector<Point2d>& uvPoints)
+{
+    if (!polyLoop.IsValid())
+    {
+        return false;
+    }
+
+    const std::size_t vertexBase = vertices.size();
+    const std::size_t vertexCount = polyLoop.VertexCount();
+    vertices.reserve(vertexBase + vertexCount);
+    for (std::size_t i = 0; i < vertexCount; ++i)
+    {
+        vertices.emplace_back(polyLoop.VertexAt(i));
+    }
+
+    std::vector<BrepCoedge> coedges;
+    coedges.reserve(vertexCount);
+    for (std::size_t i = 0; i < vertexCount; ++i)
+    {
+        const std::size_t next = (i + 1) % vertexCount;
+        const Point3d first = polyLoop.VertexAt(i);
+        const Point3d second = polyLoop.VertexAt(next);
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            vertexBase + i,
+            vertexBase + next);
+        coedges.emplace_back(edges.size() - 1, false);
+    }
+
+    loop = BrepLoop(std::move(coedges));
+    uvPoints.clear();
+    uvPoints.reserve(vertexCount);
+    return loop.IsValid();
+}
 } // namespace
 
 BrepFaceConversion3d ConvertToPolyhedronFace(const BrepFace& face, double eps)
@@ -208,5 +264,82 @@ BrepBodyConversion3d ConvertToPolyhedronBody(const BrepBody& body, double eps)
     }
 
     return {true, BrepConversionIssue3d::None, 0, std::move(polyBody)};
+}
+
+PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, double eps)
+{
+    if (!body.IsValid(eps))
+    {
+        return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
+    }
+
+    std::vector<BrepVertex> vertices;
+    std::vector<BrepEdge> edges;
+    std::vector<BrepFace> faces;
+    faces.reserve(body.FaceCount());
+
+    for (std::size_t faceIndex = 0; faceIndex < body.FaceCount(); ++faceIndex)
+    {
+        const PolyhedronFace3d face = body.FaceAt(faceIndex);
+        if (!face.IsValid(eps))
+        {
+            return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+        }
+
+        const PlaneSurface planeSurface = PlaneSurface::FromPlane(face.SupportPlane());
+        auto surface = std::make_shared<PlaneSurface>(planeSurface);
+
+        BrepLoop outerLoop;
+        std::vector<Point2d> outerUv;
+        if (!AppendBrepLoopFromPolyLoop(face.OuterLoop(), vertices, edges, outerLoop, outerUv))
+        {
+            return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+        }
+
+        for (std::size_t i = 0; i < face.OuterLoop().VertexCount(); ++i)
+        {
+            outerUv.push_back(ProjectPointToPlaneUv(face.OuterLoop().VertexAt(i), planeSurface));
+        }
+        CurveOnSurface outerTrim(surface, Polyline2d(std::move(outerUv), PolylineClosure::Closed));
+
+        std::vector<BrepLoop> holeLoops;
+        std::vector<CurveOnSurface> holeTrims;
+        holeLoops.reserve(face.HoleCount());
+        holeTrims.reserve(face.HoleCount());
+        for (std::size_t holeIndex = 0; holeIndex < face.HoleCount(); ++holeIndex)
+        {
+            const PolyhedronLoop3d hole = face.HoleAt(holeIndex);
+            BrepLoop holeLoop;
+            std::vector<Point2d> holeUv;
+            if (!AppendBrepLoopFromPolyLoop(hole, vertices, edges, holeLoop, holeUv))
+            {
+                return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+            }
+
+            for (std::size_t i = 0; i < hole.VertexCount(); ++i)
+            {
+                holeUv.push_back(ProjectPointToPlaneUv(hole.VertexAt(i), planeSurface));
+            }
+
+            holeLoops.push_back(std::move(holeLoop));
+            holeTrims.emplace_back(surface, Polyline2d(std::move(holeUv), PolylineClosure::Closed));
+        }
+
+        BrepFace brepFace(surface, outerLoop, std::move(holeLoops), std::move(outerTrim), std::move(holeTrims));
+        if (!brepFace.IsValid(GeometryTolerance3d{eps, eps, eps}))
+        {
+            return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+        }
+
+        faces.push_back(std::move(brepFace));
+    }
+
+    BrepBody brepBody(std::move(vertices), std::move(edges), {BrepShell(std::move(faces), false)});
+    if (!brepBody.IsValid(GeometryTolerance3d{eps, eps, eps}))
+    {
+        return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
+    }
+
+    return {true, BrepConversionIssue3d::None, 0, std::move(brepBody)};
 }
 } // namespace geometry::sdk
