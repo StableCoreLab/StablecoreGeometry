@@ -274,3 +274,6 @@
 - 2026-04-03（continuation-75）：
   - 已将 `BuildFaceWithRefitSupportPlane(...)` 扩展为 outer+hole 全 loop 候选平面打分，按全局 signed-distance 误差优先的启发式选择 refit support plane，作为 topology-changing non-planar repair 的一阶算法推进。
   - 已新增 holed-face capability 子集 `HoleDominatedNonPlanarHoledFaceRepairsToPlanarBrepBody`，验证 hole 主导更低误差平面时 conversion 仍可稳定回收到 planar holed face。
+- 2026-04-03（continuation-76）：
+  - 已将 all-loop support-plane scoring 从单面 holed-face 子集推进到 shared-edge mixed-content 子集：`SharedEdgeHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody` 验证 holed face 与相邻 plain face 可共同保持共享拓扑收敛。
+  - 新子场景确认当 holed face 的 outer loop 比 hole loop 更偏离目标平面时，conversion 仍可把两面全部顶点稳定回投到 `z≈0`。

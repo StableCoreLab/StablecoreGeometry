@@ -410,6 +410,35 @@ PolyhedronBody BuildHoleDominatedNonPlanarHoledFaceBody()
     return PolyhedronBody({face});
 }
 
+PolyhedronBody BuildSharedEdgeHoleDominatedMixedContentBody()
+{
+    const Plane mismatchedPlane =
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.2}, Vector3d{0.0, 0.0, 1.0});
+
+    const Point3d a{0.0, 0.0, 0.0};
+    const Point3d b{2.0, 0.0, 0.0};
+    const Point3d c{2.0, 2.0, 0.0};
+    const Point3d d{0.0, 2.0, 0.0};
+
+    const Point3d e{6.0, 0.0, 0.12};
+    const Point3d f{6.0, 2.0, 0.10};
+
+    std::vector<Point3d> hole{
+        Point3d{2.6, 0.4, 0.0},
+        Point3d{5.4, 0.4, 0.0},
+        Point3d{5.4, 1.6, 0.0},
+        Point3d{2.6, 1.6, 0.0}};
+
+    const PolyhedronFace3d faceA(
+        mismatchedPlane,
+        PolyhedronLoop3d({a, b, c, d}));
+    const PolyhedronFace3d faceB(
+        mismatchedPlane,
+        PolyhedronLoop3d({b, e, f, c}),
+        {PolyhedronLoop3d(std::move(hole))});
+    return PolyhedronBody({faceA, faceB});
+}
+
 PolyhedronBody BuildSupportPlaneMismatchedCollinearLeadingLoopBody()
 {
     const PolyhedronFace3d face(
@@ -3172,6 +3201,33 @@ TEST(Conversion3dCapabilityTest, HoleDominatedNonPlanarHoledFaceRepairsToPlanarB
     assert(result.body.FaceCount() == 1);
     assert(result.body.VertexCount() == 8);
     assert(result.body.EdgeCount() == 8);
+
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        assert(std::abs(point.z) < 1e-10);
+    }
+}
+
+// Demonstrates the all-loop support-plane scoring also composes with
+// shared-edge mixed-content repair: a holed face can choose the lower-error
+// plane dictated by its hole loop while still preserving shared topology with
+// its adjacent plain face.
+TEST(Conversion3dCapabilityTest, SharedEdgeHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody)
+{
+    const PolyhedronBody body = BuildSharedEdgeHoleDominatedMixedContentBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 2);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 2);
+    assert(result.body.VertexCount() == 10);
+    assert(result.body.EdgeCount() == 11);
+    assert(result.body.ShellCount() == 1);
+    assert(!result.body.ShellAt(0).IsClosed());
 
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
     {

@@ -268,3 +268,7 @@
 - 已推进 `ConvertToBrepBody(...)` repair 算法：`BuildFaceWithRefitSupportPlane(...)` 改为对 outer + hole 全 loop 顶点枚举候选平面，并按全局 signed-distance 误差优先选择 refit support plane，不再局限于 outer-loop-only 启发式。
 - 已扩展 conversion capability：`HoleDominatedNonPlanarHoledFaceRepairsToPlanarBrepBody`，验证 hole 主导更低误差平面时，holed face 仍可稳定回收到 planar BrepFace（`FaceCount=1 / VertexCount=8 / EdgeCount=8`，且顶点 `z≈0`）。
 - 下一轮优先继续把这条 all-loop support-plane scoring 往 shared-topology / multi-face / topology-changing non-planar repair 推进，而不是再补单面代表性子集。
+## 本轮新增（2026-04-03，continuation-76）
+- 已扩展 conversion capability：`SharedEdgeHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody`，验证 all-loop support-plane scoring 已从单面 holed face 推进到 shared-edge mixed-content 子集；holed face 与相邻 plain face 可共同保持 `FaceCount=2 / VertexCount=10 / EdgeCount=11` 的共享 open-shell 拓扑收敛。
+- 新子场景中 holed face 的 outer loop 比 hole loop 更偏离目标平面，但 conversion 后两面顶点仍全部回投到 `z≈0`。
+- 下一轮继续把这条 all-loop scoring 往更一般的 shared-chain / representative-average / topology-changing non-planar repair 组合推进。

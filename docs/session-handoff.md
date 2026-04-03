@@ -1009,3 +1009,9 @@
 - 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `HoleDominatedNonPlanarHoledFaceRepairsToPlanarBrepBody`，验证当 outer loop 本身更偏离而 hole loop 主导更低误差平面时，`ConvertToBrepBody(...)` 仍可稳定回收到 planar holed face（FaceCount=1 / VertexCount=8 / EdgeCount=8，且全部顶点 z≈0）。
 - 已同步更新 `tests/gaps/test_3d_conversion_gaps.cpp`，将 holed-face all-loop support-plane scoring 子集纳入当前已覆盖边界说明。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-03，continuation-76）
+
+- 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `SharedEdgeHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody`，验证 all-loop support-plane scoring 不仅适用于单面 holed face，也可在 shared-edge mixed-content 输入中与相邻 plain face 共同收敛，保持 open-shell 共享拓扑计数（FaceCount=2 / VertexCount=10 / EdgeCount=11）。
+- 新子场景中 holed face 的 outer loop 故意比 hole loop 更偏离目标平面，但 conversion 后两面所有顶点仍稳定回投到 `z≈0`，说明 all-loop scoring 已从单面子集推进到最小 shared-topology 组合子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
