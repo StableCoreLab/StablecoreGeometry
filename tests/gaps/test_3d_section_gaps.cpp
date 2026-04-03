@@ -22,7 +22,8 @@ TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
                     "Covered subsets: convex-body oblique-face-to-face mid-plane stitching (four-segment closed-contour determinism on unit-cube y=0.5 cut), "
                     "unit-cube x-axis section (four-segment 1×1 square contour, perimeter=4), "
                     "unit-cube x-axis section on BrepBody path (four-segment 1×1 square contour, perimeter=4), "
-                    "rectangular-prism z-axis section (four-segment 2×2 square contour, perimeter=8).";
+                    "rectangular-prism z-axis section (four-segment 2×2 square contour, perimeter=8), "
+                    "and rectangular-prism z-axis section on BrepBody path (four-segment 2×2 square contour, perimeter=8).";
 }
 
 TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
