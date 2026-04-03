@@ -1730,6 +1730,47 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidTripleVerticesBody()
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0c, v4, v7, v3})),
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v2, v6c, v5}))});
 }
+
+// Same triple-vertices near-equal perturbation, but the left face also has a
+// duplicate leading vertex injected for duplicate-loop-normalization stress.
+PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopBody()
+{
+    const double s = 1e-5;
+    const double w = 2.0 * s;
+
+    const Point3d v0a{1.0e-7, 0.0, 0.0};
+    const Point3d v0b{-1.0e-7, 0.0, 0.0};
+    const Point3d v0c{0.0, 0.0, 0.0};
+
+    const Point3d v1a{w + 1.0e-7, 0.0, 0.0};
+    const Point3d v1b{w - 1.0e-7, 0.0, 0.0};
+    const Point3d v1c{w, 0.0, 0.0};
+
+    const Point3d v6a{w + 2.0e-7, s, s};
+    const Point3d v6b{w - 1.0e-7, s, s};
+    const Point3d v6c{w, s, s};
+
+    const Point3d v2{w, s, 0.0};
+    const Point3d v3{0.0, s, 0.0};
+    const Point3d v4{0.0, 0.0, s};
+    const Point3d v5{w, 0.0, s};
+    const Point3d v7{0.0, s, s};
+
+    const Plane mismatched =
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 3e-6}, Vector3d{0.0, 0.0, 1.0});
+
+    // Left face with duplicate leading vertex
+    std::vector<Point3d> leftLoop{v0c, v4, v7, v3};
+    leftLoop.insert(leftLoop.begin(), leftLoop.front());
+
+    return PolyhedronBody({
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0a, v3, v2, v1a})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v4, v5, v6a, v7})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0b, v1b, v5, v4})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v3, v7, v6b, v2})),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d(std::move(leftLoop))),
+        PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v2, v6c, v5}))});
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -3582,6 +3623,57 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVertice
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerticesRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 6);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 6);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
+
+    const double s = 1e-5;
+    const double w = 2.0 * s;
+    const double expectedV1X = w;
+    const double expectedV6X = w + 1.0e-7 / 3.0;
+
+    std::size_t sharedV0Count = 0;
+    std::size_t sharedV1Count = 0;
+    std::size_t sharedV6Count = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.x) < 1e-10 && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
+        {
+            ++sharedV0Count;
+        }
+        if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
+        {
+            ++sharedV1Count;
+            assert(std::abs(point.x - expectedV1X) < 1e-10);
+        }
+        if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
+        {
+            ++sharedV6Count;
+            assert(std::abs(point.x - expectedV6X) < 1e-10);
+        }
+    }
+
+    assert(sharedV0Count == 1);
+    assert(sharedV1Count == 1);
+    assert(sharedV6Count == 1);
+}
+
+// Demonstrates that triple-shared-vertices near-equal perturbation paired with
+// duplicate-loop-normalization on one face also converges: the left face has a
+// duplicate leading vertex, while v0, v1, v6 each span 3 incident faces.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopRepairsToValidBrepBody)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopBody();
     assert(!body.IsValid());
     assert(body.FaceCount() == 6);
 

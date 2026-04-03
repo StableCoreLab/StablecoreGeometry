@@ -93,6 +93,15 @@
 - 已同步收敛 `tests/gaps/test_3d_section_gaps.cpp` 文案，纳入 rectangular-prism x-axis on BrepBody path 子集。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
+## 本轮新增（2026-04-03，continuation-66）
+
+- 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `UnitCubeZAxisSectionYieldsDeterministicRebarPerimeter`，验证 unit cube z=0.5 截面在 Polyhedron 路径保持四段闭合 1×1 方形（segments=4 / perimeter=4 / area=1）。
+- 已扩展 section capability：新增 `BrepUnitCubeZAxisSectionYieldsDeterministicRebarPerimeter`，验证同一输入在 Brep 路径保持相同结果，完成 unit-cube 三轴方向 Poly/Brep 对偶全覆盖。
+- 已扩展 conversion capability：新增 `SupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopRepairsToValidBrepBody`，在 triple-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）。
+- 已同步收敛 `tests/gaps/test_3d_section_gaps.cpp` 文案，纳入 unit-cube z-axis Poly/Brep 两个子集。
+- 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，纳入 closed-cuboid triple-vertices + duplicate-loop-normalization 子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
 ## 本轮新增（2026-04-03，continuation-65）
 
 - 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepUnitCubeMidPlaneSectionYieldsFourSegmentClosedContour`，验证 unit cube y=0.5 截面在 Brep 路径保持四段闭合 1×1 方形（segments=4 / perimeter=4 / area=1），补齐 unit-cube y 轴截面的 Brep 路径子集。

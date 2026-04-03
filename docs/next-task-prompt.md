@@ -142,6 +142,8 @@
   - **[已收敛子集]** unit cube y=0.5 截面在 Brep 路径四段闭合 1×1 方形（segments=4 / perimeter=4.0 / area=1.0）
   - **[已收敛子集]** 2×2×1 矩形棱柱 y=1.0 截面四段闭合 2×1 矩形（perimeter=6.0 / area=2.0）
   - **[已收敛子集]** 2×2×1 矩形棱柱 y=1.0 截面在 Brep 路径四段闭合 2×1 矩形（perimeter=6.0 / area=2.0）
+  - **[已收敛子集]** unit cube z=0.5 截面在 Polyhedron 路径四段闭合 1×1 方形（segments=4 / perimeter=4.0 / area=1.0）
+  - **[已收敛子集]** unit cube z=0.5 截面在 Brep 路径四段闭合 1×1 方形（segments=4 / perimeter=4.0 / area=1.0）
 - 必需-2：`Section` 在超出现有子集时的 coplanar fragment merge 语义闭合，确保切面输出不会碎片化（对应 `Section3dGapTest::FaceMergeSemanticsAfterSectionRemainsOpen`）
   - **[已收敛子集]** 三面共面水平排列 strip 合并为单多边形（3×1 矩形，area=3）
   - **[已收敛子集]** 三面共面水平排列 strip 在 Brep 路径合并为单多边形（3×1 矩形，area=3）
@@ -151,6 +153,7 @@
   - **[已收敛子集]** support-mismatch near-equal closed-cuboid all-vertices（2×1×1 矩形盒子，8 顶点全部 near-equal 扰动，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-cuboid all-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-cuboid triple-shared-vertices（三顶点 near-equal 扰动，无 duplicate-loop-normalization，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
+  - **[已收敛子集]** support-mismatch near-equal closed-cuboid triple-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-tetra dual-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=4/VertexCount=4/EdgeCount=6/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-prism dual-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-prism all-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
@@ -176,6 +179,8 @@
   - **[已收敛子集]** unit cube y=0.5 截面在 Brep 路径轮廓周长断言（1×1 square perimeter=4.0）
   - **[已收敛子集]** 2×2×1 矩形棱柱 y=1.0 截面轮廓周长断言（2×1 rectangle perimeter=6.0）
   - **[已收敛子集]** 2×2×1 矩形棱柱 y=1.0 截面在 Brep 路径轮廓周长断言（2×1 rectangle perimeter=6.0）
+  - **[已收敛子集]** unit cube z=0.5 截面轮廓周长断言（1×1 square perimeter=4.0）
+  - **[已收敛子集]** unit cube z=0.5 截面在 Brep 路径轮廓周长断言（1×1 square perimeter=4.0）
 
 ### P4-B：aggressive shell policy 分层落地（已完成最小子集）
 - 已覆盖 mixed support-mismatch + ineligible multiface 系列场景的 shell-level FaceCount 分布断言

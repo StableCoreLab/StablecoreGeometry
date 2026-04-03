@@ -1146,3 +1146,102 @@ TEST(Section3dCapabilityTest, BrepRectangularPrismYAxisSectionYieldsDeterministi
     assert(components3.IsValid());
     assert(components3.components.size() == 1);
 }
+
+// Demonstrates that cutting a unit cube (x,y,z ∈ [0,1]) at z=0.5 (horizontal
+// mid-plane) yields a deterministic 1×1 square cross-section with perimeter 4.0
+// and area 1.0, extending the rebar-line coverage to the z-axis direction on
+// the PolyhedronBody path.
+TEST(Section3dCapabilityTest, UnitCubeZAxisSectionYieldsDeterministicRebarPerimeter)
+{
+    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    assert(cubeBody.IsValid());
+
+    // z=0.5 plane intersects the four lateral faces whose vertex z-coordinates
+    // span the range, leaving bottom (z=0) and top (z=1) uncut.
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.5, 0.5, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(cubeBody, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    // Exactly four segments (one per intersected lateral face).
+    assert(section.segments.size() == 4);
+
+    // Exactly one closed contour with 4 corner points.
+    assert(section.contours.size() == 1);
+    assert(section.contours[0].closed);
+    assert(section.contours[0].points.size() == 4);
+
+    // Perimeter of the 1×1 square cross-section in the xy-plane = 4.0.
+    double totalLength = 0.0;
+    const auto& pts = section.contours[0].points;
+    for (std::size_t i = 0; i < pts.size(); ++i)
+    {
+        const Point3d& p0 = pts[i];
+        const Point3d& p1 = pts[(i + 1) % pts.size()];
+        const double dx = p1.x - p0.x, dy = p1.y - p0.y, dz = p1.z - p0.z;
+        totalLength += std::sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    assert(totalLength > 3.5 && totalLength < 4.5);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+    assert(section.polygons.size() == 1);
+    assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 1.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+}
+
+// Demonstrates the same z-axis deterministic rebar perimeter subset also
+// holds on the Brep path after Polyhedron->Brep conversion.
+TEST(Section3dCapabilityTest, BrepUnitCubeZAxisSectionYieldsDeterministicRebarPerimeter)
+{
+    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    assert(cubeBody.IsValid());
+
+    const auto converted = ConvertToBrepBody(cubeBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.5, 0.5, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.segments.size() == 4);
+    assert(section.contours.size() == 1);
+    assert(section.contours[0].closed);
+    assert(section.contours[0].points.size() == 4);
+
+    double totalLength = 0.0;
+    const auto& pts = section.contours[0].points;
+    for (std::size_t i = 0; i < pts.size(); ++i)
+    {
+        const Point3d& p0 = pts[i];
+        const Point3d& p1 = pts[(i + 1) % pts.size()];
+        const double dx = p1.x - p0.x, dy = p1.y - p0.y, dz = p1.z - p0.z;
+        totalLength += std::sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    assert(totalLength > 3.5 && totalLength < 4.5);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+    assert(section.polygons.size() == 1);
+    assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 1.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+}
