@@ -215,6 +215,7 @@
   - 已扩展 conversion capability：support-mismatch near-equal closed-cuboid triple-shared-vertices 叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 triple-vertices 病理组合子集
   - 已扩展 conversion capability：support-mismatch near-equal closed-cuboid all-vertices 叠加两面 duplicate-loop-normalization，`ConvertToBrepBody(...)` 仍可稳定收敛 closed-shell 拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 all-vertices 双重复病理组合子集
   - 已扩展 conversion capability：support-mismatch near-equal closed-cuboid triple-shared-vertices 叠加两面 duplicate-loop-normalization，`ConvertToBrepBody(...)` 仍可稳定收敛 closed-shell 拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 triple-vertices 双重复病理组合子集
+  - 已扩展 conversion capability：support-mismatch near-equal closed-cuboid dual-shared-vertices 叠加两面 duplicate-loop-normalization，`ConvertToBrepBody(...)` 仍可稳定收敛 closed-shell 拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 dual-vertices 双重复病理组合子集
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成
