@@ -1426,6 +1426,29 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedPrismAllVerticesBody()
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v2c, v0c, v3c, v5c}))});
 }
 
+PolyhedronBody BuildSupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopBody()
+{
+    // Reuse the all-vertices near-equal closed-prism and inject one
+    // consecutive duplicate leading vertex on a quad side face.
+    const PolyhedronBody base = BuildSupportMismatchNearEqualClosedPrismAllVerticesBody();
+    std::vector<PolyhedronFace3d> faces = base.Faces();
+    if (faces.size() != 5)
+    {
+        return PolyhedronBody();
+    }
+
+    const PolyhedronFace3d sideFace = faces[2];
+    std::vector<Point3d> vertices = sideFace.OuterLoop().Vertices();
+    if (vertices.empty())
+    {
+        return PolyhedronBody();
+    }
+
+    vertices.insert(vertices.begin(), vertices.front());
+    faces[2] = PolyhedronFace3d(sideFace.SupportPlane(), PolyhedronLoop3d(std::move(vertices)));
+    return PolyhedronBody(std::move(faces));
+}
+
 PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody()
 {
     // Tiny-scale 2×1×1 rectangular box (pure-quad closed shell) where all 8
@@ -2094,6 +2117,51 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismAllVerticesBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 5);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 5);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 6);
+    assert(result.body.EdgeCount() == 9);
+
+    const double s = 1e-5;
+    const double expectedV1X = s + 1.0e-7 / 3.0;
+    const double expectedV4X = s + 2.0e-7 / 3.0;
+
+    std::size_t sharedV1Count = 0;
+    std::size_t sharedV4Count = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
+        {
+            ++sharedV1Count;
+            assert(std::abs(point.x - expectedV1X) < 1e-10);
+        }
+        if (std::abs(point.y) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s
+            && point.z > 0.5 * s && point.z < 1.5 * s)
+        {
+            ++sharedV4Count;
+            assert(std::abs(point.x - expectedV4X) < 1e-10);
+        }
+    }
+
+    assert(sharedV1Count == 1);
+    assert(sharedV4Count == 1);
+}
+
+// Demonstrates representative-average placement on the near-equal
+// closed-prism all-vertices subset remains stable when one side face also
+// requires duplicate-loop normalization.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopBody();
     assert(!body.IsValid());
     assert(body.FaceCount() == 5);
 

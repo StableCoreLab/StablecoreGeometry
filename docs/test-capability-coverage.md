@@ -110,6 +110,7 @@
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra all-shared-vertices（四个顶点全部 near-equal 扰动）输入下可经 refit 后对全部共享顶点同时应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism dual-shared-vertices（三棱柱拓扑，两个不相邻共享顶点各有 near-equal 扰动）输入下可跨三角面和四边形面同时稳定应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism all-shared-vertices（三棱柱拓扑，六个共享顶点全部 near-equal 扰动）输入下可经 refit 后对全体共享顶点同时稳定应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
+  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism all-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
   - `ConvertToBrepBody(...)` 已增加 representative-target 聚合失败回退：若全局平均目标点构建失败，将自动回退到原 representative-id 复用路径，避免把可转换输入误判为失败
   - `ConvertToBrepBody(...)` 的 repair 后 representative snapping 已从单轮提升为最多两轮小步迭代（每轮保持 body 有效性约束），以增强跨面共享顶点对齐稳定性
   - `ConvertToBrepBody(...)` 已为代表性 repair 场景补齐壳体语义断言：cube-like 输入稳定满足 `ShellCount()==1 && IsClosed()==true`，shared-chain sheet-like 输入稳定满足 `ShellCount()==1 && IsClosed()==false`
@@ -145,6 +146,7 @@
 
 - `SupportMismatchNearEqualClosedCuboidAllVerticesRepairsToValidBrepBody` — tiny-scale 2×1×1 矩形盒子（纯四边形面闭壳，6 faces / 8 vertices / 12 edges）全顶点 near-equal 扰动 + 统一 support-plane mismatch，修复后保持 closed shell 拓扑，扩展 representative-average 覆盖到非等边长 cuboid 拓扑
 - `SupportMismatchNearEqualClosedCuboidAllVerticesWithDuplicateLoopRepairsToValidBrepBody` — 在 closed-cuboid all-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）
+- `SupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-prism all-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=5 / VertexCount=6 / EdgeCount=9）
 
 ## Gap Characterization Tests
 
