@@ -26,6 +26,7 @@ TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
                     "unit-cube x-axis section on BrepBody path (four-segment 1×1 square contour, perimeter=4), "
                     "rectangular-prism z-axis section (four-segment 2×2 square contour, perimeter=8), "
                     "rectangular-prism z-axis section on BrepBody path (four-segment 2×2 square contour, perimeter=8), "
+                    "rectangular-prism x-axis section on PolyhedronBody path (four-segment 2×1 rectangle contour, perimeter=6), "
                     "and rectangular-prism x-axis section on BrepBody path (four-segment 2×1 rectangle contour, perimeter=6).";
 }
 
