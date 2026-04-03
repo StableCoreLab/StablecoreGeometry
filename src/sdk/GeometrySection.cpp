@@ -1188,6 +1188,7 @@ PolyhedronSection3d Section(
 
     if (hasCoplanarFace)
     {
+        MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
         RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
         result.success = true;
         return result;

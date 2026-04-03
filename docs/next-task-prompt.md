@@ -135,6 +135,7 @@
   - **[已收敛子集]** 2×2×1 矩形棱柱 z=0.5 截面四段闭合 2×2 方形（perimeter=8.0 / area=4.0）
 - 必需-2：`Section` 在超出现有子集时的 coplanar fragment merge 语义闭合，确保切面输出不会碎片化（对应 `Section3dGapTest::FaceMergeSemanticsAfterSectionRemainsOpen`）
   - **[已收敛子集]** 三面共面水平排列 strip 合并为单多边形（3×1 矩形，area=3）
+  - **[已收敛子集]** 三面共面水平排列 strip 在 Brep 路径合并为单多边形（3×1 矩形，area=3）
 - 必需-3：`ConvertToBrepBody(...)` 向更一般 topology-changing non-planar repair 推进并转正 capability（对应 `Conversion3dGapTest::GeneralNonPlanarPolyhedronToBrepRepairRemainsOpen`）
   - **[已收敛子集]** support-mismatch near-equal closed-cuboid all-vertices（2×1×1 矩形盒子，8 顶点全部 near-equal 扰动，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
   - 仍为 open gap（更一般 topology-changing repair）

@@ -35,6 +35,6 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
     (void)section;
     GTEST_SKIP() << "Known 3D gap: section face-merge policy for ambiguous coplanar fragments beyond adjacent coplanar union subsets is not closed yet. "
                     "Covered subsets: two-face adjacent coplanar Polyhedron merge, two-face adjacent coplanar BrepBody merge, "
-                    "three-face coplanar horizontal strip merge (3×1 rectangle, area=3.0). "
+                    "three-face coplanar horizontal strip merge (3×1 rectangle, area=3.0), and three-face coplanar horizontal strip merge on BrepBody path (area=3.0). "
                     "Remaining open: non-adjacent fragment merge across convex-hull gaps and non-manifold coplanar topology.";
 }

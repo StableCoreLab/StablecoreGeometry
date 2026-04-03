@@ -15,6 +15,12 @@
 - 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 中 `ObliquePrismSectionYieldsDeterministicContourLength` 新增 `section.segments.size()==3` 断言，固定三棱柱截面的根数稳定性。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
+## 本轮新增（2026-04-03，continuation-51）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：`Section(BrepBody, Plane)` 的 coplanar 分支接入 `MergeCoplanarSectionPolygons(...)`，显式执行多面共面片段合并，避免 Brep 路径下潜在碎片化输出。
+- 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepThreeCoplanarFacesInStripMergeIntoSinglePolygon`，验证三面共面 strip 在 Brep 路径稳定合并为单 polygon（area=3.0，segments=4）。
+- 已同步更新：`tests/gaps/test_3d_section_gaps.cpp`、`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
 ## 本轮新增（2026-04-02，continuation-48）
 
 - 已新增失败后自动修复工作流：`.github/workflows/ci-autofix-on-failure.yml`（监听 `ci-windows-cmake` 失败）。

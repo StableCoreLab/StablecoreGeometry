@@ -45,6 +45,7 @@
   - 倾斜切平面下 `Section(...) + BuildSectionTopology(...) + BuildSectionComponents(...)` 的单区域闭环能力；并覆盖 non-axis-aligned multi-face 截面的稳定 contour/polygon 计数
   - 覆盖 `Section(BrepBody, Plane)` 的 oblique-cut 子能力：单位立方体先转 Brep 后再截切，稳定得到 1 polygon / 1 contour / 6 points / 1 topology root
   - 覆盖 `Section(BrepBody, Plane)` 的 coplanar 邻接片段合并子能力：2-face 邻接平面片先转 Brep 后截切，稳定得到单 polygon（area=2.0）
+  - 覆盖 `Section(BrepBody, Plane)` 的三面 coplanar strip 合并子能力：3-face 水平 strip 先转 Brep 后截切，稳定得到单 polygon（area=3.0）
   - 覆盖 `Section(BrepBody, Plane)` 的 multi-component 子能力：双立方体先转 Brep 后截切，稳定得到 2 polygons / 2 roots / 2 components
   - 覆盖 coplanar 相邻 face fragment 在 `Section(...)` 中合并为单 polygon 的代表性 face-merge 子集
   - 覆盖 unit cube x=0.5 截面（法向 +x）的确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0），扩展钢筋线周长稳定性到 x 轴方向
@@ -126,6 +127,7 @@
 ### Section 子集（tests/capabilities/test_3d_section.cpp）
 
 - `ThreeCoplanarFacesInLStripMergeIntoSinglePolygon` — 三面共面水平排列 strip 合并为单多边形（area=3），收敛 FaceMergeSemantics gap 子集
+- `BrepThreeCoplanarFacesInStripMergeIntoSinglePolygon` — 三面共面水平 strip 在 Brep 路径也可合并为单多边形（area=3），扩展 FaceMergeSemantics 的 Brep 子集
 - `UnitCubeMidPlaneSectionYieldsFourSegmentClosedContour` — unit cube y=0.5 截面恰好四段闭合，area=1，收敛 NonPlanarDominant gap 行列式子集
 - `ObliquePrismSectionYieldsDeterministicContourLength` — 等边三棱柱水平截面周长断言（≈3），收敛钢筋线总长稳定性子集
 - `ObliquePrismSectionYieldsDeterministicContourLength` 现补齐段数稳定断言（3 段），收敛钢筋线根数稳定子集

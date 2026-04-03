@@ -44,6 +44,26 @@ PolyhedronBody BuildAdjacentCoplanarFaceBody()
             }))});
 }
 
+PolyhedronBody BuildThreeCoplanarStripFacesBody()
+{
+    return PolyhedronBody({
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d({
+                Point3d{0.0, 0.0, 0.0}, Point3d{1.0, 0.0, 0.0},
+                Point3d{1.0, 1.0, 0.0}, Point3d{0.0, 1.0, 0.0}})),
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{1.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d({
+                Point3d{1.0, 0.0, 0.0}, Point3d{2.0, 0.0, 0.0},
+                Point3d{2.0, 1.0, 0.0}, Point3d{1.0, 1.0, 0.0}})),
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{2.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d({
+                Point3d{2.0, 0.0, 0.0}, Point3d{3.0, 0.0, 0.0},
+                Point3d{3.0, 1.0, 0.0}, Point3d{2.0, 1.0, 0.0}}))});
+}
+
 PolyhedronLoop3d TranslateLoop(const PolyhedronLoop3d& loop, const Vector3d& delta)
 {
     std::vector<Point3d> vertices;
@@ -286,27 +306,7 @@ TEST(Section3dCapabilityTest, AdjacentCoplanarFacesMergeIntoSingleSectionPolygon
 // just a single adjacent pair.
 TEST(Section3dCapabilityTest, ThreeCoplanarFacesInLStripMergeIntoSinglePolygon)
 {
-    // Three coplanar z=0 faces arranged as an L-strip (left, middle, bottom-right)
-    //  [0,0]-[1,0]-[1,1]-[0,1]  (face 0)
-    //  [1,0]-[2,0]-[2,1]-[1,1]  (face 1)
-    //  [2,0]-[3,0]-[3,1]-[2,1]  (face 2)
-    // All coplanar z=0, horizontally adjacent.
-    const PolyhedronBody body({
-        PolyhedronFace3d(
-            Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
-            PolyhedronLoop3d({
-                Point3d{0.0, 0.0, 0.0}, Point3d{1.0, 0.0, 0.0},
-                Point3d{1.0, 1.0, 0.0}, Point3d{0.0, 1.0, 0.0}})),
-        PolyhedronFace3d(
-            Plane::FromPointAndNormal(Point3d{1.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
-            PolyhedronLoop3d({
-                Point3d{1.0, 0.0, 0.0}, Point3d{2.0, 0.0, 0.0},
-                Point3d{2.0, 1.0, 0.0}, Point3d{1.0, 1.0, 0.0}})),
-        PolyhedronFace3d(
-            Plane::FromPointAndNormal(Point3d{2.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
-            PolyhedronLoop3d({
-                Point3d{2.0, 0.0, 0.0}, Point3d{3.0, 0.0, 0.0},
-                Point3d{3.0, 1.0, 0.0}, Point3d{2.0, 1.0, 0.0}}))});
+    const PolyhedronBody body = BuildThreeCoplanarStripFacesBody();
     assert(body.IsValid());
     assert(body.FaceCount() == 3);
 
@@ -332,6 +332,43 @@ TEST(Section3dCapabilityTest, ThreeCoplanarFacesInLStripMergeIntoSinglePolygon)
     assert(components.components.size() == 1);
     assert(components.components[0].faceIndices.size() == 1);
 
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+    assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 3.0) < 1e-12);
+}
+
+// Demonstrates that the same three-face coplanar strip merge semantics are
+// preserved on the Brep path: Polyhedron->Brep conversion does not fragment
+// the section result into multiple polygons.
+TEST(Section3dCapabilityTest, BrepThreeCoplanarFacesInStripMergeIntoSinglePolygon)
+{
+    const PolyhedronBody polyBody = BuildThreeCoplanarStripFacesBody();
+    assert(polyBody.IsValid());
+    assert(polyBody.FaceCount() == 3);
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.0},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 1);
+    assert(section.contours[0].closed);
+    assert(section.contours[0].points.size() == 4);
+    assert(section.segments.size() == 4);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
     assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 3.0) < 1e-12);
 }
