@@ -982,3 +982,9 @@
 - 已扩展 conversion capability：新增 closed-tetra dual-shared-vertices + dual-duplicate-loop-normalization 子样例与 capability 断言，覆盖两个共享顶点 near-equal 扰动叠加双三角面 duplicate-loop-normalization 的闭壳收敛子集（目标拓扑计数：FaceCount=4 / VertexCount=4 / EdgeCount=6）。
 - 已预留 closed-tetra all-shared-vertices + dual-duplicate-loop-normalization 的输入构造器，下一轮优先补齐对应 capability 断言与文档同步。
 - 已同步更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-03，continuation-72）
+
+- 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget`，验证 support-mismatch near-equal closed-tetra all-shared-vertices 叠加双面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛到 closed-shell（FaceCount=4 / VertexCount=4 / EdgeCount=6）。
+- 已同步收敛 `docs/next-task-prompt.md` 中 closed-tetra dual/all 与 closed-prism dual/all 的 dual-duplicate-loop-normalization 优先子集文案，转为已收敛子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。

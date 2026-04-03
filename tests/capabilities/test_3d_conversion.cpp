@@ -2565,6 +2565,50 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVer
     assert(sharedV1Count == 1);
     assert(sharedV3Count == 1);
 }
+
+// Demonstrates representative-average placement on the near-equal closed-tetra
+// all-vertices subset remains stable when duplicate-loop normalization is
+// required on two faces simultaneously.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronAllVerticesWithDualDuplicateLoopBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 4);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 4);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 4);
+    assert(result.body.EdgeCount() == 6);
+
+    const double s = 1e-5;
+    const double expectedV1X = s + 1.0e-7 / 3.0;
+    const double expectedV3X = 0.5 * s + 1.0e-7 / 3.0;
+
+    std::size_t sharedV1Count = 0;
+    std::size_t sharedV3Count = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.y) < 1e-12 && point.z > 0.5e-6 && point.z < 2.0e-6 && point.x > 0.5 * s)
+        {
+            ++sharedV1Count;
+            assert(std::abs(point.x - expectedV1X) < 1e-10);
+        }
+        if (point.z > 0.7 * s && point.x > 0.3 * s && point.x < 0.7 * s)
+        {
+            ++sharedV3Count;
+            assert(std::abs(point.x - expectedV3X) < 1e-10);
+        }
+    }
+
+    assert(sharedV1Count == 1);
+    assert(sharedV3Count == 1);
+}
 // Demonstrates representative-average shared-vertex placement scales to a
 // closed triangular prism topology: two non-adjacent near-equal shared vertices
 // across quad and triangle faces simultaneously converge to stable average targets.

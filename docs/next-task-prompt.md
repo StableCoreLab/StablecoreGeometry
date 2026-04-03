@@ -162,9 +162,9 @@
   - **[已收敛子集]** support-mismatch near-equal closed-prism all-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-tetra all-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=4/VertexCount=4/EdgeCount=6/closed shell）
   - 仍为 open gap（更一般 topology-changing repair）
-  - **[下一轮优先子集]** support-mismatch near-equal closed-prism dual-shared-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，目标 FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
-  - **[下一轮优先子集]** support-mismatch near-equal closed-prism all-shared-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，目标 FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
-  - **[下一轮优先子集]** support-mismatch near-equal closed-tetra dual/all-shared-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，目标 FaceCount=4/VertexCount=4/EdgeCount=6/closed shell）
+  - **[已收敛子集]** support-mismatch near-equal closed-prism dual-shared-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
+  - **[已收敛子集]** support-mismatch near-equal closed-prism all-shared-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
+  - **[已收敛子集]** support-mismatch near-equal closed-tetra dual/all-shared-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，FaceCount=4/VertexCount=4/EdgeCount=6/closed shell）
 - 必需-4：`Heal(BrepBody)` 覆盖 non-planar trimmed face topology repair（对应 `Brep3dGapTest::NonPlanarTrimmedFaceTopologyRepairRemainsOpen`）
   - **[已收敛子集]** 非水平平面（y=0 竖面，法向+y）单面 BrepFace 缺失 trim 回填
   - **[已收敛子集]** x=0 竖面（法向+x）单面 BrepFace 缺失 trim 回填
@@ -247,3 +247,8 @@
 - 已扩展 conversion capability：closed-prism all-shared-vertices + dual-duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=5 / VertexCount=6 / EdgeCount=9`。
 - 已扩展 conversion capability：closed-tetra dual-shared-vertices + dual-duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=4 / VertexCount=4 / EdgeCount=6`。
 - 已预留 closed-tetra all-shared-vertices + dual-duplicate-loop-normalization 输入构造器；下一轮优先补齐对应 capability 断言，然后继续向更一般 topology-changing non-planar repair 推进。
+
+## 本轮新增（2026-04-03，continuation-72）
+
+- 已扩展 conversion capability：closed-tetra all-shared-vertices + dual-duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=4 / VertexCount=4 / EdgeCount=6`。
+- `closed-prism dual/all` 与 `closed-tetra dual/all` 的 dual-duplicate-loop-normalization 代表性子集现已补齐；下一轮继续向更一般 topology-changing non-planar repair 推进。
