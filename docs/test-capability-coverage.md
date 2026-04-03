@@ -148,6 +148,9 @@
 - `BrepRectangularPrismMidSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 z=0.5 在 Brep 路径也保持四段闭合 2×2 方形（perimeter=8，area=4）
 - `RectangularPrismXAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 x=1.0 在 Polyhedron 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱横向截面钢筋线周长子集
 - `BrepRectangularPrismXAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 x=1.0 在 Brep 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱横向截面的钢筋线周长子集
+- `BrepUnitCubeMidPlaneSectionYieldsFourSegmentClosedContour` — unit cube y=0.5 在 Brep 路径保持四段闭合 1×1 方形（segments=4，perimeter=4，area=1），补齐 unit-cube y 轴截面的 Brep 路径子集
+- `RectangularPrismYAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 y=1.0 在 Polyhedron 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱 y 轴截面钢筋线周长子集
+- `BrepRectangularPrismYAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 y=1.0 在 Brep 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱 y 轴截面的 Brep 路径钢筋线周长子集
 
 ### Healing 子集（tests/capabilities/test_3d_healing.cpp）
 
@@ -166,6 +169,7 @@
 - `SupportMismatchNearEqualClosedPrismDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-prism dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=5 / VertexCount=6 / EdgeCount=9）
 - `SupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-tetra dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=4 / VertexCount=4 / EdgeCount=6）
 - `SupportMismatchNearEqualClosedCuboidDualVerticesWithDuplicateLoopRepairsToValidBrepBody` — 在 closed-cuboid dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）
+- `SupportMismatchNearEqualClosedCuboidTripleVerticesRepairsToValidBrepBody` — 在 closed-cuboid triple-shared-vertices（三个共享顶点 near-equal 扰动）输入下，修复后稳定保持 representative-average 共享顶点落点与 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 dual→triple 中间子集
 
 ## Gap Characterization Tests
 

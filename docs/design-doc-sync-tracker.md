@@ -206,6 +206,10 @@
   - 已扩展 section capability：2×2×1 矩形棱柱 x=1.0 截面在 Polyhedron 路径可稳定保持四段闭合 2×1 矩形（perimeter=6.0 / area=2.0），补齐矩形棱柱横向截面钢筋线周长 Poly 子集
   - 已扩展 section capability：2×2×1 矩形棱柱 x=1.0 截面在 Brep 路径可稳定保持四段闭合 2×1 矩形（perimeter=6.0 / area=2.0），补齐矩形棱柱横向截面钢筋线周长子集
   - 已扩展 section capability：三棱柱 mid-section 在 Brep 路径可稳定保持三段闭合轮廓（perimeter≈3），补齐三棱柱钢筋线周长子集的 Brep 对齐
+  - 已扩展 section capability：unit cube y=0.5 截面在 Brep 路径可稳定保持四段闭合 1×1 方形（segments=4 / perimeter=4 / area=1），补齐 unit-cube y 轴截面的 Brep 路径子集
+  - 已扩展 section capability：2×2×1 矩形棱柱 y=1.0 截面在 Polyhedron 路径可稳定保持四段闭合 2×1 矩形（perimeter=6.0 / area=2.0），补齐矩形棱柱 y 轴截面钢筋线周长 Poly 子集
+  - 已扩展 section capability：2×2×1 矩形棱柱 y=1.0 截面在 Brep 路径可稳定保持四段闭合 2×1 矩形（perimeter=6.0 / area=2.0），补齐矩形棱柱 y 轴截面钢筋线周长 Brep 子集
+  - 已扩展 conversion capability：support-mismatch near-equal closed-cuboid triple-shared-vertices（三个共享顶点 near-equal 扰动，无 duplicate-loop-normalization）输入下，`ConvertToBrepBody(...)` 可稳定保持 representative-average 共享顶点落点并收敛 closed-shell 拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 dual→triple 中间子集
 ## 对齐完成定义（DoD）
 
 ### 2D 对齐完成

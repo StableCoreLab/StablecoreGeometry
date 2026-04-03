@@ -93,6 +93,16 @@
 - 已同步收敛 `tests/gaps/test_3d_section_gaps.cpp` 文案，纳入 rectangular-prism x-axis on BrepBody path 子集。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
+## 本轮新增（2026-04-03，continuation-65）
+
+- 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepUnitCubeMidPlaneSectionYieldsFourSegmentClosedContour`，验证 unit cube y=0.5 截面在 Brep 路径保持四段闭合 1×1 方形（segments=4 / perimeter=4 / area=1），补齐 unit-cube y 轴截面的 Brep 路径子集。
+- 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `RectangularPrismYAxisSectionYieldsDeterministicRebarPerimeter`，验证 2×2×1 矩形棱柱 y=1.0 截面在 Polyhedron 路径保持四段闭合 2×1 矩形（segments=4 / perimeter=6 / area=2）。
+- 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepRectangularPrismYAxisSectionYieldsDeterministicRebarPerimeter`，验证 2×2×1 矩形棱柱 y=1.0 截面在 Brep 路径保持四段闭合 2×1 矩形（segments=4 / perimeter=6 / area=2），完成矩形棱柱 y 轴截面的 Poly/Brep 对偶覆盖。
+- 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `SupportMismatchNearEqualClosedCuboidTripleVerticesRepairsToValidBrepBody`，验证 support-mismatch near-equal closed-cuboid triple-shared-vertices（v0/v1/v6 三个顶点跨三个入射面各自 near-equal 扰动，无 duplicate-loop-normalization）输入下，`ConvertToBrepBody(...)` 仍可稳定收敛到 closed-shell（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 dual→triple 中间子集。
+- 已同步收敛 `tests/gaps/test_3d_section_gaps.cpp` 文案，纳入 unit-cube y-axis BrepBody、rectangular-prism y-axis Poly/Brep 三个子集。
+- 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，纳入 closed-cuboid triple-shared-vertices representative-average 子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
 ## 本轮新增（2026-04-03，continuation-64）
 
 - 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `RectangularPrismXAxisSectionYieldsDeterministicRebarPerimeter`，验证 2×2×1 矩形棱柱 x=1.0 截面在 Polyhedron 路径同样保持四段闭合 2×1 矩形（segments=4 / perimeter=6 / area=2），保持 Poly/Brep 对偶覆盖。
