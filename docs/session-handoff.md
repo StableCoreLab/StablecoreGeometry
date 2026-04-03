@@ -1000,4 +1000,5 @@
 - 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `DeformedCubeWithDualDuplicateLoopRepairsToClosedSharedTopologyBrepBody`，验证 deformed unit cube（单顶点位移导致三面非平面）叠加双面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛到 closed-shell（FaceCount=6 / VertexCount=8 / EdgeCount=12）。
 - 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `DualDeformedCubeWithDuplicateLoopRepairsToClosedSharedTopologyBrepBody`，验证 dual-deformed unit cube（双顶点位移导致六面非平面）叠加一面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛到 closed-shell（FaceCount=6 / VertexCount=8 / EdgeCount=12）。
 - 已扩展 conversion capability：新增 `DualDeformedCubeWithDualDuplicateLoopRepairsToClosedSharedTopologyBrepBody`，验证 dual-deformed unit cube 叠加双面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛到 closed-shell（FaceCount=6 / VertexCount=8 / EdgeCount=12）。
+- 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，将 deformed / dual-deformed non-planar multi-face 的 single/dual duplicate-loop-normalization 子集纳入已覆盖边界说明。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
