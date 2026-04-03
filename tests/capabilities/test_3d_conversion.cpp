@@ -1795,6 +1795,29 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplic
         PolyhedronFace3d(mismatched, PolyhedronLoop3d(std::move(leftLoop))),
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v2, v6c, v5}))});
 }
+
+PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDualDuplicateLoopBody()
+{
+    // Start from the single-duplicate triple-vertices variant and add a second
+    // duplicate leading vertex on another face to stress composition behavior.
+    const PolyhedronBody base = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopBody();
+    std::vector<PolyhedronFace3d> faces = base.Faces();
+    if (faces.size() != 6)
+    {
+        return PolyhedronBody();
+    }
+
+    const PolyhedronFace3d back = faces[3];
+    std::vector<Point3d> loop = back.OuterLoop().Vertices();
+    if (loop.empty())
+    {
+        return PolyhedronBody();
+    }
+
+    loop.insert(loop.begin(), loop.front());
+    faces[3] = PolyhedronFace3d(back.SupportPlane(), PolyhedronLoop3d(std::move(loop)));
+    return PolyhedronBody(std::move(faces));
+}
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
@@ -3718,6 +3741,56 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerti
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 6);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 6);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
+
+    const double s = 1e-5;
+    const double w = 2.0 * s;
+    const double expectedV1X = w;
+    const double expectedV6X = w + 1.0e-7 / 3.0;
+
+    std::size_t sharedV0Count = 0;
+    std::size_t sharedV1Count = 0;
+    std::size_t sharedV6Count = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.x) < 1e-10 && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
+        {
+            ++sharedV0Count;
+        }
+        if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
+        {
+            ++sharedV1Count;
+            assert(std::abs(point.x - expectedV1X) < 1e-10);
+        }
+        if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
+        {
+            ++sharedV6Count;
+            assert(std::abs(point.x - expectedV6X) < 1e-10);
+        }
+    }
+
+    assert(sharedV0Count == 1);
+    assert(sharedV1Count == 1);
+    assert(sharedV6Count == 1);
+}
+
+// Demonstrates triple-shared-vertices near-equal perturbation remains stable
+// when duplicate-loop-normalization is required on two faces simultaneously.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerticesWithDualDuplicateLoopRepairsToValidBrepBody)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDualDuplicateLoopBody();
     assert(!body.IsValid());
     assert(body.FaceCount() == 6);
 

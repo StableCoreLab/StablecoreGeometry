@@ -155,6 +155,7 @@
   - **[已收敛子集]** support-mismatch near-equal closed-cuboid all-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-cuboid triple-shared-vertices（三顶点 near-equal 扰动，无 duplicate-loop-normalization，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-cuboid triple-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
+  - **[已收敛子集]** support-mismatch near-equal closed-cuboid triple-shared-vertices + dual-duplicate-loop-normalization（双面重复 leading 顶点，FaceCount=6/VertexCount=8/EdgeCount=12/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-tetra dual-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=4/VertexCount=4/EdgeCount=6/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-prism dual-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
   - **[已收敛子集]** support-mismatch near-equal closed-prism all-shared-vertices + duplicate-loop-normalization（单面重复 leading 顶点，FaceCount=5/VertexCount=6/EdgeCount=9/closed shell）
