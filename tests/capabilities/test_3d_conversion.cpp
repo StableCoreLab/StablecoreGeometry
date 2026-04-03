@@ -283,6 +283,69 @@ PolyhedronBody BuildDeformedUnitCubeWithDuplicateLoopBody()
     return PolyhedronBody(std::move(faces));
 }
 
+PolyhedronBody BuildDeformedUnitCubeWithDualDuplicateLoopBody()
+{
+    const PolyhedronBody base = BuildDeformedUnitCubeWithDuplicateLoopBody();
+    std::vector<PolyhedronFace3d> faces = base.Faces();
+    if (faces.size() != 6)
+    {
+        return PolyhedronBody();
+    }
+
+    const PolyhedronFace3d frontFace = faces[2];
+    std::vector<Point3d> loop = frontFace.OuterLoop().Vertices();
+    if (loop.empty())
+    {
+        return PolyhedronBody();
+    }
+
+    loop.insert(loop.begin(), loop.front());
+    faces[2] = PolyhedronFace3d(frontFace.SupportPlane(), PolyhedronLoop3d(std::move(loop)), frontFace.Holes());
+    return PolyhedronBody(std::move(faces));
+}
+
+PolyhedronBody BuildDualDeformedUnitCubeWithDuplicateLoopBody()
+{
+    const PolyhedronBody base = BuildDualDeformedUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = base.Faces();
+    if (faces.size() != 6)
+    {
+        return PolyhedronBody();
+    }
+
+    const PolyhedronFace3d leftFace = faces[4];
+    std::vector<Point3d> loop = leftFace.OuterLoop().Vertices();
+    if (loop.empty())
+    {
+        return PolyhedronBody();
+    }
+
+    loop.insert(loop.begin(), loop.front());
+    faces[4] = PolyhedronFace3d(leftFace.SupportPlane(), PolyhedronLoop3d(std::move(loop)), leftFace.Holes());
+    return PolyhedronBody(std::move(faces));
+}
+
+PolyhedronBody BuildDualDeformedUnitCubeWithDualDuplicateLoopBody()
+{
+    const PolyhedronBody base = BuildDualDeformedUnitCubeWithDuplicateLoopBody();
+    std::vector<PolyhedronFace3d> faces = base.Faces();
+    if (faces.size() != 6)
+    {
+        return PolyhedronBody();
+    }
+
+    const PolyhedronFace3d rightFace = faces[5];
+    std::vector<Point3d> loop = rightFace.OuterLoop().Vertices();
+    if (loop.empty())
+    {
+        return PolyhedronBody();
+    }
+
+    loop.insert(loop.begin(), loop.front());
+    faces[5] = PolyhedronFace3d(rightFace.SupportPlane(), PolyhedronLoop3d(std::move(loop)), rightFace.Holes());
+    return PolyhedronBody(std::move(faces));
+}
+
 PolyhedronBody BuildMildlyNonPlanarCubeFaceBody()
 {
     const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
@@ -2985,12 +3048,66 @@ TEST(Conversion3dCapabilityTest, DeformedCubeWithDuplicateLoopRepairsToClosedSha
     assert(result.body.ShellAt(0).IsClosed());
 }
 
+// Demonstrates the deformed-cube multi-face non-planar repair path remains
+// stable when duplicate-loop normalization is required on two faces.
+TEST(Conversion3dCapabilityTest, DeformedCubeWithDualDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
+{
+    const PolyhedronBody deformedBody = BuildDeformedUnitCubeWithDualDuplicateLoopBody();
+    assert(!deformedBody.IsValid());
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 6);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+}
+
 // Demonstrates a stronger multi-face non-planar case: two opposite displaced
 // vertices make all six cube faces non-planar against original support planes,
 // and conversion still repairs to a closed shared-topology BrepBody.
 TEST(Conversion3dCapabilityTest, DualDeformedCubeRepairsToClosedSharedTopologyBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDualDeformedUnitCubeBody();
+    assert(!deformedBody.IsValid());
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 6);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+}
+
+// Demonstrates the dual-deformed-cube multi-face non-planar repair path remains
+// stable when one adjacent face also needs duplicate-loop normalization.
+TEST(Conversion3dCapabilityTest, DualDeformedCubeWithDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
+{
+    const PolyhedronBody deformedBody = BuildDualDeformedUnitCubeWithDuplicateLoopBody();
+    assert(!deformedBody.IsValid());
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 6);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+}
+
+// Demonstrates the dual-deformed-cube non-planar repair path remains stable
+// when duplicate-loop normalization is required on two faces simultaneously.
+TEST(Conversion3dCapabilityTest, DualDeformedCubeWithDualDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
+{
+    const PolyhedronBody deformedBody = BuildDualDeformedUnitCubeWithDualDuplicateLoopBody();
     assert(!deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);

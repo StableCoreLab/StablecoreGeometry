@@ -257,3 +257,10 @@
 
 - 已扩展 conversion capability：deformed unit cube + duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=6 / VertexCount=8 / EdgeCount=12`。
 - 下一轮优先继续沿 deformed/non-planar multi-face 组合病理推进，例如 dual-deformed unit cube 叠加 duplicate-loop-normalization，逐步逼近更一般 topology-changing non-planar repair。
+
+## 本轮新增（2026-04-03，continuation-74）
+
+- 已扩展 conversion capability：deformed unit cube + dual-duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=6 / VertexCount=8 / EdgeCount=12`。
+- 已扩展 conversion capability：dual-deformed unit cube + duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=6 / VertexCount=8 / EdgeCount=12`。
+- 已扩展 conversion capability：dual-deformed unit cube + dual-duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=6 / VertexCount=8 / EdgeCount=12`。
+- deformed / dual-deformed non-planar multi-face 与 duplicate-loop-normalization 的代表性组合子集现已进一步收敛；下一轮继续向更一般 topology-changing non-planar repair 推进。
