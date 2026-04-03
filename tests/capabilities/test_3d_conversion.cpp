@@ -1305,6 +1305,29 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesBody()
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0c, v2, v3}))});
 }
 
+PolyhedronBody BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopBody()
+{
+    // Reuse dual-vertices near-equal closed-tetra and inject one duplicate
+    // leading vertex on a triangular face.
+    const PolyhedronBody base = BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesBody();
+    std::vector<PolyhedronFace3d> faces = base.Faces();
+    if (faces.size() != 4)
+    {
+        return PolyhedronBody();
+    }
+
+    const PolyhedronFace3d face = faces[2];
+    std::vector<Point3d> loop = face.OuterLoop().Vertices();
+    if (loop.empty())
+    {
+        return PolyhedronBody();
+    }
+
+    loop.insert(loop.begin(), loop.front());
+    faces[2] = PolyhedronFace3d(face.SupportPlane(), PolyhedronLoop3d(std::move(loop)));
+    return PolyhedronBody(std::move(faces));
+}
+
 PolyhedronBody BuildSupportMismatchNearEqualClosedTetrahedronAllVerticesBody()
 {
     // Closed tetrahedron where all four logical shared vertices each have
@@ -2035,6 +2058,48 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainDualDuplicat
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVerticesRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesBody();
+    assert(!body.IsValid());
+    assert(body.FaceCount() == 4);
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 4);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+    assert(result.body.VertexCount() == 4);
+    assert(result.body.EdgeCount() == 6);
+
+    const double s = 1e-5;
+    const double expectedV1X = s + (2e-7 - 1e-7 + 0.0) / 3.0;
+
+    std::size_t sharedV0Count = 0;
+    std::size_t sharedV1Count = 0;
+    for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
+    {
+        const Point3d point = result.body.VertexAt(i).Point();
+        if (std::abs(point.x) < 1e-12 && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
+        {
+            ++sharedV0Count;
+        }
+        if (std::abs(point.y) < 1e-12 && std::abs(point.z - 1.2e-6) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
+        {
+            ++sharedV1Count;
+            assert(std::abs(point.x - expectedV1X) < 1e-10);
+        }
+    }
+
+    assert(sharedV0Count == 1);
+    assert(sharedV1Count == 1);
+}
+
+// Demonstrates representative-average placement on near-equal
+// closed-tetra dual-shared-vertices remains stable when one face also needs
+// duplicate-loop normalization.
+TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget)
+{
+    const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopBody();
     assert(!body.IsValid());
     assert(body.FaceCount() == 4);
 

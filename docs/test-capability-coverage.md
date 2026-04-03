@@ -108,6 +108,7 @@
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-chain full-composition（含 collinear-leading + duplicate-hole-normalization）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=13 / EdgeCount=15）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-chain dual-duplicate full-composition（含 outer+hole duplicate-normalization）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=13 / EdgeCount=15）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra dual-shared-vertices（两个共享顶点同时 near-equal 扰动）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点，并保持 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
+  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra dual-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra all-shared-vertices（四个顶点全部 near-equal 扰动）输入下可经 refit 后对全部共享顶点同时应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra all-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism dual-shared-vertices（三棱柱拓扑，两个不相邻共享顶点各有 near-equal 扰动）输入下可跨三角面和四边形面同时稳定应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
@@ -154,6 +155,7 @@
 - `SupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-prism all-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=5 / VertexCount=6 / EdgeCount=9）
 - `SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-tetra all-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=4 / VertexCount=4 / EdgeCount=6）
 - `SupportMismatchNearEqualClosedPrismDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-prism dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=5 / VertexCount=6 / EdgeCount=9）
+- `SupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-tetra dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=4 / VertexCount=4 / EdgeCount=6）
 
 ## Gap Characterization Tests
 
