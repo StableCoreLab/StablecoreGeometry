@@ -252,3 +252,8 @@
 
 - 已扩展 conversion capability：closed-tetra all-shared-vertices + dual-duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=4 / VertexCount=4 / EdgeCount=6`。
 - `closed-prism dual/all` 与 `closed-tetra dual/all` 的 dual-duplicate-loop-normalization 代表性子集现已补齐；下一轮继续向更一般 topology-changing non-planar repair 推进。
+
+## 本轮新增（2026-04-03，continuation-73）
+
+- 已扩展 conversion capability：deformed unit cube + duplicate-loop-normalization，目标闭壳拓扑计数为 `FaceCount=6 / VertexCount=8 / EdgeCount=12`。
+- 下一轮优先继续沿 deformed/non-planar multi-face 组合病理推进，例如 dual-deformed unit cube 叠加 duplicate-loop-normalization，逐步逼近更一般 topology-changing non-planar repair。

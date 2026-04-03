@@ -262,6 +262,27 @@ PolyhedronBody BuildDualDeformedUnitCubeBody()
     });
 }
 
+PolyhedronBody BuildDeformedUnitCubeWithDuplicateLoopBody()
+{
+    const PolyhedronBody base = BuildDeformedUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = base.Faces();
+    if (faces.size() != 6)
+    {
+        return PolyhedronBody();
+    }
+
+    const PolyhedronFace3d leftFace = faces[4];
+    std::vector<Point3d> loop = leftFace.OuterLoop().Vertices();
+    if (loop.empty())
+    {
+        return PolyhedronBody();
+    }
+
+    loop.insert(loop.begin(), loop.front());
+    faces[4] = PolyhedronFace3d(leftFace.SupportPlane(), PolyhedronLoop3d(std::move(loop)), leftFace.Holes());
+    return PolyhedronBody(std::move(faces));
+}
+
 PolyhedronBody BuildMildlyNonPlanarCubeFaceBody()
 {
     const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
@@ -2933,6 +2954,24 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody)
 TEST(Conversion3dCapabilityTest, MultipleNonPlanarFacesFromDisplacedVertexRepairsToBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDeformedUnitCubeBody();
+    assert(!deformedBody.IsValid());
+
+    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
+    assert(result.success);
+    assert(result.issue == BrepConversionIssue3d::None);
+    assert(result.body.IsValid());
+    assert(result.body.FaceCount() == 6);
+    assert(result.body.VertexCount() == 8);
+    assert(result.body.EdgeCount() == 12);
+    assert(result.body.ShellCount() == 1);
+    assert(result.body.ShellAt(0).IsClosed());
+}
+
+// Demonstrates the deformed-cube multi-face non-planar repair path remains
+// stable when one adjacent face also needs duplicate-loop normalization.
+TEST(Conversion3dCapabilityTest, DeformedCubeWithDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
+{
+    const PolyhedronBody deformedBody = BuildDeformedUnitCubeWithDuplicateLoopBody();
     assert(!deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);

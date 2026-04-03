@@ -120,8 +120,9 @@
   - `ConvertToBrepBody(...)` 已增加 representative-target 聚合失败回退：若全局平均目标点构建失败，将自动回退到原 representative-id 复用路径，避免把可转换输入误判为失败
   - `ConvertToBrepBody(...)` 的 repair 后 representative snapping 已从单轮提升为最多两轮小步迭代（每轮保持 body 有效性约束），以增强跨面共享顶点对齐稳定性
   - `ConvertToBrepBody(...)` 已为代表性 repair 场景补齐壳体语义断言：cube-like 输入稳定满足 `ShellCount()==1 && IsClosed()==true`，shared-chain sheet-like 输入稳定满足 `ShellCount()==1 && IsClosed()==false`
-  - `ConvertToBrepBody(...)` 在 deformed unit cube（单顶点位移，三面同时非平面）场景下可经 per-face refit 逐面修复并通过 representative-id 复用保证共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
-  - `ConvertToBrepBody(...)` 在 dual-deformed unit cube（双顶点位移，六面均非平面）场景下同样可经 per-face refit 逐面修复并保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
+- `ConvertToBrepBody(...)` 在 deformed unit cube（单顶点位移，三面同时非平面）场景下可经 per-face refit 逐面修复并通过 representative-id 复用保证共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
+- `ConvertToBrepBody(...)` 在 deformed unit cube + duplicate-loop-normalization 场景下也可经 per-face refit 与 loop 归一化协同修复并保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
+- `ConvertToBrepBody(...)` 在 dual-deformed unit cube（双顶点位移，六面均非平面）场景下同样可经 per-face refit 逐面修复并保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-cuboid all-vertices（2×1×1 矩形盒子，8 顶点全部 near-equal 扰动）输入下可经 refit 后对全体共享顶点稳定应用 representative-average 落点，并保持 closed-shell 拓扑（FaceCount=6 / VertexCount=8 / EdgeCount=12）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-cuboid dual-shared-vertices（两个共享顶点同时 near-equal 扰动）输入下可经 refit 后稳定保持 representative-average 共享顶点落点，并保持 closed-shell 拓扑（FaceCount=6 / VertexCount=8 / EdgeCount=12）
   - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-cuboid dual-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（FaceCount=6 / VertexCount=8 / EdgeCount=12）

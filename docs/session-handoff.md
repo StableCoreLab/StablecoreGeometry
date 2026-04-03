@@ -988,3 +988,9 @@
 - 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget`，验证 support-mismatch near-equal closed-tetra all-shared-vertices 叠加双面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛到 closed-shell（FaceCount=4 / VertexCount=4 / EdgeCount=6）。
 - 已同步收敛 `docs/next-task-prompt.md` 中 closed-tetra dual/all 与 closed-prism dual/all 的 dual-duplicate-loop-normalization 优先子集文案，转为已收敛子集。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+
+## 本轮新增（2026-04-03，continuation-73）
+
+- 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `DeformedCubeWithDuplicateLoopRepairsToClosedSharedTopologyBrepBody`，验证 deformed unit cube（单顶点位移导致三面非平面）叠加一面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛到 closed-shell（FaceCount=6 / VertexCount=8 / EdgeCount=12）。
+- 已同步 `docs/next-task-prompt.md`：将后续 conversion 主线明确收敛到 deformed / dual-deformed non-planar multi-face 与 duplicate-loop-normalization 的组合病理子集。
+- 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。

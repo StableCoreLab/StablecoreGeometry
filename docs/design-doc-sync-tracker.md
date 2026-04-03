@@ -266,3 +266,5 @@
 - 2026-04-03（continuation-71）：
   - 已扩展 conversion capability 子集：closed-prism dual/all-shared-vertices + dual-duplicate-loop-normalization，以及 closed-tetra dual-shared-vertices + dual-duplicate-loop-normalization。
   - 已为 closed-tetra all-shared-vertices + dual-duplicate-loop-normalization 补齐 capability 断言，closed-tetra dual/all-shared-vertices + dual-duplicate-loop-normalization 子集现已收敛完成。
+- 2026-04-03（continuation-73）：
+  - 已扩展 general non-planar repair 的 representative capability 子集：deformed unit cube 叠加 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛 closed-shell 拓扑计数。
