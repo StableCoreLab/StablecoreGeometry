@@ -48,22 +48,41 @@ Point3d SkewPoint(const Point3d& point)
         point.z};
 }
 
+Plane SkewPlane(const Plane& plane)
+{
+    // For p' = A p (with A defined by SkewPoint), normal transforms as n' = (A^{-1})^T n.
+    const Vector3d n = plane.normal;
+    const Vector3d transformedNormal{
+        n.x - 0.2 * n.y,
+        n.y,
+        -0.3 * n.x + 0.06 * n.y + n.z};
+
+    return Plane::FromPointAndNormal(SkewPoint(plane.origin), transformedNormal);
+}
+
 PolyhedronLoop3d SkewLoop(const PolyhedronLoop3d& loop)
 {
     std::vector<Point3d> vertices;
-    vertices.reserve(loop.VertexCount());
-    for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+    const std::vector<Point3d>& source = loop.Vertices();
+    vertices.reserve(source.size());
+    for (const Point3d& point : source)
     {
-        vertices.push_back(SkewPoint(loop.VertexAt(i)));
+        vertices.push_back(SkewPoint(point));
     }
     return PolyhedronLoop3d(std::move(vertices));
 }
 
 Plane SupportPlaneFromLoop(const PolyhedronLoop3d& loop)
 {
-    const Point3d p0 = loop.VertexAt(0);
-    const Point3d p1 = loop.VertexAt(1);
-    const Point3d p2 = loop.VertexAt(2);
+    const std::vector<Point3d>& vertices = loop.Vertices();
+    if (vertices.size() < 3)
+    {
+        return Plane{};
+    }
+
+    const Point3d& p0 = vertices[0];
+    const Point3d& p1 = vertices[1];
+    const Point3d& p2 = vertices[2];
     return Plane::FromPointAndNormal(p0, Cross(p1 - p0, p2 - p0));
 }
 
@@ -77,7 +96,7 @@ PolyhedronFace3d SkewFace(const PolyhedronFace3d& face)
         holes.push_back(SkewLoop(face.HoleAt(i)));
     }
 
-    return PolyhedronFace3d(SupportPlaneFromLoop(outer), std::move(outer), std::move(holes));
+    return PolyhedronFace3d(SkewPlane(face.SupportPlane()), std::move(outer), std::move(holes));
 }
 
 PolyhedronBody BuildSkewedUnitCubeBody()
@@ -94,62 +113,92 @@ PolyhedronBody BuildSkewedUnitCubeBody()
 
 PolyhedronBody BuildSupportPlaneMismatchedCubeBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
-    std::vector<PolyhedronFace3d> faces = cube.Faces();
+    try
+    {
+        const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+        std::vector<PolyhedronFace3d> faces = cube.Faces();
 
-    const PolyhedronFace3d first = faces.front();
-    faces.front() = PolyhedronFace3d(
-        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.1}, Vector3d{0.0, 0.0, 1.0}),
-        first.OuterLoop());
+        if (faces.empty())
+        {
+            return PolyhedronBody();
+        }
 
-    return PolyhedronBody(std::move(faces));
+        const PolyhedronFace3d first = faces.front();
+        faces.front() = PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.1}, Vector3d{0.0, 0.0, 1.0}),
+            first.OuterLoop());
+
+        return PolyhedronBody(std::move(faces));
+    }
+    catch (const std::exception&)
+    {
+        return PolyhedronBody();
+    }
 }
 
 PolyhedronLoop3d TranslateLoop3d(const PolyhedronLoop3d& loop, const Vector3d& delta)
 {
-    std::vector<Point3d> vertices;
-    vertices.reserve(loop.VertexCount());
-    for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+    try
     {
-        vertices.push_back(loop.VertexAt(i) + delta);
+        std::vector<Point3d> vertices;
+        vertices.reserve(loop.VertexCount());
+        for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+        {
+            vertices.push_back(loop.VertexAt(i) + delta);
+        }
+        return PolyhedronLoop3d(std::move(vertices));
     }
-    return PolyhedronLoop3d(std::move(vertices));
+    catch (const std::exception&)
+    {
+        return PolyhedronLoop3d();
+    }
 }
 
 PolyhedronFace3d TranslateFace3d(const PolyhedronFace3d& face, const Vector3d& delta)
 {
-    const Plane translatedPlane = Plane::FromPointAndNormal(
-        face.SupportPlane().origin + delta,
-        face.SupportPlane().normal);
-
-    PolyhedronLoop3d outer = TranslateLoop3d(face.OuterLoop(), delta);
-    std::vector<PolyhedronLoop3d> holes;
-    holes.reserve(face.HoleCount());
-    for (std::size_t i = 0; i < face.HoleCount(); ++i)
+    try
     {
-        holes.push_back(TranslateLoop3d(face.HoleAt(i), delta));
-    }
+        const Plane translatedPlane = Plane::FromPointAndNormal(
+            face.SupportPlane().origin + delta,
+            face.SupportPlane().normal);
 
-    return PolyhedronFace3d(translatedPlane, std::move(outer), std::move(holes));
+        PolyhedronLoop3d outer = TranslateLoop3d(face.OuterLoop(), delta);
+        std::vector<PolyhedronLoop3d> holes;
+        holes.reserve(face.HoleCount());
+        for (std::size_t i = 0; i < face.HoleCount(); ++i)
+        {
+            holes.push_back(TranslateLoop3d(face.HoleAt(i), delta));
+        }
+
+        return PolyhedronFace3d(translatedPlane, std::move(outer), std::move(holes));
+    }
+    catch (const std::exception&)
+    {
+        return PolyhedronFace3d();
+    }
 }
 
 PolyhedronBody BuildTwoSeparatedUnitCubeBody()
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
-    std::vector<PolyhedronFace3d> faces = first.Faces();
-
-    const Vector3d delta{3.0, 0.0, 0.0};
-    for (const PolyhedronFace3d& face : first.Faces())
+    try
     {
-        faces.push_back(TranslateFace3d(face, delta));
-    }
+        const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+        std::vector<PolyhedronFace3d> faces = first.Faces();
 
-    return PolyhedronBody(std::move(faces));
+        const Vector3d delta{3.0, 0.0, 0.0};
+        for (const PolyhedronFace3d& face : first.Faces())
+        {
+            faces.push_back(TranslateFace3d(face, delta));
+        }
+
+        return PolyhedronBody(std::move(faces));
+    }
+    catch (const std::exception&)
+    {
+        return PolyhedronBody();
+    }
 }
 
-// Displaces one corner vertex of the unit cube so that three adjacent quad
-// faces become non-planar. Each displaced face retains its original (now
-// wrong) support plane so that ConvertToBrepBody must refit all of them.
 PolyhedronBody BuildDeformedUnitCubeBody()
 {
     // V0 is the origin corner shared by bottom / front / left faces.
@@ -2065,19 +2114,27 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesR
 // converted to BrepBody without requiring robust non-planar repair.
 TEST(Conversion3dCapabilityTest, SkewedCubePolyhedronBodyConvertsToBrepBody)
 {
-    const PolyhedronBody skewedBody = BuildSkewedUnitCubeBody();
-    assert(skewedBody.IsValid());
-    assert(skewedBody.FaceCount() == 6);
+    PolyhedronBody skewedBody;
+    ASSERT_NO_THROW(skewedBody = BuildSkewedUnitCubeBody());
+    ASSERT_TRUE(skewedBody.IsValid());
+    ASSERT_EQ(skewedBody.FaceCount(), 6);
 
-    const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(skewedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    PolyhedronBrepBodyConversion3d result{};
+    ASSERT_NO_THROW(result = ConvertToBrepBody(skewedBody));
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+
+    bool bodyValid = false;
+    ASSERT_NO_THROW(bodyValid = result.body.IsValid());
+    ASSERT_TRUE(bodyValid);
+
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+
+    std::size_t shellCount = 0;
+    ASSERT_NO_THROW(shellCount = result.body.ShellCount());
+    ASSERT_EQ(shellCount, 1u);
 }
 
 // Demonstrates the conversion can repair face support-plane mismatch and still

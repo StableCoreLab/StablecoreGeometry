@@ -419,82 +419,114 @@ void BuildBodyLoopRepresentativeIds(
     std::unordered_map<std::size_t, std::size_t>* representativeToVertexIndex,
     double eps)
 {
-    if (!polyLoop.IsValid(eps))
+    try
     {
-        return false;
-    }
-
-    const std::size_t vertexCount = polyLoop.VertexCount();
-    std::vector<std::size_t> loopVertexIndices;
-    loopVertexIndices.reserve(vertexCount);
-
-    const bool hasRepresentativeIds =
-        representativeIds != nullptr && representativeToVertexIndex != nullptr && representativeIds->size() == vertexCount;
-
-    for (std::size_t i = 0; i < vertexCount; ++i)
-    {
-        const Point3d point = polyLoop.VertexAt(i);
-        if (hasRepresentativeIds)
+        if (!polyLoop.IsValid(eps))
         {
-            const std::size_t representativeId = (*representativeIds)[i];
-            const auto found = representativeToVertexIndex->find(representativeId);
-            if (found != representativeToVertexIndex->end())
+            return false;
+        }
+
+        const std::size_t vertexCount = polyLoop.VertexCount();
+        std::vector<std::size_t> loopVertexIndices;
+        loopVertexIndices.reserve(vertexCount);
+
+        const bool hasRepresentativeIds =
+            representativeIds != nullptr && representativeToVertexIndex != nullptr && representativeIds->size() == vertexCount;
+
+        for (std::size_t i = 0; i < vertexCount; ++i)
+        {
+            const Point3d point = polyLoop.VertexAt(i);
+            if (hasRepresentativeIds)
             {
-                loopVertexIndices.push_back(found->second);
+                if (i >= representativeIds->size())
+                {
+                    return false;
+                }
+                
+                const std::size_t representativeId = (*representativeIds)[i];
+                const auto found = representativeToVertexIndex->find(representativeId);
+                if (found != representativeToVertexIndex->end())
+                {
+                    if (found->second >= vertices.size())
+                    {
+                        return false;
+                    }
+
+                    loopVertexIndices.push_back(found->second);
+                }
+                else
+                {
+                    Point3d representativePoint = point;
+                    if (representativeTargetPoints != nullptr)
+                    {
+                        const auto representativePointIt = representativeTargetPoints->find(representativeId);
+                        if (representativePointIt != representativeTargetPoints->end())
+                        {
+                            representativePoint = representativePointIt->second;
+                        }
+                    }
+
+                    const std::size_t vertexIndex = FindOrAddBrepVertex(representativePoint, vertices, eps);
+                    (*representativeToVertexIndex)[representativeId] = vertexIndex;
+                    loopVertexIndices.push_back(vertexIndex);
+                }
             }
             else
             {
-                Point3d representativePoint = point;
-                if (representativeTargetPoints != nullptr)
-                {
-                    const auto representativePointIt = representativeTargetPoints->find(representativeId);
-                    if (representativePointIt != representativeTargetPoints->end())
-                    {
-                        representativePoint = representativePointIt->second;
-                    }
-                }
-
-                const std::size_t vertexIndex = FindOrAddBrepVertex(representativePoint, vertices, eps);
-                (*representativeToVertexIndex)[representativeId] = vertexIndex;
-                loopVertexIndices.push_back(vertexIndex);
+                loopVertexIndices.push_back(FindOrAddBrepVertex(point, vertices, eps));
             }
         }
-        else
-        {
-            loopVertexIndices.push_back(FindOrAddBrepVertex(point, vertices, eps));
-        }
-    }
 
-    std::vector<BrepCoedge> coedges;
-    coedges.reserve(vertexCount);
-    for (std::size_t i = 0; i < vertexCount; ++i)
+        std::vector<BrepCoedge> coedges;
+        coedges.reserve(vertexCount);
+        
+        if (loopVertexIndices.size() != vertexCount)
+        {
+            return false;
+        }
+        
+        for (std::size_t i = 0; i < vertexCount; ++i)
+        {
+            const std::size_t next = (i + 1) % vertexCount;
+            if (i >= loopVertexIndices.size() || next >= loopVertexIndices.size())
+            {
+                return false;
+            }
+            
+            const std::size_t startVertexIndex = loopVertexIndices[i];
+            const std::size_t endVertexIndex = loopVertexIndices[next];
+            if (startVertexIndex >= vertices.size() || endVertexIndex >= vertices.size())
+            {
+                return false;
+            }
+
+            std::size_t edgeIndex = static_cast<std::size_t>(-1);
+            bool reversed = false;
+            if (!FindReusableBrepEdge(edges, startVertexIndex, endVertexIndex, edgeIndex, reversed))
+            {
+                const Point3d first = vertices[startVertexIndex].Point();
+                const Point3d second = vertices[endVertexIndex].Point();
+                edges.emplace_back(
+                    std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                        Line3d::FromOriginAndDirection(first, second - first),
+                        Intervald{0.0, 1.0})),
+                    startVertexIndex,
+                    endVertexIndex);
+                edgeIndex = edges.size() - 1;
+            }
+
+            coedges.emplace_back(edgeIndex, reversed);
+        }
+
+        loop = BrepLoop(std::move(coedges));
+        uvPoints.clear();
+        uvPoints.reserve(vertexCount);
+        return loop.IsValid();
+    }
+    catch (const std::exception&)
     {
-        const std::size_t next = (i + 1) % vertexCount;
-        const std::size_t startVertexIndex = loopVertexIndices[i];
-        const std::size_t endVertexIndex = loopVertexIndices[next];
-
-        std::size_t edgeIndex = static_cast<std::size_t>(-1);
-        bool reversed = false;
-        if (!FindReusableBrepEdge(edges, startVertexIndex, endVertexIndex, edgeIndex, reversed))
-        {
-            const Point3d first = vertices[startVertexIndex].Point();
-            const Point3d second = vertices[endVertexIndex].Point();
-            edges.emplace_back(
-                std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
-                    Line3d::FromOriginAndDirection(first, second - first),
-                    Intervald{0.0, 1.0})),
-                startVertexIndex,
-                endVertexIndex);
-            edgeIndex = edges.size() - 1;
-        }
-
-        coedges.emplace_back(edgeIndex, reversed);
+        return false;
     }
-
-    loop = BrepLoop(std::move(coedges));
-    uvPoints.clear();
-    uvPoints.reserve(vertexCount);
-    return loop.IsValid();
 }
 
 [[nodiscard]] bool ComputeRepresentativeTargetPoints(
@@ -1065,6 +1097,8 @@ BrepBodyConversion3d ConvertToPolyhedronBody(const BrepBody& body, double eps)
 
 PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, double eps)
 {
+    try
+    {
     std::vector<FaceLoopRepresentativeIds> sourceRepresentativeIds;
     BuildBodyLoopRepresentativeIds(body, sourceRepresentativeIds, eps);
 
@@ -1131,11 +1165,32 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
         }
 
-        for (std::size_t i = 0; i < face.OuterLoop().VertexCount(); ++i)
+        try
         {
-            outerUv.push_back(ProjectPointToPlaneUv(face.OuterLoop().VertexAt(i), planeSurface));
+            for (std::size_t i = 0; i < face.OuterLoop().VertexCount(); ++i)
+            {
+                outerUv.push_back(ProjectPointToPlaneUv(face.OuterLoop().VertexAt(i), planeSurface));
+            }
         }
-        CurveOnSurface outerTrim(surface, Polyline2d(std::move(outerUv), PolylineClosure::Closed));
+        catch (const std::exception&)
+        {
+            return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+        }
+        
+        if (outerUv.size() != face.OuterLoop().VertexCount())
+        {
+            return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+        }
+        
+        CurveOnSurface outerTrim;
+        try
+        {
+            outerTrim = CurveOnSurface(surface, Polyline2d(std::move(outerUv), PolylineClosure::Closed));
+        }
+        catch (const std::exception&)
+        {
+            return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+        }
 
         std::vector<BrepLoop> holeLoops;
         std::vector<CurveOnSurface> holeTrims;
@@ -1143,7 +1198,9 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         holeTrims.reserve(face.HoleCount());
         for (std::size_t holeIndex = 0; holeIndex < face.HoleCount(); ++holeIndex)
         {
-            const PolyhedronLoop3d hole = face.HoleAt(holeIndex);
+            try
+            {
+                const PolyhedronLoop3d hole = face.HoleAt(holeIndex);
 
             const std::vector<std::size_t>* holeRepresentativeIds = nullptr;
             if (faceIndex < representativeIds.size() &&
@@ -1165,38 +1222,74 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                     holeLoop,
                     holeUv,
                     holeRepresentativeIds,
-                        hasRepresentativeTargetPoints ? &representativeTargetPoints : nullptr,
+                    hasRepresentativeTargetPoints ? &representativeTargetPoints : nullptr,
                     &representativeToVertexIndex,
                     eps))
             {
                 return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
             }
 
-            for (std::size_t i = 0; i < hole.VertexCount(); ++i)
+            try
             {
-                holeUv.push_back(ProjectPointToPlaneUv(hole.VertexAt(i), planeSurface));
+                for (std::size_t i = 0; i < hole.VertexCount(); ++i)
+                {
+                    holeUv.push_back(ProjectPointToPlaneUv(hole.VertexAt(i), planeSurface));
+                }
+            }
+            catch (const std::exception&)
+            {
+                return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+            }
+            
+            if (holeUv.size() != hole.VertexCount())
+            {
+                return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
             }
 
             holeLoops.push_back(std::move(holeLoop));
             holeTrims.emplace_back(surface, Polyline2d(std::move(holeUv), PolylineClosure::Closed));
+            }
+            catch (const std::exception&)
+            {
+                return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+            }
         }
 
-        BrepFace brepFace(surface, outerLoop, std::move(holeLoops), std::move(outerTrim), std::move(holeTrims));
-        if (!brepFace.IsValid(GeometryTolerance3d{eps, eps, eps}))
+        try
+        {
+            BrepFace brepFace(surface, outerLoop, std::move(holeLoops), std::move(outerTrim), std::move(holeTrims));
+            if (!brepFace.IsValid(GeometryTolerance3d{eps, eps, eps}))
+            {
+                return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
+            }
+
+            faces.push_back(std::move(brepFace));
+        }
+        catch (const std::exception&)
         {
             return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
         }
-
-        faces.push_back(std::move(brepFace));
     }
 
-    const bool shellClosed = ComputeSharedShellClosed(faces);
-    BrepBody brepBody(std::move(vertices), std::move(edges), {BrepShell(std::move(faces), shellClosed)});
-    if (!brepBody.IsValid(GeometryTolerance3d{eps, eps, eps}))
+    try
+    {
+        const bool shellClosed = ComputeSharedShellClosed(faces);
+        BrepBody brepBody(std::move(vertices), std::move(edges), {BrepShell(std::move(faces), shellClosed)});
+        if (!brepBody.IsValid(GeometryTolerance3d{eps, eps, eps}))
+        {
+            return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
+        }
+
+        return {true, BrepConversionIssue3d::None, 0, std::move(brepBody)};
+    }
+    catch (const std::exception&)
     {
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
     }
-
-    return {true, BrepConversionIssue3d::None, 0, std::move(brepBody)};
+    }
+    catch (const std::exception&)
+    {
+        return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
+    }
 }
 } // namespace geometry::sdk
