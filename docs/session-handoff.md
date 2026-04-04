@@ -3,11 +3,25 @@
 ## 当前上下文
 
 - 工作区：`D:\code\stablecore-geometry`
-- 交接更新时间：`2026-04-03`
+- 交接更新时间：`2026-04-04`
 - 可用环境：`python`
 - 后续会话应聚焦于源码与文档编写
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
+
+## 本轮新增（2026-04-04，fasttrack-followup-planning）
+
+- 已重写 `docs/next-task-prompt.md`，把下一轮工作明确收敛到三条主线：
+  - 深化 `GeometrySearchPoly`
+  - 推进 `GeometryBodyBoolean` 第一批 capability
+  - 持续完成“稳定 API”所需重构
+- 已更新 `docs/rename-followup-todo.md`，把需要逐步重构/迁移到稳定 API 面的事项正式列出，供后续会话按批次消化。
+- 当前对外 API 稳定化的核心方向已经明确：
+  - 产品侧只依赖 `include/sdk`
+  - `GeometrySearchPoly` 取代 ad hoc `BuildMultiPolygonByLines(...)` 调用
+  - `GeometryBodyBoolean` 保持稳定 public contract，内部再分批补算法
+  - `GeometryBrepConversion / GeometryHealing / GeometrySection` 的复杂 repair 流程继续拆成内部清晰 pass，而不是把不稳定 helper 暴露成产品依赖点
+- 本轮仍未编译、未跑构建；只同步了下轮安排与 API 稳定化重构清单。
 
 ## 本轮新增（2026-04-04，fasttrack-interface-tests）
 

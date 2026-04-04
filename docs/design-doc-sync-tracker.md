@@ -78,6 +78,13 @@
   - 新增接口到 contract/capability/gap 测试矩阵
   - 固定“测试全部通过 = 当前承诺接口批次完成”的快补 DoD
 
+### `docs/rename-followup-todo.md`
+
+- status: `done`
+- notes:
+  - 已从空白占位改为稳定 API 重构待办清单
+  - 固定公共 API 收口、内部算法拆层、接口风格统一三类后续重构事项
+
 ## 进度备注
 
 - 2026-03-27：
