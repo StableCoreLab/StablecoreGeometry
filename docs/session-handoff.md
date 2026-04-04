@@ -9,6 +9,26 @@
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
+## 本轮新增（2026-04-04，fasttrack-bodyboolean-touching-union-batch3）
+
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 在保持 `include/sdk/GeometryBodyBoolean.h` public contract 不变的前提下，将 `GeometryBodyBoolean` 再向前推进一小步，新增 face-touching axis-aligned box union 子集；
+  - 当前仍只承诺可稳定收敛为单一 closed box 的 union 场景，`IntersectBodies(...)` / `DifferenceBodies(...)` 对 touching 情形继续保留为 `UnsupportedOperation`；
+  - 未改变既有 identical / disjoint / axis-aligned overlap 的总策略，L 形、多壳与 healing 依赖仍未引入。
+- 已扩展 capability tests：`tests/capabilities/test_3d_body_boolean_sdk.cpp`
+  - 新增 `TouchingPolyhedronUnionReturnsSingleAxisAlignedBox`，验证两组共享完整面的 axis-aligned closed boxes 在 Polyhedron 路径可稳定并成单闭壳；
+  - 新增 `TouchingBrepUnionReturnsSingleAxisAlignedBox`，补齐同一 touching union 子集在 Brep 路径的对偶保护。
+- 已同步收敛 gap test：`tests/gaps/test_3d_body_boolean_gaps.cpp`
+  - 明确 touching union 已纳入 capability；
+  - 明确 touching intersection / difference、shell-policy 与 healing integration 仍继续保留为 gap。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/delphi-test-fasttrack-matrix.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮仍未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，fasttrack-section-higher-order-batch1）
 
 - 已更新 `src/sdk/GeometrySection.cpp`，在不改 public SDK 入口的前提下继续推进 `GeometrySection` 的高阶 section 语义：

@@ -34,7 +34,7 @@ namespace
     result.issue = BodyBooleanIssue3d::UnsupportedOperation;
     result.message =
         "3D body boolean currently supports only deterministic identical/disjoint closed-body subsets "
-        "plus axis-aligned single-box overlap subsets.";
+        "plus axis-aligned single-box overlap and face-touching union subsets.";
     return result;
 }
 
@@ -175,6 +175,30 @@ namespace
             std::min(first.MaxPoint().y, second.MaxPoint().y),
             std::min(first.MaxPoint().z, second.MaxPoint().z)});
     return HasPositiveBoxVolume(overlap, epsilon);
+}
+
+[[nodiscard]] bool TryComputeIntersectionBox(
+    const Box3d& first,
+    const Box3d& second,
+    double epsilon,
+    Box3d& overlap)
+{
+    if (!first.IsValid() || !second.IsValid())
+    {
+        return false;
+    }
+
+    overlap = Box3d::FromMinMax(
+        Point3d{
+            std::max(first.MinPoint().x, second.MinPoint().x),
+            std::max(first.MinPoint().y, second.MinPoint().y),
+            std::max(first.MinPoint().z, second.MinPoint().z)},
+        Point3d{
+            std::min(first.MaxPoint().x, second.MaxPoint().x),
+            std::min(first.MaxPoint().y, second.MaxPoint().y),
+            std::min(first.MaxPoint().z, second.MaxPoint().z)});
+    (void)epsilon;
+    return overlap.IsValid();
 }
 
 [[nodiscard]] PolyhedronBody BuildAxisAlignedBoxPolyhedronBody(const Box3d& box)
@@ -536,7 +560,7 @@ namespace
     Box3d unionBox;
     if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
         TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
-        TryComputePositiveIntersectionBox(firstBox, secondBox, epsilon, overlapBox) &&
+        TryComputeIntersectionBox(firstBox, secondBox, epsilon, overlapBox) &&
         TryComputeSingleBoxUnion(firstBox, secondBox, overlapBox, epsilon, unionBox))
     {
         return MakeAxisAlignedBoxResult(

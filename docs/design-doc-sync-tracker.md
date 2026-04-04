@@ -116,6 +116,12 @@
   - 新增剩余任务按 AI 模型能力 / 推理强度分类文档
   - 固定 A/B/C 三档任务分派口径，供后续多模型并行分工使用
 
+## 2026-04-04 GeometryBodyBoolean touching-union 同步
+
+- 已将 `GeometryBodyBoolean` 的 capability 边界再向前推进一小步：face-touching axis-aligned box union 现在也有了稳定的 capability 定义。
+- 已明确 touching intersection / difference 仍保持 gap，不把 lower-dimensional touching 结果误抬成 3D body capability。
+- 已把这次边界调整同步到 `docs/test-capability-coverage.md`、`docs/delphi-test-fasttrack-matrix.md`、`docs/session-handoff.md` 与 `docs/next-task-prompt.md`。
+
 ## 进度备注
 
 - 2026-03-27：

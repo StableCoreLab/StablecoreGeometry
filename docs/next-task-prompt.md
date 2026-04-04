@@ -48,8 +48,8 @@
 ### GeometryBodyBoolean
 
 - `include/sdk/GeometryBodyBoolean.h` public contract 保持稳定
-- 已覆盖 identical / disjoint closed-body 子集与 axis-aligned single-box overlap 子集
-- 非单-box overlap、touching shell、shell-policy、healing integration 仍为 gap
+- 已覆盖 identical / disjoint closed-body 子集与 axis-aligned single-box overlap 子集，以及 face-touching union 子集
+- touching intersection / difference、shell-policy、healing integration 仍为 gap
 
 ## 下一轮优先级
 
@@ -77,7 +77,7 @@
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
 - `GeometrySearchPoly`：推进 richer fake-edge explanation 与 ambiguous recovery
-- `GeometryBodyBoolean`：推进更一般 overlap 子集，但保持 `InvalidInput` / `UnsupportedOperation` contract 稳定
+- `GeometryBodyBoolean`：推进更一般 overlap / touching-union 子集，但保持 `InvalidInput` / `UnsupportedOperation` contract 稳定
 
 ## 交付口径
 
