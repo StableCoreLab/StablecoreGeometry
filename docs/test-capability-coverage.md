@@ -39,6 +39,8 @@
   - boolean 的 crossing、containment、equal、touching、simple collinear overlap、disjoint union、ultra-thin repeated-overlap 当前已具备能力
 - `tests/capabilities/test_offset.cpp`
   - line / arc / polyline / polygon / multipolygon offset、basic rebuilt polygon growth、disjoint multipolygon offset、single-polygon hole semantics recovery、representative reverse-edge/self-intersection recovery、narrow-bridge split via `OffsetToMultiPolygon(...)` 当前已具备能力
+- `tests/capabilities/test_searchpoly_sdk.cpp`
+  - `GeometrySearchPoly` 第一批 SDK 面：空输入 invalid-input contract、`SearchPolygons(...)` 的代表性闭环子集、`SearchPolygonContainingPoint(...)` 的 containing candidate 选择子集
 - `tests/capabilities/test_topology_indexing.cpp`
   - touching / intersecting / basic contains / equal、duplicate-equal topology parent tie-break 当前已具备能力
 - `tests/capabilities/test_3d_section.cpp`
@@ -82,6 +84,8 @@
   - `Heal(BrepBody)` 保守 trim 回填现已覆盖 z=0（水平面，法向+z）、y=0（竖面，法向+y）、x=0（竖面，法向+x）三个轴向平面，以及 oblique 平面 x+y+z=0（法向(1,1,1)）子样例，验证 trim 回填对非轴对齐平面的稳定性
 - `tests/capabilities/test_3d_conversion.cpp`
   - 单位立方体（6 quad faces）经 `ConvertToTriangleMesh(PolyhedronBody)` 得到 12 triangles，`SurfaceArea ≈ 6.0`；并可经 `ConvertToBrepBody(PolyhedronBody)` 得到 `FaceCount() == 6` 的有效 `BrepBody`，覆盖 affine-skew 非轴对齐子类输入、support-plane mismatch 可修复子场景（含 shared-chain mixed-content full-composition 下的 support-plane refit）、mild non-planar outer/hole loop 顶点投影修复子场景、leading collinear loop 顶点下的稳健法向回退、duplicate outer/hole loop 顶点归一化修复、tiny-scale non-planar（含 holed/multi-face/mixed-content/shared-edge/shared-chain/shared-chain-mixed-content）输入下的 scale-aware 法向回退与投影修复，以及 duplicate/hole/collinear-leading normalization 与 shared-edge chain 修复的组合稳定性；同时覆盖 planar holed、planar multi-face、以及 planar holed+multi-face `BrepBody` 到 mesh 的面积保持子场景
+- `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+  - `GeometryBodyBoolean` 第一批 SDK 面：空 `PolyhedronBody` 输入下的 invalid-input contract 已固定，允许产品先按稳定 3D body boolean 入口编程
   - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链 mixed-content full-composition 下，支持 outer/hole 双重复顶点归一化与 support-mismatch + collinear-leading 组合修复稳定叠加
   - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链修复后可全局复用共享顶点/边，避免按 face 重复建拓扑并保持共享边一致性子集稳定
   - `ConvertToBrepBody(...)` 在 closed-shell 代表性输入（单位立方体）上可收敛到共享拓扑 Brep：1 shell / 8 vertices / 12 edges / closed shell
@@ -205,6 +209,8 @@
   - 记录 coedge-loop ownership 编辑链路、non-planar trimmed face topology repair 仍未闭合（ownership gap 已覆盖 single-face + multi-face closed-shell no-op replacement 子集）
 - `tests/gaps/test_3d_healing_gaps.cpp`
   - 记录超出 planar open-sheet closure（含 holed shell）子策略的激进修复策略、mesh/body 联合多阶段修复仍未闭合
+- `tests/gaps/test_3d_body_boolean_gaps.cpp`
+  - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前只保留稳定 SDK 面与 invalid-input contract
 - `tests/gaps/test_3d_conversion_gaps.cpp`
   - 记录高保真 Brep->mesh 特征保持（超出 planar holed+multi-face area-preserving + shared-edge vertex-reuse + disconnected closed-shell component-preserving 子集）、鲁棒 non-planar polyhedron->Brep repair（超出 affine-planar + support-plane-refit + all-loop scored holed-face refit + mild outer/hole loop-projection + collinear-leading-loop + duplicate outer/hole loop-normalization 子集）仍未闭合
 - 2D 历史 gap 场景已全部转正到 `tests/capabilities`；当前 `tests/gaps` 专注 3D P1 骨架跟踪

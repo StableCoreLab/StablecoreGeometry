@@ -2,6 +2,7 @@
 
 set(STABLECORE_GEOMETRY_CAPABILITY_TEST_SOURCES
     capabilities/test_3d_brep.cpp
+    capabilities/test_3d_body_boolean_sdk.cpp
     capabilities/test_3d_conversion.cpp
     capabilities/test_3d_healing.cpp
     capabilities/test_3d_section.cpp
@@ -11,6 +12,7 @@ set(STABLECORE_GEOMETRY_CAPABILITY_TEST_SOURCES
     capabilities/test_polygon.cpp
     capabilities/test_polyline.cpp
     capabilities/test_relation_boolean.cpp
+    capabilities/test_searchpoly_sdk.cpp
     capabilities/test_sdk.cpp
     capabilities/test_sdk_algorithms.cpp
     capabilities/test_sdk_multigeometry.cpp
@@ -23,6 +25,7 @@ set(STABLECORE_GEOMETRY_CAPABILITY_TEST_SOURCES
 set(STABLECORE_GEOMETRY_GAP_TEST_SOURCES
     gaps/test_3d_section_gaps.cpp
     gaps/test_3d_brep_gaps.cpp
+    gaps/test_3d_body_boolean_gaps.cpp
     gaps/test_3d_healing_gaps.cpp
     gaps/test_3d_conversion_gaps.cpp
     gaps/test_offset_gaps.cpp

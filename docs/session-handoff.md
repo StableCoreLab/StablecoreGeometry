@@ -9,6 +9,27 @@
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
+## 本轮新增（2026-04-04，fasttrack-interface-tests）
+
+- 已新增 Delphi 快补总表：`docs/delphi-interface-fasttrack.md`，把 Delphi 实际使用能力映射到 C++ 目标 SDK 面，并把“接口先行 + 测试先行”固定成当前主策略。
+- 已新增测试快补矩阵：`docs/delphi-test-fasttrack-matrix.md`，把每个 Delphi-facing SDK 面需要的 contract / capability / gap 测试固定下来，并把“已承诺测试矩阵全绿”定义为当前批次算法库完成标准。
+- 已新增 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 对 `BuildMultiPolygonByLines(...)` 做 Delphi `SearchPoly` 风格 SDK 封装；
+  - 提供 `SearchPolygons(...)` 与 `SearchPolygonContainingPoint(...)`；
+  - 第一批只固定 SDK 入口、结果结构和代表性闭环子集，不宣称已达到 Delphi 级 branch scoring / fake-edge diagnostics 深度。
+- 已新增 `include/sdk/GeometryBodyBoolean.h` + `src/sdk/GeometryBodyBoolean.cpp`：
+  - 预留 Delphi `GGL` 风格 3D body boolean SDK 面（`IntersectBodies / UnionBodies / DifferenceBodies`，同时覆盖 `BrepBody` 与 `PolyhedronBody` 输入）；
+  - 当前实现仅固定 contract：空输入返回 `InvalidInput`，非空输入保留 `UnsupportedOperation`，使产品可先对稳定接口开发。
+- 已新增 capability tests：
+  - `tests/capabilities/test_searchpoly_sdk.cpp`：覆盖 `GeometrySearchPoly` 的 empty-input contract、代表性闭环子集与点选 containing candidate 子集。
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`：覆盖 `GeometryBodyBoolean` 的 invalid-input contract。
+- 已新增 gap test：
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`：明确 Delphi 级 body/shell boolean 语义仍为 open gap。
+- 已同步构建挂接：
+  - `CMakeLists.txt`
+  - `tests/CMakeLists.txt`
+- 本轮仍未编译、未跑构建；当前目标是先把 SDK 接口面与测试骨架补齐，供产品提前接入。
+
 ## 本轮新增（2026-04-03，continuation-50）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：为 `Section(PolyhedronBody, Plane)` 与 `Section(BrepBody, Plane)` 增加 contour 驱动的 deterministic segment 后处理，统一从 contour 重建输出段并执行无向去重与短毛刺过滤（长度<=eps）。

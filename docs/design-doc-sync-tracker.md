@@ -64,6 +64,20 @@
   - 已同步布尔近退化交点参数聚类压缩、共线族折叠与带孔 `CutPolygon` 裁剪策略
   - 已同步偏移语义翻转恢复（单多边形与多多边形）与孔洞感知 `Contains` 修复
 
+### `docs/delphi-interface-fasttrack.md`
+
+- status: `done`
+- notes:
+  - 新增 Delphi 实际能力到 C++ SDK 目标接口总表
+  - 固定“接口先行 + 测试先行”的快补策略，并标记 `GeometrySearchPoly` / `GeometryBodyBoolean` 为第一批快补入口
+
+### `docs/delphi-test-fasttrack-matrix.md`
+
+- status: `done`
+- notes:
+  - 新增接口到 contract/capability/gap 测试矩阵
+  - 固定“测试全部通过 = 当前承诺接口批次完成”的快补 DoD
+
 ## 进度备注
 
 - 2026-03-27：

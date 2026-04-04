@@ -21,6 +21,7 @@ add_library(stablecore_geometry
     src/sdk/Circle2d.cpp
     src/sdk/Ellipse2d.cpp
     src/sdk/GeometryBoolean.cpp
+    src/sdk/GeometryBodyBoolean.cpp
     src/sdk/GeometryBrepEditing.cpp
     src/sdk/GeometryBrepConversion.cpp
     src/sdk/GeometryEditing.cpp
@@ -43,6 +44,7 @@ add_library(stablecore_geometry
     src/sdk/GeometryRelation3d.cpp
     src/sdk/GeometrySampling.cpp
     src/sdk/GeometrySection.cpp
+    src/sdk/GeometrySearchPoly.cpp
     src/sdk/GeometrySegmentSearch.cpp
     src/sdk/GeometryShapeOps.cpp
     src/sdk/GeometryTessellation.cpp
