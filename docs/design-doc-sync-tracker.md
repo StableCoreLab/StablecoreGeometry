@@ -94,6 +94,15 @@
   - 已进一步同步 `GeometrySearchPoly` 到 branch scoring + candidate-level fake-edge diagnostics 子集，并把下一轮重点收敛到 richer fake-edge explanation 与 ambiguous recovery
   - 已进一步同步 `GeometryHealing` 当前内部边界：conservative trim-backfill、aggressive mirror-style closure，以及 standalone shared-edge boundary-cap fallback
 
+### `tests/capabilities/test_searchpoly_sdk.cpp` / `tests/gaps/test_searchpoly_gaps.cpp`
+
+- status: `done`
+- notes:
+  - 宸插悓姝?SearchPoly 的 invalid-input contract result 自洽性，确保 `InvalidInput` 下 diagnostics / candidates / used* flags 全部回零
+  - 宸插悓姝?NoClosedPolygonFound result 自洽性，确保 open line network 仍可稳定返回 diagnostics 而不误置候选或 used* flags
+  - 宸插悓姝?autoClose / autoExtend 的 used* gating 行为，确保 options 只影响对应标记，不改变 diagnostics 与候选集
+  - 宸插皢 gap 文案收敛为 richer fake-edge explanation、ambiguous recovery 与 full smart-search parity，明确 result/diagnostics consistency 已转正
+
 ### `docs/delphi-interface-fasttrack.md` / `docs/delphi-test-fasttrack-matrix.md`
 
 - status: `done`

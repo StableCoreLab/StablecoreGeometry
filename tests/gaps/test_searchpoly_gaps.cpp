@@ -5,7 +5,8 @@
 TEST(SearchPolyGapTest, DelphiGradeAmbiguousBranchScoringRemainsOpen)
 {
     GTEST_SKIP() << "Known 2D gap: GeometrySearchPoly now exposes stable SDK entry points, "
-                    "candidate ranking, branch scoring, and candidate-level fake-edge diagnostics, "
-                    "but Delphi-grade ambiguous recovery, richer fake-edge explanation, and full "
-                    "smart-search parity remain open.";
+                    "candidate ranking, branch scoring, candidate-level fake-edge diagnostics, "
+                    "result/diagnostics consistency, and auto-flag gating, but Delphi-grade "
+                    "ambiguous recovery, richer fake-edge explanation, and full smart-search "
+                    "parity remain open.";
 }

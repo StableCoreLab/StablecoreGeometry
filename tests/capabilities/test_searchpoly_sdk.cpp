@@ -21,6 +21,40 @@ TEST(SearchPolySdkCapabilityTest, InvalidInputContractRejectsEmptyLineCollection
     EXPECT_FALSE(result.IsSuccess());
     EXPECT_EQ(result.polygons.Count(), 0U);
     EXPECT_TRUE(result.candidates.empty());
+    EXPECT_EQ(result.diagnostics.inputPolylineCount, 0U);
+    EXPECT_EQ(result.diagnostics.inputSegmentCount, 0U);
+    EXPECT_EQ(result.diagnostics.uniqueVertexCount, 0U);
+    EXPECT_EQ(result.diagnostics.danglingEndpointCount, 0U);
+    EXPECT_EQ(result.diagnostics.branchVertexCount, 0U);
+    EXPECT_EQ(result.diagnostics.inferredSyntheticEdgeCount, 0U);
+    EXPECT_FALSE(result.usedAutoClose);
+    EXPECT_FALSE(result.usedAutoExtend);
+    EXPECT_FALSE(result.usedSyntheticEdges);
+    EXPECT_FALSE(result.usedBranchScoring);
+}
+
+TEST(SearchPolySdkCapabilityTest, NoClosedPolygonFoundKeepsDiagnosticsAndCandidateSetConsistent)
+{
+    const MultiPolyline2d lines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{2.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{2.0, 0.0}, Point2d{2.0, 1.0}}, PolylineClosure::Open)};
+
+    const auto result = SearchPolygons(lines);
+
+    EXPECT_EQ(result.issue, SearchPolyIssue2d::NoClosedPolygonFound);
+    EXPECT_FALSE(result.IsSuccess());
+    EXPECT_EQ(result.polygons.Count(), 0U);
+    EXPECT_TRUE(result.candidates.empty());
+    EXPECT_EQ(result.diagnostics.inputPolylineCount, 2U);
+    EXPECT_EQ(result.diagnostics.inputSegmentCount, 2U);
+    EXPECT_EQ(result.diagnostics.uniqueVertexCount, 3U);
+    EXPECT_EQ(result.diagnostics.danglingEndpointCount, 2U);
+    EXPECT_EQ(result.diagnostics.branchVertexCount, 0U);
+    EXPECT_EQ(result.diagnostics.inferredSyntheticEdgeCount, 1U);
+    EXPECT_FALSE(result.usedAutoClose);
+    EXPECT_FALSE(result.usedAutoExtend);
+    EXPECT_FALSE(result.usedSyntheticEdges);
+    EXPECT_FALSE(result.usedBranchScoring);
 }
 
 TEST(SearchPolySdkCapabilityTest, SearchPolygonsBuildsRepresentativeClosedCandidate)
@@ -99,6 +133,44 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsRepairDiagnosticsForNearC
     EXPECT_GE(result.candidates.front().inferredSyntheticEdgeCount, 1U);
     EXPECT_GT(result.candidates.front().inferredSyntheticPerimeter, 0.0);
     EXPECT_LT(result.candidates.front().branchScore, result.candidates.front().absoluteArea);
+}
+
+TEST(SearchPolySdkCapabilityTest, AutoFlagsRespectOptionsWhileDiagnosticsRemainStable)
+{
+    const MultiPolyline2d syntheticLines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 0.3}}, PolylineClosure::Open)};
+
+    SearchPolyOptions2d autoCloseDisabled{};
+    autoCloseDisabled.autoClose = false;
+    const auto syntheticResult = SearchPolygons(syntheticLines, autoCloseDisabled);
+
+    ASSERT_TRUE(syntheticResult.IsSuccess());
+    EXPECT_EQ(syntheticResult.diagnostics.danglingEndpointCount, 2U);
+    EXPECT_TRUE(syntheticResult.usedSyntheticEdges);
+    EXPECT_TRUE(syntheticResult.usedBranchScoring);
+    EXPECT_FALSE(syntheticResult.usedAutoClose);
+    EXPECT_FALSE(syntheticResult.usedAutoExtend);
+
+    const MultiPolyline2d branchingLines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 2.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 2.0}, Point2d{0.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 2.0}, Point2d{-1.0, 2.0}}, PolylineClosure::Open)};
+
+    SearchPolyOptions2d autoExtendDisabled{};
+    autoExtendDisabled.autoExtend = false;
+    const auto branchingResult = SearchPolygons(branchingLines, autoExtendDisabled);
+
+    ASSERT_TRUE(branchingResult.IsSuccess());
+    EXPECT_EQ(branchingResult.diagnostics.branchVertexCount, 1U);
+    EXPECT_TRUE(branchingResult.usedBranchScoring);
+    EXPECT_TRUE(branchingResult.usedAutoClose);
+    EXPECT_FALSE(branchingResult.usedAutoExtend);
 }
 
 TEST(SearchPolySdkCapabilityTest, SearchPolygonsRanksCleanCandidateAheadOfSyntheticPeer)

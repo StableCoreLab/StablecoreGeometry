@@ -9,6 +9,23 @@
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
+## 本轮新增（2026-04-04，fasttrack-searchpoly-consistency-batch4）
+
+- 已更新 `tests/capabilities/test_searchpoly_sdk.cpp`：
+  - 新增 `InvalidInputContractRejectsEmptyLineCollection` 的结果自洽性断言，补齐 `InvalidInput` 下 diagnostics / candidates / used* flags 全部回零的 contract；
+  - 新增 `NoClosedPolygonFoundKeepsDiagnosticsAndCandidateSetConsistent`，验证 open line network 在稳定返回 `NoClosedPolygonFound` 时，diagnostics 仍与输入图一致，而 candidates / used* flags 保持空与 false；
+  - 新增 `AutoFlagsRespectOptionsWhileDiagnosticsRemainStable`，验证 `autoClose=false` / `autoExtend=false` 仅影响对应 `used*` 标记，不改变 diagnostics、candidates 与核心成功结果。
+- 已更新 `tests/gaps/test_searchpoly_gaps.cpp`
+  - 将 gap 文案收敛为 richer fake-edge explanation、ambiguous recovery 与 full smart-search parity；
+  - 明确 result/diagnostics consistency 与 auto-flag gating 已转入 capability。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/delphi-test-fasttrack-matrix.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮仍未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，fasttrack-bodyboolean-touching-union-batch3）
 
 - 已更新 `src/sdk/GeometryBodyBoolean.cpp`：

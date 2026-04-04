@@ -42,7 +42,7 @@
 ### GeometrySearchPoly
 
 - 稳定 SDK 入口位于 `include/sdk/GeometrySearchPoly.h`
-- 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics
+- 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics、result / diagnostics consistency、auto-flag gating
 - richer fake-edge explanation、Delphi 级 ambiguous recovery、完整 smart-search parity 仍为 gap
 
 ### GeometryBodyBoolean
@@ -77,6 +77,7 @@
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
 - `GeometrySearchPoly`：推进 richer fake-edge explanation 与 ambiguous recovery
+- `GeometrySearchPoly`：推进 richer fake-edge explanation 与 ambiguous recovery，但保持 result-consistency / auto-flag contract 只做确定性补强
 - `GeometryBodyBoolean`：推进更一般 overlap / touching-union 子集，但保持 `InvalidInput` / `UnsupportedOperation` contract 稳定
 
 ## 交付口径
