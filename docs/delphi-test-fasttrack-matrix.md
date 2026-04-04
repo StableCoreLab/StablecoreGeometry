@@ -32,4 +32,4 @@ The algorithm library is considered ready for product development when:
 
 1. deepen `GeometryBodyBoolean` beyond identical/disjoint + axis-aligned single-box overlap / face-touching union subsets.
 2. deepen `GeometrySearchPoly` beyond the current branch-scored + candidate fake-edge diagnostic subset toward richer explanation and ambiguous recovery, while keeping result-consistency coverage stable.
-3. keep syncing `docs/test-capability-coverage.md` and gap docs as soon as a subset changes state.
+3. keep syncing `docs/test-capability-coverage.md`, `docs/session-handoff.md`, and `docs/design-doc-sync-tracker.md` as soon as a subset changes state.

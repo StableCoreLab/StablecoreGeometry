@@ -1,61 +1,65 @@
-# 重命名/稳定 API 后续待办
+# Stable API Follow-Up Todo
 
-此文件保留给后续必须持续收敛、但不要求在单轮内全部做完的重构与接口迁移事项。
+This file is the lightweight follow-up list for API stabilization work.
+The goal is to keep `include/sdk` as the only product-facing surface while
+continuing to shrink the internal helper surface behind it.
 
-目标不是追求“大重写”，而是逐步把对外 API 稳定下来，让产品侧只依赖 `include/sdk`，内部算法可继续迭代。
+## Current Focus
 
-## P1：公共 API 面收口
+- Keep Delphi-facing interfaces stable.
+- Prefer interface-first follow-up work over exposing new internal helpers.
+- Move items from gap docs into capability tests only when the subset is stable.
+- Keep the follow-up list short and action-oriented.
+
+## P1: Public API Surface
 
 - `GeometrySearchPoly`
-  - 外部正式入口固定为 `include/sdk/GeometrySearchPoly.h`
-  - 产品侧后续不应再直接依赖 `BuildMultiPolygonByLines(...)`
-  - 需要把 candidate ranking、synthetic-edge diagnostics、ambiguous-result 语义逐步并入正式 result 结构
-- `GeometryBodyBoolean`
-  - 外部正式入口固定为 `include/sdk/GeometryBodyBoolean.h`
-  - 后续即使内部实现拆为 `PolyhedronBody` 路径和 `BrepBody` 路径，public contract 也保持统一
-- `Geometry.h`
-  - 继续作为稳定 umbrella header，并只聚合稳定 `include/sdk` 入口
-  - 新增 Delphi-facing SDK 时，优先从这里统一暴露，而不是让产品侧直接拼接内部头文件
+  - Keep `include/sdk/GeometrySearchPoly.h` as the stable entry point.
+  - Preserve the current subset: invalid-input contract, candidate ranking, branch scoring, candidate-level fake-edge diagnostics, result/diagnostics consistency, auto-flag gating, and smallest-containing lookup.
+  - Next follow-up prompt: deepen richer fake-edge explanation and ambiguous recovery without regressing result consistency.
 
-## P2：需要继续拆层的内部算法
+- `GeometryBodyBoolean`
+  - Keep `include/sdk/GeometryBodyBoolean.h` stable.
+  - Preserve the current subset: invalid-input contract, identical/disjoint closed-body capability, axis-aligned single-box overlap, and face-touching union.
+  - Next follow-up prompt: deepen overlap semantics carefully while keeping touching intersection/difference and shell-policy in gap state.
+
+- `Geometry.h`
+  - Keep the umbrella header as the only product-facing aggregator.
+  - Do not re-expose temporary helpers through the umbrella header.
+
+## P2: Internal Algorithm Split
 
 - `GeometryBrepConversion`
-  - 需要把当前 non-planar repair 拆成清晰 pass：
+  - Keep the current non-planar repair decomposition aligned with:
     - support-plane scoring
     - representative target aggregation
     - cross-face snapping
     - topology reconciliation
-  - 目标是让后续 capability 扩张时，不必继续把复杂启发式堆在单个大函数里
+  - Follow-up prompt: only add new repair subsets when the current representative-average coverage is still stable.
+
 - `GeometryHealing`
-  - 需要进一步拆分 conservative trim-backfill 与 aggressive shell policy
-  - 目标是让“保守修复”和“激进修复”各自拥有清晰入口与测试边界
+  - Preserve the current split between conservative trim-backfill, shell-cap fallback, and aggressive closure.
+  - Follow-up prompt: expand shell repair only when the new subset can be described clearly in the capability matrix.
+
 - `GeometrySection`
-  - 需要把 contour extraction、deterministic segment normalization、coplanar fragment merge 分阶段组织
-  - 目标是让 section 能力继续扩张时，contract 更稳定、内部更可替换
+  - Keep the current contour-processing split stable.
+  - Follow-up prompt: continue toward more general mixed coplanar / non-planar arbitration without collapsing the gap boundary.
 
-## P3：接口风格统一
+## P3: Documentation Hygiene
 
-- 统一 Delphi-facing SDK 的 `Options / Result / Issue` 设计风格
-- 统一 Delphi-facing SDK 的 `Options / Result / Issue` 设计风格，并尽量让 `Geometry.h` 作为唯一产品侧 umbrella 入口
-- 尽量避免把临时 helper 直接暴露给产品侧
-- 新增 capability 时，优先补公共 SDK 入口，再补内部深实现
-- 对外承诺的接口一旦进入 `include/sdk`，后续尽量只增不破
-
-## P4：文档与跟踪
-
-- 每推进一批接口或重构，都要同步：
+- Keep these documents synchronized after every batch:
   - `docs/session-handoff.md`
   - `docs/next-task-prompt.md`
   - `docs/test-capability-coverage.md`
   - `docs/design-doc-sync-tracker.md`
-- 如果接口矩阵或测试矩阵状态变化，还要同步：
+- If the interface matrix changes, update:
   - `docs/delphi-interface-fasttrack.md`
   - `docs/delphi-test-fasttrack-matrix.md`
-- AI 分派时参考：
-  - `docs/ai-task-routing.md`
+- If a capability becomes stable, move it out of the gap inventory in the same batch.
 
-## 当前建议的下一批动作
+## Follow-Up Prompt Template
 
-- 深化 `GeometrySearchPoly`
-- 推进 `GeometryBodyBoolean` 第一批 deterministic capability
-- 只做有助于稳定 API 的重构，避免在产品即将接入时做大范围接口扰动
+- "Deepen `GeometrySearchPoly` from the current branch-scored + fake-edge diagnostic subset toward richer explanation and ambiguous recovery."
+- "Deepen `GeometryBodyBoolean` from identical/disjoint + axis-aligned single-box overlap / face-touching union toward richer overlap while keeping gap contracts stable."
+- "Keep `GeometrySection` / `GeometryHealing` split clean and update capability/gap inventory in the same pass."
+
