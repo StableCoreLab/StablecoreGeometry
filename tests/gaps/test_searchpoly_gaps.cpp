@@ -1,10 +1,10 @@
-﻿#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
-#include "sdk/GeometryPathOps.h"
-#include "sdk/MultiPolyline2d.h"
+#include "sdk/GeometrySearchPoly.h"
 
-using geometry::sdk::MultiPolyline2d;
-using geometry::sdk::Point2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
-
+TEST(SearchPolyGapTest, DelphiGradeAmbiguousBranchScoringRemainsOpen)
+{
+    GTEST_SKIP() << "Known 2D gap: GeometrySearchPoly now exposes stable SDK entry points, "
+                    "candidate ranking, and repair diagnostics, but Delphi-grade ambiguous branch "
+                    "scoring, fake-edge explanation, and full smart-search parity remain open.";
+}

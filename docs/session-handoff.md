@@ -23,6 +23,26 @@
   - `GeometryBrepConversion / GeometryHealing / GeometrySection` 的复杂 repair 流程继续拆成内部清晰 pass，而不是把不稳定 helper 暴露成产品依赖点
 - 本轮仍未编译、未跑构建；只同步了下轮安排与 API 稳定化重构清单。
 
+## 本轮新增（2026-04-04，fasttrack-searchpoly-batch2）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 为 `SearchPolygons(...)` 增加 `SearchPolyDiagnostics2d`，固定输入 polyline/segment 数、unique vertex 数、dangling endpoint 数、branch vertex 数与 inferred synthetic-edge 数；
+  - 为 `SearchPolyCandidate2d` 增加稳定 `rank`；
+  - `SearchPolygons(...)` 现会按 area/hole-count/ring-size 做稳定 candidate ranking；
+  - `SearchPolygonContainingPoint(...)` 现返回 smallest-containing candidate，而不再只是遇到第一个就返回。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 补齐 candidate ranking
+  - 补齐 near-closed loop repair diagnostics
+  - 补齐 smallest-containing candidate 选择语义
+- 已补齐 gap test：`tests/gaps/test_searchpoly_gaps.cpp`
+  - 明确 Delphi 级 smart-search branch scoring、fake-edge explanation 与完整 ambiguous recovery 仍为 open gap。
+- 已同步更新：
+  - `docs/delphi-interface-fasttrack.md`
+  - `docs/delphi-test-fasttrack-matrix.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 当前下一轮优先级已更清晰地转向 `GeometryBodyBoolean` 第一批 deterministic capability。
+
 ## 本轮新增（2026-04-04，fasttrack-interface-tests）
 
 - 已新增 Delphi 快补总表：`docs/delphi-interface-fasttrack.md`，把 Delphi 实际使用能力映射到 C++ 目标 SDK 面，并把“接口先行 + 测试先行”固定成当前主策略。

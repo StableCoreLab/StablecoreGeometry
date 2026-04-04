@@ -41,21 +41,7 @@
 
 ## 下一轮优先级
 
-### P1：深化 `GeometrySearchPoly`
-
-优先做：
-
-- 为 `SearchPolygons(...)` 增加更明确的 candidate ranking
-- 增加 synthetic-edge / auto-close / auto-extend 诊断信息
-- 明确 branch cleanup / no-solution / ambiguous-result 等 issue 语义
-- 继续补 contract tests 与 representative capability tests
-
-目标：
-
-- 产品层不再需要直接依赖 `BuildMultiPolygonByLines(...)`
-- `GeometrySearchPoly.h` 成为外部稳定入口
-
-### P2：推进 `GeometryBodyBoolean` 第一批 capability
+### P1：推进 `GeometryBodyBoolean` 第一批 capability
 
 优先做：
 
@@ -67,6 +53,18 @@
 
 - 产品侧可以先按 `IntersectBodies / UnionBodies / DifferenceBodies` 开发
 - 算法侧逐批把 capability tests 转绿
+
+### P2：继续深化 `GeometrySearchPoly`
+
+优先做：
+
+- 在现有 diagnostics + ranking 的基础上继续补 branch scoring
+- 增加更明确的 fake-edge explanation
+- 继续把 Delphi 风格 smart-search 差距显式留在 `tests/gaps/test_searchpoly_gaps.cpp`
+
+目标：
+
+- `GeometrySearchPoly.h` 稳定对外，内部实现继续加深但不打断产品侧接入
 
 ### P3：持续完成“稳定 API”所需重构
 

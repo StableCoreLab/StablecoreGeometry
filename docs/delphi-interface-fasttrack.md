@@ -46,6 +46,6 @@ This file fixes the fast-track replacement target for the Delphi geometry stack:
 
 ## Next Batches
 
-- deepen `GeometrySearchPoly` toward explicit branch scoring, synthetic-edge reporting, and candidate ranking
+- deepen `GeometrySearchPoly` toward Delphi-grade explicit branch scoring and fake-edge explanation
 - replace `GeometryBodyBoolean` stubs with real body/shell boolean subsets
 - continue shrinking gap tests only when corresponding capability tests turn green

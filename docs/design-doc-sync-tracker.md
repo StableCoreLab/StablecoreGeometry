@@ -85,6 +85,13 @@
   - 已从空白占位改为稳定 API 重构待办清单
   - 固定公共 API 收口、内部算法拆层、接口风格统一三类后续重构事项
 
+### `docs/next-task-prompt.md`
+
+- status: `done`
+- notes:
+  - 已重写为 fast-track 稳定 API 推进版提示词
+  - 已在后续批次中把 `GeometrySearchPoly` 第二批 SDK 深化与 `GeometryBodyBoolean` capability 排进主线
+
 ## 进度备注
 
 - 2026-03-27：

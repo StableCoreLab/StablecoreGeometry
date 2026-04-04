@@ -18,6 +18,21 @@ enum class SearchPolyIssue2d
     NoClosedPolygonFound
 };
 
+struct GEOMETRY_API SearchPolyDiagnostics2d
+{
+    std::size_t inputPolylineCount{0};
+    std::size_t inputSegmentCount{0};
+    std::size_t uniqueVertexCount{0};
+    std::size_t danglingEndpointCount{0};
+    std::size_t branchVertexCount{0};
+    std::size_t inferredSyntheticEdgeCount{0};
+
+    [[nodiscard]] bool RequiresRepair() const
+    {
+        return danglingEndpointCount > 0 || branchVertexCount > 0;
+    }
+};
+
 struct GEOMETRY_API SearchPolyOptions2d
 {
     double epsilon{1e-9};
@@ -32,6 +47,7 @@ struct GEOMETRY_API SearchPolyCandidate2d
     Polygon2d polygon{};
     double absoluteArea{0.0};
     std::size_t holeCount{0};
+    std::size_t rank{0};
 
     [[nodiscard]] bool IsValid() const
     {
@@ -44,6 +60,7 @@ struct GEOMETRY_API SearchPolyResult2d
     SearchPolyIssue2d issue{SearchPolyIssue2d::None};
     MultiPolygon2d polygons{};
     std::vector<SearchPolyCandidate2d> candidates{};
+    SearchPolyDiagnostics2d diagnostics{};
     bool usedAutoClose{false};
     bool usedAutoExtend{false};
     bool usedSyntheticEdges{false};

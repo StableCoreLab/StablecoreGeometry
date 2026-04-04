@@ -8,7 +8,7 @@ This matrix turns Delphi-replacement work into an interface-and-tests program.
 
 | SDK surface | Minimum tests required | Current state |
 | --- | --- | --- |
-| `GeometrySearchPoly.h` | invalid-input contract, closed-loop representative capability, point-containing candidate lookup | first batch landed |
+| `GeometrySearchPoly.h` | invalid-input contract, closed-loop representative capability, candidate ranking, repair diagnostics, point-containing candidate lookup | second batch landed |
 | `GeometryOffset.h` | line/arc/polyline/polygon offset contracts, rebuilt output capability, split-output capability | covered |
 | `GeometryRelation.h` | point location, containment ordering, representative nested/hole topology capability | covered subset |
 | `GeometryBoolean.h` | invalid operands, crossing/containment/equal/touching representative capabilities | covered subset |

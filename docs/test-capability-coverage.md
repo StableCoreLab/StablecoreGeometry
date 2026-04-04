@@ -40,7 +40,7 @@
 - `tests/capabilities/test_offset.cpp`
   - line / arc / polyline / polygon / multipolygon offset、basic rebuilt polygon growth、disjoint multipolygon offset、single-polygon hole semantics recovery、representative reverse-edge/self-intersection recovery、narrow-bridge split via `OffsetToMultiPolygon(...)` 当前已具备能力
 - `tests/capabilities/test_searchpoly_sdk.cpp`
-  - `GeometrySearchPoly` 第一批 SDK 面：空输入 invalid-input contract、`SearchPolygons(...)` 的代表性闭环子集、`SearchPolygonContainingPoint(...)` 的 containing candidate 选择子集
+  - `GeometrySearchPoly` 第二批 SDK 面：空输入 invalid-input contract、`SearchPolygons(...)` 的代表性闭环子集、candidate ranking、near-closed loop repair diagnostics、`SearchPolygonContainingPoint(...)` 的 smallest-containing candidate 选择子集
 - `tests/capabilities/test_topology_indexing.cpp`
   - touching / intersecting / basic contains / equal、duplicate-equal topology parent tie-break 当前已具备能力
 - `tests/capabilities/test_3d_section.cpp`
@@ -211,6 +211,8 @@
   - 记录超出 planar open-sheet closure（含 holed shell）子策略的激进修复策略、mesh/body 联合多阶段修复仍未闭合
 - `tests/gaps/test_3d_body_boolean_gaps.cpp`
   - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前只保留稳定 SDK 面与 invalid-input contract
+- `tests/gaps/test_searchpoly_gaps.cpp`
+  - 记录 Delphi 级 smart-search branch scoring、fake-edge explanation 与完整 ambiguous recovery 仍未闭合；当前已固定稳定 SDK 入口、candidate ranking 与 repair diagnostics
 - `tests/gaps/test_3d_conversion_gaps.cpp`
   - 记录高保真 Brep->mesh 特征保持（超出 planar holed+multi-face area-preserving + shared-edge vertex-reuse + disconnected closed-shell component-preserving 子集）、鲁棒 non-planar polyhedron->Brep repair（超出 affine-planar + support-plane-refit + all-loop scored holed-face refit + mild outer/hole loop-projection + collinear-leading-loop + duplicate outer/hole loop-normalization 子集）仍未闭合
 - 2D 历史 gap 场景已全部转正到 `tests/capabilities`；当前 `tests/gaps` 专注 3D P1 骨架跟踪
