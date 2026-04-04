@@ -1,18 +1,18 @@
-# Member Method And Free Function Checklist
+# 成员方法与自由函数清单
 
-## Purpose
+## 目的
 
-This checklist keeps the API surface stable while the geometry stack continues to converge.
+这份清单用于在几何栈继续收敛时，保持 API 面稳定。
 
-## Rules
+## 规则
 
-- Prefer member methods for object-native properties.
-- Prefer free functions for algorithms that involve multiple objects, tolerances, context, or structured results.
-- Do not re-expand the surface with temporary helpers just because they are convenient internally.
+- 对象天然属性优先做成员方法。
+- 涉及多个对象、容差、上下文或结构化结果的能力，优先做自由函数。
+- 不要因为实现方便，就把临时 helper 扩散成公开面。
 
-## Member-Method Candidates
+## 适合做成员方法的能力
 
-These are still the right shape for member methods:
+以下能力仍然更适合保留为成员方法：
 
 - `Count()`
 - `Bounds()`
@@ -28,40 +28,41 @@ These are still the right shape for member methods:
 - `HoleCount()`
 - `HoleAt(...)`
 
-## Free-Function Candidates
+## 适合做自由函数的能力
 
-These remain better as free functions:
+以下能力仍然更适合做自由函数：
 
-- distance
-- projection
-- intersection
-- containment and relation queries
+- 距离
+- 投影
+- 相交
+- 包含 / 关系查询
 - boolean
 - offset
 - section / cut / split
-- topology build
-- rebuild / repair / preprocess
+- 拓扑构建
+- 重建 / 修复 / 预处理
 
-## Current Follow-Up Guidance
+## 当前后续指引
 
-- Keep `GeometrySearchPoly` and `GeometryBodyBoolean` on the stable SDK path in `include/sdk`.
-- Keep `GeometrySection`, `GeometryHealing`, and `GeometryBrepConversion` as internal implementation spaces with clear pass boundaries.
-- Keep the product-facing `Options / Result / Issue` style consistent when adding new surface area.
-- If a helper becomes a product dependency, promote it through the fast-track matrices before exposing it widely.
+- 保持 `GeometrySearchPoly` 和 `GeometryBodyBoolean` 走稳定 SDK 路线，放在 `include/sdk` 里。
+- 保持 `GeometrySection`、`GeometryHealing` 和 `GeometryBrepConversion` 作为内部实现空间，并维持清晰的 pass 边界。
+- 新增 surface area 时，继续保持产品侧 `Options / Result / Issue` 风格一致。
+- 如果某个 helper 成了产品依赖，就先经过 fast-track 矩阵再考虑公开。
 
-## Checklist For New APIs
+## 新 API 检查项
 
-1. Does the API depend only on the object itself?
-2. Does it require tolerance, context, or multiple operands?
-3. Does it return structured data rather than a simple property?
-4. Does it leak implementation helpers into the public surface?
-5. Does it fit the existing `include/sdk` style?
+1. 这个 API 是否只依赖对象自身？
+2. 是否需要容差、上下文或多个对象？
+3. 是否返回结构化数据，而不是简单属性？
+4. 是否把实现 helper 暴露进了公开面？
+5. 是否符合现有 `include/sdk` 风格？
 
-If any of 2 through 5 is yes, prefer a free function and document it in the fast-track matrix.
+如果第 2 到第 5 项里任一项为“是”，优先做自由函数，并把它写入 fast-track 矩阵。
 
-## Related Documents
+## 相关文档
 
 - `docs/delphi-interface-fasttrack.md`
 - `docs/delphi-test-fasttrack-matrix.md`
 - `docs/rename-followup-todo.md`
 - `docs/session-handoff.md`
+

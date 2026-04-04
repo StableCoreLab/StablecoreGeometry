@@ -1,35 +1,36 @@
-# Delphi Test Fast-Track Matrix
+# Delphi 测试快通道矩阵
 
-## Purpose
+## 目的
 
-This matrix turns Delphi-replacement work into an interface-and-tests program.
+这份矩阵把 Delphi 替代工作收敛成“接口 + 测试”的推进程序。
 
-## Contract And Capability Matrix
+## contract 与 capability 矩阵
 
-| SDK surface | Minimum tests required | Current state |
+| SDK 面 | 最低测试要求 | 当前状态 |
 | --- | --- | --- |
-| `GeometrySearchPoly.h` | invalid-input contract, closed-loop representative capability, candidate ranking, branch scoring, fake-edge diagnostics, result/diagnostics consistency, auto-flag gating, point-containing candidate lookup | third batch landed |
-| `GeometryOffset.h` | line/arc/polyline/polygon offset contracts, rebuilt output capability, split-output capability | covered |
-| `GeometryRelation.h` | point location, containment ordering, representative nested/hole topology capability | covered subset |
-| `GeometryBoolean.h` | invalid operands, crossing/containment/equal/touching representative capabilities | covered subset |
-| `GeometrySection.h` | section contract, deterministic contour/segment counts, topology/components, Brep path parity | covered subset |
-| `GeometryBrepConversion.h` | invalid-input contract, representative conversion capabilities, explicit open-gap coverage | covered subset |
-| `GeometryHealing.h` | conservative trim-backfill contract, representative aggressive-policy capabilities, explicit open-gap coverage | covered subset |
-| `GeometryBodyBoolean.h` | invalid-input contract, identical/disjoint closed-body representative capability, axis-aligned single-box overlap and face-touching union capability, explicit gap coverage beyond that subset | first overlap/touching subset landed |
-| `GeometryMeshConversion.h` | representative Brep/Polyhedron mesh conversion capability, fidelity gaps | covered subset |
+| `GeometrySearchPoly.h` | invalid-input contract、closed-loop representative capability、candidate ranking、branch scoring、fake-edge diagnostics、result/diagnostics consistency、auto-flag gating、point-containing candidate lookup | 第三批已落地 |
+| `GeometryOffset.h` | line/arc/polyline/polygon offset contract、重建输出 capability、split-output capability | 已覆盖 |
+| `GeometryRelation.h` | point location、containment 排序、代表性 nested/hole 拓扑 capability | 已覆盖子集 |
+| `GeometryBoolean.h` | invalid operands、crossing / containment / equal / touching 代表性 capability | 已覆盖子集 |
+| `GeometrySection.h` | section contract、deterministic contour/segment 计数、topology/components、Brep 路径对齐 | 已覆盖子集 |
+| `GeometryBrepConversion.h` | invalid-input contract、代表性 conversion capability、明确的 open-gap 覆盖 | 已覆盖子集 |
+| `GeometryHealing.h` | conservative trim-backfill contract、代表性 aggressive-policy capability、明确的 open-gap 覆盖 | 已覆盖子集 |
+| `GeometryBodyBoolean.h` | invalid-input contract、identical/disjoint closed-body 代表性 capability、axis-aligned single-box overlap 和 face-touching union capability、以及超出该子集的 gap 覆盖 | 已落第一批 overlap/touching 子集 |
+| `GeometryMeshConversion.h` | 代表性 Brep / Polyhedron mesh conversion capability、fidelity gap | 已覆盖子集 |
 
-## Definition Of Done For Fast-Track
+## 快通道完成定义
 
-The algorithm library is considered ready for product development when:
+算法库可视为适合产品开发，需满足：
 
-1. the agreed Delphi-facing SDK interfaces exist;
-2. each interface has contract tests;
-3. each implemented subset has capability tests;
-4. each unimplemented area is called out by a gap test;
-5. the committed test matrix is green.
+1. 约定好的 Delphi-facing SDK 接口已存在；
+2. 每个接口都有 contract 测试；
+3. 每个已实现子集都有 capability 测试；
+4. 每个未实现区域都有 gap 测试；
+5. 已承诺的测试矩阵全部为绿。
 
-## Immediate Work Queue
+## 当前立即待办
 
-1. deepen `GeometryBodyBoolean` beyond identical/disjoint + axis-aligned single-box overlap / face-touching union subsets.
-2. deepen `GeometrySearchPoly` beyond the current branch-scored + candidate fake-edge diagnostic subset toward richer explanation and ambiguous recovery, while keeping result-consistency coverage stable.
-3. keep syncing `docs/test-capability-coverage.md`, `docs/session-handoff.md`, and `docs/design-doc-sync-tracker.md` as soon as a subset changes state.
+1. 继续推进 `GeometryBodyBoolean`，超越 identical/disjoint + axis-aligned single-box overlap / face-touching union 子集。
+2. 继续推进 `GeometrySearchPoly`，超越当前 branch-scored + candidate fake-edge diagnostic 子集，向更丰富解释和 ambiguous recovery 前进，同时保持 result-consistency 覆盖稳定。
+3. 及时同步 `docs/test-capability-coverage.md`、`docs/session-handoff.md` 和 `docs/design-doc-sync-tracker.md`，只要某个子集状态发生变化就更新。
+
