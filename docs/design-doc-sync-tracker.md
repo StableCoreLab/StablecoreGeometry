@@ -99,6 +99,13 @@
   - 已同步 `GeometryBodyBoolean` 从纯接口预留推进到第一批 deterministic closed-body capability
   - 已把下一轮重点更新为 body boolean richer overlap 子集与 SearchPoly branch scoring
 
+### `docs/ai-task-routing.md`
+
+- status: `done`
+- notes:
+  - 新增剩余任务按 AI 模型能力 / 推理强度分类文档
+  - 固定 A/B/C 三档任务分派口径，供后续多模型并行分工使用
+
 ## 进度备注
 
 - 2026-03-27：

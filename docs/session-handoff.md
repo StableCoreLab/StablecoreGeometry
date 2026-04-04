@@ -65,6 +65,15 @@
   - `docs/test-capability-coverage.md`
 - 当前下一轮可继续把 `GeometryBodyBoolean` 往 overlap 子集推进，或者切回 `GeometrySearchPoly` 的 branch scoring / fake-edge explanation。
 
+## 本轮新增（2026-04-04，ai-task-routing-doc）
+
+- 已新增 `docs/ai-task-routing.md`，把剩余任务按 AI 模型能力与推理强度分成 A/B/C 三档：
+  - A：前沿模型 + 高推理，负责算法策略与高风险几何主线
+  - B：中档编码模型 + 中高推理，负责有明确方向的实现与测试扩张
+  - C：轻量模型 + 低中推理，负责文档、矩阵、交接同步
+- 已把 `GeometryBrepConversion` non-planar repair、`GeometryBodyBoolean` overlap 子集、`GeometrySearchPoly` smart-search 深化、`GeometryHealing`/`GeometrySection` 拆层分别归类，方便直接按 AI 档位分派。
+- 已在 `docs/rename-followup-todo.md` 中增加对 `docs/ai-task-routing.md` 的引用，作为后续分工入口。
+
 ## 本轮新增（2026-04-04，fasttrack-interface-tests）
 
 - 已新增 Delphi 快补总表：`docs/delphi-interface-fasttrack.md`，把 Delphi 实际使用能力映射到 C++ 目标 SDK 面，并把“接口先行 + 测试先行”固定成当前主策略。

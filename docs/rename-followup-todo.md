@@ -50,6 +50,8 @@
 - 如果接口矩阵或测试矩阵状态变化，还要同步：
   - `docs/delphi-interface-fasttrack.md`
   - `docs/delphi-test-fasttrack-matrix.md`
+- AI 分派时参考：
+  - `docs/ai-task-routing.md`
 
 ## 当前建议的下一批动作
 
