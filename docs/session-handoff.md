@@ -9,6 +9,28 @@
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
+## 本轮新增（2026-04-04，fasttrack-section-higher-order-batch1）
+
+- 已更新 `src/sdk/GeometrySection.cpp`，在不改 public SDK 入口的前提下继续推进 `GeometrySection` 的高阶 section 语义：
+  - 将 coplanar polygon merge 从顺序二元 `Union(...)` 提升为“保留不相交分量、反复合并可合并对”的稳定累积策略；
+  - 当前可稳定覆盖四片以上共面 fragment 的 frame-with-hole 级归并子集，而不再只停留在相邻 strip/chain；
+  - 去掉“只要出现 coplanar face 就提前返回”的内部短路，允许 coplanar area 与后续 non-planar sliced contours 在同一 section 结果中共存；
+  - `PolyhedronBody` 路径继续保留 plane-edge segment 回收，但不再把 coplanar polygon 边界重新喂回 non-planar graph，避免 mixed section 下重复重建。
+- 已扩展 capability tests：`tests/capabilities/test_3d_section.cpp`
+  - 新增 `CoplanarFrameFacesMergeIntoSinglePolygonWithHole`，验证四片 coplanar frame faces 可稳定合并为单 polygon + 单 hole（area=8 / segments=8）；
+  - 新增 `MixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents`，验证 coplanar frame + non-planar cube mid-section 在 Polyhedron 路径可同时保留 2 个 area components（2 polygons / 3 closed contours / total area=9）；
+  - 新增 `BrepMixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents`，补齐同一 mixed section 子集在 Brep 路径的对偶保护。
+- 已同步收敛 gap test：`tests/gaps/test_3d_section_gaps.cpp`
+  - 明确 mixed coplanar-frame + non-planar cube coexistence 子集已纳入 `NonPlanarDominantSectionGraphRemainsOpen` 的已覆盖范围；
+  - 明确四片 coplanar frame -> polygon-with-hole 子集已纳入 `FaceMergeSemanticsAfterSectionRemainsOpen` 的已覆盖范围；
+  - 更高阶 non-manifold stitching、mixed open-curve/area arbitration、跨 convex-hull gap 的非邻接 fragment merge 仍继续保留为 gap。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮仍未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，fasttrack-healing-aggressive-shell-batch2）
 
 - 已更新 `src/sdk/GeometryHealing.cpp`，在不改 public SDK 入口的前提下继续深化 `GeometryHealing` 的 aggressive shell policy：

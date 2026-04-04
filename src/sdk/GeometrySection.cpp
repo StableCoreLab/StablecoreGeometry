@@ -526,6 +526,54 @@ void EnsureClockwise(
     return Polygon2d(std::move(outer), std::move(holes));
 }
 
+[[nodiscard]] MultiPolygon2d MergeCoplanarPolygonsStable(
+    const std::vector<Polygon2d>& polygons,
+    double eps)
+{
+    std::vector<Polygon2d> merged;
+    merged.reserve(polygons.size());
+    for (const Polygon2d& polygon : polygons)
+    {
+        merged.push_back(NormalizePolygonOrientation(polygon));
+    }
+
+    bool changed = true;
+    while (changed)
+    {
+        changed = false;
+        for (std::size_t first = 0; first < merged.size() && !changed; ++first)
+        {
+            for (std::size_t second = first + 1; second < merged.size(); ++second)
+            {
+                const MultiPolygon2d unioned = Union(merged[first], merged[second], eps);
+                if (unioned.Count() != 1)
+                {
+                    continue;
+                }
+
+                std::vector<Polygon2d> next;
+                next.reserve(merged.size() - 1);
+                for (std::size_t index = 0; index < merged.size(); ++index)
+                {
+                    if (index == first || index == second)
+                    {
+                        continue;
+                    }
+
+                    next.push_back(merged[index]);
+                }
+
+                next.push_back(NormalizePolygonOrientation(unioned.PolygonAt(0)));
+                merged = std::move(next);
+                changed = true;
+                break;
+            }
+        }
+    }
+
+    return MultiPolygon2d(std::move(merged));
+}
+
 [[nodiscard]] bool IsSectionFrameValid(const PolyhedronSection3d& section, double eps)
 {
     return section.origin.IsValid() && section.uAxis.IsValid() && section.vAxis.IsValid() &&
@@ -611,26 +659,7 @@ void MergeCoplanarSectionPolygons(
         return;
     }
 
-    MultiPolygon2d merged;
-    for (const Polygon2d& polygon : section.polygons)
-    {
-        if (merged.IsEmpty())
-        {
-            merged.Add(NormalizePolygonOrientation(polygon));
-            continue;
-        }
-
-        MultiPolygon2d next;
-        for (std::size_t i = 0; i < merged.Count(); ++i)
-        {
-            const MultiPolygon2d unioned = Union(merged.PolygonAt(i), polygon, eps);
-            for (std::size_t j = 0; j < unioned.Count(); ++j)
-            {
-                next.Add(unioned.PolygonAt(j));
-            }
-        }
-        merged = std::move(next);
-    }
+    const MultiPolygon2d merged = MergeCoplanarPolygonsStable(section.polygons, eps);
 
     std::vector<Polygon2d> polygons;
     polygons.reserve(merged.Count());
@@ -813,14 +842,15 @@ PolyhedronSection3d Section(
     result.vAxis = basis.v;
 
     bool hasCoplanarFace = false;
+    std::vector<LineSegment3d> planeEdgeSegments;
     for (const PolyhedronFace3d& face : body.Faces())
     {
         if (!IsCoplanarWithSectionPlane(face, plane, tolerance.distanceEpsilon))
         {
-            AddUniquePlaneEdgeSegments(face.OuterLoop(), plane, result.segments, tolerance.distanceEpsilon);
+            AddUniquePlaneEdgeSegments(face.OuterLoop(), plane, planeEdgeSegments, tolerance.distanceEpsilon);
             for (std::size_t i = 0; i < face.HoleCount(); ++i)
             {
-                AddUniquePlaneEdgeSegments(face.HoleAt(i), plane, result.segments, tolerance.distanceEpsilon);
+                AddUniquePlaneEdgeSegments(face.HoleAt(i), plane, planeEdgeSegments, tolerance.distanceEpsilon);
             }
             continue;
         }
@@ -869,9 +899,6 @@ PolyhedronSection3d Section(
     if (hasCoplanarFace)
     {
         MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
-        RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
-        result.success = true;
-        return result;
     }
 
     const auto meshConversion = ConvertToTriangleMesh(body, tolerance.distanceEpsilon);
@@ -882,7 +909,7 @@ PolyhedronSection3d Section(
     }
 
     std::vector<LineSegment3d> rawSegments;
-    rawSegments.reserve(meshConversion.mesh.TriangleCount());
+    rawSegments.reserve(meshConversion.mesh.TriangleCount() + planeEdgeSegments.size());
     for (std::size_t i = 0; i < meshConversion.mesh.TriangleCount(); ++i)
     {
         LineSegment3d segment{};
@@ -902,7 +929,7 @@ PolyhedronSection3d Section(
         }
     }
 
-    for (const LineSegment3d& segment : result.segments)
+    for (const LineSegment3d& segment : planeEdgeSegments)
     {
         if (!ContainsUndirectedSegment(rawSegments, segment.startPoint, segment.endPoint, tolerance.distanceEpsilon))
         {
@@ -910,9 +937,9 @@ PolyhedronSection3d Section(
         }
     }
 
-    result.segments = rawSegments;
-    if (result.segments.empty())
+    if (rawSegments.empty())
     {
+        RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
         result.success = true;
         return result;
     }
@@ -1189,9 +1216,6 @@ PolyhedronSection3d Section(
     if (hasCoplanarFace)
     {
         MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
-        RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
-        result.success = true;
-        return result;
     }
 
     const auto meshConversion = ConvertToTriangleMesh(body, tolerance.distanceEpsilon);
@@ -1223,9 +1247,9 @@ PolyhedronSection3d Section(
         }
     }
 
-    result.segments = rawSegments;
-    if (result.segments.empty())
+    if (rawSegments.empty())
     {
+        RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
         result.success = true;
         return result;
     }

@@ -1,6 +1,6 @@
 # 下一次任务提示词
 
-你正在继续 `stablecore-geometry` 的 Delphi 老链路替代工作。不要重新做范围分析，直接按下面的状态和优先级继续写代码与文档。
+你正在继续 `stablecore-geometry` 的 Delphi 能力替代与稳定 SDK 收敛工作。不要重新做大范围盘点，直接基于下面的当前状态继续写代码、测试代码与文档。
 
 ## 工作约束
 
@@ -8,151 +8,82 @@
 - 只写代码、测试代码、文档
 - 不要编译
 - 不要跑构建
-- 每完成一个阶段：
-  - 更新 `docs/session-handoff.md`
-  - 更新 `docs/next-task-prompt.md`
-  - 同步相关覆盖/跟踪文档
-  - 直接提交
+- 不要回退已有改动
+- 每完成一轮后至少同步：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 完成后直接提交
 
 ## 当前状态（2026-04-04）
 
-已完成 fast-track 第一批接口与测试骨架，提交：`00fb60d` `Add Delphi fast-track SDK interfaces and test matrix`
+### GeometrySection
 
-本批新增：
+- public SDK 入口保持不变
+- 已收敛的代表性 capability：
+  - 相邻 coplanar faces merge 为单 polygon
+  - 三面 coplanar strip merge（Polyhedron / Brep）
+  - 四片 coplanar frame merge 为单 polygon-with-hole
+  - unit cube / rectangular prism / triangular prism 的多组 deterministic non-planar section perimeter 子集
+  - mixed coplanar frame + non-planar cube section 在 Polyhedron / Brep 路径共存（2 polygons / 3 closed contours / total area=9）
+- 当前仍保留的 gap：
+  - ambiguous non-manifold contour stitching
+  - mixed open-curve / area arbitration
+  - 非邻接 coplanar fragments 跨 convex-hull gap 的 merge
+  - 更一般 mixed coplanar/non-planar adjacency arbitration
 
-- `docs/delphi-interface-fasttrack.md`
-  - Delphi 实际能力到 C++ SDK 目标接口总表
-- `docs/delphi-test-fasttrack-matrix.md`
-  - 接口到 contract / capability / gap 测试矩阵
-- `include/sdk/GeometrySearchPoly.h`
-- `src/sdk/GeometrySearchPoly.cpp`
-- `include/sdk/GeometryBodyBoolean.h`
-- `src/sdk/GeometryBodyBoolean.cpp`
-- `tests/capabilities/test_searchpoly_sdk.cpp`
-- `tests/capabilities/test_3d_body_boolean_sdk.cpp`
-- `tests/gaps/test_3d_body_boolean_gaps.cpp`
+### GeometryHealing
 
-当前 `GeometryBodyBoolean` 已进一步收敛到：
+- public SDK 入口保持不变
+- 已覆盖 conservative trim-backfill 与 representative aggressive shell boundary-cap 子集
+- 更一般 multi-shell shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
 
-- invalid-input contract
-- identical closed-body `IntersectBodies(...)` / `UnionBodies(...)`
-- disjoint closed-body `UnionBodies(...)` / `DifferenceBodies(...)`
-- axis-aligned closed-box overlap 子集：
-  - `IntersectBodies(...)` 的正体积 overlap box
-  - `UnionBodies(...)` 中结果仍为单一 closed box 的 overlap/containment 子集
-  - `DifferenceBodies(...)` 中结果仍为单一 closed box 的单侧 slab 子集
-- 非单-box overlap、touching shell 语义、shell-policy、topology-preserving healing integration 仍保留为 gap
+### GeometrySearchPoly
 
-当前 `GeometrySearchPoly` 已进一步收敛到：
+- 稳定 SDK 入口位于 `include/sdk/GeometrySearchPoly.h`
+- 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics
+- richer fake-edge explanation、Delphi 级 ambiguous recovery、完整 smart-search parity 仍为 gap
 
-- invalid-input contract
-- 代表性 closed-loop build 子集
-- candidate ranking
-- branch scoring
-- candidate-level fake-edge diagnostics：
-  - `branchScore`
-  - `inferredSyntheticPerimeter`
-  - `inferredSyntheticEdgeCount`
-  - `branchVertexCount`
-  - `syntheticBranchVertexCount`
-- `SearchPolygonContainingPoint(...)` 的 smallest-containing candidate 选择子集
-- richer fake-edge explanation、Delphi 级 ambiguous recovery、完整 smart-search parity 仍保留为 gap
+### GeometryBodyBoolean
 
-当前 `GeometryHealing` 已进一步收敛到：
-
-- conservative `Heal(BrepBody)` trim-backfill：
-  - single-face missing outer trim
-  - holed-face missing outer/hole trims
-  - z=0 / y=0 / x=0 / oblique planar face orientations
-- aggressive `Heal(..., policy=Aggressive)`：
-  - mirror-style deterministic closure for recoverable planar open shells without interior shared-edge coupling
-  - standalone coplanar shared-edge shell 的 boundary-cap fallback
-  - representative composite subset：support-plane mismatch + missing trims + holed shared-edge shell
-- 更一般 multi-shell shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍保留为 gap
-
-当前策略已经固定为：
-
-1. 接口先行
-2. 测试先行
-3. 产品只依赖稳定 SDK 名称
-4. 算法深度工作放到接口后面继续补
+- `include/sdk/GeometryBodyBoolean.h` public contract 保持稳定
+- 已覆盖 identical / disjoint closed-body 子集与 axis-aligned single-box overlap 子集
+- 非单-box overlap、touching shell、shell-policy、healing integration 仍为 gap
 
 ## 下一轮优先级
 
-### P1：继续深化 `GeometryBodyBoolean`
+### P1：继续深化 GeometrySection
 
-优先做：
+优先方向：
 
-- 在现有 identical/disjoint + axis-aligned single-box overlap 子集基础上继续补更有业务价值的 overlap 子集
-- 保持 `InvalidInput` / `UnsupportedOperation` contract 稳定
-- 未覆盖语义继续留在 `tests/gaps/test_3d_body_boolean_gaps.cpp`
+- 在不改 public SDK 的前提下继续推进更高阶 section 语义
+- 重点补：
+  - mixed open-curve / area arbitration
+  - 更一般 non-planar dominant contour stitching
+  - 更一般 mixed coplanar/non-planar adjacency merge
+- 保持 capability / gap 边界清晰，不要把仍不稳定语义伪装成已完成
 
-目标：
+建议触达文件：
 
-- 产品侧可以先按 `IntersectBodies / UnionBodies / DifferenceBodies` 开发
-- 算法侧逐批把 capability tests 转绿
+- `src/sdk/GeometrySection.cpp`
+- `tests/capabilities/test_3d_section.cpp`
+- `tests/gaps/test_3d_section_gaps.cpp`
 
-### P2：继续深化 `GeometrySearchPoly`
+### P2：继续深化 GeometryHealing
 
-优先做：
+- 继续扩展 aggressive shell policy，但保持 conservative trim-backfill 与 topology-changing aggressive closure 的边界清晰
 
-- 在现有 diagnostics + branch scoring + candidate-level fake-edge diagnostics 的基础上继续补更明确的 fake-edge explanation
-- 继续推进 Delphi 级 ambiguous recovery
-- 继续把 Delphi 风格 smart-search 差距显式留在 `tests/gaps/test_searchpoly_gaps.cpp`
+### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
-目标：
-
-- `GeometrySearchPoly.h` 稳定对外，内部实现继续加深但不打断产品侧接入
-
-### P3：持续完成“稳定 API”所需重构
-
-优先推进：
-
-- `GeometrySearchPoly`
-  - 把当前对 `BuildMultiPolygonByLines(...)` 的薄封装，重构为独立实现层
-  - 外部只保留 `GeometrySearchPoly.h`
-  - 将当前 branch scoring / fake-edge diagnostics 继续沉淀为正式结果语义，而不是停留在底层 pathops 行为侧推
-- `GeometryBodyBoolean`
-  - 未来实现时区分 `PolyhedronBody` 路径与 `BrepBody` 路径，但保持统一 public contract
-- `GeometryBrepConversion`
-  - non-planar repair 内部流程已拆成更清晰的 pass：
-    - support-plane scoring
-    - representative target aggregation
-    - cross-face snapping
-    - topology reconciliation
-  - 下一步继续把这四个 pass 的数据流用于更一般的多面 closed-shell non-planar repair，而不只停留在 closed-cuboid representative 子集
-- `GeometryHealing`
-  - 将 conservative trim-backfill 与 aggressive shell policy 进一步拆层
-  - 在现有 mirror-style closure 与 standalone boundary-cap fallback 之上，继续推进更一般 multi-shell shared-edge arbitration
-- `GeometrySection`
-  - 将 contour extraction、deterministic segment normalization、coplanar fragment merge 拆成更稳定的内部阶段
-- 统一 SDK 风格：
-  - `Options / Result / Issue` 命名统一
-  - 稳定 API 放在 `include/sdk`
-  - 内部 helper 尽量不要再以产品可直接依赖的方式扩散
-
-详细清单见：`docs/rename-followup-todo.md`
-
-## 本轮完成后的文档同步要求
-
-至少同步这些文件：
-
-- `docs/session-handoff.md`
-- `docs/next-task-prompt.md`
-- `docs/test-capability-coverage.md`
-- `docs/design-doc-sync-tracker.md`
-- `docs/rename-followup-todo.md`
-
-如果接口矩阵或测试矩阵状态发生变化，也同步：
-
-- `docs/delphi-interface-fasttrack.md`
-- `docs/delphi-test-fasttrack-matrix.md`
+- `GeometrySearchPoly`：推进 richer fake-edge explanation 与 ambiguous recovery
+- `GeometryBodyBoolean`：推进更一般 overlap 子集，但保持 `InvalidInput` / `UnsupportedOperation` contract 稳定
 
 ## 交付口径
 
-完成后请输出：
+完成后请明确说明：
 
-1. 这轮新增了哪些稳定接口/能力
-2. 哪些 gap 仍保留
-3. 哪些“稳定 API”重构事项已推进
-4. 提交号
+1. 本轮新增了哪些稳定 capability
+2. 哪些 gap 继续保留
+3. 更新了哪些代码、测试与文档
+4. 提交号是什么

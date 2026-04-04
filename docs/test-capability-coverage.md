@@ -156,6 +156,9 @@
 
 - `ThreeCoplanarFacesInLStripMergeIntoSinglePolygon` — 三面共面水平排列 strip 合并为单多边形（area=3），收敛 FaceMergeSemantics gap 子集
 - `BrepThreeCoplanarFacesInStripMergeIntoSinglePolygon` — 三面共面水平 strip 在 Brep 路径也可合并为单多边形（area=3），扩展 FaceMergeSemantics 的 Brep 子集
+- `CoplanarFrameFacesMergeIntoSinglePolygonWithHole` — 四片 coplanar frame faces 归并为单 polygon + 单 hole（area=8，segments=8），把 face-merge 子集从 strip/chain 扩展到 frame-with-hole
+- `MixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents` — coplanar frame 与 non-planar cube mid-section 在同一 Polyhedron section 结果中可共存（2 polygons / 3 contours / total area=9），收敛 mixed section 不再因 coplanar 提前返回而丢失 non-planar contour 的子集
+- `BrepMixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents` — 上述 mixed coplanar + non-planar coexistence 子集在 Brep 路径也保持稳定（2 polygons / 3 contours / total area=9）
 - `UnitCubeMidPlaneSectionYieldsFourSegmentClosedContour` — unit cube y=0.5 截面恰好四段闭合，area=1，收敛 NonPlanarDominant gap 行列式子集
 - `ObliquePrismSectionYieldsDeterministicContourLength` — 等边三棱柱水平截面周长断言（≈3），收敛钢筋线总长稳定性子集
 - `ObliquePrismSectionYieldsDeterministicContourLength` 现补齐段数稳定断言（3 段），收敛钢筋线根数稳定子集
@@ -214,7 +217,7 @@
 - 必需完成：切面钢筋线 deterministic 后处理与断言（线段去重/共线合并/短毛刺抑制/总长与根数稳定）
 
 - `tests/gaps/test_3d_section_gaps.cpp`
-  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合（相邻 coplanar union 子集已在 Polyhedron/Brep 路径覆盖）
+  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge，以及 mixed coplanar+non-planar coexistence 子集
 - `tests/gaps/test_3d_brep_gaps.cpp`
   - 记录 coedge-loop ownership 编辑链路、non-planar trimmed face topology repair 仍未闭合（ownership gap 已覆盖 single-face + multi-face closed-shell no-op replacement 子集）
 - `tests/gaps/test_3d_healing_gaps.cpp`

@@ -347,3 +347,17 @@
   - 已将 `GeometryBrepConversion.cpp` 的 non-planar repair 主流程拆为 `support-plane scoring`、`representative target aggregation`、`cross-face snapping`、`topology reconciliation` 四个 pass helper，并让 repair 结果直接保留 topology-reconciled representative targets，供后续 Brep 拓扑回建复用。
   - 已把 closed-cuboid all-vertices representative 子集从“仅 closed-shell 计数”提升为显式落点断言：`SupportMismatchNearEqualClosedCuboidAllVerticesRepairsWithRepresentativeAverageTarget` 及其 single/dual duplicate-loop 变体现在都要求 8 个共享顶点命中 deterministic representative-average 目标点。
   - 已同步收敛 conversion gap 文案，移除 closed-cuboid all-vertices / single-duplicate / dual-duplicate 这组三个 representative-average open subset。
+## 2026-04-04 GeometrySection 高阶 section 语义同步
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - coplanar polygon merge 由顺序二元 `Union(...)` 提升为稳定累积式 pairwise merge，当前可覆盖四片以上 frame-with-hole 级共面 fragment merge；
+  - `Section(...)` 在存在 coplanar face 时不再提前返回，允许 coplanar area 与后续 non-planar sliced contours 共存；
+  - `PolyhedronBody` 路径继续保留 plane-edge segment 回收，但不再把 coplanar polygon 边界重新作为 non-planar graph 输入，避免 mixed section 下重复 contour 重建。
+- 已新增 section capability：
+  - `CoplanarFrameFacesMergeIntoSinglePolygonWithHole`：四片 coplanar frame faces 稳定合并为单 polygon + 单 hole（area=8 / segments=8）；
+  - `MixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents`：coplanar frame 与 non-planar cube mid-section 在 Polyhedron 路径可共存为 2 个 area components（2 polygons / 3 contours / total area=9）；
+  - `BrepMixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents`：同一 mixed section 子集在 Brep 路径同样成立。
+- 已同步收敛 section gap 文案：
+  - `NonPlanarDominantSectionGraphRemainsOpen` 现明确 mixed coplanar-frame + non-planar cube coexistence 已进入 covered subset；
+  - `FaceMergeSemanticsAfterSectionRemainsOpen` 现明确四片 coplanar frame -> polygon-with-hole 已进入 covered subset；
+  - 剩余 gap 收敛为 ambiguous non-manifold stitching、mixed open-curve/area arbitration、跨 convex-hull gap 的非邻接 merge。

@@ -64,6 +64,31 @@ PolyhedronBody BuildThreeCoplanarStripFacesBody()
                 Point3d{3.0, 1.0, 0.0}, Point3d{2.0, 1.0, 0.0}}))});
 }
 
+PolyhedronBody BuildCoplanarFrameFacesBody()
+{
+    return PolyhedronBody({
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d({
+                Point3d{0.0, 0.0, 0.0}, Point3d{3.0, 0.0, 0.0},
+                Point3d{3.0, 1.0, 0.0}, Point3d{0.0, 1.0, 0.0}})),
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{0.0, 2.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d({
+                Point3d{0.0, 2.0, 0.0}, Point3d{3.0, 2.0, 0.0},
+                Point3d{3.0, 3.0, 0.0}, Point3d{0.0, 3.0, 0.0}})),
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{0.0, 1.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d({
+                Point3d{0.0, 1.0, 0.0}, Point3d{1.0, 1.0, 0.0},
+                Point3d{1.0, 2.0, 0.0}, Point3d{0.0, 2.0, 0.0}})),
+        PolyhedronFace3d(
+            Plane::FromPointAndNormal(Point3d{2.0, 1.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
+            PolyhedronLoop3d({
+                Point3d{2.0, 1.0, 0.0}, Point3d{3.0, 1.0, 0.0},
+                Point3d{3.0, 2.0, 0.0}, Point3d{2.0, 2.0, 0.0}}))});
+}
+
 PolyhedronLoop3d TranslateLoop(const PolyhedronLoop3d& loop, const Vector3d& delta)
 {
     std::vector<Point3d> vertices;
@@ -99,6 +124,21 @@ PolyhedronBody BuildTwoSeparatedUnitCubesBody()
 
     const Vector3d delta{3.0, 0.0, 0.0};
     for (const PolyhedronFace3d& face : first.Faces())
+    {
+        faces.push_back(TranslateFace(face, delta));
+    }
+
+    return PolyhedronBody(std::move(faces));
+}
+
+PolyhedronBody BuildMixedCoplanarFrameAndIntersectingCubeBody()
+{
+    const PolyhedronBody frame = BuildCoplanarFrameFacesBody();
+    std::vector<PolyhedronFace3d> faces = frame.Faces();
+
+    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const Vector3d delta{5.0, 0.0, -0.5};
+    for (const PolyhedronFace3d& face : cube.Faces())
     {
         faces.push_back(TranslateFace(face, delta));
     }
@@ -371,6 +411,133 @@ TEST(Section3dCapabilityTest, BrepThreeCoplanarFacesInStripMergeIntoSinglePolygo
     assert(components.components.size() == 1);
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
     assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 3.0) < 1e-12);
+}
+
+// Demonstrates higher-order coplanar fragment merge semantics beyond strips:
+// four coplanar faces arranged as a rectangular frame merge into one polygon
+// with one rectangular hole instead of remaining split into four fragments.
+TEST(Section3dCapabilityTest, CoplanarFrameFacesMergeIntoSinglePolygonWithHole)
+{
+    const PolyhedronBody body = BuildCoplanarFrameFacesBody();
+    assert(body.IsValid());
+    assert(body.FaceCount() == 4);
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.0},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.polygons[0].HoleCount() == 1);
+    assert(section.contours.size() == 2);
+    assert(section.contours[0].closed);
+    assert(section.contours[1].closed);
+    assert(section.segments.size() == 8);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+    assert(std::abs(geometry::sdk::Area(section.polygons[0]) - 8.0) < 1e-12);
+}
+
+// Demonstrates mixed section semantics: a coplanar frame component and a
+// separate non-planar cube mid-section can coexist in one result instead of
+// the coplanar component short-circuiting the non-planar contour stitching.
+TEST(Section3dCapabilityTest, MixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents)
+{
+    const PolyhedronBody body = BuildMixedCoplanarFrameAndIntersectingCubeBody();
+    assert(body.IsValid());
+    assert(body.FaceCount() == 10);
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.0},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 2);
+    assert(section.contours.size() == 3);
+    assert(section.segments.size() == 12);
+
+    std::size_t polygonsWithHole = 0;
+    double totalArea = 0.0;
+    for (const auto& polygon : section.polygons)
+    {
+        if (polygon.HoleCount() == 1)
+        {
+            ++polygonsWithHole;
+        }
+        totalArea += geometry::sdk::Area(polygon);
+    }
+    assert(polygonsWithHole == 1);
+    assert(std::abs(totalArea - 9.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 2);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 2);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+}
+
+// Demonstrates the same mixed coplanar + non-planar section subset also
+// holds on the Brep path after Polyhedron->Brep conversion.
+TEST(Section3dCapabilityTest, BrepMixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents)
+{
+    const PolyhedronBody polyBody = BuildMixedCoplanarFrameAndIntersectingCubeBody();
+    assert(polyBody.IsValid());
+    assert(polyBody.FaceCount() == 10);
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.0},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 2);
+    assert(section.contours.size() == 3);
+    assert(section.segments.size() == 12);
+
+    std::size_t polygonsWithHole = 0;
+    double totalArea = 0.0;
+    for (const auto& polygon : section.polygons)
+    {
+        if (polygon.HoleCount() == 1)
+        {
+            ++polygonsWithHole;
+        }
+        totalArea += geometry::sdk::Area(polygon);
+    }
+    assert(polygonsWithHole == 1);
+    assert(std::abs(totalArea - 9.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 2);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 2);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
 }
 
 // Demonstrates that a mid-plane cut through a unit cube (whose 4 intersected
