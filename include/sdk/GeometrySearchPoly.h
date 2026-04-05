@@ -66,6 +66,12 @@ struct GEOMETRY_API SearchPolyResult2d
     MultiPolygon2d polygons{};
     std::vector<SearchPolyCandidate2d> candidates{};
     SearchPolyDiagnostics2d diagnostics{};
+    double bestCandidateScoreMargin{0.0};
+    double bestCandidateSyntheticPerimeter{0.0};
+    std::size_t bestCandidateSyntheticEdgeCount{0};
+    std::size_t candidateCountWithSyntheticEdges{0};
+    std::size_t candidateCountWithBranchPenalty{0};
+    std::size_t ambiguousTopCandidateCount{0};
     bool usedAutoClose{false};
     bool usedAutoExtend{false};
     bool usedSyntheticEdges{false};

@@ -46,6 +46,28 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-explanation-batch7）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 在保持稳定 SDK 入口不变的前提下，为 `SearchPolyResult2d` 补充一组 deterministic top-candidate explanation 字段：
+    - `bestCandidateScoreMargin`
+    - `bestCandidateSyntheticPerimeter`
+    - `bestCandidateSyntheticEdgeCount`
+    - `candidateCountWithSyntheticEdges`
+    - `candidateCountWithBranchPenalty`
+    - `ambiguousTopCandidateCount`
+  - 当前产品侧可直接读取“best candidate 为什么胜出 / synthetic 候选有多少 / top rank 是否存在同分歧义”这组稳定摘要，而不必自行扫全量 candidates 推导。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 `InvalidInput` / `NoClosedPolygonFound` contract 补齐 explanation 字段回零断言；
+  - 为 clean-vs-synthetic peer 排序子集补齐 runner-up margin 与 synthetic candidate aggregate 断言；
+  - 为 representative fake-edge / branch-penalty 子集补齐 top-candidate explanation 与 aggregate consistency 断言。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。

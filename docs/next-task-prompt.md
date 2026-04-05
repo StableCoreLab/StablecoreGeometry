@@ -18,7 +18,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2/P3：新增 mixed area + open contour 的 representative section capability、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability，以及 face-touching external difference 子集；下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P2/P3：新增 mixed area + open contour 的 representative section capability、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate explanation 字段；下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -47,6 +47,7 @@
 
 - 稳定 SDK 入口位于 `include/sdk/GeometrySearchPoly.h`
 - 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics、result / diagnostics consistency、auto-flag gating
+- `SearchPolyResult2d` 已补充 deterministic top-candidate explanation：best-candidate synthetic metrics、top-score margin、synthetic/branch aggregate counts、ambiguous-top count
 - richer fake-edge explanation、Delphi 级 ambiguous recovery、完整 smart-search parity 仍为 gap
 
 ### GeometryBodyBoolean
@@ -88,6 +89,7 @@
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
 - GeometrySearchPoly：推进 richer fake-edge explanation 与 ambiguous recovery，但保持 result-consistency / auto-flag contract 只做确定性补强
+- 当前 SearchPoly 已有 top-candidate explanation 摘要；下一步优先考虑更强的 fake-edge causal explanation 与 ambiguous recovery，而不是继续堆简单计数字段
 - GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 touching difference 的 external face-touching 子集已收敛，下一步优先考虑 touching intersection 表达与非单-box touching 边界
 
 ### P4：继续推进 SDK 风格统一与接口收口

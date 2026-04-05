@@ -363,6 +363,45 @@ void RankCandidates(std::vector<SearchPolyCandidate2d>& candidates)
         candidates[index].rank = index;
     }
 }
+
+void PopulateResultExplanation(
+    SearchPolyResult2d& result)
+{
+    if (result.candidates.empty())
+    {
+        return;
+    }
+
+    const SearchPolyCandidate2d& bestCandidate = result.candidates.front();
+    result.bestCandidateSyntheticPerimeter = bestCandidate.inferredSyntheticPerimeter;
+    result.bestCandidateSyntheticEdgeCount = bestCandidate.inferredSyntheticEdgeCount;
+
+    for (const SearchPolyCandidate2d& candidate : result.candidates)
+    {
+        if (candidate.inferredSyntheticEdgeCount > 0U)
+        {
+            ++result.candidateCountWithSyntheticEdges;
+        }
+        if (candidate.branchVertexCount > 0U || candidate.syntheticBranchVertexCount > 0U)
+        {
+            ++result.candidateCountWithBranchPenalty;
+        }
+    }
+
+    result.ambiguousTopCandidateCount = 1U;
+    for (std::size_t index = 1; index < result.candidates.size(); ++index)
+    {
+        const SearchPolyCandidate2d& candidate = result.candidates[index];
+        if (std::abs(candidate.branchScore - bestCandidate.branchScore) <= 1e-12)
+        {
+            ++result.ambiguousTopCandidateCount;
+            continue;
+        }
+
+        result.bestCandidateScoreMargin = bestCandidate.branchScore - candidate.branchScore;
+        break;
+    }
+}
 } // namespace
 
 SearchPolyResult2d SearchPolygons(const MultiPolyline2d& lines, SearchPolyOptions2d options)
@@ -400,6 +439,7 @@ SearchPolyResult2d SearchPolygons(const MultiPolyline2d& lines, SearchPolyOption
     }
 
     RankCandidates(result.candidates);
+    PopulateResultExplanation(result);
 
     result.usedSyntheticEdges =
         std::any_of(result.candidates.begin(), result.candidates.end(), [](const SearchPolyCandidate2d& candidate) {

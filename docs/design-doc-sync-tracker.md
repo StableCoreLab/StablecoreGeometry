@@ -17,6 +17,7 @@
   - detached mixed area + open contour 的 section mixed-content 子集（Polyhedron / Brep）
   - mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap 子集
   - face-touching external difference 的 body boolean 子集
+- 已新增并同步 `GeometrySearchPoly` 的 deterministic top-candidate explanation 子集，补充产品侧可直接消费的 best-candidate 摘要字段
 
 ## 状态说明
 
@@ -172,6 +173,13 @@
 - `GeometryBodyBoolean`
   - 已新增 face-touching external difference 子集，并把 touching intersection 与 richer overlap 继续保留为 gap
   - 已同步 `tests/capabilities/test_3d_body_boolean_sdk.cpp` 与 `tests/gaps/test_3d_body_boolean_gaps.cpp` 的边界说明
+
+## 2026-04-05 GeometrySearchPoly explanation 同步
+
+- `GeometrySearchPoly`
+  - 已为 `SearchPolyResult2d` 新增 deterministic top-candidate explanation 字段，减少产品侧自行扫描 candidates 的负担
+  - 已同步 capability 文案：invalid / no-closed / success 三类结果下 explanation 字段均保持 contract 一致性
+  - richer fake-edge causal explanation 与 Delphi 级 ambiguous recovery 仍继续保留为 gap
 ## 进度备注
 
 - 2026-03-27：
