@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <vector>
+
 #include "sdk/GeometryBodyBoolean.h"
 #include "sdk/GeometryBrepConversion.h"
 #include "support/Fixtures3d.h"
@@ -88,6 +91,72 @@ namespace
 [[nodiscard]] PolyhedronBody BuildTranslatedUnitCubeBody(double dx, double dy, double dz)
 {
     return BuildAxisAlignedBoxBody(dx + 0.0, dy + 0.0, dz + 0.0, dx + 1.0, dy + 1.0, dz + 1.0);
+}
+
+[[nodiscard]] Point3d RotatePointAroundZ(const Point3d& point, const Point3d& origin, double angleRadians)
+{
+    const double cosine = std::cos(angleRadians);
+    const double sine = std::sin(angleRadians);
+    const double dx = point.x - origin.x;
+    const double dy = point.y - origin.y;
+    return Point3d{
+        origin.x + dx * cosine - dy * sine,
+        origin.y + dx * sine + dy * cosine,
+        point.z};
+}
+
+[[nodiscard]] Vector3d RotateVectorAroundZ(const Vector3d& vector, double angleRadians)
+{
+    const double cosine = std::cos(angleRadians);
+    const double sine = std::sin(angleRadians);
+    return Vector3d{
+        vector.x * cosine - vector.y * sine,
+        vector.x * sine + vector.y * cosine,
+        vector.z};
+}
+
+[[nodiscard]] PolyhedronLoop3d RotateLoopAroundZ(const PolyhedronLoop3d& loop, const Point3d& origin, double angleRadians)
+{
+    std::vector<Point3d> vertices;
+    vertices.reserve(loop.VertexCount());
+    for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+    {
+        vertices.push_back(RotatePointAroundZ(loop.VertexAt(i), origin, angleRadians));
+    }
+    return PolyhedronLoop3d(std::move(vertices));
+}
+
+[[nodiscard]] PolyhedronFace3d RotateFaceAroundZ(const PolyhedronFace3d& face, const Point3d& origin, double angleRadians)
+{
+    const Plane rotatedPlane = Plane::FromPointAndNormal(
+        RotatePointAroundZ(face.SupportPlane().origin, origin, angleRadians),
+        RotateVectorAroundZ(face.SupportPlane().normal, angleRadians));
+
+    PolyhedronLoop3d outer = RotateLoopAroundZ(face.OuterLoop(), origin, angleRadians);
+    std::vector<PolyhedronLoop3d> holes;
+    holes.reserve(face.HoleCount());
+    for (std::size_t i = 0; i < face.HoleCount(); ++i)
+    {
+        holes.push_back(RotateLoopAroundZ(face.HoleAt(i), origin, angleRadians));
+    }
+
+    return PolyhedronFace3d(rotatedPlane, std::move(outer), std::move(holes));
+}
+
+[[nodiscard]] PolyhedronBody BuildRotatedOverlapBoxBody()
+{
+    const PolyhedronBody box = BuildAxisAlignedBoxBody(0.25, 0.0, 0.0, 1.25, 1.0, 1.0);
+    std::vector<PolyhedronFace3d> faces;
+    faces.reserve(box.FaceCount());
+
+    const Point3d rotationOrigin{0.75, 0.5, 0.0};
+    const double angleRadians = std::acos(-1.0) * 0.25;
+    for (const PolyhedronFace3d& face : box.Faces())
+    {
+        faces.push_back(RotateFaceAroundZ(face, rotationOrigin, angleRadians));
+    }
+
+    return PolyhedronBody(std::move(faces));
 }
 } // namespace
 
@@ -480,6 +549,62 @@ TEST(BodyBooleanSdkCapabilityTest, NonBoxOverlapUnionAndDifferenceRemainUnsuppor
     EXPECT_EQ(difference.issue, BodyBooleanIssue3d::UnsupportedOperation);
     EXPECT_FALSE(united.IsSuccess());
     EXPECT_FALSE(difference.IsSuccess());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, FaceTouchingLShapeUnionReturnsExplicitUnsupportedOperation)
+{
+    const PolyhedronBody first = BuildAxisAlignedBoxBody(0.0, 0.0, 0.0, 2.0, 1.0, 1.0);
+    const PolyhedronBody second = BuildAxisAlignedBoxBody(0.0, 1.0, 0.0, 1.0, 2.0, 1.0);
+
+    const auto result = UnionBodies(first, second);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::UnsupportedOperation);
+    EXPECT_FALSE(result.IsSuccess());
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, BrepFaceTouchingLShapeUnionReturnsExplicitUnsupportedOperation)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.0, 0.0, 0.0, 2.0, 1.0, 1.0));
+    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.0, 1.0, 0.0, 1.0, 2.0, 1.0));
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = UnionBodies(first.body, second.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::UnsupportedOperation);
+    EXPECT_FALSE(result.IsSuccess());
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, RotatedBoxIntersectionReturnsExplicitUnsupportedOperation)
+{
+    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = BuildRotatedOverlapBoxBody();
+
+    const auto result = IntersectBodies(first, second);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::UnsupportedOperation);
+    EXPECT_FALSE(result.IsSuccess());
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, BrepRotatedBoxIntersectionReturnsExplicitUnsupportedOperation)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto second = geometry::sdk::ConvertToBrepBody(BuildRotatedOverlapBoxBody());
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = IntersectBodies(first.body, second.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::UnsupportedOperation);
+    EXPECT_FALSE(result.IsSuccess());
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
 }
 
 TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepIntersectionReturnsClosedBody)

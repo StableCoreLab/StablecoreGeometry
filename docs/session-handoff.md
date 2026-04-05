@@ -29,6 +29,34 @@
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
 
+## 本轮新增（2026-04-05，fasttrack-section-hole-merge-bodyboolean-unsupported-batch35）
+
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
+    - 新增 `MixedMergedAreaWithInteriorHoleAndDetachedOpenContourStaysMixed`
+    - 并补齐上述两个场景在 Brep 路径的稳定子集
+    - 验证 coplanar frame-with-hole 与 adjacent non-planar area 已可稳定 merge 为单 `polygon-with-hole`，且 detached open contour 共存时仍保持 `Mixed`
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 `FaceTouchingLShapeUnionReturnsExplicitUnsupportedOperation`
+    - 新增 `RotatedBoxIntersectionReturnsExplicitUnsupportedOperation`
+    - 并补齐上述两个场景在 Brep 路径的稳定子集
+    - 验证非单-box touching union 与 rotated-box positive-volume intersection 都会稳定落到 explicit `UnsupportedOperation` contract，而不是 silent fallback
+- 已同步收窄 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 移除已转正的 `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
+    - 新增更具体的 `MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen`
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 移除已转正的 `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap`
+    - 移除已转正的 `RotatedBoxIntersectionRemainsUnsupported`
+    - 保留 `ContainedShellPolicyOptionStillHasNoEffectAndStaysGap`，并细化到 `operateOnShells=true` 仍走 closed-body fast path 的代表性场景
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-partial-overlap-batch34）
 
 - 已更新 `src/sdk/GeometryHealing.cpp`：

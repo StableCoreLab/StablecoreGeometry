@@ -7,6 +7,9 @@
 ## 2026-04-05 文档同步
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。
+- 已进一步把 `GeometrySection` 的 `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole` 转正为 capability test，并新增 `MixedMergedAreaWithInteriorHoleAndDetachedOpenContourStaysMixed` 的 mixed 子集。
+- 已进一步把 `GeometryBodyBoolean` 的 `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap` 与 `RotatedBoxIntersectionRemainsUnsupported` 转正为 explicit-unsupported capability tests，明确 UnsupportedOperation 也是稳定 contract。
+- 已把剩余 `GeometrySection` gap 从“hole-preserving merge”收敛到更具体的 `MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen`，并把 `GeometryBodyBoolean` 剩余 gap 收敛到 shell-policy option 尚未接管语义。
 - 已进一步把 `GeometrySection` 的三条具体 gap 场景转正为 capability tests：`VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`、`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`、`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`。
 - 已进一步把 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 子集转正为 capability tests，并同步到“独立 shell 可闭合、partial-overlap competing pair 保持 open”的 local arbitration 子集。
 - 已进一步把 `GeometrySearchPoly` ambiguous recovery gap 细化到“tied-top candidates dominant synthetic source 不同”的可复现场景，避免下轮重新抽象。
@@ -196,6 +199,8 @@
   - 已进一步新增 explicit vertex-touch + edge-touch double-open arbitration 子集：相邻边中点与 polygon 顶点挂接的两条 open contours 在 Polyhedron / Brep 路径都稳定保留为两条 open contours
   - 已进一步新增 non-planar loop + interior open spur 子集：closed non-planar loop 与 interior open spur 在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 1 open contour`
   - 已进一步新增 L-corner mixed coplanar/non-planar merge 子集：cube mid-section 与两个 L-corner coplanar patches 在 Polyhedron / Brep 路径都稳定 merge 为单 polygon（area=3）
+  - 已进一步新增 frame-with-hole + adjacent non-planar area merge 子集：在 Polyhedron / Brep 路径都稳定保留为单 polygon-with-hole（area=9）
+  - 已进一步新增 merged polygon-with-hole + detached open contour 子集：在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
   - 已进一步新增 detached-left + edge-attached stable ordering 子集：open contour 稳定排序不再只依赖词典序，boundary-attached contour 会优先于 detached contour 输出
   - 已将 raw segment -> contour/polygon graph reconstruction 收口到共享 helper，降低 Polyhedron / Brep 两条路径后续继续推进时的分叉风险
 - `GeometryHealing`
@@ -213,6 +218,7 @@
   - 已进一步新增 axis-aligned contained difference-empty 子集：当 second 完整包含 first 时，`DifferenceBodies(first, second)` 稳定返回 empty result
   - 已进一步新增 identical difference-empty 子集：当两个 closed bodies 完全相同时，`DifferenceBodies(first, second)` 稳定返回 empty result
   - 已进一步新增 axis-aligned edge/vertex-touching ordered multi-body union 与 external difference 子集：lower-dimensional touching 不再一律落回 `UnsupportedOperation`
+  - 已进一步新增 explicit unsupported contract 子集：face-touching L-shape non-box union 与 rotated-box positive-volume intersection 在 Polyhedron / Brep 路径都稳定返回 `UnsupportedOperation`
   - 已同步 `tests/capabilities/test_3d_body_boolean_sdk.cpp` 与 `tests/gaps/test_3d_body_boolean_gaps.cpp` 的边界说明
 
 ## 2026-04-05 GeometrySearchPoly explanation 同步

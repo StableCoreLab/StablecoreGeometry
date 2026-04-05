@@ -61,6 +61,10 @@ TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
                     "(boundary-attached contour sorts ahead of detached contour representative subset), "
                     "plus detached + dual edge-attached mixed-content on PolyhedronBody / BrepBody paths "
                     "(1 polygon + 3 open contours representative subset), "
+                    "plus mixed merged area with an interior hole on PolyhedronBody / BrepBody paths "
+                    "(single polygon-with-hole / area=9 representative subset), "
+                    "plus mixed merged polygon-with-hole + detached open contour on PolyhedronBody / BrepBody paths "
+                    "(1 polygon-with-hole + 1 open contour representative subset), "
                     "and plus dual disjoint non-planar closed loops in the same section plane on the PolyhedronBody path "
                     "(2 polygons / 2 contours / 2 roots representative subset).";
 }
@@ -77,14 +81,16 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
     GTEST_SKIP() << "Known 3D gap: section face-merge policy for ambiguous coplanar fragments beyond adjacent coplanar union subsets is not closed yet. "
                     "Covered subsets: two-face adjacent coplanar Polyhedron merge, two-face adjacent coplanar BrepBody merge, "
                     "three-face coplanar horizontal strip merge (3x1 rectangle, area=3.0), three-face coplanar horizontal strip merge on BrepBody path (area=3.0), "
-                    "and four-face coplanar frame merge into a single polygon-with-hole (area=8.0). "
+                    "and four-face coplanar frame merge into a single polygon-with-hole (area=8.0), "
+                    "plus mixed frame-with-hole + adjacent non-planar area merge into one polygon-with-hole (area=9.0). "
                     "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / detached-left-vs-edge-attached ordering / dual-edge-attached / detached+dual-edge-attached / mixed vertex+edge-attached / detached+vertex+edge-attached / strip-adjacent-detached / strip-adjacent-edge-attached / strip-adjacent-vertex-attached / strip-adjacent-vertex+edge-attached / strip-adjacent-detached+vertex+edge-attached subsets, "
                     "and more general mixed coplanar/non-planar adjacency arbitration beyond the representative edge-adjacent / strip-adjacent deterministic merge subsets.";
 }
 
-TEST(Section3dGapTest, MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole)
+TEST(Section3dGapTest, MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen)
 {
-    GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar adjacency with an interior hole still needs explicit hole-preserving merge coverage. "
-                    "Representative unresolved scenario: a coplanar 3x3 frame-with-hole (outer [0,3]x[0,3], inner [1,2]x[1,2]) merged with an adjacent non-planar area along the outer boundary at z=0.5. "
-                    "Expected future capability: preserve the interior hole and still return a single polygon-with-hole rather than multiple polygons or hole loss.";
+    GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar merged area with an interior hole still lacks explicit boundary-attached open-curve arbitration coverage. "
+                    "Representative unresolved scenario: a coplanar 3x3 frame-with-hole (outer [0,3]x[0,3], inner [1,2]x[1,2]) merged with an adjacent non-planar area along the outer boundary at z=0.5, "
+                    "plus an extra open contour attached to the merged outer boundary. "
+                    "Expected future capability: preserve the single polygon-with-hole and keep the boundary-attached open contour separate instead of collapsing hole semantics or contour attachment ordering.";
 }

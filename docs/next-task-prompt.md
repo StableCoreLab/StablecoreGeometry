@@ -28,7 +28,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2/P3：新增 `GeometrySection` 的 vertex-touch + edge-touch double-open arbitration、non-planar loop + interior open spur、以及 L-corner mixed coplanar/non-planar merge 子集，新增 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 与 independent+partial-overlap local arbitration 子集，并把 `GeometrySearchPoly` ambiguous recovery gap 细化到 tied-top candidates dominant synthetic source 不同的可复现场景；下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P2/P3：新增 `GeometrySection` 的 mixed merged polygon-with-hole 与 detached-open mixed polygon-with-hole 子集，新增 `GeometryBodyBoolean` 的 face-touching L-shape union / rotated-box intersection explicit-unsupported contract 子集；上一轮已补入 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 与 `GeometrySearchPoly` ambiguous recovery gap 细化场景。下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -50,6 +50,8 @@
   - edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2）
   - strip-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3）
   - L-corner mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3）
+  - frame-with-hole + adjacent non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon-with-hole（area=9）
+  - merged polygon-with-hole + detached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon-with-hole + 1 open contour / area=9）
   - strip-adjacent merged area + detached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
   - strip-adjacent merged area + edge-attached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
   - strip-adjacent merged area + vertex-attached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
@@ -60,7 +62,7 @@
   - ambiguous non-manifold contour stitching
   - mixed open-curve / area edge-adjacency arbitration（超出已收敛的 vertex-touch + edge-touch 双 open representative 子集）
   - 非邻接 coplanar fragments 跨 convex-hull gap 的 merge
-  - mixed coplanar/non-planar adjacency with interior-hole preservation
+  - mixed coplanar/non-planar merged polygon-with-hole 的 boundary-attached open-curve arbitration
 
 ### GeometryHealing
 
@@ -95,7 +97,8 @@
 
 - `include/sdk/GeometryBodyBoolean.h` public contract 保持稳定
 - 已覆盖 identical / disjoint closed-body 子集、deterministic disjoint empty intersection / ordered-multi-body union 子集、axis-aligned single-box overlap 子集、axis-aligned contained intersection / union 子集、face-touching union 子集、face-touching external difference 子集、identical difference-empty 子集、axis-aligned contained difference-empty 子集、axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集，以及 axis-aligned face/edge/vertex touching empty intersection 子集
-- 非 axis-aligned / richer touching intersection、非 box touching、shell-policy、healing integration 仍为 gap
+- 已进一步覆盖 explicit unsupported contract 子集：face-touching L-shape non-box union 与 rotated-box positive-volume intersection 在 Polyhedron / Brep 路径都稳定返回 `UnsupportedOperation`
+- 更一般 non-axis-aligned / richer touching intersection、shell-policy、healing integration 仍为 gap
 
 ### Geometry.h / include-sdk 收口
 
@@ -115,11 +118,12 @@
     - `VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`
     - `NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`
     - `LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`
-  - 当前剩余重点：
     - `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
-      - 场景：coplanar frame-with-hole 与相邻 non-planar section area 接触
-      - 要解决的问题：确认 merge 后仍保留 hole，而不是退化成多个 polygons 或 hole 丢失
-      - 期望：`1 polygon-with-hole`
+  - 当前剩余重点：
+    - `MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen`
+      - 场景：coplanar frame-with-hole 与相邻 non-planar section area 已 merge 成单 polygon-with-hole，再额外挂一条接在 merged outer boundary 上的 open contour
+      - 要解决的问题：确认 boundary-attached open contour 不会破坏 hole 语义，也不会与 polygon-with-hole 轮廓错误拼接
+      - 期望：未来稳定支持 `1 polygon-with-hole + 1 open contour`
     - 更一般 ambiguous non-manifold contour stitching
       - 建议继续落成具体测试名，而不是只保留抽象 gap 名词
   - 当前 detached-left + edge-attached ordering 只是一个 representative ordering 子集，不等于更一般 adjacency 语义已闭合
@@ -163,20 +167,12 @@
   - `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
     - 场景：两个 tied-top candidates 都需要 synthetic edges，且 dominant synthetic source 不同（例如 `SingleGapClose` 对 `MixedBridge`）
     - 要解决的问题：明确 ambiguous recovery 需要返回什么解释，而不是只有 `ambiguousTopCandidateCount`
-- GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 disjoint ordered-union / axis-aligned contained / face-touching single-box union / edge-vertex-touching ordered multi-body union / external difference / empty intersection 子集已收敛，下一步优先考虑 non-axis-aligned / richer touching intersection 与非单-box touching 边界
+- GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 disjoint ordered-union / axis-aligned contained / face-touching single-box union / edge-vertex-touching ordered multi-body union / external difference / empty intersection 子集已收敛，face-touching L-shape union 与 rotated-box positive-volume intersection 也已明确收口到 explicit unsupported contract；下一步优先考虑 shell-policy 与更一般 non-axis-aligned / richer touching intersection
 - 实现方式要求：
   - 优先把 `tests/gaps/test_searchpoly_gaps.cpp` 和 `tests/gaps/test_3d_body_boolean_gaps.cpp` 里能明确落地的场景转成 capability
   - 每轮至少有 1 个 P2 / P3 场景从 gap 转成 capability
   - 其余未能实现的项，保留 gap test，不要停留在文案层
 - GeometryBodyBoolean 建议直接转成以下测试目标：
-  - `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap`
-    - 场景：三个 axis-aligned boxes 形成 L 形并集，而不是单 box
-    - 要解决的问题：明确“非单-box touching”到底指什么，防止后续 capability/gap 边界漂移
-    - 期望：当前仍 `UnsupportedOperation`
-  - `RotatedBoxIntersectionRemainsUnsupported`
-    - 场景：一个 axis-aligned box 与一个绕 z 轴旋转的小 box 有正体积交集
-    - 要解决的问题：把 non-axis-aligned intersection gap 具体化
-    - 期望：当前仍 `UnsupportedOperation`
   - `ContainedShellPolicyOptionStillHasNoEffectAndStaysGap`
     - 场景：`operateOnShells=true` 的 contained / touching 输入
     - 要解决的问题：明确 shell-policy 尚未接管语义，避免产品侧误以为 option 已生效
@@ -192,15 +188,13 @@
 后续轮次优先从下面这些“可直接命名为测试”的条目里挑，而不是继续写抽象 gap 名词：
 
 1. `GeometrySection`
-   - `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
+   - `MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen`
 2. `GeometryHealing`
    - `AggressiveHealingKeepsClosedShellWhileSkippingPartialOverlapPair`
    - `AggressiveHealingClosesIndependentAndVertexTouchShellsWhileSkippingPartialOverlapPair`
 3. `GeometrySearchPoly`
    - `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
 4. `GeometryBodyBoolean`
-   - `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap`
-   - `RotatedBoxIntersectionRemainsUnsupported`
    - `ContainedShellPolicyOptionStillHasNoEffectAndStaysGap`
 
 ## 本轮执行口径

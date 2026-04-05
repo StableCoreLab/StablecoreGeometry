@@ -22,6 +22,7 @@ TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
                     "one closed box, face-touching external difference subsets that preserve "
                     "the original closed box, axis-aligned contained difference-empty subsets, "
                     "axis-aligned edge/vertex-touching ordered multi-body union subsets, axis-aligned edge/vertex-touching external difference subsets, "
+                    "explicit unsupported contract for face-touching L-shaped non-box unions, explicit unsupported contract for rotated-box positive-volume intersection, "
                     "and deterministic disjoint ordered-multi-body union / disjoint / axis-aligned face/edge/vertex-touching empty "
                     "intersection subsets. Non-box overlap, non-axis-aligned or richer touching "
                     "intersection semantics, "
@@ -29,20 +30,10 @@ TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
                     "pending.";
 }
 
-TEST(BodyBoolean3dGapTest, FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap)
-{
-    GTEST_SKIP() << "Known 3D gap: axis-aligned inputs that would produce an L-shaped union still exceed the current single-box touching contract. "
-                    "Expected future capability: return an explicit unsupported result for non-box unions instead of pretending they are a single closed body.";
-}
-
-TEST(BodyBoolean3dGapTest, RotatedBoxIntersectionRemainsUnsupported)
-{
-    GTEST_SKIP() << "Known 3D gap: intersection between an axis-aligned box and a rotated box is not yet supported by the deterministic box-only subset. "
-                    "Expected future capability: either a supported non-axis-aligned intersection result or an explicit unsupported response with a clear boundary.";
-}
-
 TEST(BodyBoolean3dGapTest, ContainedShellPolicyOptionStillHasNoEffectAndStaysGap)
 {
     GTEST_SKIP() << "Known 3D gap: shell-policy options are still not part of the public boolean contract. "
-                    "Expected future capability: either prove the option has a deterministic effect or keep it explicitly unsupported.";
+                    "Representative unresolved scenario: a contained or face-touching axis-aligned pair evaluated with operateOnShells=true still follows the closed-body fast path, "
+                    "so the option does not yet advertise or prove any deterministic shell-level semantic effect. "
+                    "Expected future capability: either prove the option changes result selection/diagnostics deterministically or keep it explicitly unsupported.";
 }
