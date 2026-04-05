@@ -3,7 +3,7 @@
 ## 当前上下文
 
 - 工作区：`D:\code\stablecore-geometry`
-- 交接更新时间：`2026-04-04`
+- 交接更新时间：`2026-04-05`
 - 可用环境：`python`
 - 后续会话应聚焦于源码与文档编写
 - 编译 / 构建 / 运行由用户手动完成
@@ -26,6 +26,37 @@
   - 不允许 silent fallback，也不允许把未稳定逻辑伪装成已完成 capability
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
+
+## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch21）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - 将 final section 输出阶段也接入 stable polygon merge；
+  - merge 现会保留已抽取的 open contours，不再只适用于纯 closed-area 结果；
+  - 当前 edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon。
+- 已更新 `src/sdk/GeometryHealing.cpp`：
+  - 为 aggressive boundary-cap 增加保守 multi-shell arbitration；
+  - 当多个 open shells 共享顶点时，shared-edge boundary-cap 不再对这些 competing shells 继续闭壳；
+  - 独立 eligible shell 仍可按既有 deterministic boundary-cap 子策略闭合。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `MixedCoplanarAdjacentAndNonPlanarSectionMergesIntoSinglePolygon`
+    - 新增 `BrepMixedCoplanarAdjacentAndNonPlanarSectionMergesIntoSinglePolygon`
+    - 验证 edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径均稳定 merge 为单 polygon（area=2）
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 `AggressiveHealingSkipsCompetingSharedVertexEligibleShells`
+    - 验证独立 eligible shell 仍会 boundary-cap 闭壳，而 shared-vertex competing eligible shells 保守保持 open
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 representative edge-adjacent mixed coplanar/non-planar single-merge 子集已进入 covered subset
+    - remaining gap 收敛为更一般 mixed coplanar/non-planar adjacency arbitration
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 conservative competing-shared-vertex arbitration 子集已纳入 covered subset
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-batch6）
 

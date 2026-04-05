@@ -196,6 +196,23 @@ PolyhedronBody BuildEdgeAttachedOpenSectionBody()
 
     return PolyhedronBody(std::move(faces));
 }
+
+PolyhedronBody BuildMixedCoplanarAdjacentAndNonPlanarSectionBody()
+{
+    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = cube.Faces();
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{1.0, 0.0, 0.5}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({
+            Point3d{1.0, 0.0, 0.5},
+            Point3d{2.0, 0.0, 0.5},
+            Point3d{2.0, 1.0, 0.5},
+            Point3d{1.0, 1.0, 0.5},
+        }));
+
+    return PolyhedronBody(std::move(faces));
+}
 } // namespace
 
 TEST(Section3dCapabilityTest, SlantedCubeSectionBuildsSingleAreaComponent)
@@ -914,6 +931,73 @@ TEST(Section3dCapabilityTest, BrepEdgeAttachedOpenContourSectionBuildsMixedConte
     assert(components.components.size() == 1);
 
     assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
+}
+
+// Demonstrates final section-area merge now also reconciles edge-adjacent
+// coplanar and non-planar polygons into one deterministic area result.
+TEST(Section3dCapabilityTest, MixedCoplanarAdjacentAndNonPlanarSectionMergesIntoSinglePolygon)
+{
+    const PolyhedronBody body = BuildMixedCoplanarAdjacentAndNonPlanarSectionBody();
+    assert(body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 1);
+    assert(section.contours[0].closed);
+    assert(section.contours[0].points.size() == 4);
+    assert(section.segments.size() == 4);
+    assert(std::abs(section.polygons[0].Area() - 2.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+}
+
+TEST(Section3dCapabilityTest, BrepMixedCoplanarAdjacentAndNonPlanarSectionMergesIntoSinglePolygon)
+{
+    const PolyhedronBody polyBody = BuildMixedCoplanarAdjacentAndNonPlanarSectionBody();
+    assert(polyBody.IsValid());
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 1);
+    assert(section.contours[0].closed);
+    assert(section.contours[0].points.size() == 4);
+    assert(section.segments.size() == 4);
+    assert(std::abs(section.polygons[0].Area() - 2.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
 }
 
 // Demonstrates that a mid-plane cut through a unit cube (whose 4 intersected

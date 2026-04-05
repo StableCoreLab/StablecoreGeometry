@@ -656,7 +656,18 @@ void MergeCoplanarSectionPolygons(
 {
     if (section.polygons.size() < 2)
     {
+        RebuildUniqueSegmentsFromContours(section, eps);
         return;
+    }
+
+    std::vector<SectionPolyline3d> openContours;
+    openContours.reserve(section.contours.size());
+    for (const SectionPolyline3d& contour : section.contours)
+    {
+        if (!contour.closed)
+        {
+            openContours.push_back(contour);
+        }
     }
 
     const MultiPolygon2d merged = MergeCoplanarPolygonsStable(section.polygons, eps);
@@ -669,6 +680,8 @@ void MergeCoplanarSectionPolygons(
     }
     section.polygons = std::move(polygons);
     RebuildCoplanarSectionGeometryFromPolygons(section, eps);
+    section.contours.insert(section.contours.end(), openContours.begin(), openContours.end());
+    RebuildUniqueSegmentsFromContours(section, eps);
 }
 
 void AddUniquePlaneEdgeSegments(
@@ -1118,7 +1131,7 @@ PolyhedronSection3d Section(
         result.polygons.push_back(std::move(polygon));
     }
 
-    RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
+    MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
     result.success = true;
     return result;
 }
@@ -1419,7 +1432,7 @@ PolyhedronSection3d Section(
         result.polygons.emplace_back(Polyline2d(std::move(contour2d), PolylineClosure::Closed));
     }
 
-    RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
+    MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
     result.success = true;
     return result;
 }

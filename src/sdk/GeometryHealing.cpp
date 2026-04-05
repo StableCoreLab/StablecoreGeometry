@@ -770,6 +770,61 @@ namespace aggressive
     return reversed;
 }
 
+[[nodiscard]] std::vector<bool> DetectCompetingOpenShells(const BrepBody& body)
+{
+    std::vector<std::vector<std::size_t>> shellVertexIndices(body.ShellCount());
+    for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
+    {
+        const BrepShell shell = body.ShellAt(shellIndex);
+        for (const BrepFace& face : shell.Faces())
+        {
+            shell_cap::AppendUniqueLoopVertexIndices(body, face.OuterLoop(), shellVertexIndices[shellIndex]);
+            for (const BrepLoop& hole : face.HoleLoops())
+            {
+                shell_cap::AppendUniqueLoopVertexIndices(body, hole, shellVertexIndices[shellIndex]);
+            }
+        }
+    }
+
+    std::vector<bool> competing(body.ShellCount(), false);
+    for (std::size_t first = 0; first < body.ShellCount(); ++first)
+    {
+        if (body.ShellAt(first).IsClosed())
+        {
+            continue;
+        }
+
+        for (std::size_t second = first + 1; second < body.ShellCount(); ++second)
+        {
+            if (body.ShellAt(second).IsClosed())
+            {
+                continue;
+            }
+
+            bool shareVertex = false;
+            for (const std::size_t vertexIndex : shellVertexIndices[first])
+            {
+                if (std::find(
+                        shellVertexIndices[second].begin(),
+                        shellVertexIndices[second].end(),
+                        vertexIndex) != shellVertexIndices[second].end())
+                {
+                    shareVertex = true;
+                    break;
+                }
+            }
+
+            if (shareVertex)
+            {
+                competing[first] = true;
+                competing[second] = true;
+            }
+        }
+    }
+
+    return competing;
+}
+
 [[nodiscard]] bool TryAggressivelyCloseShells(
     const BrepBody& body,
     const GeometryTolerance3d& tolerance,
@@ -778,6 +833,7 @@ namespace aggressive
     std::vector<BrepShell> repairedShells;
     repairedShells.reserve(body.ShellCount());
     bool changed = false;
+    const std::vector<bool> competingShells = DetectCompetingOpenShells(body);
 
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
     {
@@ -841,6 +897,12 @@ namespace aggressive
 
         if (hasInteriorSharedEdge)
         {
+            if (competingShells[shellIndex])
+            {
+                repairedShells.push_back(shell);
+                continue;
+            }
+
             BrepShell cappedShell{};
             if (shell_cap::TryCloseStandaloneShellWithBoundaryCaps(body, shell, tolerance, edgeUseCount, cappedShell))
             {
