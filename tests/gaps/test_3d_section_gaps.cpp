@@ -52,7 +52,9 @@ TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
                     "plus strip-adjacent mixed area + edge-attached open-contour arbitration on PolyhedronBody / BrepBody paths "
                     "(1 polygon + 1 open contour / mixed content / area=3 representative subset), "
                     "plus strip-adjacent mixed area + vertex-attached open-contour arbitration on PolyhedronBody / BrepBody paths "
-                    "(1 polygon + 1 open contour / mixed content / area=3 representative subset).";
+                    "(1 polygon + 1 open contour / mixed content / area=3 representative subset), "
+                    "plus strip-adjacent mixed area + vertex-attached + edge-attached dual-open arbitration on PolyhedronBody / BrepBody paths "
+                    "(1 polygon + 2 open contours / mixed content / area=3 representative subset).";
 }
 
 TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
@@ -68,6 +70,6 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
                     "Covered subsets: two-face adjacent coplanar Polyhedron merge, two-face adjacent coplanar BrepBody merge, "
                     "three-face coplanar horizontal strip merge (3x1 rectangle, area=3.0), three-face coplanar horizontal strip merge on BrepBody path (area=3.0), "
                     "and four-face coplanar frame merge into a single polygon-with-hole (area=8.0). "
-                    "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / dual-edge-attached / mixed vertex+edge-attached / detached+vertex+edge-attached / strip-adjacent-detached / strip-adjacent-edge-attached / strip-adjacent-vertex-attached subsets, "
+                    "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / dual-edge-attached / mixed vertex+edge-attached / detached+vertex+edge-attached / strip-adjacent-detached / strip-adjacent-edge-attached / strip-adjacent-vertex-attached / strip-adjacent-vertex+edge-attached subsets, "
                     "and more general mixed coplanar/non-planar adjacency arbitration beyond the representative edge-adjacent / strip-adjacent deterministic merge subsets.";
 }

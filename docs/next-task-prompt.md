@@ -27,7 +27,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2/P3：新增 strip-adjacent merged-area + detached open stable mixed-content 子集、`GeometryHealing` 的 competing-pair-plus-vertex-touch shell arbitration 子集，以及 `GeometryBodyBoolean` 的 axis-aligned contained intersection / union 子集；下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P2/P3：新增 strip-adjacent merged-area + vertex-attached + edge-attached dual-open stable mixed-content 子集、`GeometryHealing` 的 independent-plus-competing-pair-plus-vertex-touch four-shell arbitration 子集，以及 `GeometryBodyBoolean` 的 deterministic disjoint empty intersection 子集；下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -47,6 +47,7 @@
   - strip-adjacent merged area + detached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
   - strip-adjacent merged area + edge-attached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
   - strip-adjacent merged area + vertex-attached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
+  - strip-adjacent merged area + vertex-attached + edge-attached dual-open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 2 open contours / area=3）
 - 当前仍保留的 gap：
   - ambiguous non-manifold contour stitching
   - mixed open-curve / area edge-adjacency arbitration
@@ -62,6 +63,7 @@
 - aggressive boundary-cap 当前已新增 shared-boundary-edge 级别的保守 competing-shell arbitration 子集：独立 eligible shell 仍可闭合，而与其他 open shell 共享 boundary edge 的 eligible shells 保持 open
 - aggressive boundary-cap 当前已进一步覆盖 vertex-touch non-competing 子集：仅共享单个顶点、但不共享 boundary edge 的 eligible shared-edge shells 仍可分别闭壳
 - aggressive boundary-cap 当前已进一步覆盖 competing-pair-plus-vertex-touch 组合 arbitration 子集：共享 boundary edge 的 competing pair 继续保持 open，而仅 vertex-touch 的第三个 eligible shell 仍可独立闭壳
+- aggressive boundary-cap 当前已进一步覆盖 independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集：独立 eligible shell 与仅 vertex-touch 的 eligible shell 都可闭壳，而 competing pair 继续保持 open
 - src/sdk/GeometryHealing.cpp 已按 trim-backfill / shell-cap / aggressive 三个内部 pass helper 拆层，便于继续推进而不改外部 contract
 - 更一般 multi-shell shared-boundary-loop / shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
 
@@ -78,7 +80,7 @@
 ### GeometryBodyBoolean
 
 - `include/sdk/GeometryBodyBoolean.h` public contract 保持稳定
-- 已覆盖 identical / disjoint closed-body 子集、axis-aligned single-box overlap 子集、axis-aligned contained intersection / union 子集、face-touching union 子集、face-touching external difference 子集、identical difference-empty 子集、axis-aligned contained difference-empty 子集，以及 axis-aligned face/edge/vertex touching empty intersection 子集
+- 已覆盖 identical / disjoint closed-body 子集、deterministic disjoint empty intersection 子集、axis-aligned single-box overlap 子集、axis-aligned contained intersection / union 子集、face-touching union 子集、face-touching external difference 子集、identical difference-empty 子集、axis-aligned contained difference-empty 子集，以及 axis-aligned face/edge/vertex touching empty intersection 子集
 - 非 axis-aligned / richer touching intersection、非 box touching、shell-policy、healing integration 仍为 gap
 
 ### Geometry.h / include-sdk 收口
@@ -110,13 +112,13 @@
 
 - 继续扩展 aggressive shell policy，但保持 conservative trim-backfill 与 topology-changing aggressive closure 的边界清晰
 - 当前 mixed body 中的 per-shell shared-edge boundary-cap 已有代表性 capability；下一步优先考虑更一般 multi-shell arbitration，而不是回退到单-shell-only
-- 当前已补独立 shell 可闭合、competing shared-boundary-edge shells 保守跳过、vertex-touch non-competing 可闭合、以及 competing-pair-plus-vertex-touch 组合 arbitration 子集；下一步优先推进真正共享边界回路的 multi-shell arbitration，而不是继续扩散仅共享单点的子例
+- 当前已补独立 shell 可闭合、competing shared-boundary-edge shells 保守跳过、vertex-touch non-competing 可闭合、competing-pair-plus-vertex-touch 组合 arbitration、以及 independent-plus-competing-pair-plus-vertex-touch 四壳组合子集；下一步优先推进真正共享边界回路的 multi-shell arbitration，而不是继续扩散仅共享单点的子例
 
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
 - GeometrySearchPoly：推进 richer fake-edge explanation 与 ambiguous recovery，但保持 result-consistency / auto-flag contract 只做确定性补强
 - 当前 SearchPoly 已有 top-candidate + runner-up explanation 摘要，以及 candidate-level penalty kind / dominant-synthetic-kind / dominant-synthetic-source / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind / synthetic-edge-source / line-network touch mapping / vertex identity mapping；下一步优先考虑更强的 fake-edge causal explanation 与 ambiguous recovery，而不是继续扩散临时摘要字段
-- GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 axis-aligned contained / touching union / external difference / empty intersection 子集已收敛，下一步优先考虑 non-axis-aligned / richer touching intersection 与非单-box touching 边界
+- GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 disjoint / axis-aligned contained / touching union / external difference / empty intersection 子集已收敛，下一步优先考虑 non-axis-aligned / richer touching intersection 与非单-box touching 边界
 
 ### P4：继续推进 SDK 风格统一与接口收口
 

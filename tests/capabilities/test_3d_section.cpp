@@ -345,6 +345,50 @@ PolyhedronBody BuildMixedCoplanarStripAndDetachedOpenSectionBody()
     return PolyhedronBody(std::move(faces));
 }
 
+PolyhedronBody BuildMixedCoplanarStripWithVertexAndEdgeAttachedOpenSectionBody()
+{
+    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = cube.Faces();
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{1.0, 0.0, 0.5}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({
+            Point3d{1.0, 0.0, 0.5},
+            Point3d{2.0, 0.0, 0.5},
+            Point3d{2.0, 1.0, 0.5},
+            Point3d{1.0, 1.0, 0.5},
+        }));
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{2.0, 0.0, 0.5}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({
+            Point3d{2.0, 0.0, 0.5},
+            Point3d{3.0, 0.0, 0.5},
+            Point3d{3.0, 1.0, 0.5},
+            Point3d{2.0, 1.0, 0.5},
+        }));
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{0.25, 1.0, 0.0}, Vector3d{1.0, 0.0, 0.0}),
+        PolyhedronLoop3d({
+            Point3d{0.25, 1.0, 0.0},
+            Point3d{0.25, 2.0, 0.0},
+            Point3d{0.25, 2.0, 1.0},
+            Point3d{0.25, 1.0, 1.0},
+        }));
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{3.0, 1.0, 0.0}, Vector3d{0.0, 1.0, 0.0}),
+        PolyhedronLoop3d({
+            Point3d{3.0, 1.0, 0.0},
+            Point3d{4.0, 1.0, 0.0},
+            Point3d{4.0, 1.0, 1.0},
+            Point3d{3.0, 1.0, 1.0},
+        }));
+
+    return PolyhedronBody(std::move(faces));
+}
+
 PolyhedronBody BuildTwoEdgeAttachedOpenSectionBody()
 {
     const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
@@ -1556,6 +1600,131 @@ TEST(Section3dCapabilityTest, BrepMixedCoplanarStripAndDetachedOpenContourBuilds
 
     assert(closedContours == 1);
     assert(openContours == 1);
+    assert(std::abs(section.polygons[0].Area() - 3.0) < 1e-12);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
+}
+
+TEST(Section3dCapabilityTest, MixedCoplanarStripWithVertexAndEdgeAttachedOpenContoursBuildsMixedContent)
+{
+    const PolyhedronBody body = BuildMixedCoplanarStripWithVertexAndEdgeAttachedOpenSectionBody();
+    assert(body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 3);
+    assert(section.segments.size() == 6);
+
+    std::size_t closedContours = 0;
+    std::size_t openContours = 0;
+    bool sawEdgeAttached = false;
+    bool sawVertexAttached = false;
+    for (const auto& contour : section.contours)
+    {
+        if (contour.closed)
+        {
+            ++closedContours;
+            assert(contour.points.size() == 4);
+            continue;
+        }
+
+        ++openContours;
+        assert(contour.points.size() == 2);
+        if (std::abs(contour.points.front().x - 0.25) < 1e-12 &&
+            std::abs(contour.points.front().y - 1.0) < 1e-12 &&
+            std::abs(contour.points.back().x - 0.25) < 1e-12 &&
+            std::abs(contour.points.back().y - 2.0) < 1e-12)
+        {
+            sawEdgeAttached = true;
+            continue;
+        }
+
+        if (std::abs(contour.points.front().x - 3.0) < 1e-12 &&
+            std::abs(contour.points.front().y - 1.0) < 1e-12 &&
+            std::abs(contour.points.back().x - 4.0) < 1e-12 &&
+            std::abs(contour.points.back().y - 1.0) < 1e-12)
+        {
+            sawVertexAttached = true;
+            continue;
+        }
+
+        assert(false);
+    }
+
+    assert(closedContours == 1);
+    assert(openContours == 2);
+    assert(sawEdgeAttached);
+    assert(sawVertexAttached);
+    assert(std::abs(section.polygons[0].Area() - 3.0) < 1e-12);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
+}
+
+TEST(Section3dCapabilityTest, BrepMixedCoplanarStripWithVertexAndEdgeAttachedOpenContoursBuildsMixedContent)
+{
+    const PolyhedronBody polyBody = BuildMixedCoplanarStripWithVertexAndEdgeAttachedOpenSectionBody();
+    assert(polyBody.IsValid());
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 3);
+    assert(section.segments.size() == 6);
+
+    std::size_t closedContours = 0;
+    std::size_t openContours = 0;
+    bool sawEdgeAttached = false;
+    bool sawVertexAttached = false;
+    for (const auto& contour : section.contours)
+    {
+        if (contour.closed)
+        {
+            ++closedContours;
+            assert(contour.points.size() == 4);
+            continue;
+        }
+
+        ++openContours;
+        assert(contour.points.size() == 2);
+        if (std::abs(contour.points.front().x - 0.25) < 1e-12 &&
+            std::abs(contour.points.front().y - 1.0) < 1e-12 &&
+            std::abs(contour.points.back().x - 0.25) < 1e-12 &&
+            std::abs(contour.points.back().y - 2.0) < 1e-12)
+        {
+            sawEdgeAttached = true;
+            continue;
+        }
+
+        if (std::abs(contour.points.front().x - 3.0) < 1e-12 &&
+            std::abs(contour.points.front().y - 1.0) < 1e-12 &&
+            std::abs(contour.points.back().x - 4.0) < 1e-12 &&
+            std::abs(contour.points.back().y - 1.0) < 1e-12)
+        {
+            sawVertexAttached = true;
+            continue;
+        }
+
+        assert(false);
+    }
+
+    assert(closedContours == 1);
+    assert(openContours == 2);
+    assert(sawEdgeAttached);
+    assert(sawVertexAttached);
     assert(std::abs(section.polygons[0].Area() - 3.0) < 1e-12);
     assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
 }

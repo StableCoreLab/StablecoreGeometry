@@ -812,6 +812,10 @@ namespace
     {
         return MakeSingleBodyResult(first, "Deterministic identical-body intersection subset.");
     }
+    if (BoundsDisjoint(first.Bounds(), second.Bounds(), epsilon))
+    {
+        return MakeEmptyResult("Deterministic disjoint-body empty intersection subset.");
+    }
 
     Box3d firstBox;
     Box3d secondBox;

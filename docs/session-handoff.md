@@ -57,6 +57,34 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-healing-disjoint-intersection-batch29）
+
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 新增 deterministic disjoint-body empty intersection 子集；
+  - 当两个 closed bodies 明确 disjoint 时，`IntersectBodies(...)` 现在稳定返回 empty result，而不是继续落到 `UnsupportedOperation`。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 子集；
+    - 验证在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 2 open contours`（area=3）。
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 independent shell + competing pair + vertex-touch shell 的四壳 arbitration 子集；
+    - 验证 independent 与 vertex-touch shells 可闭壳，而 shared-boundary-edge competing pair 继续保持 open。
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 disjoint intersection 在 Polyhedron / Brep 路径的 deterministic empty-result 子集。
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 已进入 covered subset
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 independent-plus-competing-pair-plus-vertex-touch four-shell subset 已进入 covered subset
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 deterministic disjoint-body empty intersection 已进入 covered subset
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-searchpoly-source-summary-batch24）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：
