@@ -142,6 +142,26 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-bodyboolean-touching-intersection-batch12）
+
+- 已更新 `include/sdk/GeometryBodyBoolean.h` + `src/sdk/GeometryBodyBoolean.cpp`：
+  - 为 `BodyBooleanResult3d` 新增 `producedEmptyResult`，稳定表达“结果为空但操作成功”；
+  - 新增 axis-aligned face-touching boxes 的 empty-intersection 子集；
+  - 当前当两个 closed boxes 仅共享完整面时，`IntersectBodies(...)` 会稳定返回 success + empty result，而不再继续落到 `UnsupportedOperation`。
+- 已扩展 capability tests：`tests/capabilities/test_3d_body_boolean_sdk.cpp`
+  - `TouchingPolyhedronIntersectionReturnsDeterministicEmptyResult`
+  - `TouchingBrepIntersectionReturnsDeterministicEmptyResult`
+  - 同时保留 touching union / touching external difference 子集断言不变。
+- 已同步收敛 gap test：`tests/gaps/test_3d_body_boolean_gaps.cpp`
+  - 明确 face-touching empty intersection 已进入 capability；
+  - remaining gap 收敛为 non-face-touching intersection、non-box overlap、shell-policy 与 healing integration。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。

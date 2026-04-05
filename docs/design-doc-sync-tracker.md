@@ -173,6 +173,7 @@
   - 已同步说明“更一般 multi-shell shared-edge arbitration 仍为 gap”，避免把更宽语义误记为已收敛
 - `GeometryBodyBoolean`
   - 已新增 face-touching external difference 子集，并把 touching intersection 与 richer overlap 继续保留为 gap
+  - 已进一步新增 face-touching empty intersection 子集，并为 `BodyBooleanResult3d` 增加 `producedEmptyResult`
   - 已同步 `tests/capabilities/test_3d_body_boolean_sdk.cpp` 与 `tests/gaps/test_3d_body_boolean_gaps.cpp` 的边界说明
 
 ## 2026-04-05 GeometrySearchPoly explanation 同步

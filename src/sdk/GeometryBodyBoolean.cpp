@@ -73,6 +73,15 @@ namespace
     return result;
 }
 
+[[nodiscard]] BodyBooleanResult3d MakeEmptyResult(const char* message)
+{
+    BodyBooleanResult3d result;
+    result.issue = BodyBooleanIssue3d::None;
+    result.producedEmptyResult = true;
+    result.message = message;
+    return result;
+}
+
 [[nodiscard]] bool HasFaces(const BrepBody& body)
 {
     return body.FaceCount() > 0;
@@ -759,6 +768,13 @@ namespace
             overlapBox,
             epsilon,
             "Deterministic axis-aligned overlap-box intersection subset.");
+    }
+
+    if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
+        TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
+        TryDetectFaceTouchingDifferenceIdentity(firstBox, secondBox, epsilon))
+    {
+        return MakeEmptyResult("Deterministic face-touching empty intersection subset.");
     }
 
     return MakeUnsupportedResult();

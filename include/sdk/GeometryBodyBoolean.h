@@ -29,11 +29,12 @@ struct GEOMETRY_API BodyBooleanResult3d
     BodyBooleanIssue3d issue{BodyBooleanIssue3d::None};
     BrepBody body{};
     std::vector<BrepBody> bodies{};
+    bool producedEmptyResult{false};
     std::string message{};
 
     [[nodiscard]] bool IsSuccess() const
     {
-        return issue == BodyBooleanIssue3d::None && (body.FaceCount() > 0 || !bodies.empty());
+        return issue == BodyBooleanIssue3d::None && (body.FaceCount() > 0 || !bodies.empty() || producedEmptyResult);
     }
 };
 

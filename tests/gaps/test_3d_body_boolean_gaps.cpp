@@ -18,8 +18,9 @@ TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
                     "Current fast-track now covers invalid-input contract, deterministic "
                     "identical/disjoint closed-body subsets, axis-aligned single-box overlap "
                     "subsets, face-touching axis-aligned box union subsets whose result remains "
-                    "one closed box, and face-touching external difference subsets that preserve "
-                    "the original closed box. Non-box overlap, touching intersection semantics, "
+                    "one closed box, face-touching external difference subsets that preserve "
+                    "the original closed box, and face-touching empty intersection subsets. "
+                    "Non-box overlap, non-face-touching intersection semantics, "
                     "shell-policy variants, and topology-preserving healing integration are still "
                     "pending.";
 }
