@@ -60,6 +60,7 @@
   - 已覆盖 explicit branch vertex 子集：branch penalty 会进入 candidate score，但不会误报为 fake-edge
   - 已覆盖 `InvalidInput` / `NoClosedPolygonFound` / success 三类结果在 `issue / diagnostics / candidates / used*` 上的一致性与回零行为
   - 已覆盖 top-candidate explanation、runner-up margin、synthetic / branch runner-up causal explanation，以及 candidate-level penalty-kind / dominant-synthetic-kind / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind / synthetic-edge-source / line-network touch mapping / vertex identity mapping 的自洽性，避免产品侧需要扫描全量 candidate 才能解释 best-candidate 选择
+  - 已覆盖 clean-winner-vs-synthetic-runner-up causal explanation：产品侧可直接通过 `bestCandidate*`、`runnerUp*` 与 candidate-level dominant penalty/source 解释 fake-edge 候选为何落败
 - `tests/capabilities/test_topology_indexing.cpp`
   - touching / intersecting / basic contains / equal、duplicate-equal topology parent tie-break 当前已具备能力
 - `tests/capabilities/test_3d_section.cpp`
@@ -72,6 +73,7 @@
   - 覆盖 vertex-attached mixed-content 子能力：open contour 接触 polygon 单个顶点时，在 Polyhedron / Brep 路径都不会误报 `NonManifoldContour`，而会稳定保留为 `Mixed`
   - 覆盖 edge-attached mixed-content 子能力：open contour 接触 polygon 边中点时，在 Polyhedron / Brep 路径同样稳定保留为 `Mixed`
   - 覆盖 dual edge-attached mixed-content 子能力：两条 open contours 同时接触 polygon 边中点时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 endpoint 方向/顺序固定
+  - 覆盖 detached + dual edge-attached mixed-content 子能力：一条 detached open contour 与两条 edge-attached open contours 共存时，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 3 open contours`，且 boundary-attached contours 顺序固定在 detached contour 前
   - 覆盖 mixed vertex-attached + edge-attached dual-open 子能力：一条 open contour 接触 polygon 顶点、一条接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 endpoint 方向/顺序固定
   - 覆盖 detached + vertex-attached + edge-attached triple-open 子能力：三条 open contours 分别 detached / 接触 polygon 顶点 / 接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 attached contours 方向固定为 boundary-outward、整体顺序固定
   - 覆盖 mixed coplanar/non-planar edge-adjacent merge 子能力：coplanar face area 与 non-planar cube mid-section 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2.0）
@@ -82,6 +84,7 @@
   - 覆盖 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 子能力：当 merged area 从单面扩展到 two-face strip 后，vertex-attached 与 edge-attached open contours 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`（1 polygon + 2 open contours / area=3.0）
   - 覆盖 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子能力：当 merged area 从单面扩展到 two-face strip 后，detached / vertex-attached / edge-attached open contours 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`（1 polygon + 3 open contours / area=3.0）
   - 覆盖 detached-left + edge-attached stable ordering 子能力：当 detached contour 在词典序上更靠前时，Polyhedron / Brep 路径仍稳定输出 `boundary-attached -> detached` 的 mixed-content open contour 顺序
+  - 覆盖 dual disjoint non-planar closed loops 子能力：同一截面同时切过两个互不接触的 non-planar closed components 时，Polyhedron 路径稳定保留 `2 polygons / 2 contours / 2 roots`
   - 覆盖 coplanar 相邻 face fragment 在 `Section(...)` 中合并为单 polygon 的代表性 face-merge 子集
   - 覆盖 unit cube x=0.5 截面（法向 +x）的确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0），扩展钢筋线周长稳定性到 x 轴方向
   - 覆盖 `Section(BrepBody, Plane)` 的 unit cube x=0.5 截面（法向 +x）确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0）
@@ -113,6 +116,7 @@
   - `Heal(..., policy=Aggressive)` 已进一步覆盖 mixed body 内多个彼此独立 eligible shared-edge shells 并存的 boundary-cap 子集：多个 eligible shells 可分别独立补 cap，而 closed shell 保持稳定
   - `Heal(..., policy=Aggressive)` 已新增 conservative competing-shell arbitration 子集：独立 eligible shell 仍可 boundary-cap 闭壳，而与其他 open shell 共享 boundary edge 的 eligible shells 保持 open
   - `Heal(..., policy=Aggressive)` 已新增 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集：几何上共享同一 boundary loop、但 topology 独立的 eligible shells 也会保守保持 open
+  - `Heal(..., policy=Aggressive)` 已新增 non-planar shared-edge shell reject 子集：共享 interior edge 但整体不共面的 shell 不会误走 planar boundary-cap，而会保持 open
   - `Heal(..., policy=Aggressive)` 已新增 vertex-touch multi-shell arbitration 子集：仅共享单个顶点、但不共享 boundary edge 的 eligible shared-edge shells 可分别独立 boundary-cap 闭壳
   - `Heal(..., policy=Aggressive)` 已新增 competing-pair-plus-vertex-touch arbitration 子集：shared-boundary-edge competing shells 继续保持 open，而仅 vertex-touch 的第三个 eligible shell 仍可独立 boundary-cap 闭壳
   - `Heal(..., policy=Aggressive)` 已新增 independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集：independent shell 与 vertex-touch shell 可闭壳，而 shared-boundary-edge competing pair 继续保持 open
@@ -275,15 +279,15 @@
 - 必需完成：切面钢筋线 deterministic 后处理与断言（线段去重/共线合并/短毛刺抑制/总长与根数稳定）
 
 - `tests/gaps/test_3d_section_gaps.cpp`
-  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge、mixed coplanar+non-planar coexistence、edge-adjacent / strip-adjacent mixed coplanar/non-planar deterministic merge，以及 detached mixed area+open contour、detached-left + edge-attached ordering、strip-adjacent merged-area + edge-attached open contour、strip-adjacent merged-area + vertex-attached open contour 三个 representative mixed-content 子集；新增 gap 测试名已细化到 `DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea`、`VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`、`TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane`、`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`、`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`、`MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
+  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge、mixed coplanar+non-planar coexistence、edge-adjacent / strip-adjacent mixed coplanar/non-planar deterministic merge，以及 detached mixed area+open contour、detached-left + edge-attached ordering、detached + dual edge-attached mixed-content、dual disjoint non-planar closed loops、strip-adjacent merged-area + edge-attached open contour、strip-adjacent merged-area + vertex-attached open contour 三个 representative mixed-content 子集；新增 gap 测试名已细化到 `VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`、`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`、`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`、`MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
 - `tests/gaps/test_3d_brep_gaps.cpp`
   - 记录 coedge-loop ownership 编辑链路、non-planar trimmed face topology repair 仍未闭合（ownership gap 已覆盖 single-face + multi-face closed-shell no-op replacement 子集）
 - `tests/gaps/test_3d_healing_gaps.cpp`
-  - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 coplanar shared-edge boundary-cap（含 mixed-body eligible shell、独立 multi-shell 并存、conservative competing-shared-boundary-edge arbitration、duplicated-topology geometrically coincident shared-boundary-loop arbitration、vertex-touch non-competing closure）子集，但更一般 multi-shell shared-boundary-loop / shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合；新增 gap 测试名已细化到 `AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells`、`AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair`、`AggressiveHealingRejectsNonPlanarSharedEdgeShellForBoundaryCap`
+  - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 coplanar shared-edge boundary-cap（含 mixed-body eligible shell、独立 multi-shell 并存、conservative competing-shared-boundary-edge arbitration、duplicated-topology geometrically coincident shared-boundary-loop arbitration、non-planar shared-edge shell reject、vertex-touch non-competing closure）子集，但更一般 multi-shell shared-boundary-loop / shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合；新增 gap 测试名已细化到 `AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells`、`AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair`
 - `tests/gaps/test_3d_body_boolean_gaps.cpp`
   - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / face-touching single-box union / edge-vertex-touching ordered multi-body union / touching external difference / edge-vertex-touching external difference / touching empty intersection 子集，非单-box overlap、non-axis-aligned / richer touching intersection、shell-policy、healing integration 仍为 gap；新增 gap 测试名已细化到 `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap`、`RotatedBoxIntersectionRemainsUnsupported`、`ContainedShellPolicyOptionStillHasNoEffectAndStaysGap` 
 - `tests/gaps/test_searchpoly_gaps.cpp`
-  - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、candidate-level causality explanation、top-candidate / runner-up / ambiguous-top explanation/counts/source-summary，以及 result/diagnostics consistency 与 auto-flag gating；新增 gap 测试名已细化到 `SearchPolygonsExplainsWhySyntheticRunnerUpLostToCleanWinner`、`SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
+  - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、candidate-level causality explanation、top-candidate / runner-up / ambiguous-top explanation/counts/source-summary、clean-winner-vs-synthetic-runner-up causal explanation，以及 result/diagnostics consistency 与 auto-flag gating；新增 gap 测试名已细化到 `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
 - `tests/gaps/test_3d_conversion_gaps.cpp`
   - 记录高保真 Brep->mesh 特征保持（超出 planar holed+multi-face area-preserving + shared-edge vertex-reuse + disconnected closed-shell component-preserving 子集）、鲁棒 non-planar polyhedron->Brep repair（超出 affine-planar + support-plane-refit + all-loop scored holed-face refit + mild outer/hole loop-projection + collinear-leading-loop + duplicate outer/hole loop-normalization 子集）仍未闭合
 - 2D 历史 gap 场景已全部转正到 `tests/capabilities`；当前 `tests/gaps` 专注 3D P1 骨架跟踪

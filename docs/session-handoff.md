@@ -29,6 +29,37 @@
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
 
+## 本轮新增（2026-04-05，fasttrack-section-searchpoly-gap-to-capability-batch33）
+
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane`
+    - 新增 `DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea`
+    - 新增 `BrepDetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea`
+    - 验证 Polyhedron dual-disjoint-non-planar-loop 子集，以及 detached + dual edge-attached mixed-content 在 Polyhedron / Brep 路径都稳定成立
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 `AggressiveHealingRejectsNonPlanarSharedEdgeShellForBoundaryCap`
+    - 验证共享 interior edge 但整体不共面的 shell 不会误走 planar boundary-cap，而会保持 open
+  - `tests/capabilities/test_searchpoly_sdk.cpp`
+    - 新增 `SearchPolygonsExplainsWhySyntheticRunnerUpLostToCleanWinner`
+    - 验证 clean winner / synthetic runner-up 的 `bestCandidate*`、`runnerUp*` 与 candidate-level dominant penalty/source explanation 可直接解释 fake-edge 候选为何落败
+- 已同步收窄 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 移除已转正的 `DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea`
+    - 移除已转正的 `TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane`
+  - `tests/gaps/test_searchpoly_gaps.cpp`
+    - 移除已转正的 `SearchPolygonsExplainsWhySyntheticRunnerUpLostToCleanWinner`
+    - ambiguous recovery 仍继续保留为 gap
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 移除已转正的 `AggressiveHealingRejectsNonPlanarSharedEdgeShellForBoundaryCap`
+    - partial-overlap shared-boundary-loop arbitration 仍继续保留为 gap
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-touching-arbitration-batch32）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：

@@ -16,6 +16,7 @@
 - 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 子集、`GeometryHealing` 的 independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集，以及 `GeometryBodyBoolean` 的 disjoint empty intersection 子集。
 - 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子集、`GeometryHealing` 的 mixed closed-shell + competing-pair + vertex-touch shell arbitration 子集，以及 `GeometryBodyBoolean` 的 disjoint ordered-multi-body union 子集。
 - 已进一步同步 `GeometrySection` 的 detached-left + edge-attached stable ordering 子集、`GeometryHealing` 的 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集，以及 `GeometryBodyBoolean` 的 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集。
+- 已进一步把四条具体化 gap 转正为 capability tests：`GeometrySection` 的 detached + dual edge-attached mixed-content 子集、`GeometrySection` 的 Polyhedron dual-disjoint-non-planar-loop 子集、`GeometryHealing` 的 non-planar shared-edge shell reject 子集，以及 `GeometrySearchPoly` 的 clean-winner-vs-synthetic-runner-up causal explanation 子集。
 - 已将当前 remaining gaps 从抽象方向改写为更具体的场景 / 候选测试用例，并同步到 `docs/next-task-prompt.md`，减少后续轮次继续做“抽象盘点”的成本。
 - 已同步这些具体化 gap 名称到 `tests/gaps/test_3d_section_gaps.cpp`、`tests/gaps/test_3d_healing_gaps.cpp`、`tests/gaps/test_3d_body_boolean_gaps.cpp`、`tests/gaps/test_searchpoly_gaps.cpp`，保证文档与测试名一致。
 - 已进一步同步 `GeometrySection` 的 dual edge-attached mixed-content 子集，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation。

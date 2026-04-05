@@ -531,6 +531,56 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsTopCandidateExplanationAg
         result.candidates[0].branchScore - result.candidates[1].branchScore);
 }
 
+TEST(SearchPolySdkCapabilityTest, SearchPolygonsExplainsWhySyntheticRunnerUpLostToCleanWinner)
+{
+    const MultiPolyline2d lines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{10.0, 0.0}, Point2d{14.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{14.0, 0.0}, Point2d{14.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{14.0, 4.0}, Point2d{10.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{10.0, 4.0}, Point2d{10.0, 0.3}}, PolylineClosure::Open)};
+
+    const auto result = SearchPolygons(lines);
+
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_EQ(result.candidates.size(), 2U);
+
+    const auto& winner = result.candidates[0];
+    const auto& runnerUp = result.candidates[1];
+    EXPECT_EQ(winner.rank, 0U);
+    EXPECT_EQ(runnerUp.rank, 1U);
+    EXPECT_EQ(winner.dominantPenaltyKind, SearchPolyPenaltyKind2d::None);
+    EXPECT_EQ(winner.dominantSyntheticEdgeKind, SearchPolySyntheticEdgeKind2d::Unknown);
+    EXPECT_EQ(winner.dominantSyntheticEdgeSource, SearchPolySyntheticEdgeSource2d::Unknown);
+    EXPECT_EQ(runnerUp.dominantPenaltyKind, SearchPolyPenaltyKind2d::SyntheticClosure);
+    EXPECT_EQ(runnerUp.dominantSyntheticEdgeKind, SearchPolySyntheticEdgeKind2d::GapClosure);
+    EXPECT_EQ(runnerUp.dominantSyntheticEdgeSource, SearchPolySyntheticEdgeSource2d::SingleGapClose);
+    EXPECT_GT(result.bestCandidateScoreMargin, 0.0);
+    EXPECT_TRUE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
+    EXPECT_EQ(result.bestCandidatePenaltyKind, SearchPolyPenaltyKind2d::None);
+    EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
+    EXPECT_EQ(result.bestCandidateSyntheticEdgeKind, SearchPolySyntheticEdgeKind2d::Unknown);
+    EXPECT_EQ(result.bestCandidateSyntheticEdgeSource, SearchPolySyntheticEdgeSource2d::Unknown);
+    EXPECT_EQ(result.runnerUpPenaltyKind, SearchPolyPenaltyKind2d::SyntheticClosure);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeCount, runnerUp.inferredSyntheticEdgeCount);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeKind, SearchPolySyntheticEdgeKind2d::GapClosure);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeSource, SearchPolySyntheticEdgeSource2d::SingleGapClose);
+    EXPECT_GT(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_EQ(result.candidateCountWithSyntheticEdges, 1U);
+    EXPECT_EQ(result.candidateCountWithBranchPenalty, 0U);
+    EXPECT_EQ(result.ambiguousTopCandidateCount, 1U);
+    EXPECT_EQ(result.ambiguousTopPenaltyKind, SearchPolyPenaltyKind2d::None);
+    EXPECT_EQ(result.ambiguousTopSyntheticEdgeKind, SearchPolySyntheticEdgeKind2d::Unknown);
+    EXPECT_EQ(result.ambiguousTopSyntheticEdgeSource, SearchPolySyntheticEdgeSource2d::Unknown);
+    EXPECT_EQ(result.ambiguousTopCandidateCountWithSyntheticEdges, 0U);
+    EXPECT_EQ(result.ambiguousTopCandidateCountWithBranchPenalty, 0U);
+}
+
 TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsRunnerUpBranchPenaltyExplanation)
 {
     const MultiPolyline2d lines{

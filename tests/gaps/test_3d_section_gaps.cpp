@@ -58,7 +58,11 @@ TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
                     "plus strip-adjacent mixed area + detached + vertex-attached + edge-attached triple-open arbitration on PolyhedronBody / BrepBody paths "
                     "(1 polygon + 3 open contours / mixed content / area=3 representative subset), "
                     "plus mixed detached-left + edge-attached open-contour ordering on PolyhedronBody / BrepBody paths "
-                    "(boundary-attached contour sorts ahead of detached contour representative subset).";
+                    "(boundary-attached contour sorts ahead of detached contour representative subset), "
+                    "plus detached + dual edge-attached mixed-content on PolyhedronBody / BrepBody paths "
+                    "(1 polygon + 3 open contours representative subset), "
+                    "and plus dual disjoint non-planar closed loops in the same section plane on the PolyhedronBody path "
+                    "(2 polygons / 2 contours / 2 roots representative subset).";
 }
 
 TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
@@ -74,26 +78,14 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
                     "Covered subsets: two-face adjacent coplanar Polyhedron merge, two-face adjacent coplanar BrepBody merge, "
                     "three-face coplanar horizontal strip merge (3x1 rectangle, area=3.0), three-face coplanar horizontal strip merge on BrepBody path (area=3.0), "
                     "and four-face coplanar frame merge into a single polygon-with-hole (area=8.0). "
-                    "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / detached-left-vs-edge-attached ordering / dual-edge-attached / mixed vertex+edge-attached / detached+vertex+edge-attached / strip-adjacent-detached / strip-adjacent-edge-attached / strip-adjacent-vertex-attached / strip-adjacent-vertex+edge-attached / strip-adjacent-detached+vertex+edge-attached subsets, "
+                    "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / detached-left-vs-edge-attached ordering / dual-edge-attached / detached+dual-edge-attached / mixed vertex+edge-attached / detached+vertex+edge-attached / strip-adjacent-detached / strip-adjacent-edge-attached / strip-adjacent-vertex-attached / strip-adjacent-vertex+edge-attached / strip-adjacent-detached+vertex+edge-attached subsets, "
                     "and more general mixed coplanar/non-planar adjacency arbitration beyond the representative edge-adjacent / strip-adjacent deterministic merge subsets.";
-}
-
-TEST(Section3dGapTest, DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea)
-{
-    GTEST_SKIP() << "Known 3D gap: a closed polygon with two boundary-attached open contours that share the same polygon edge, plus a detached open contour, still needs a stronger mixed open-curve/area arbitration policy to prove it will not stitch into a single polyline or contaminate the merged area. "
-                    "Expected future capability: keep 1 polygon + 3 open contours, with both edge-attached contours remaining separate and ordered deterministically ahead of detached contours.";
 }
 
 TEST(Section3dGapTest, VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline)
 {
     GTEST_SKIP() << "Known 3D gap: a vertex-attached open contour and a nearby edge-attached open contour can still be misclassified by more general non-manifold contour stitching. "
                     "Expected future capability: preserve both open contours separately instead of collapsing them into a single stitched polyline or raising NonManifoldContour.";
-}
-
-TEST(Section3dGapTest, TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane)
-{
-    GTEST_SKIP() << "Known 3D gap: two disjoint non-planar closed loops in the same section plane still need explicit non-planar dominant contour stitching coverage. "
-                    "Expected future capability: 2 closed contours / 2 polygons / 2 roots, with no accidental stitching between projected components.";
 }
 
 TEST(Section3dGapTest, NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate)

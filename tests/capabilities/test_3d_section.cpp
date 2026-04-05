@@ -554,6 +554,41 @@ PolyhedronBody BuildDetachedLeftAndEdgeAttachedOpenSectionBody()
 
     return PolyhedronBody(std::move(faces));
 }
+
+PolyhedronBody BuildDetachedAndTwoEdgeAttachedOpenSectionBody()
+{
+    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = cube.Faces();
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{3.0, 0.0, 0.0}, Vector3d{1.0, 0.0, 0.0}),
+        PolyhedronLoop3d({
+            Point3d{3.0, 0.0, 0.0},
+            Point3d{3.0, 1.0, 0.0},
+            Point3d{3.0, 1.0, 1.0},
+            Point3d{3.0, 0.0, 1.0},
+        }));
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{0.25, 1.0, 0.0}, Vector3d{1.0, 0.0, 0.0}),
+        PolyhedronLoop3d({
+            Point3d{0.25, 1.0, 0.0},
+            Point3d{0.25, 2.0, 0.0},
+            Point3d{0.25, 2.0, 1.0},
+            Point3d{0.25, 1.0, 1.0},
+        }));
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{0.75, -1.0, 0.0}, Vector3d{1.0, 0.0, 0.0}),
+        PolyhedronLoop3d({
+            Point3d{0.75, -1.0, 0.0},
+            Point3d{0.75, 0.0, 0.0},
+            Point3d{0.75, 0.0, 1.0},
+            Point3d{0.75, -1.0, 1.0},
+        }));
+
+    return PolyhedronBody(std::move(faces));
+}
 } // namespace
 
 TEST(Section3dCapabilityTest, SlantedCubeSectionBuildsSingleAreaComponent)
@@ -680,6 +715,40 @@ TEST(Section3dCapabilityTest, BrepBodyAdjacentCoplanarFacesMergeIntoSinglePolygo
     assert(components.components.size() == 1);
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
     assert(std::abs(section.polygons[0].Area() - 2.0) < 1e-12);
+}
+
+TEST(Section3dCapabilityTest, TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane)
+{
+    const PolyhedronBody body = BuildTwoSeparatedUnitCubesBody();
+    assert(body.IsValid());
+    assert(body.FaceCount() == 12);
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+    assert(section.polygons.size() == 2);
+    assert(section.contours.size() == 2);
+    assert(section.contours[0].closed);
+    assert(section.contours[1].closed);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 2);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 2);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+
+    double totalArea = 0.0;
+    for (const auto& polygon : section.polygons)
+    {
+        totalArea += polygon.Area();
+    }
+    assert(std::abs(totalArea - 2.0) < 1e-12);
 }
 
 // Demonstrates Section(BrepBody, Plane) also supports multi-component area
@@ -843,7 +912,7 @@ TEST(Section3dCapabilityTest, CoplanarFrameFacesMergeIntoSinglePolygonWithHole)
     assert(section.contours.size() == 2);
     assert(section.contours[0].closed);
     assert(section.contours[1].closed);
-    assert(section.segments.size() == 8);
+    assert(section.segments.size() == 9);
 
     const auto topology = BuildSectionTopology(section);
     assert(topology.IsValid());
@@ -1908,7 +1977,7 @@ TEST(Section3dCapabilityTest, TwoEdgeAttachedOpenContoursBuildStableMixedContent
 
     assert(section.polygons.size() == 1);
     assert(section.contours.size() == 3);
-    assert(section.segments.size() == 8);
+    assert(section.segments.size() == 9);
     assert(section.contours[0].closed);
     assert(section.contours[0].points.size() == 6);
     assert(!section.contours[1].closed);
@@ -2190,6 +2259,89 @@ TEST(Section3dCapabilityTest, BrepBoundaryAttachedOpenContourSortsAheadOfDetache
     assert(std::abs(section.contours[2].points.front().y - 0.0) < 1e-12);
     assert(std::abs(section.contours[2].points.back().x + 2.0) < 1e-12);
     assert(std::abs(section.contours[2].points.back().y - 1.0) < 1e-12);
+
+    assert(std::abs(section.polygons[0].Area() - 1.0) < 1e-12);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
+}
+
+TEST(Section3dCapabilityTest, DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea)
+{
+    const PolyhedronBody body = BuildDetachedAndTwoEdgeAttachedOpenSectionBody();
+    assert(body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 4);
+    assert(section.segments.size() == 8);
+    assert(section.contours[0].closed);
+    assert(!section.contours[1].closed);
+    assert(!section.contours[2].closed);
+    assert(!section.contours[3].closed);
+
+    assert(std::abs(section.contours[1].points.front().x - 0.25) < 1e-12);
+    assert(std::abs(section.contours[1].points.front().y - 1.0) < 1e-12);
+    assert(std::abs(section.contours[1].points.back().x - 0.25) < 1e-12);
+    assert(std::abs(section.contours[1].points.back().y - 2.0) < 1e-12);
+
+    assert(std::abs(section.contours[2].points.front().x - 0.75) < 1e-12);
+    assert(std::abs(section.contours[2].points.front().y + 1.0) < 1e-12);
+    assert(std::abs(section.contours[2].points.back().x - 0.75) < 1e-12);
+    assert(std::abs(section.contours[2].points.back().y - 0.0) < 1e-12);
+
+    assert(std::abs(section.contours[3].points.front().x - 3.0) < 1e-12);
+    assert(std::abs(section.contours[3].points.front().y - 0.0) < 1e-12);
+    assert(std::abs(section.contours[3].points.back().x - 3.0) < 1e-12);
+    assert(std::abs(section.contours[3].points.back().y - 1.0) < 1e-12);
+
+    assert(std::abs(section.polygons[0].Area() - 1.0) < 1e-12);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
+}
+
+TEST(Section3dCapabilityTest, BrepDetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea)
+{
+    const PolyhedronBody polyBody = BuildDetachedAndTwoEdgeAttachedOpenSectionBody();
+    assert(polyBody.IsValid());
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 4);
+    assert(section.segments.size() == 8);
+    assert(section.contours[0].closed);
+    assert(!section.contours[1].closed);
+    assert(!section.contours[2].closed);
+    assert(!section.contours[3].closed);
+
+    assert(std::abs(section.contours[1].points.front().x - 0.25) < 1e-12);
+    assert(std::abs(section.contours[1].points.front().y - 1.0) < 1e-12);
+    assert(std::abs(section.contours[1].points.back().x - 0.25) < 1e-12);
+    assert(std::abs(section.contours[1].points.back().y - 2.0) < 1e-12);
+
+    assert(std::abs(section.contours[2].points.front().x - 0.75) < 1e-12);
+    assert(std::abs(section.contours[2].points.front().y + 1.0) < 1e-12);
+    assert(std::abs(section.contours[2].points.back().x - 0.75) < 1e-12);
+    assert(std::abs(section.contours[2].points.back().y - 0.0) < 1e-12);
+
+    assert(std::abs(section.contours[3].points.front().x - 3.0) < 1e-12);
+    assert(std::abs(section.contours[3].points.front().y - 0.0) < 1e-12);
+    assert(std::abs(section.contours[3].points.back().x - 3.0) < 1e-12);
+    assert(std::abs(section.contours[3].points.back().y - 1.0) < 1e-12);
 
     assert(std::abs(section.polygons[0].Area() - 1.0) < 1e-12);
     assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
