@@ -115,6 +115,8 @@ struct GEOMETRY_API SearchPolyResult2d
     SearchPolyPenaltyKind2d runnerUpPenaltyKind{SearchPolyPenaltyKind2d::None};
     SearchPolyPenaltyKind2d ambiguousTopPenaltyKind{SearchPolyPenaltyKind2d::None};
     SearchPolySyntheticEdgeKind2d ambiguousTopSyntheticEdgeKind{SearchPolySyntheticEdgeKind2d::Unknown};
+    std::size_t ambiguousTopCandidateCountWithSyntheticEdges{0};
+    std::size_t ambiguousTopCandidateCountWithBranchPenalty{0};
     bool bestCandidateBeatsSyntheticRunnerUp{false};
     bool bestCandidateBeatsBranchRunnerUp{false};
     std::size_t candidateCountWithSyntheticEdges{0};

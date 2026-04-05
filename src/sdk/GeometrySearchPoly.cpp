@@ -621,6 +621,18 @@ void PopulateResultExplanation(
     }
     result.ambiguousTopPenaltyKind = SummarizePenaltyKinds(ambiguousTopPenaltyKinds);
     result.ambiguousTopSyntheticEdgeKind = DetermineDominantSyntheticEdgeKind(ambiguousTopSyntheticKinds);
+    for (std::size_t index = 0; index < result.ambiguousTopCandidateCount; ++index)
+    {
+        const SearchPolyCandidate2d& candidate = result.candidates[index];
+        if (candidate.inferredSyntheticEdgeCount > 0U)
+        {
+            ++result.ambiguousTopCandidateCountWithSyntheticEdges;
+        }
+        if (candidate.branchVertexCount > 0U || candidate.syntheticBranchVertexCount > 0U)
+        {
+            ++result.ambiguousTopCandidateCountWithBranchPenalty;
+        }
+    }
 
     if (result.candidates.size() >= 2U)
     {

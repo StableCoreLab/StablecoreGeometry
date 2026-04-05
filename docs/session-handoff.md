@@ -91,6 +91,38 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-searchpoly-ambiguity-batch23）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - 继续收紧 mixed-content section 的 open contour 稳定化；
+  - open contours 现在按完整 polyline 序列做字典序排序，而不只看起终点；
+  - 当前 mixed vertex-attached + edge-attached dual-open 子集在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`，且多条 open contours 顺序固定。
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 ambiguous-top explanation；
+  - 为 `SearchPolyResult2d` 新增：
+    - `ambiguousTopCandidateCountWithSyntheticEdges`
+    - `ambiguousTopCandidateCountWithBranchPenalty`
+  - 当前产品侧可直接知道 tied-top candidates 中有多少个带 synthetic closure / branch penalty，而不必自行扫描 tied-top 子集。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `VertexAndEdgeAttachedOpenContoursBuildStableMixedContent`
+    - 新增 `BrepVertexAndEdgeAttachedOpenContoursBuildStableMixedContent`
+    - 验证 mixed vertex-attached + edge-attached dual-open contours 在 Polyhedron / Brep 路径都可稳定保留，并且多条 open contours 方向/顺序固定
+  - `tests/capabilities/test_searchpoly_sdk.cpp`
+    - 为 invalid / no-closed / representative single-top success 路径补齐 ambiguous-top count explanation 默认值断言
+    - 为 synthetic-top / branch-top / tied clean-top 子集补齐 ambiguous-top synthetic/branch count explanation 断言
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 mixed vertex-attached + edge-attached dual-open mixed-content 子集已进入 covered subset
+  - `tests/gaps/test_searchpoly_gaps.cpp`
+    - 明确 ambiguous-top summary/count explanation 已进入 covered subset，remaining gap 继续保留为 Delphi-grade ambiguous recovery / richer fake-edge explanation / full smart-search parity
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-batch6）
 
 - 已更新 `src/sdk/GeometryHealing.cpp`：

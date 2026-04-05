@@ -224,13 +224,17 @@ void SortOpenContoursStable(PolyhedronSection3d& section, double eps)
             {
                 return false;
             }
-            if (Point3dLexicographicallyLess(first.points.back(), second.points.back(), eps))
+            const std::size_t minimumCount = std::min(first.points.size(), second.points.size());
+            for (std::size_t index = 0; index < minimumCount; ++index)
             {
-                return true;
-            }
-            if (Point3dLexicographicallyLess(second.points.back(), first.points.back(), eps))
-            {
-                return false;
+                if (Point3dLexicographicallyLess(first.points[index], second.points[index], eps))
+                {
+                    return true;
+                }
+                if (Point3dLexicographicallyLess(second.points[index], first.points[index], eps))
+                {
+                    return false;
+                }
             }
 
             return first.points.size() < second.points.size();

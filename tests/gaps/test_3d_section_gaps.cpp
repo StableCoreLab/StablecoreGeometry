@@ -41,6 +41,8 @@ TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
                     "(1 polygon + 1 open contour / mixed content), "
                     "plus dual edge-attached open-contour mixed-content on PolyhedronBody / BrepBody paths "
                     "(1 polygon + 2 open contours / mixed content), "
+                    "plus mixed vertex-attached + edge-attached dual-open mixed-content on PolyhedronBody / BrepBody paths "
+                    "(1 polygon + 2 open contours / mixed content), "
                     "and edge-adjacent mixed coplanar + non-planar area merge on PolyhedronBody / BrepBody paths "
                     "(single merged polygon / area=2).";
 }
@@ -58,6 +60,6 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
                     "Covered subsets: two-face adjacent coplanar Polyhedron merge, two-face adjacent coplanar BrepBody merge, "
                     "three-face coplanar horizontal strip merge (3x1 rectangle, area=3.0), three-face coplanar horizontal strip merge on BrepBody path (area=3.0), "
                     "and four-face coplanar frame merge into a single polygon-with-hole (area=8.0). "
-                    "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / dual-edge-attached subsets, "
+                    "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / dual-edge-attached / mixed vertex+edge-attached subsets, "
                     "and more general mixed coplanar/non-planar adjacency arbitration beyond the representative edge-adjacent single-merge subset.";
 }
