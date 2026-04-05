@@ -1,6 +1,7 @@
 #include "sdk/GeometryHealing.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <map>
 #include <memory>
@@ -717,6 +718,8 @@ namespace aggressive
 {
 
 using BoundaryEdgeKey = std::pair<std::size_t, std::size_t>;
+using BoundaryGeometryPointKey = std::array<long long, 3>;
+using BoundaryGeometryEdgeKey = std::pair<BoundaryGeometryPointKey, BoundaryGeometryPointKey>;
 
 [[nodiscard]] BoundaryEdgeKey MakeBoundaryEdgeKey(std::size_t firstVertexIndex, std::size_t secondVertexIndex)
 {
@@ -726,6 +729,32 @@ using BoundaryEdgeKey = std::pair<std::size_t, std::size_t>;
     }
 
     return {firstVertexIndex, secondVertexIndex};
+}
+
+[[nodiscard]] BoundaryGeometryPointKey QuantizeBoundaryPointKey(
+    const Point3d& point,
+    double eps)
+{
+    const double safeEps = std::max(eps, geometry::kDefaultEpsilon);
+    return BoundaryGeometryPointKey{
+        static_cast<long long>(std::llround(point.x / safeEps)),
+        static_cast<long long>(std::llround(point.y / safeEps)),
+        static_cast<long long>(std::llround(point.z / safeEps))};
+}
+
+[[nodiscard]] BoundaryGeometryEdgeKey MakeBoundaryGeometryEdgeKey(
+    const Point3d& firstPoint,
+    const Point3d& secondPoint,
+    double eps)
+{
+    BoundaryGeometryPointKey firstKey = QuantizeBoundaryPointKey(firstPoint, eps);
+    BoundaryGeometryPointKey secondKey = QuantizeBoundaryPointKey(secondPoint, eps);
+    if (secondKey < firstKey)
+    {
+        std::swap(firstKey, secondKey);
+    }
+
+    return {firstKey, secondKey};
 }
 
 void CollectShellBoundaryEdgeKeys(
@@ -771,6 +800,55 @@ void CollectShellBoundaryEdgeKeys(
     boundaryEdgeKeys.erase(
         std::unique(boundaryEdgeKeys.begin(), boundaryEdgeKeys.end()),
         boundaryEdgeKeys.end());
+}
+
+void CollectShellBoundaryGeometryEdgeKeys(
+    const BrepBody& body,
+    const BrepShell& shell,
+    double eps,
+    std::vector<BoundaryGeometryEdgeKey>& boundaryGeometryEdgeKeys)
+{
+    boundaryGeometryEdgeKeys.clear();
+
+    std::map<std::size_t, std::size_t> edgeUseCount;
+    shell_cap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
+
+    auto appendBoundaryEdgesFromLoop = [&](const BrepLoop& loop) {
+        for (const BrepCoedge& coedge : loop.Coedges())
+        {
+            const auto countIt = edgeUseCount.find(coedge.EdgeIndex());
+            if (countIt == edgeUseCount.end() || countIt->second != 1U)
+            {
+                continue;
+            }
+
+            std::size_t startVertexIndex = kInvalidIndex;
+            std::size_t endVertexIndex = kInvalidIndex;
+            if (!shell_cap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
+            {
+                continue;
+            }
+
+            boundaryGeometryEdgeKeys.push_back(MakeBoundaryGeometryEdgeKey(
+                body.VertexAt(startVertexIndex).Point(),
+                body.VertexAt(endVertexIndex).Point(),
+                eps));
+        }
+    };
+
+    for (const BrepFace& face : shell.Faces())
+    {
+        appendBoundaryEdgesFromLoop(face.OuterLoop());
+        for (const BrepLoop& hole : face.HoleLoops())
+        {
+            appendBoundaryEdgesFromLoop(hole);
+        }
+    }
+
+    std::sort(boundaryGeometryEdgeKeys.begin(), boundaryGeometryEdgeKeys.end());
+    boundaryGeometryEdgeKeys.erase(
+        std::unique(boundaryGeometryEdgeKeys.begin(), boundaryGeometryEdgeKeys.end()),
+        boundaryGeometryEdgeKeys.end());
 }
 
 [[nodiscard]] bool NeedsBrepHealing(const BrepBody& body, const GeometryTolerance3d& tolerance)
@@ -827,9 +905,12 @@ void CollectShellBoundaryEdgeKeys(
     return reversed;
 }
 
-[[nodiscard]] std::vector<bool> DetectCompetingOpenShells(const BrepBody& body)
+[[nodiscard]] std::vector<bool> DetectCompetingOpenShells(
+    const BrepBody& body,
+    const GeometryTolerance3d& tolerance)
 {
     std::vector<std::vector<BoundaryEdgeKey>> shellBoundaryEdgeKeys(body.ShellCount());
+    std::vector<std::vector<BoundaryGeometryEdgeKey>> shellBoundaryGeometryEdgeKeys(body.ShellCount());
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
     {
         const BrepShell shell = body.ShellAt(shellIndex);
@@ -839,6 +920,11 @@ void CollectShellBoundaryEdgeKeys(
         }
 
         CollectShellBoundaryEdgeKeys(body, shell, shellBoundaryEdgeKeys[shellIndex]);
+        CollectShellBoundaryGeometryEdgeKeys(
+            body,
+            shell,
+            tolerance.distanceEpsilon,
+            shellBoundaryGeometryEdgeKeys[shellIndex]);
     }
 
     std::vector<bool> competing(body.ShellCount(), false);
@@ -869,7 +955,23 @@ void CollectShellBoundaryEdgeKeys(
                 }
             }
 
-            if (sharesBoundaryEdge)
+            bool sharesBoundaryGeometryEdge = false;
+            if (!sharesBoundaryEdge)
+            {
+                for (const BoundaryGeometryEdgeKey& boundaryGeometryEdgeKey : shellBoundaryGeometryEdgeKeys[first])
+                {
+                    if (std::binary_search(
+                            shellBoundaryGeometryEdgeKeys[second].begin(),
+                            shellBoundaryGeometryEdgeKeys[second].end(),
+                            boundaryGeometryEdgeKey))
+                    {
+                        sharesBoundaryGeometryEdge = true;
+                        break;
+                    }
+                }
+            }
+
+            if (sharesBoundaryEdge || sharesBoundaryGeometryEdge)
             {
                 competing[first] = true;
                 competing[second] = true;
@@ -888,7 +990,7 @@ void CollectShellBoundaryEdgeKeys(
     std::vector<BrepShell> repairedShells;
     repairedShells.reserve(body.ShellCount());
     bool changed = false;
-    const std::vector<bool> competingShells = DetectCompetingOpenShells(body);
+    const std::vector<bool> competingShells = DetectCompetingOpenShells(body, tolerance);
 
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
     {

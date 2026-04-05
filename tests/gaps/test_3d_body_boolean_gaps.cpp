@@ -21,6 +21,7 @@ TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
                     "subsets, face-touching axis-aligned box union subsets whose result remains "
                     "one closed box, face-touching external difference subsets that preserve "
                     "the original closed box, axis-aligned contained difference-empty subsets, "
+                    "axis-aligned edge/vertex-touching ordered multi-body union subsets, axis-aligned edge/vertex-touching external difference subsets, "
                     "and deterministic disjoint ordered-multi-body union / disjoint / axis-aligned face/edge/vertex-touching empty "
                     "intersection subsets. Non-box overlap, non-axis-aligned or richer touching "
                     "intersection semantics, "

@@ -27,6 +27,43 @@
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
 
+## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-touching-arbitration-batch32）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - mixed section 的 open contour 稳定排序不再只看词典序；
+  - 当前 boundary-attached open contours 会优先于 detached open contours 排序，并继续保持 edge-attached 优先于 vertex-attached 的稳定子规则；
+  - public SDK 入口保持不变，更一般 mixed open-curve / area edge-adjacency arbitration 仍保留为 gap。
+- 已更新 `src/sdk/GeometryHealing.cpp`：
+  - aggressive competing-shell arbitration 不再只看共享 topology edge；
+  - duplicated-topology 但几何上重合的 shared-boundary-loop / boundary-edge shells 现在也会被保守识别为 competing shells，并保持 open；
+  - 仍未推进到更一般 partial-overlap boundary-loop / richer multi-shell arbitration。
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 新增 axis-aligned edge/vertex-touching ordered multi-body union 子集；
+  - 新增 axis-aligned edge/vertex-touching external difference 子集；
+  - lower-dimensional touching 不再一律落回 `UnsupportedOperation`，但 non-box overlap / non-axis-aligned richer touching 仍为 gap。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 detached-left + edge-attached mixed-content 排序子集；
+    - 验证在 Polyhedron / Brep 路径都稳定输出 `closed polygon -> edge-attached open contour -> detached open contour`。
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集；
+    - 验证独立 eligible shell 仍可闭壳，而几何重合但 topology 独立的 competing pair 保持 open。
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 edge-touching ordered multi-body union 与 vertex-touching external difference 在 Polyhedron / Brep 路径的 deterministic 子集。
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 detached-left-vs-edge-attached ordering representative subset 已进入 covered subset
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 duplicated-topology geometrically coincident shared-boundary-loop arbitration representative subset 已进入 covered subset
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集已进入 covered subset
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-contained-union-batch28）
 
 - 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
@@ -99,6 +136,34 @@
     - 验证 closed shell 保持稳定、competing pair 保持 open，而 vertex-touch shell 可闭壳。
   - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
     - 新增 disjoint union reverse-input ordering 在 Polyhedron / Brep 路径的 deterministic normalization 子集。
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 已进入 covered subset
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 mixed closed-shell + competing-pair + vertex-touch shell subset 已进入 covered subset
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 deterministic disjoint ordered-multi-body union 已进入 covered subset
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
+## 本轮新增（2026-04-05，fasttrack-section-healing-closed-mix-batch31）
+
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - disjoint `UnionBodies(...)` 的 multi-body result 现在按 body bounds 稳定排序；
+  - 这条 contract 对 Polyhedron / Brep 路径统一生效，避免结果顺序依赖输入顺序。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子集；
+    - 验证在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 3 open contours`（area=3）。
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 mixed closed-shell + competing pair + vertex-touch shell arbitration 子集；
+    - 验证 closed shell 保持稳定、competing pair 保持 open，而 vertex-touch shell 可闭壳。
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 disjoint reverse-input union ordering 在 Polyhedron / Brep 路径的 deterministic normalization 子集。
 - 已同步收敛 gap test：
   - `tests/gaps/test_3d_section_gaps.cpp`
     - 明确 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 已进入 covered subset

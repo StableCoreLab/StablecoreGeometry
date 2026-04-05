@@ -833,6 +833,20 @@ namespace
     return positiveOverlapAxes < 3U && touchingAxes > 0U;
 }
 
+[[nodiscard]] bool TryDetectEdgeOrVertexTouchingUnionAsMultiBody(
+    const Box3d& first,
+    const Box3d& second,
+    double epsilon)
+{
+    if (!TryDetectNonVolumeTouchingIntersectionEmpty(first, second, epsilon))
+    {
+        return false;
+    }
+
+    return !TryDetectFaceTouchingDifferenceIdentity(first, second, epsilon) &&
+           !TryDetectFaceTouchingDifferenceIdentity(second, first, epsilon);
+}
+
 [[nodiscard]] bool BodiesLookIdentical(const BrepBody& first, const BrepBody& second, double epsilon)
 {
     return first.FaceCount() == second.FaceCount() &&
@@ -938,6 +952,15 @@ namespace
             "Deterministic axis-aligned overlap-box union subset.");
     }
 
+    if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
+        TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
+        TryDetectEdgeOrVertexTouchingUnionAsMultiBody(firstBox, secondBox, epsilon))
+    {
+        return MakeMultiBodyResult(
+            {first, second},
+            "Deterministic axis-aligned edge/vertex-touching multi-body union subset.");
+    }
+
     return MakeUnsupportedResult();
 }
 
@@ -984,6 +1007,13 @@ namespace
         TryDetectFaceTouchingDifferenceIdentity(firstBox, secondBox, epsilon))
     {
         return MakeSingleBodyResult(first, "Deterministic face-touching external difference subset.");
+    }
+
+    if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
+        TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
+        TryDetectEdgeOrVertexTouchingUnionAsMultiBody(firstBox, secondBox, epsilon))
+    {
+        return MakeSingleBodyResult(first, "Deterministic edge/vertex-touching external difference subset.");
     }
 
     return MakeUnsupportedResult();

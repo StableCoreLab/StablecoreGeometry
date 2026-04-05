@@ -195,6 +195,87 @@ void RebuildUniqueSegmentsFromContours(
     return false;
 }
 
+[[nodiscard]] bool IsPointAtAnyPolygonVertex(
+    const Point3d& point,
+    const PolyhedronSection3d& section,
+    double eps)
+{
+    const Point2d projected = ProjectPointToSectionBasis(point, section);
+    auto ringContainsVertex = [&](const Polyline2d& ring) {
+        for (std::size_t i = 0; i < ring.PointCount(); ++i)
+        {
+            if (ring.PointAt(i).AlmostEquals(projected, eps))
+            {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    for (const Polygon2d& polygon : section.polygons)
+    {
+        if (ringContainsVertex(polygon.OuterRing()))
+        {
+            return true;
+        }
+
+        for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
+        {
+            if (ringContainsVertex(polygon.HoleAt(holeIndex)))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+enum class OpenContourAttachmentKind
+{
+    EdgeAttached = 0,
+    VertexAttached = 1,
+    Detached = 2
+};
+
+struct OpenContourSortKey
+{
+    OpenContourAttachmentKind attachmentKind{OpenContourAttachmentKind::Detached};
+    std::size_t boundaryEndpointCount{0};
+};
+
+[[nodiscard]] OpenContourSortKey BuildOpenContourSortKey(
+    const PolyhedronSection3d& section,
+    const SectionPolyline3d& contour,
+    double eps)
+{
+    OpenContourSortKey key{};
+    if (contour.closed || contour.points.empty())
+    {
+        return key;
+    }
+
+    const bool firstOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.front(), section, eps);
+    const bool lastOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.back(), section, eps);
+    key.boundaryEndpointCount = (firstOnBoundary ? 1U : 0U) + (lastOnBoundary ? 1U : 0U);
+    if (key.boundaryEndpointCount == 0U)
+    {
+        key.attachmentKind = OpenContourAttachmentKind::Detached;
+        return key;
+    }
+
+    const bool firstAtVertex = firstOnBoundary && IsPointAtAnyPolygonVertex(contour.points.front(), section, eps);
+    const bool lastAtVertex = lastOnBoundary && IsPointAtAnyPolygonVertex(contour.points.back(), section, eps);
+    if ((firstOnBoundary && !firstAtVertex) || (lastOnBoundary && !lastAtVertex))
+    {
+        key.attachmentKind = OpenContourAttachmentKind::EdgeAttached;
+        return key;
+    }
+
+    key.attachmentKind = OpenContourAttachmentKind::VertexAttached;
+    return key;
+}
+
 void NormalizeOpenContourDirection(
     const PolyhedronSection3d& section,
     SectionPolyline3d& contour,
@@ -245,10 +326,21 @@ void SortOpenContoursStable(PolyhedronSection3d& section, double eps)
     std::sort(
         openContours.begin(),
         openContours.end(),
-        [eps](const SectionPolyline3d& first, const SectionPolyline3d& second) {
+        [&section, eps](const SectionPolyline3d& first, const SectionPolyline3d& second) {
             if (first.points.empty() || second.points.empty())
             {
                 return first.points.size() < second.points.size();
+            }
+
+            const OpenContourSortKey firstKey = BuildOpenContourSortKey(section, first, eps);
+            const OpenContourSortKey secondKey = BuildOpenContourSortKey(section, second, eps);
+            if (firstKey.attachmentKind != secondKey.attachmentKind)
+            {
+                return static_cast<int>(firstKey.attachmentKind) < static_cast<int>(secondKey.attachmentKind);
+            }
+            if (firstKey.boundaryEndpointCount != secondKey.boundaryEndpointCount)
+            {
+                return firstKey.boundaryEndpointCount > secondKey.boundaryEndpointCount;
             }
 
             if (Point3dLexicographicallyLess(first.points.front(), second.points.front(), eps))
