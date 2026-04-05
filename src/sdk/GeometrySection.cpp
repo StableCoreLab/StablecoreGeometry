@@ -743,6 +743,28 @@ void AddUniquePlaneEdgeSegments(
     return false;
 }
 
+[[nodiscard]] std::size_t CountUnvisitedIncidentEdges(
+    std::size_t nodeIndex,
+    const std::vector<IndexedSegment2d>& indexedSegments,
+    const std::vector<bool>& edgeVisited)
+{
+    std::size_t count = 0;
+    for (std::size_t edgeIndex = 0; edgeIndex < indexedSegments.size(); ++edgeIndex)
+    {
+        if (edgeVisited[edgeIndex])
+        {
+            continue;
+        }
+
+        const IndexedSegment2d& edge = indexedSegments[edgeIndex];
+        if (edge.first == nodeIndex || edge.second == nodeIndex)
+        {
+            ++count;
+        }
+    }
+    return count;
+}
+
 [[nodiscard]] PolylineBuildResult BuildPolylineFromNode(
     std::size_t startNode,
     bool closed,
@@ -771,7 +793,7 @@ void AddUniquePlaneEdgeSegments(
     {
         result.nodeIndices.push_back(current);
         const auto& neighbors = adjacency[current];
-        if (!closed && neighbors.size() == 1)
+        if (!closed && current != startNode && neighbors.size() != 2)
         {
             result.success = true;
             return result;
@@ -998,20 +1020,6 @@ PolyhedronSection3d Section(
         adjacency[segment.second].push_back(segment.first);
     }
 
-    for (const auto& neighbors : adjacency)
-    {
-        if (neighbors.empty())
-        {
-            continue;
-        }
-
-        if (neighbors.size() > 2)
-        {
-            result.issue = SectionIssue3d::NonManifoldContour;
-            return result;
-        }
-    }
-
     std::vector<bool> edgeVisited(indexedSegments.size(), false);
     for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
     {
@@ -1050,6 +1058,15 @@ PolyhedronSection3d Section(
         }
 
         result.contours.push_back(SectionPolyline3d{false, std::move(contour3d)});
+    }
+
+    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
+    {
+        if (CountUnvisitedIncidentEdges(nodeIndex, indexedSegments, edgeVisited) > 2U)
+        {
+            result.issue = SectionIssue3d::NonManifoldContour;
+            return result;
+        }
     }
 
     for (std::size_t edgeIndex = 0; edgeIndex < indexedSegments.size(); ++edgeIndex)
@@ -1308,15 +1325,6 @@ PolyhedronSection3d Section(
         adjacency[segment.second].push_back(segment.first);
     }
 
-    for (const auto& neighbors : adjacency)
-    {
-        if (neighbors.size() > 2)
-        {
-            result.issue = SectionIssue3d::NonManifoldContour;
-            return result;
-        }
-    }
-
     std::vector<bool> edgeVisited(indexedSegments.size(), false);
     for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
     {
@@ -1356,6 +1364,15 @@ PolyhedronSection3d Section(
         }
 
         result.contours.push_back(SectionPolyline3d{false, std::move(contour3d)});
+    }
+
+    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
+    {
+        if (CountUnvisitedIncidentEdges(nodeIndex, indexedSegments, edgeVisited) > 2U)
+        {
+            result.issue = SectionIssue3d::NonManifoldContour;
+            return result;
+        }
     }
 
     for (std::size_t edgeIndex = 0; edgeIndex < indexedSegments.size(); ++edgeIndex)

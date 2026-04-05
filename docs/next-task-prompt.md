@@ -37,9 +37,10 @@
   - 四片 coplanar frame merge 为单 polygon-with-hole
   - unit cube / rectangular prism / triangular prism 的多组 deterministic non-planar section perimeter 子集
   - mixed coplanar frame + non-planar cube section 在 Polyhedron / Brep 路径共存（2 polygons / 3 closed contours / total area=9）
+  - detached / vertex-attached mixed area + open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`
 - 当前仍保留的 gap：
   - ambiguous non-manifold contour stitching
-  - mixed open-curve / area adjacency arbitration
+  - mixed open-curve / area edge-adjacency arbitration
   - 非邻接 coplanar fragments 跨 convex-hull gap 的 merge
   - 更一般 mixed coplanar/non-planar adjacency arbitration
 
@@ -57,7 +58,7 @@
 - 稳定 SDK 入口位于 `include/sdk/GeometrySearchPoly.h`
 - 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics、result / diagnostics consistency、auto-flag gating
 - `SearchPolyResult2d` 已补充 deterministic top-candidate explanation：best-candidate synthetic metrics、top-score margin、synthetic/branch aggregate counts、ambiguous-top count，以及 runner-up synthetic / branch penalty explanation；并已补充 `bestCandidateSyntheticEdgeKind` / `runnerUpSyntheticEdgeKind`
-- `SearchPolyCandidate2d` 已补充 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network touch mapping（start/end vertex index、start/end degree、dangling-touch-count、branch-touch-count）
+- `SearchPolyCandidate2d` 已补充 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network mapping（start/end vertex index、start/end degree、dangling-touch-count、branch-touch-count）
 - richer fake-edge explanation、Delphi 级 ambiguous recovery、完整 smart-search parity 仍为 gap
 
 ### GeometryBodyBoolean
@@ -80,7 +81,7 @@
 
 - 在不改 public SDK 的前提下继续推进更高阶 section 语义
 - 重点补：
-  - mixed open-curve / area adjacency arbitration
+  - mixed open-curve / area edge-adjacency arbitration
   - 更一般 non-planar dominant contour stitching
   - 更一般 mixed coplanar/non-planar adjacency merge
 - 保持 capability / gap 边界清晰，不要把仍不稳定语义伪装成已完成
