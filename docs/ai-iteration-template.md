@@ -1,5 +1,10 @@
 # Iteration Task
 
+## Spec
+
+- Must follow `docs/ai-execution-spec.md`
+- If this iteration prompt conflicts with the execution spec, the execution spec wins
+
 ## Execution Rules
 
 - This iteration must produce a closed capability unit.

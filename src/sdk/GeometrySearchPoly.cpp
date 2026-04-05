@@ -52,6 +52,42 @@ struct CandidateMetrics2d
 [[nodiscard]] std::size_t FindOrAddVertex(
     std::vector<GraphVertex2d>& vertices,
     const Point2d& point,
+    double epsilon);
+
+[[nodiscard]] std::size_t BranchDegreeAtPoint(
+    const std::vector<GraphVertex2d>& vertices,
+    const Point2d& point,
+    double epsilon);
+
+[[nodiscard]] std::vector<GraphVertex2d> BuildSegmentVertices(
+    const std::vector<LineSegment2d>& segments,
+    double epsilon)
+{
+    std::vector<GraphVertex2d> vertices;
+    for (const LineSegment2d& segment : segments)
+    {
+        if (!segment.IsValid() || segment.startPoint.AlmostEquals(segment.endPoint, epsilon))
+        {
+            continue;
+        }
+
+        const std::size_t startIndex = FindOrAddVertex(vertices, segment.startPoint, epsilon);
+        const std::size_t endIndex = FindOrAddVertex(vertices, segment.endPoint, epsilon);
+        if (startIndex == endIndex)
+        {
+            continue;
+        }
+
+        ++vertices[startIndex].degree;
+        ++vertices[endIndex].degree;
+    }
+
+    return vertices;
+}
+
+[[nodiscard]] std::size_t FindOrAddVertex(
+    std::vector<GraphVertex2d>& vertices,
+    const Point2d& point,
     double epsilon)
 {
     for (std::size_t index = 0; index < vertices.size(); ++index)
@@ -474,6 +510,98 @@ struct CandidateMetrics2d
     return seeded && coveredUntil >= 1.0 - parameterTolerance;
 }
 
+[[nodiscard]] MultiPolyline2d BuildSegmentPolylines(const std::vector<LineSegment2d>& segments)
+{
+    MultiPolyline2d polylines;
+    for (const LineSegment2d& segment : segments)
+    {
+        if (!segment.IsValid())
+        {
+            continue;
+        }
+
+        polylines.Add(Polyline2d({segment.startPoint, segment.endPoint}, PolylineClosure::Open));
+    }
+    return polylines;
+}
+
+[[nodiscard]] std::vector<LineSegment2d> PruneBranchDanglingSegments(
+    std::vector<LineSegment2d> segments,
+    double epsilon)
+{
+    bool changed = true;
+    while (changed)
+    {
+        changed = false;
+        const std::vector<GraphVertex2d> vertices = BuildSegmentVertices(segments, epsilon);
+        std::vector<LineSegment2d> kept;
+        kept.reserve(segments.size());
+        for (const LineSegment2d& segment : segments)
+        {
+            const std::size_t startDegree = BranchDegreeAtPoint(vertices, segment.startPoint, epsilon);
+            const std::size_t endDegree = BranchDegreeAtPoint(vertices, segment.endPoint, epsilon);
+            const bool pruneStartLeaf = startDegree == 1U && endDegree > 2U;
+            const bool pruneEndLeaf = endDegree == 1U && startDegree > 2U;
+            if (pruneStartLeaf || pruneEndLeaf)
+            {
+                changed = true;
+                continue;
+            }
+
+            kept.push_back(segment);
+        }
+        segments = std::move(kept);
+    }
+
+    return segments;
+}
+
+[[nodiscard]] MultiPolygon2d TryBuildPolygonsWithBranchCleanupFallback(
+    const LineNetworkAnalysis2d& analysis,
+    const SearchPolyOptions2d& options)
+{
+    if (!options.removeBranches || !options.allowFakeEdges || analysis.diagnostics.branchVertexCount == 0U)
+    {
+        return {};
+    }
+
+    std::vector<LineSegment2d> prunedSegments =
+        PruneBranchDanglingSegments(analysis.segments, options.epsilon);
+    if (prunedSegments.empty() || prunedSegments.size() >= analysis.segments.size())
+    {
+        return {};
+    }
+
+    MultiPolygon2d polygons = BuildMultiPolygonByLines(BuildSegmentPolylines(prunedSegments), options.epsilon);
+    if (polygons.Count() > 0)
+    {
+        return polygons;
+    }
+
+    if (!options.autoClose)
+    {
+        return {};
+    }
+
+    const std::vector<GraphVertex2d> vertices = BuildSegmentVertices(prunedSegments, options.epsilon);
+    std::vector<Point2d> danglingEndpoints;
+    for (const GraphVertex2d& vertex : vertices)
+    {
+        if (vertex.degree == 1U)
+        {
+            danglingEndpoints.push_back(vertex.point);
+        }
+    }
+
+    if (danglingEndpoints.size() != 2U || danglingEndpoints[0].AlmostEquals(danglingEndpoints[1], options.epsilon))
+    {
+        return {};
+    }
+
+    prunedSegments.push_back(LineSegment2d(danglingEndpoints[0], danglingEndpoints[1]));
+    return BuildMultiPolygonByLines(BuildSegmentPolylines(prunedSegments), options.epsilon);
+}
+
 void AccumulateRingMetrics(
     const Polyline2d& ring,
     const LineNetworkAnalysis2d& analysis,
@@ -729,6 +857,10 @@ SearchPolyResult2d SearchPolygons(const MultiPolyline2d& lines, SearchPolyOption
     const LineNetworkAnalysis2d analysis = AnalyzeLineNetwork(lines, options.epsilon);
     result.diagnostics = analysis.diagnostics;
     result.polygons = BuildMultiPolygonByLines(lines, options.epsilon);
+    if (result.polygons.Count() == 0)
+    {
+        result.polygons = TryBuildPolygonsWithBranchCleanupFallback(analysis, options);
+    }
     if (result.polygons.Count() == 0)
     {
         result.issue = SearchPolyIssue2d::NoClosedPolygonFound;

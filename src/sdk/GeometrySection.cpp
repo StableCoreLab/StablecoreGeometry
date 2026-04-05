@@ -19,6 +19,10 @@ namespace geometry::sdk
 {
 namespace
 {
+[[nodiscard]] Point2d ProjectPointToSectionBasis(
+    const Point3d& point,
+    const PolyhedronSection3d& section);
+
 struct PlaneProjectionBasis
 {
     Vector3d u{};

@@ -6,6 +6,7 @@
 
 #include "export/GeometryExport.h"
 #include "sdk/GeometryTypes.h"
+#include "sdk/LineSegment2d.h"
 #include "sdk/MultiPolygon2d.h"
 #include "sdk/MultiPolyline2d.h"
 
