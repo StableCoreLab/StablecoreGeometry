@@ -162,6 +162,26 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-bodyboolean-edge-vertex-touching-batch13）
+
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 将 axis-aligned touching intersection 的 empty-result contract 从“仅 face-touching”推广到“任意 non-volume touching”；
+  - 当前 face-touching / edge-touching / vertex-touching 的 axis-aligned closed boxes 都会稳定返回 success + empty result。
+- 已扩展 capability tests：`tests/capabilities/test_3d_body_boolean_sdk.cpp`
+  - 新增 `EdgeTouchingPolyhedronIntersectionReturnsDeterministicEmptyResult`
+  - 新增 `VertexTouchingPolyhedronIntersectionReturnsDeterministicEmptyResult`
+  - 新增 `EdgeTouchingBrepIntersectionReturnsDeterministicEmptyResult`
+  - 新增 `VertexTouchingBrepIntersectionReturnsDeterministicEmptyResult`
+- 已同步收敛 gap test：`tests/gaps/test_3d_body_boolean_gaps.cpp`
+  - 明确 axis-aligned face/edge/vertex touching empty intersection 已进入 capability；
+  - remaining gap 收敛为 non-axis-aligned / richer touching intersection、non-box overlap、shell-policy 与 healing integration。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。

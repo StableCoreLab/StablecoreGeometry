@@ -246,6 +246,34 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronIntersectionReturnsDetermin
     EXPECT_TRUE(intersection.bodies.empty());
 }
 
+TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingPolyhedronIntersectionReturnsDeterministicEmptyResult)
+{
+    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0);
+
+    const auto intersection = IntersectBodies(first, second);
+
+    EXPECT_EQ(intersection.issue, BodyBooleanIssue3d::None);
+    EXPECT_TRUE(intersection.IsSuccess());
+    EXPECT_TRUE(intersection.producedEmptyResult);
+    EXPECT_EQ(intersection.body.FaceCount(), 0U);
+    EXPECT_TRUE(intersection.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, VertexTouchingPolyhedronIntersectionReturnsDeterministicEmptyResult)
+{
+    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0);
+
+    const auto intersection = IntersectBodies(first, second);
+
+    EXPECT_EQ(intersection.issue, BodyBooleanIssue3d::None);
+    EXPECT_TRUE(intersection.IsSuccess());
+    EXPECT_TRUE(intersection.producedEmptyResult);
+    EXPECT_EQ(intersection.body.FaceCount(), 0U);
+    EXPECT_TRUE(intersection.bodies.empty());
+}
+
 TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronDifferenceReturnsOriginalBody)
 {
     const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
@@ -392,6 +420,38 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingBrepIntersectionReturnsDeterministicE
 {
     const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
     const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0));
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = IntersectBodies(first.body, second.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    EXPECT_TRUE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingBrepIntersectionReturnsDeterministicEmptyResult)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0));
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = IntersectBodies(first.body, second.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    EXPECT_TRUE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, VertexTouchingBrepIntersectionReturnsDeterministicEmptyResult)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 

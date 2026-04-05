@@ -737,6 +737,44 @@ namespace
     return positiveOverlapAxes == 2U && touchingAxes == 1U;
 }
 
+[[nodiscard]] bool TryDetectNonVolumeTouchingIntersectionEmpty(
+    const Box3d& first,
+    const Box3d& second,
+    double epsilon)
+{
+    if (!first.IsValid() || !second.IsValid() || BoundsDisjoint(first, second, epsilon))
+    {
+        return false;
+    }
+
+    std::size_t positiveOverlapAxes = 0;
+    std::size_t touchingAxes = 0;
+    for (int axis = 0; axis < 3; ++axis)
+    {
+        const double firstMin = BoxMinAt(first, axis);
+        const double firstMax = BoxMaxAt(first, axis);
+        const double secondMin = BoxMinAt(second, axis);
+        const double secondMax = BoxMaxAt(second, axis);
+        const double overlapMin = std::max(firstMin, secondMin);
+        const double overlapMax = std::min(firstMax, secondMax);
+        if (overlapMax > overlapMin + epsilon)
+        {
+            ++positiveOverlapAxes;
+            continue;
+        }
+
+        if (NearlyEqual(firstMax, secondMin, epsilon) || NearlyEqual(secondMax, firstMin, epsilon))
+        {
+            ++touchingAxes;
+            continue;
+        }
+
+        return false;
+    }
+
+    return positiveOverlapAxes < 3U && touchingAxes > 0U;
+}
+
 [[nodiscard]] bool BodiesLookIdentical(const BrepBody& first, const BrepBody& second, double epsilon)
 {
     return first.FaceCount() == second.FaceCount() &&
@@ -772,9 +810,9 @@ namespace
 
     if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
         TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
-        TryDetectFaceTouchingDifferenceIdentity(firstBox, secondBox, epsilon))
+        TryDetectNonVolumeTouchingIntersectionEmpty(firstBox, secondBox, epsilon))
     {
-        return MakeEmptyResult("Deterministic face-touching empty intersection subset.");
+        return MakeEmptyResult("Deterministic axis-aligned touching empty intersection subset.");
     }
 
     return MakeUnsupportedResult();

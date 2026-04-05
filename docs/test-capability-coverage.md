@@ -107,14 +107,14 @@
 - `tests/capabilities/test_3d_conversion.cpp`
   - 单位立方体（6 quad faces）经 `ConvertToTriangleMesh(PolyhedronBody)` 得到 12 triangles，`SurfaceArea ≈ 6.0`；并可经 `ConvertToBrepBody(PolyhedronBody)` 得到 `FaceCount() == 6` 的有效 `BrepBody`，覆盖 affine-skew 非轴对齐子类输入、support-plane mismatch 可修复子场景（含 shared-chain mixed-content full-composition 下的 support-plane refit）、mild non-planar outer/hole loop 顶点投影修复子场景、leading collinear loop 顶点下的稳健法向回退、duplicate outer/hole loop 顶点归一化修复、tiny-scale non-planar（含 holed/multi-face/mixed-content/shared-edge/shared-chain/shared-chain-mixed-content）输入下的 scale-aware 法向回退与投影修复，以及 duplicate/hole/collinear-leading normalization 与 shared-edge chain 修复的组合稳定性；同时覆盖 planar holed、planar multi-face、以及 planar holed+multi-face `BrepBody` 到 mesh 的面积保持子场景
 - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
-  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / face-touching union / face-touching external difference / face-touching empty intersection 的代表性子集
+  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / touching union / touching external difference / touching empty intersection 的代表性子集
   - `IntersectBodies(...)` 已支持 axis-aligned closed boxes 的正体积 overlap，稳定返回单一 closed overlap box
   - `UnionBodies(...)` 已支持 axis-aligned closed boxes 中“union 结果仍为单一 closed box”的 overlap/containment 子集
   - `DifferenceBodies(...)` 已支持 axis-aligned closed boxes 中“difference 结果仍为单一 closed box”的单侧 slab 子集
   - `UnionBodies(...)` 进一步覆盖 face-touching axis-aligned closed boxes 的单闭壳子集；`IntersectBodies(...)` 对 touching 情形仍继续稳定返回 `UnsupportedOperation`
   - `DifferenceBodies(...)` 进一步覆盖 face-touching external axis-aligned closed boxes 的 identity 子集：当 second 仅外贴 first 的完整面且不侵入体积时，稳定返回原始 `first`
-  - `IntersectBodies(...)` 进一步覆盖 face-touching axis-aligned closed boxes 的 empty-result 子集：当两个 body 仅共享完整面时，稳定返回 success + `producedEmptyResult=true`
-  - 非单-box overlap 的 `UnionBodies(...)` / `DifferenceBodies(...)`，以及非 face-touching intersection 当前继续稳定返回 `UnsupportedOperation`，避免过早引入 L 形、多壳与 healing 依赖
+  - `IntersectBodies(...)` 进一步覆盖 axis-aligned touching closed boxes 的 empty-result 子集：当两个 body 仅在 face / edge / vertex 维度接触时，稳定返回 success + `producedEmptyResult=true`
+  - 非单-box overlap 的 `UnionBodies(...)` / `DifferenceBodies(...)`，以及 non-axis-aligned / richer touching intersection 当前继续稳定返回 `UnsupportedOperation`，避免过早引入 L 形、多壳与 healing 依赖
   - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链 mixed-content full-composition 下，支持 outer/hole 双重复顶点归一化与 support-mismatch + collinear-leading 组合修复稳定叠加
   - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链修复后可全局复用共享顶点/边，避免按 face 重复建拓扑并保持共享边一致性子集稳定
   - `ConvertToBrepBody(...)` 在 closed-shell 代表性输入（单位立方体）上可收敛到共享拓扑 Brep：1 shell / 8 vertices / 12 edges / closed shell
@@ -225,8 +225,8 @@
   - `SupportMismatchNearEqualSharedChainHoleDominatedFullCompositionRepairsWithRepresentativeAverageTarget` — 在上述子集上进一步叠加 collinear-leading fallback 后，all-loop support-plane scoring 与 representative-average 仍可同时成立：左右共享边继续稳定收敛到 `x=2.0+1e-7` / `x=6.0+1e-7`，全部顶点保持 `z≈0`，拓扑计数推进到 `FaceCount=3 / VertexCount=13 / EdgeCount=15`
 
 - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
-  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / face-touching union / face-touching external difference / face-touching empty intersection 的代表性子集
-  - 当前仍保留的 gap：更一般 overlap、non-face-touching intersection、非 box touching、shell-policy、healing integration
+  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / touching union / touching external difference / touching empty intersection 的代表性子集
+  - 当前仍保留的 gap：更一般 overlap、non-axis-aligned / richer touching intersection、非 box touching、shell-policy、healing integration
 
 ## Gap Characterization Tests
 
@@ -246,7 +246,7 @@
 - `tests/gaps/test_3d_healing_gaps.cpp`
   - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 coplanar shared-edge boundary-cap（含 mixed-body eligible shell）子集，但更一般 multi-shell shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合
 - `tests/gaps/test_3d_body_boolean_gaps.cpp`
-  - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / face-touching union / face-touching external difference / face-touching empty intersection 子集，非单-box overlap、non-face-touching intersection、shell-policy、healing integration 仍为 gap
+  - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / touching union / touching external difference / touching empty intersection 子集，非单-box overlap、non-axis-aligned / richer touching intersection、shell-policy、healing integration 仍为 gap
 - `tests/gaps/test_searchpoly_gaps.cpp`
   - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、candidate-level causality explanation、top-candidate / runner-up explanation，以及 result/diagnostics consistency 与 auto-flag gating
 - `tests/gaps/test_3d_conversion_gaps.cpp`

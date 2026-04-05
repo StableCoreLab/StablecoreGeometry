@@ -55,8 +55,8 @@
 ### GeometryBodyBoolean
 
 - `include/sdk/GeometryBodyBoolean.h` public contract 保持稳定
-- 已覆盖 identical / disjoint closed-body 子集、axis-aligned single-box overlap 子集、face-touching union 子集、face-touching external difference 子集，以及 face-touching empty intersection 子集
-- 非 face-touching intersection、非 box touching、shell-policy、healing integration 仍为 gap
+- 已覆盖 identical / disjoint closed-body 子集、axis-aligned single-box overlap 子集、face-touching union 子集、face-touching external difference 子集，以及 axis-aligned face/edge/vertex touching empty intersection 子集
+- 非 axis-aligned / richer touching intersection、非 box touching、shell-policy、healing integration 仍为 gap
 
 ### Geometry.h / include-sdk 收口
 
@@ -93,7 +93,7 @@
 
 - GeometrySearchPoly：推进 richer fake-edge explanation 与 ambiguous recovery，但保持 result-consistency / auto-flag contract 只做确定性补强
 - 当前 SearchPoly 已有 top-candidate + runner-up explanation 摘要，以及 candidate-level penalty kind / synthetic-edge-lengths / synthetic-edge-list；下一步优先考虑更强的 fake-edge causal explanation 与 ambiguous recovery，而不是继续堆简单计数字段
-- GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 face-touching union / external difference / empty intersection 子集已收敛，下一步优先考虑 non-face-touching intersection 与非单-box touching 边界
+- GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 axis-aligned touching union / external difference / empty intersection 子集已收敛，下一步优先考虑 non-axis-aligned / richer touching intersection 与非单-box touching 边界
 
 ### P4：继续推进 SDK 风格统一与接口收口
 

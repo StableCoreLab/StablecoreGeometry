@@ -19,8 +19,9 @@ TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
                     "identical/disjoint closed-body subsets, axis-aligned single-box overlap "
                     "subsets, face-touching axis-aligned box union subsets whose result remains "
                     "one closed box, face-touching external difference subsets that preserve "
-                    "the original closed box, and face-touching empty intersection subsets. "
-                    "Non-box overlap, non-face-touching intersection semantics, "
+                    "the original closed box, and axis-aligned face/edge/vertex-touching empty "
+                    "intersection subsets. Non-box overlap, non-axis-aligned or richer touching "
+                    "intersection semantics, "
                     "shell-policy variants, and topology-preserving healing integration are still "
                     "pending.";
 }
