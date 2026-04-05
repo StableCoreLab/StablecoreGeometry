@@ -37,6 +37,7 @@ struct CandidateMetrics2d
     std::size_t branchVertexCount{0};
     std::size_t syntheticBranchVertexCount{0};
     std::vector<LineSegment2d> inferredSyntheticEdges{};
+    std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     double branchScore{0.0};
 };
@@ -170,6 +171,32 @@ struct CandidateMetrics2d
     return 0;
 }
 
+[[nodiscard]] SearchPolySyntheticEdgeKind2d ClassifySyntheticEdgeKind(
+    const LineNetworkAnalysis2d& analysis,
+    const Point2d& start,
+    const Point2d& end,
+    double epsilon)
+{
+    const std::size_t startDegree = BranchDegreeAtPoint(analysis.vertices, start, epsilon);
+    const std::size_t endDegree = BranchDegreeAtPoint(analysis.vertices, end, epsilon);
+    const bool touchesDangling = startDegree == 1U || endDegree == 1U;
+    const bool touchesBranch = startDegree > 2U || endDegree > 2U;
+
+    if (touchesDangling && touchesBranch)
+    {
+        return SearchPolySyntheticEdgeKind2d::Mixed;
+    }
+    if (touchesDangling)
+    {
+        return SearchPolySyntheticEdgeKind2d::GapClosure;
+    }
+    if (touchesBranch)
+    {
+        return SearchPolySyntheticEdgeKind2d::BranchCleanup;
+    }
+    return SearchPolySyntheticEdgeKind2d::Unknown;
+}
+
 [[nodiscard]] bool CoversBoundaryEdge(
     const LineSegment2d& boundaryEdge,
     const std::vector<LineSegment2d>& inputSegments,
@@ -290,6 +317,8 @@ void AccumulateRingMetrics(
             ++metrics.inferredSyntheticEdgeCount;
             metrics.inferredSyntheticPerimeter += edgeLength;
             metrics.inferredSyntheticEdges.push_back(boundaryEdge);
+            metrics.inferredSyntheticEdgeKinds.push_back(
+                ClassifySyntheticEdgeKind(analysis, start, end, epsilon));
             metrics.inferredSyntheticEdgeLengths.push_back(edgeLength);
         }
 
@@ -364,6 +393,7 @@ void AccumulateRingMetrics(
         metrics.syntheticBranchVertexCount,
         dominantPenaltyKind,
         metrics.inferredSyntheticEdges,
+        metrics.inferredSyntheticEdgeKinds,
         metrics.inferredSyntheticEdgeLengths,
         0};
 }

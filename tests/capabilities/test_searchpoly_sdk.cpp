@@ -11,6 +11,7 @@ using geometry::sdk::SearchPolygons;
 using geometry::sdk::SearchPolyIssue2d;
 using geometry::sdk::SearchPolyOptions2d;
 using geometry::sdk::SearchPolyPenaltyKind2d;
+using geometry::sdk::SearchPolySyntheticEdgeKind2d;
 
 TEST(SearchPolySdkCapabilityTest, InvalidInputContractRejectsEmptyLineCollection)
 {
@@ -128,6 +129,7 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsBuildsRepresentativeClosedCandid
     EXPECT_EQ(result.candidates.front().inferredSyntheticEdgeCount, 0U);
     EXPECT_DOUBLE_EQ(result.candidates.front().inferredSyntheticPerimeter, 0.0);
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdges.empty());
+    EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeKinds.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeLengths.empty());
     EXPECT_EQ(result.candidates.front().branchVertexCount, 0U);
     EXPECT_EQ(result.candidates.front().syntheticBranchVertexCount, 0U);
@@ -176,10 +178,15 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsRepairDiagnosticsForNearC
     EXPECT_GE(result.candidates.front().inferredSyntheticEdgeCount, 1U);
     EXPECT_GT(result.candidates.front().inferredSyntheticPerimeter, 0.0);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdges.size(), result.candidates.front().inferredSyntheticEdgeCount);
+    ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeKinds.size(), result.candidates.front().inferredSyntheticEdgeCount);
     for (const auto& syntheticEdge : result.candidates.front().inferredSyntheticEdges)
     {
         EXPECT_TRUE(syntheticEdge.IsValid());
         EXPECT_GT(syntheticEdge.Length(), 0.0);
+    }
+    for (const auto syntheticKind : result.candidates.front().inferredSyntheticEdgeKinds)
+    {
+        EXPECT_EQ(syntheticKind, SearchPolySyntheticEdgeKind2d::GapClosure);
     }
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeLengths.size(), result.candidates.front().inferredSyntheticEdgeCount);
     for (double syntheticLength : result.candidates.front().inferredSyntheticEdgeLengths)
@@ -255,7 +262,9 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsRanksCleanCandidateAheadOfSynthe
     EXPECT_EQ(first.inferredSyntheticEdgeCount, 0U);
     EXPECT_GE(second.inferredSyntheticEdgeCount, 1U);
     EXPECT_TRUE(first.inferredSyntheticEdges.empty());
+    EXPECT_TRUE(first.inferredSyntheticEdgeKinds.empty());
     ASSERT_EQ(second.inferredSyntheticEdges.size(), second.inferredSyntheticEdgeCount);
+    ASSERT_EQ(second.inferredSyntheticEdgeKinds.size(), second.inferredSyntheticEdgeCount);
     EXPECT_GT(first.branchScore, second.branchScore);
     EXPECT_EQ(first.rank, 0U);
     EXPECT_EQ(second.rank, 1U);
@@ -293,10 +302,15 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsFakeEdgeDiagnosticsForAmb
     EXPECT_GE(result.candidates.front().inferredSyntheticEdgeCount, 1U);
     EXPECT_GT(result.candidates.front().inferredSyntheticPerimeter, 0.0);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdges.size(), result.candidates.front().inferredSyntheticEdgeCount);
+    ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeKinds.size(), result.candidates.front().inferredSyntheticEdgeCount);
     for (const auto& syntheticEdge : result.candidates.front().inferredSyntheticEdges)
     {
         EXPECT_TRUE(syntheticEdge.IsValid());
         EXPECT_GT(syntheticEdge.Length(), 0.0);
+    }
+    for (const auto syntheticKind : result.candidates.front().inferredSyntheticEdgeKinds)
+    {
+        EXPECT_EQ(syntheticKind, SearchPolySyntheticEdgeKind2d::GapClosure);
     }
     EXPECT_LT(result.candidates.front().branchScore, result.candidates.front().absoluteArea);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, result.candidates.front().inferredSyntheticEdgeCount);
@@ -331,6 +345,7 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsAppliesBranchPenaltyAtExplicitBr
     EXPECT_TRUE(result.usedAutoExtend);
     EXPECT_EQ(result.candidates.front().inferredSyntheticEdgeCount, 0U);
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdges.empty());
+    EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeKinds.empty());
     EXPECT_GE(result.candidates.front().branchVertexCount, 1U);
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeLengths.empty());
     EXPECT_EQ(result.candidates.front().dominantPenaltyKind, SearchPolyPenaltyKind2d::BranchPenalty);

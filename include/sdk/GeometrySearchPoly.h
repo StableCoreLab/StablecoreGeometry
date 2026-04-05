@@ -27,6 +27,14 @@ enum class SearchPolyPenaltyKind2d
     Mixed
 };
 
+enum class SearchPolySyntheticEdgeKind2d
+{
+    Unknown,
+    GapClosure,
+    BranchCleanup,
+    Mixed
+};
+
 struct GEOMETRY_API SearchPolyDiagnostics2d
 {
     std::size_t inputPolylineCount{0};
@@ -63,6 +71,7 @@ struct GEOMETRY_API SearchPolyCandidate2d
     std::size_t syntheticBranchVertexCount{0};
     SearchPolyPenaltyKind2d dominantPenaltyKind{SearchPolyPenaltyKind2d::None};
     std::vector<LineSegment2d> inferredSyntheticEdges{};
+    std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     std::size_t rank{0};
 

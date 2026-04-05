@@ -182,6 +182,28 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-synthetic-edge-kind-batch14）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 synthetic-edge explanation；
+  - 新增 `SearchPolySyntheticEdgeKind2d`；
+  - 为 `SearchPolyCandidate2d` 新增 `inferredSyntheticEdgeKinds`，当前可稳定区分：
+    - `GapClosure`
+    - `BranchCleanup`
+    - `Mixed`
+    - `Unknown`
+  - 当前已把 representative synthetic-edge 子集稳定落到 `GapClosure` 类型。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 clean candidate 补齐 `inferredSyntheticEdgeKinds.empty()` 断言；
+  - 为 representative synthetic candidate 子集补齐 `inferredSyntheticEdgeKinds.size()==inferredSyntheticEdgeCount` 与 `GapClosure` 类型断言；
+  - 为 clean-vs-synthetic peer 排序子集补齐 runner-up synthetic-edge-kind 列表一致性断言。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。
