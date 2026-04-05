@@ -46,6 +46,21 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-dominant-synthetic-kind-batch15）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
+  - 为 `SearchPolyCandidate2d` 新增 `dominantSyntheticEdgeKind`；
+  - 为 `SearchPolyResult2d` 新增：
+    - `bestCandidateSyntheticEdgeKind`
+    - `runnerUpSyntheticEdgeKind`
+  - 当前产品侧不仅能看到 synthetic edge 列表与逐边 kind，还能直接读取 best / runner-up candidate 的主导 synthetic-edge 成因。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 invalid / no-closed / clean / branch-only 子集补齐 dominant-synthetic-kind 默认值断言；
+  - 为 representative `GapClosure` / `BranchCleanup` / `Mixed` synthetic candidate 子集补齐 dominant-synthetic-kind 断言；
+  - 为 clean-vs-synthetic peer 子集补齐 runner-up synthetic-edge-kind explanation 一致性断言。
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-explanation-batch7）
 
 - 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：

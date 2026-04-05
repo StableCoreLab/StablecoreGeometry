@@ -49,13 +49,13 @@
   - `GeometrySearchPoly` 当前 SDK 子集：空输入 invalid-input contract、`SearchPolygons(...)` 的代表性闭环子集、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、near-closed loop repair diagnostics、result/diagnostics consistency、auto-flag gating，以及 `SearchPolygonContainingPoint(...)` 的 smallest-containing candidate 选择子集
   - `SearchPolyCandidate2d` 已显式暴露 `branchScore`、`inferredSyntheticPerimeter`、`inferredSyntheticEdgeCount`、`branchVertexCount` 与 `syntheticBranchVertexCount`
   - `SearchPolyResult2d` 已显式暴露 `usedBranchScoring`，使产品侧可区分“仅建面成功”和“排序时已使用 branch/synthetic penalty”
-  - `SearchPolyResult2d` 已新增 deterministic top-candidate explanation：`bestCandidateScoreMargin`、`bestCandidateSyntheticPerimeter`、`bestCandidateSyntheticEdgeCount`、`candidateCountWithSyntheticEdges`、`candidateCountWithBranchPenalty`、`ambiguousTopCandidateCount`
-  - `SearchPolyResult2d` 已进一步新增 runner-up explanation：`runnerUpSyntheticPerimeter`、`runnerUpSyntheticEdgeCount`、`runnerUpBranchVertexCount`、`bestCandidateBeatsSyntheticRunnerUp`、`bestCandidateBeatsBranchRunnerUp`
-  - `SearchPolyCandidate2d` 已新增 candidate-level causal explanation：`dominantPenaltyKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges` 与 `inferredSyntheticEdgeKinds`
+  - `SearchPolyResult2d` 已新增 deterministic top-candidate explanation：`bestCandidateScoreMargin`、`bestCandidateSyntheticPerimeter`、`bestCandidateSyntheticEdgeCount`、`bestCandidateSyntheticEdgeKind`、`candidateCountWithSyntheticEdges`、`candidateCountWithBranchPenalty`、`ambiguousTopCandidateCount`
+  - `SearchPolyResult2d` 已进一步新增 runner-up explanation：`runnerUpSyntheticPerimeter`、`runnerUpSyntheticEdgeCount`、`runnerUpSyntheticEdgeKind`、`runnerUpBranchVertexCount`、`bestCandidateBeatsSyntheticRunnerUp`、`bestCandidateBeatsBranchRunnerUp`
+  - `SearchPolyCandidate2d` 已新增 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges` 与 `inferredSyntheticEdgeKinds`
   - 已覆盖 clean candidate 与 synthetic candidate 并存时，`rank` 优先受 branch score 影响，而不是只按 area 稳定排序
   - 已覆盖 explicit branch vertex 子集：branch penalty 会进入 candidate score，但不会误报为 fake-edge
   - 已覆盖 `InvalidInput` / `NoClosedPolygonFound` / success 三类结果在 `issue / diagnostics / candidates / used*` 上的一致性与回零行为
-  - 已覆盖 top-candidate explanation、runner-up margin、synthetic / branch runner-up causal explanation，以及 candidate-level penalty-kind / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind 的自洽性，避免产品侧需要扫描全量 candidate 才能解释 best-candidate 选择
+  - 已覆盖 top-candidate explanation、runner-up margin、synthetic / branch runner-up causal explanation，以及 candidate-level penalty-kind / dominant-synthetic-kind / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind 的自洽性，避免产品侧需要扫描全量 candidate 才能解释 best-candidate 选择
 - `tests/capabilities/test_topology_indexing.cpp`
   - touching / intersecting / basic contains / equal、duplicate-equal topology parent tie-break 当前已具备能力
 - `tests/capabilities/test_3d_section.cpp`

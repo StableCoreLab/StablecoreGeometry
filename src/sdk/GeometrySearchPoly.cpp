@@ -197,6 +197,64 @@ struct CandidateMetrics2d
     return SearchPolySyntheticEdgeKind2d::Unknown;
 }
 
+[[nodiscard]] SearchPolySyntheticEdgeKind2d DetermineDominantSyntheticEdgeKind(
+    const std::vector<SearchPolySyntheticEdgeKind2d>& syntheticEdgeKinds)
+{
+    if (syntheticEdgeKinds.empty())
+    {
+        return SearchPolySyntheticEdgeKind2d::Unknown;
+    }
+
+    std::size_t gapClosureCount = 0U;
+    std::size_t branchCleanupCount = 0U;
+    std::size_t mixedCount = 0U;
+    std::size_t unknownCount = 0U;
+    for (const SearchPolySyntheticEdgeKind2d kind : syntheticEdgeKinds)
+    {
+        switch (kind)
+        {
+        case SearchPolySyntheticEdgeKind2d::GapClosure:
+            ++gapClosureCount;
+            break;
+        case SearchPolySyntheticEdgeKind2d::BranchCleanup:
+            ++branchCleanupCount;
+            break;
+        case SearchPolySyntheticEdgeKind2d::Mixed:
+            ++mixedCount;
+            break;
+        default:
+            ++unknownCount;
+            break;
+        }
+    }
+
+    const std::size_t maxCount = std::max(
+        std::max(gapClosureCount, branchCleanupCount),
+        std::max(mixedCount, unknownCount));
+    const std::size_t winnerCount =
+        (gapClosureCount == maxCount ? 1U : 0U) +
+        (branchCleanupCount == maxCount ? 1U : 0U) +
+        (mixedCount == maxCount ? 1U : 0U) +
+        (unknownCount == maxCount ? 1U : 0U);
+    if (winnerCount != 1U)
+    {
+        return SearchPolySyntheticEdgeKind2d::Mixed;
+    }
+    if (mixedCount == maxCount)
+    {
+        return SearchPolySyntheticEdgeKind2d::Mixed;
+    }
+    if (gapClosureCount == maxCount)
+    {
+        return SearchPolySyntheticEdgeKind2d::GapClosure;
+    }
+    if (branchCleanupCount == maxCount)
+    {
+        return SearchPolySyntheticEdgeKind2d::BranchCleanup;
+    }
+    return SearchPolySyntheticEdgeKind2d::Unknown;
+}
+
 [[nodiscard]] bool CoversBoundaryEdge(
     const LineSegment2d& boundaryEdge,
     const std::vector<LineSegment2d>& inputSegments,
@@ -361,6 +419,8 @@ void AccumulateRingMetrics(
     const CandidateMetrics2d& metrics)
 {
     SearchPolyPenaltyKind2d dominantPenaltyKind = SearchPolyPenaltyKind2d::None;
+    const SearchPolySyntheticEdgeKind2d dominantSyntheticEdgeKind =
+        DetermineDominantSyntheticEdgeKind(metrics.inferredSyntheticEdgeKinds);
     const bool hasSynthetic = metrics.inferredSyntheticEdgeCount > 0U;
     const bool hasBranch = metrics.branchVertexCount > 0U;
     const bool hasSyntheticBranch = metrics.syntheticBranchVertexCount > 0U;
@@ -392,6 +452,7 @@ void AccumulateRingMetrics(
         metrics.branchVertexCount,
         metrics.syntheticBranchVertexCount,
         dominantPenaltyKind,
+        dominantSyntheticEdgeKind,
         metrics.inferredSyntheticEdges,
         metrics.inferredSyntheticEdgeKinds,
         metrics.inferredSyntheticEdgeLengths,
@@ -433,6 +494,7 @@ void PopulateResultExplanation(
     const SearchPolyCandidate2d& bestCandidate = result.candidates.front();
     result.bestCandidateSyntheticPerimeter = bestCandidate.inferredSyntheticPerimeter;
     result.bestCandidateSyntheticEdgeCount = bestCandidate.inferredSyntheticEdgeCount;
+    result.bestCandidateSyntheticEdgeKind = bestCandidate.dominantSyntheticEdgeKind;
     result.bestCandidatePenaltyKind = bestCandidate.dominantPenaltyKind;
 
     for (const SearchPolyCandidate2d& candidate : result.candidates)
@@ -466,6 +528,7 @@ void PopulateResultExplanation(
         const SearchPolyCandidate2d& runnerUp = result.candidates[1];
         result.runnerUpSyntheticPerimeter = runnerUp.inferredSyntheticPerimeter;
         result.runnerUpSyntheticEdgeCount = runnerUp.inferredSyntheticEdgeCount;
+        result.runnerUpSyntheticEdgeKind = runnerUp.dominantSyntheticEdgeKind;
         result.runnerUpBranchVertexCount = runnerUp.branchVertexCount + runnerUp.syntheticBranchVertexCount;
         result.runnerUpPenaltyKind = runnerUp.dominantPenaltyKind;
         result.bestCandidateBeatsSyntheticRunnerUp =
