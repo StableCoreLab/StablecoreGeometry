@@ -387,6 +387,90 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapSharedEdgeHoledShel
     assert(capFace.HoleTrims()[0].IsValid());
 }
 
+// Demonstrates the shared-edge boundary-cap fallback also works when the
+// eligible shell is only one shell inside a mixed body: a closed shell stays
+// unchanged while the open shared-edge shell is closed in place.
+TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapSharedEdgeShellInsideMixedBody)
+{
+    std::vector<BrepVertex> vertices{
+        // Closed shell.
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        // Eligible shared-edge shell.
+        BrepVertex(Point3d{3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 1.0, 0.0}),
+        BrepVertex(Point3d{3.0, 1.0, 0.0}),
+        BrepVertex(Point3d{5.0, 0.0, 0.0}),
+        BrepVertex(Point3d{5.0, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Closed shell.
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+    // Eligible shared-edge shell.
+    addEdge(4, 5);
+    addEdge(5, 6); // shared interior edge
+    addEdge(6, 7);
+    addEdge(7, 4);
+    addEdge(5, 8);
+    addEdge(8, 9);
+    addEdge(9, 6);
+
+    const BrepLoop closedOuter({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop closedOuterReversed({BrepCoedge(3, true), BrepCoedge(2, true), BrepCoedge(1, true), BrepCoedge(0, true)});
+    const BrepLoop outerA({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+    const BrepLoop outerB({BrepCoedge(8, false), BrepCoedge(9, false), BrepCoedge(10, false), BrepCoedge(5, true)});
+
+    const PlaneSurface planeSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    const BrepFace closedFaceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), closedOuter);
+    const BrepFace closedFaceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), closedOuterReversed);
+    const BrepFace faceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerA);
+    const BrepFace faceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerB);
+
+    const BrepBody mixedBody(
+        vertices,
+        edges,
+        {
+            BrepShell({closedFaceA, closedFaceB}, true),
+            BrepShell({faceA, faceB}, false),
+        });
+    assert(mixedBody.IsValid());
+    assert(mixedBody.ShellCount() == 2);
+    assert(mixedBody.ShellAt(0).IsClosed());
+    assert(!mixedBody.ShellAt(1).IsClosed());
+
+    const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.issue == HealingIssue3d::None);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 2);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(healed.body.ShellAt(1).IsClosed());
+    assert(healed.body.ShellAt(0).FaceCount() == 2);
+    assert(healed.body.ShellAt(1).FaceCount() == 3);
+    assert(healed.body.FaceCount() == 5);
+    const auto capFace = healed.body.ShellAt(1).FaceAt(2);
+    assert(capFace.OuterTrim().IsValid());
+    assert(capFace.HoleTrims().empty());
+}
+
 // Demonstrates aggressive closure also supports a recoverable holed planar
 // single-face open shell by mirroring outer and hole loops.
 TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableHoledOpenShell)

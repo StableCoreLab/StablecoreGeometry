@@ -842,8 +842,7 @@ namespace aggressive
         if (hasInteriorSharedEdge)
         {
             BrepShell cappedShell{};
-            if (body.ShellCount() == 1 &&
-                shell_cap::TryCloseStandaloneShellWithBoundaryCaps(body, shell, tolerance, edgeUseCount, cappedShell))
+            if (shell_cap::TryCloseStandaloneShellWithBoundaryCaps(body, shell, tolerance, edgeUseCount, cappedShell))
             {
                 repairedShells.push_back(std::move(cappedShell));
                 changed = true;

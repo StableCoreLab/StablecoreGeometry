@@ -145,6 +145,23 @@ PolyhedronBody BuildMixedCoplanarFrameAndIntersectingCubeBody()
 
     return PolyhedronBody(std::move(faces));
 }
+
+PolyhedronBody BuildMixedAreaAndOpenSectionBody()
+{
+    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = cube.Faces();
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{3.0, 0.0, 0.0}, Vector3d{1.0, 0.0, 0.0}),
+        PolyhedronLoop3d({
+            Point3d{3.0, 0.0, 0.0},
+            Point3d{3.0, 1.0, 0.0},
+            Point3d{3.0, 1.0, 1.0},
+            Point3d{3.0, 0.0, 1.0},
+        }));
+
+    return PolyhedronBody(std::move(faces));
+}
 } // namespace
 
 TEST(Section3dCapabilityTest, SlantedCubeSectionBuildsSingleAreaComponent)
@@ -538,6 +555,112 @@ TEST(Section3dCapabilityTest, BrepMixedCoplanarAndNonPlanarSectionBuildsTwoAreaC
     assert(components.components.size() == 2);
 
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+}
+
+// Demonstrates mixed section arbitration now keeps a representative detached
+// open contour alongside a closed area component instead of forcing the result
+// into area-only output.
+TEST(Section3dCapabilityTest, MixedAreaAndOpenContourSectionBuildsMixedContent)
+{
+    const PolyhedronBody body = BuildMixedAreaAndOpenSectionBody();
+    assert(body.IsValid());
+    assert(body.FaceCount() == 7);
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 2);
+    assert(section.segments.size() == 5);
+
+    std::size_t closedContours = 0;
+    std::size_t openContours = 0;
+    for (const auto& contour : section.contours)
+    {
+        if (contour.closed)
+        {
+            ++closedContours;
+            assert(contour.points.size() == 4);
+        }
+        else
+        {
+            ++openContours;
+            assert(contour.points.size() == 2);
+        }
+    }
+
+    assert(closedContours == 1);
+    assert(openContours == 1);
+    assert(std::abs(section.polygons[0].Area() - 1.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
+}
+
+// Demonstrates the same representative mixed area/open arbitration also holds
+// on the Brep path after Polyhedron->Brep conversion.
+TEST(Section3dCapabilityTest, BrepMixedAreaAndOpenContourSectionBuildsMixedContent)
+{
+    const PolyhedronBody polyBody = BuildMixedAreaAndOpenSectionBody();
+    assert(polyBody.IsValid());
+    assert(polyBody.FaceCount() == 7);
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 2);
+    assert(section.segments.size() == 5);
+
+    std::size_t closedContours = 0;
+    std::size_t openContours = 0;
+    for (const auto& contour : section.contours)
+    {
+        if (contour.closed)
+        {
+            ++closedContours;
+            assert(contour.points.size() == 4);
+        }
+        else
+        {
+            ++openContours;
+            assert(contour.points.size() == 2);
+        }
+    }
+
+    assert(closedContours == 1);
+    assert(openContours == 1);
+    assert(std::abs(section.polygons[0].Area() - 1.0) < 1e-12);
+
+    const auto topology = BuildSectionTopology(section);
+    assert(topology.IsValid());
+    assert(topology.Roots().size() == 1);
+
+    const auto components = BuildSectionComponents(section);
+    assert(components.IsValid());
+    assert(components.components.size() == 1);
+
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
 }
 
 // Demonstrates that a mid-plane cut through a unit cube (whose 4 intersected

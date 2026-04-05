@@ -4,16 +4,19 @@
 
 这份文档用于跟踪历史 2D 设计文档与当前代码 / API 状态之间的同步修复工作。
 
-## 2026-04-04 文档同步
+## 2026-04-05 文档同步
 
-- 本轮既做了交接与路线文档同步，也完成了 17 个 2D 天然属性自由函数包装的成员化收口。
-- 已完成 17 个 2D 天然属性自由函数包装的成员化回收，并同步调整相关测试与任务提示词。
+- 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。
 - 已把当前收敛能力与 open gap 重新对齐到：
   - `GeometrySection`
   - `GeometryHealing`
   - `GeometrySearchPoly`
   - `GeometryBodyBoolean`
 - 已保持 `docs/session-handoff.md`、`docs/next-task-prompt.md`、`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md` 四份文档的状态一致性。
+- 已新增并同步三条代表性 capability：
+  - detached mixed area + open contour 的 section mixed-content 子集（Polyhedron / Brep）
+  - mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap 子集
+  - face-touching external difference 的 body boolean 子集
 
 ## 状态说明
 
@@ -157,6 +160,18 @@
   - 已将 `Geometry.h` 明确为稳定 umbrella header，只聚合 `GeometryApi` / `GeometrySearchPoly` / `GeometryBodyBoolean`
   - 已新增 umbrella contract test，确保产品侧仅依赖 `include/sdk` 时仍可直接使用稳定 SDK 入口
   - 本轮属于命名、收口、暴露面一致性整理，不改变 public SDK contract
+
+## 2026-04-05 GeometrySection / GeometryHealing / GeometryBodyBoolean 同步
+
+- `GeometrySection`
+  - 已新增 detached mixed area + open contour 子集，并同步到 capability / gap 文案
+  - mixed open-curve / area gap 现收敛为更一般 adjacency arbitration，而不是否定已存在的 detached coexistence 子集
+- `GeometryHealing`
+  - 已将 shared-edge boundary-cap fallback 从单-shell body 推进到 mixed body 内的 eligible shell 子集
+  - 已同步说明“更一般 multi-shell shared-edge arbitration 仍为 gap”，避免把更宽语义误记为已收敛
+- `GeometryBodyBoolean`
+  - 已新增 face-touching external difference 子集，并把 touching intersection 与 richer overlap 继续保留为 gap
+  - 已同步 `tests/capabilities/test_3d_body_boolean_sdk.cpp` 与 `tests/gaps/test_3d_body_boolean_gaps.cpp` 的边界说明
 ## 进度备注
 
 - 2026-03-27：

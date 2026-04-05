@@ -689,6 +689,45 @@ namespace
     return NearlyEqualScaled(BoxVolume(difference), BoxVolume(first) - BoxVolume(overlap), epsilon);
 }
 
+[[nodiscard]] bool TryDetectFaceTouchingDifferenceIdentity(
+    const Box3d& first,
+    const Box3d& second,
+    double epsilon)
+{
+    if (!first.IsValid() || !second.IsValid())
+    {
+        return false;
+    }
+
+    std::size_t positiveOverlapAxes = 0;
+    std::size_t touchingAxes = 0;
+    for (int axis = 0; axis < 3; ++axis)
+    {
+        const double firstMin = BoxMinAt(first, axis);
+        const double firstMax = BoxMaxAt(first, axis);
+        const double secondMin = BoxMinAt(second, axis);
+        const double secondMax = BoxMaxAt(second, axis);
+        const double overlapMin = std::max(firstMin, secondMin);
+        const double overlapMax = std::min(firstMax, secondMax);
+        if (overlapMax > overlapMin + epsilon)
+        {
+            ++positiveOverlapAxes;
+            continue;
+        }
+
+        const bool touchesOnMax = NearlyEqual(firstMax, secondMin, epsilon);
+        const bool touchesOnMin = NearlyEqual(secondMax, firstMin, epsilon);
+        if (!touchesOnMax && !touchesOnMin)
+        {
+            return false;
+        }
+
+        ++touchingAxes;
+    }
+
+    return positiveOverlapAxes == 2U && touchingAxes == 1U;
+}
+
 [[nodiscard]] bool BodiesLookIdentical(const BrepBody& first, const BrepBody& second, double epsilon)
 {
     return first.FaceCount() == second.FaceCount() &&
@@ -782,6 +821,13 @@ namespace
             differenceBox,
             epsilon,
             "Deterministic axis-aligned overlap-box difference subset.");
+    }
+
+    if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
+        TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
+        TryDetectFaceTouchingDifferenceIdentity(firstBox, secondBox, epsilon))
+    {
+        return MakeSingleBodyResult(first, "Deterministic face-touching external difference subset.");
     }
 
     return MakeUnsupportedResult();

@@ -16,9 +16,9 @@
   - `docs/design-doc-sync-tracker.md`
 - 完成后直接提交
 
-## 当前状态（2026-04-04）
+## 当前状态（2026-04-05）
 
-> 本轮仅做文档同步，没有新的代码或测试落地；下面状态保持与当前代码库一致。
+> 本轮已继续推进 P1/P2/P3：新增 mixed area + open contour 的 representative section capability、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability，以及 face-touching external difference 子集；下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -31,7 +31,7 @@
   - mixed coplanar frame + non-planar cube section 在 Polyhedron / Brep 路径共存（2 polygons / 3 closed contours / total area=9）
 - 当前仍保留的 gap：
   - ambiguous non-manifold contour stitching
-  - mixed open-curve / area arbitration
+  - mixed open-curve / area adjacency arbitration
   - 非邻接 coplanar fragments 跨 convex-hull gap 的 merge
   - 更一般 mixed coplanar/non-planar adjacency arbitration
 
@@ -39,6 +39,7 @@
 
 - public SDK 入口保持不变
 - 已覆盖 conservative trim-backfill 与 representative aggressive shell boundary-cap 子集
+- aggressive boundary-cap fallback 已从单-shell body 推进到 mixed body 内的 eligible shared-edge shell 子集
 - src/sdk/GeometryHealing.cpp 已按 trim-backfill / shell-cap / aggressive 三个内部 pass helper 拆层，便于继续推进而不改外部 contract
 - 更一般 multi-shell shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
 
@@ -51,8 +52,8 @@
 ### GeometryBodyBoolean
 
 - `include/sdk/GeometryBodyBoolean.h` public contract 保持稳定
-- 已覆盖 identical / disjoint closed-body 子集与 axis-aligned single-box overlap 子集，以及 face-touching union 子集
-- touching intersection / difference、shell-policy、healing integration 仍为 gap
+- 已覆盖 identical / disjoint closed-body 子集、axis-aligned single-box overlap 子集、face-touching union 子集，以及 face-touching external difference 子集
+- touching intersection、非 box touching、shell-policy、healing integration 仍为 gap
 
 ### Geometry.h / include-sdk 收口
 
@@ -68,7 +69,7 @@
 
 - 在不改 public SDK 的前提下继续推进更高阶 section 语义
 - 重点补：
-  - mixed open-curve / area arbitration
+  - mixed open-curve / area adjacency arbitration
   - 更一般 non-planar dominant contour stitching
   - 更一般 mixed coplanar/non-planar adjacency merge
 - 保持 capability / gap 边界清晰，不要把仍不稳定语义伪装成已完成
@@ -82,11 +83,12 @@
 ### P2：继续深化 GeometryHealing
 
 - 继续扩展 aggressive shell policy，但保持 conservative trim-backfill 与 topology-changing aggressive closure 的边界清晰
+- 当前 mixed body 中的 per-shell shared-edge boundary-cap 已有代表性 capability；下一步优先考虑更一般 multi-shell arbitration，而不是回退到单-shell-only
 
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
 - GeometrySearchPoly：推进 richer fake-edge explanation 与 ambiguous recovery，但保持 result-consistency / auto-flag contract 只做确定性补强
-- GeometryBodyBoolean：推进更一般 overlap / touching-union 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定
+- GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 touching difference 的 external face-touching 子集已收敛，下一步优先考虑 touching intersection 表达与非单-box touching 边界
 
 ### P4：继续推进 SDK 风格统一与接口收口
 

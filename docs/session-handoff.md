@@ -9,6 +9,43 @@
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
+## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-batch6）
+
+- 已更新 `src/sdk/GeometryHealing.cpp`：
+  - 将 aggressive shared-edge boundary-cap fallback 从“仅单-shell body”放宽到“mixed body 中的单个 eligible shell 也可独立闭合”；
+  - 当前 closed shell 可保持不变，而同体内 coplanar shared-edge open shell 可单独补 cap 完成闭壳；
+  - 更一般 multi-shell shared-edge arbitration 仍未收敛，当前只推进 deterministic per-shell 子集。
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 新增 face-touching external difference 子集；
+  - 当两个 axis-aligned closed boxes 仅共享完整面、且 second 不侵入 first 体积时，`DifferenceBodies(first, second)` 现在稳定返回原始 `first`；
+  - touching intersection、非 box touching 与更一般 shell-policy / healing integration 仍继续保持 gap。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `MixedAreaAndOpenContourSectionBuildsMixedContent`
+    - 新增 `BrepMixedAreaAndOpenContourSectionBuildsMixedContent`
+    - 验证 closed area + detached open contour 可在同一 section 结果中共存，并稳定分类为 `Mixed`
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 `AggressiveHealingCanBoundaryCapSharedEdgeShellInsideMixedBody`
+    - 验证 mixed body 中 closed shell 保持稳定，eligible shared-edge open shell 可独立 boundary-cap 闭壳
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 `TouchingPolyhedronDifferenceReturnsOriginalBody`
+    - 新增 `TouchingBrepDifferenceReturnsOriginalBody`
+    - 原 touching contract 测试收紧为仅 `IntersectBodies(...)` 继续返回 `UnsupportedOperation`
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 detached mixed area + open contour（Polyhedron / Brep）已进入 covered subset；
+    - mixed open-curve / area gap 现收敛为更一般 adjacency arbitration
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 mixed-body closed-shell + eligible-shared-edge-shell boundary-cap 子集已纳入 covered subset
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 face-touching external difference 已纳入 capability，remaining gap 收敛为 touching intersection / richer overlap / shell-policy / healing integration
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。

@@ -11,10 +11,11 @@
   - 放当前仍未补齐的能力缺口说明性用例
   - 这些用例使用 `GTEST_SKIP()` 明确标记为已知差距，便于后续逐步转正
 
-## 2026-04-04 文档同步备注
+## 2026-04-05 文档同步备注
 
-- 本轮仅做文档同步，未新增 capability 或 gap 代码。
-- 下面的覆盖布局与子集清单仍与当前代码状态一致，重点是把已收敛能力、仍保留 gap 和下一轮优先级继续对齐。
+- 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`。
+- 已新增 mixed area + open contour 的 representative section capability、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability，以及 face-touching external difference 子集。
+- 下面的覆盖布局与子集清单已与当前代码状态一致。
 
 ## Capability Tests
 
@@ -59,6 +60,7 @@
   - 覆盖 `Section(BrepBody, Plane)` 的 coplanar 邻接片段合并子能力：2-face 邻接平面片先转 Brep 后截切，稳定得到单 polygon（area=2.0）
   - 覆盖 `Section(BrepBody, Plane)` 的三面 coplanar strip 合并子能力：3-face 水平 strip 先转 Brep 后截切，稳定得到单 polygon（area=3.0）
   - 覆盖 `Section(BrepBody, Plane)` 的 multi-component 子能力：双立方体先转 Brep 后截切，稳定得到 2 polygons / 2 roots / 2 components
+  - 覆盖 detached mixed-content 子能力：closed area + detached open contour 在 Polyhedron / Brep 路径都可共存于同一 section 结果，并稳定分类为 `Mixed`
   - 覆盖 coplanar 相邻 face fragment 在 `Section(...)` 中合并为单 polygon 的代表性 face-merge 子集
   - 覆盖 unit cube x=0.5 截面（法向 +x）的确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0），扩展钢筋线周长稳定性到 x 轴方向
   - 覆盖 `Section(BrepBody, Plane)` 的 unit cube x=0.5 截面（法向 +x）确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0）
@@ -66,7 +68,7 @@
   - 覆盖 `Section(BrepBody, Plane)` 的三棱柱 mid-section 确定性三段闭合轮廓（perimeter≈3）
   - 覆盖 2×2×1 矩形棱柱 z=0.5 截面的确定性四段闭合方形轮廓（perimeter=8.0 / area=4.0），验证非单位截面的钢筋线周长稳定性
   - `Section(...)` 在输出阶段新增 contour 驱动的 deterministic segment 后处理：基于 contour 重建线段并做无向去重、共线简化后短毛刺抑制（长度<=eps 段过滤），稳定钢筋线根数统计
-  - 当前仍保留的 gap：更一般 ambiguous non-manifold contour stitching、mixed open-curve / area arbitration、非邻接 coplanar fragment 跨 convex-hull gap 的 merge
+  - 当前仍保留的 gap：更一般 ambiguous non-manifold contour stitching、mixed open-curve / area adjacency arbitration、非邻接 coplanar fragment 跨 convex-hull gap 的 merge
 - `tests/capabilities/test_3d_brep.cpp`
   - 倾斜截面经过 `RebuildSectionBrepBody(...)` 得到只读 topology 完整的单面 `BrepBody`（1 shell / 1 face / 4 coedge loop），双立方体截面经 `RebuildSectionBrepBodies(...)` 稳定拆分为 2 个独立 body；并新增最小 coedge-loop 编辑链路 `InsertCoedge -> FlipCoedgeDirection -> RemoveCoedge`
   - 覆盖端到端 Brep 路径：`ConvertToBrepBody -> Section(BrepBody, Plane) -> RebuildSectionBrepBodies` 在双组件输入下稳定输出 2 个独立重建 body
@@ -82,6 +84,7 @@
   - `Heal(..., policy=Aggressive)` 在 mixed open-shell 输入下支持部分修复：可恢复 planar shell 可闭壳，不可恢复 shell 保持原状
   - `Heal(..., policy=Aggressive)` 在存在 shared-edge 邻接的 planar multi-face open-sheet 上也可执行确定性闭壳，不再局限于边完全不共享的分离面片
   - `Heal(..., policy=Aggressive)` 已新增 standalone shared-edge holed shell 的代表性 boundary-cap 子集：support-plane mismatch + 缺失 trims 输入会先走 conservative trim-backfill，再补单一 holed cap face 完成闭壳
+  - `Heal(..., policy=Aggressive)` 已新增 mixed body 内 eligible shared-edge shell 的 boundary-cap 子集：closed shell 保持稳定，同体内 open shared-edge shell 可独立补 cap 完成闭壳
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下保持 deterministic：closed shell 保持稳定、eligible open shell 闭壳、ineligible open shell 保持 open
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下可与 conservative trim-backfill 协同：eligible open shell 先回填 trims 后闭壳，ineligible open shell 保持 open
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible multi-face open-sheet 闭壳，同时保持 closed shell 稳定与 ineligible shell open 状态
@@ -99,12 +102,13 @@
 - `tests/capabilities/test_3d_conversion.cpp`
   - 单位立方体（6 quad faces）经 `ConvertToTriangleMesh(PolyhedronBody)` 得到 12 triangles，`SurfaceArea ≈ 6.0`；并可经 `ConvertToBrepBody(PolyhedronBody)` 得到 `FaceCount() == 6` 的有效 `BrepBody`，覆盖 affine-skew 非轴对齐子类输入、support-plane mismatch 可修复子场景（含 shared-chain mixed-content full-composition 下的 support-plane refit）、mild non-planar outer/hole loop 顶点投影修复子场景、leading collinear loop 顶点下的稳健法向回退、duplicate outer/hole loop 顶点归一化修复、tiny-scale non-planar（含 holed/multi-face/mixed-content/shared-edge/shared-chain/shared-chain-mixed-content）输入下的 scale-aware 法向回退与投影修复，以及 duplicate/hole/collinear-leading normalization 与 shared-edge chain 修复的组合稳定性；同时覆盖 planar holed、planar multi-face、以及 planar holed+multi-face `BrepBody` 到 mesh 的面积保持子场景
 - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
-  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / face-touching union 的代表性子集；touching intersection/difference 仍明确保留为 gap
+  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / face-touching union / face-touching external difference 的代表性子集；touching intersection 仍明确保留为 gap
   - `IntersectBodies(...)` 已支持 axis-aligned closed boxes 的正体积 overlap，稳定返回单一 closed overlap box
   - `UnionBodies(...)` 已支持 axis-aligned closed boxes 中“union 结果仍为单一 closed box”的 overlap/containment 子集
   - `DifferenceBodies(...)` 已支持 axis-aligned closed boxes 中“difference 结果仍为单一 closed box”的单侧 slab 子集
-  - `UnionBodies(...)` 进一步覆盖 face-touching axis-aligned closed boxes 的单闭壳子集；`IntersectBodies(...)` 与 `DifferenceBodies(...)` 对 touching 情形仍继续稳定返回 `UnsupportedOperation`
-  - 非单-box overlap 的 `UnionBodies(...)` / `DifferenceBodies(...)` 当前继续稳定返回 `UnsupportedOperation`，避免过早引入 L 形、多壳与 healing 依赖
+  - `UnionBodies(...)` 进一步覆盖 face-touching axis-aligned closed boxes 的单闭壳子集；`IntersectBodies(...)` 对 touching 情形仍继续稳定返回 `UnsupportedOperation`
+  - `DifferenceBodies(...)` 进一步覆盖 face-touching external axis-aligned closed boxes 的 identity 子集：当 second 仅外贴 first 的完整面且不侵入体积时，稳定返回原始 `first`
+  - 非单-box overlap 的 `UnionBodies(...)` / `DifferenceBodies(...)`，以及 touching intersection 当前继续稳定返回 `UnsupportedOperation`，避免过早引入 L 形、多壳与 healing 依赖
   - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链 mixed-content full-composition 下，支持 outer/hole 双重复顶点归一化与 support-mismatch + collinear-leading 组合修复稳定叠加
   - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链修复后可全局复用共享顶点/边，避免按 face 重复建拓扑并保持共享边一致性子集稳定
   - `ConvertToBrepBody(...)` 在 closed-shell 代表性输入（单位立方体）上可收敛到共享拓扑 Brep：1 shell / 8 vertices / 12 edges / closed shell
@@ -215,8 +219,8 @@
   - `SupportMismatchNearEqualSharedChainHoleDominatedFullCompositionRepairsWithRepresentativeAverageTarget` — 在上述子集上进一步叠加 collinear-leading fallback 后，all-loop support-plane scoring 与 representative-average 仍可同时成立：左右共享边继续稳定收敛到 `x=2.0+1e-7` / `x=6.0+1e-7`，全部顶点保持 `z≈0`，拓扑计数推进到 `FaceCount=3 / VertexCount=13 / EdgeCount=15`
 
 - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
-  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / face-touching union 的代表性子集；touching intersection/difference 仍明确保留为 gap
-  - 当前仍保留的 gap：更一般 overlap、touching intersection/difference、shell-policy、healing integration
+  - `GeometryBodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / face-touching union / face-touching external difference 的代表性子集；touching intersection 仍明确保留为 gap
+  - 当前仍保留的 gap：更一般 overlap、touching intersection、非 box touching、shell-policy、healing integration
 
 ## Gap Characterization Tests
 
@@ -230,13 +234,13 @@
 - 必需完成：切面钢筋线 deterministic 后处理与断言（线段去重/共线合并/短毛刺抑制/总长与根数稳定）
 
 - `tests/gaps/test_3d_section_gaps.cpp`
-  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge，以及 mixed coplanar+non-planar coexistence 子集
+  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge、mixed coplanar+non-planar coexistence，以及 detached mixed area+open contour 子集
 - `tests/gaps/test_3d_brep_gaps.cpp`
   - 记录 coedge-loop ownership 编辑链路、non-planar trimmed face topology repair 仍未闭合（ownership gap 已覆盖 single-face + multi-face closed-shell no-op replacement 子集）
 - `tests/gaps/test_3d_healing_gaps.cpp`
-  - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 standalone coplanar shared-edge boundary-cap 子集，但更一般 multi-shell shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合
+  - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 coplanar shared-edge boundary-cap（含 mixed-body eligible shell）子集，但更一般 multi-shell shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合
 - `tests/gaps/test_3d_body_boolean_gaps.cpp`
-  - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / face-touching union 子集，非单-box overlap、touching intersection/difference、shell-policy、healing integration 仍为 gap
+  - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / face-touching union / face-touching external difference 子集，非单-box overlap、touching intersection、shell-policy、healing integration 仍为 gap
 - `tests/gaps/test_searchpoly_gaps.cpp`
   - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics，以及 result/diagnostics consistency 与 auto-flag gating
 - `tests/gaps/test_3d_conversion_gaps.cpp`
