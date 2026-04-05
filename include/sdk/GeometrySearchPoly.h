@@ -62,6 +62,7 @@ struct GEOMETRY_API SearchPolyCandidate2d
     std::size_t branchVertexCount{0};
     std::size_t syntheticBranchVertexCount{0};
     SearchPolyPenaltyKind2d dominantPenaltyKind{SearchPolyPenaltyKind2d::None};
+    std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     std::size_t rank{0};
 

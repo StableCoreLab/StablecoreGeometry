@@ -180,7 +180,7 @@
 - `GeometrySearchPoly`
   - 已为 `SearchPolyResult2d` 新增 deterministic top-candidate explanation 字段，减少产品侧自行扫描 candidates 的负担
   - 已进一步新增 runner-up explanation 字段，使产品侧可直接判断 top candidate 是否因 synthetic / branch penalty runner-up 而胜出
-  - 已为 `SearchPolyCandidate2d` 新增 `dominantPenaltyKind` 与 `inferredSyntheticEdgeLengths`，补齐 candidate-level causal explanation
+  - 已为 `SearchPolyCandidate2d` 新增 `dominantPenaltyKind`、`inferredSyntheticEdgeLengths` 与 `inferredSyntheticEdges`，补齐 candidate-level causal explanation
   - 已同步 capability 文案：invalid / no-closed / success 三类结果下 explanation 字段均保持 contract 一致性
   - richer fake-edge causal explanation 与 Delphi 级 ambiguous recovery 仍继续保留为 gap
 ## 进度备注

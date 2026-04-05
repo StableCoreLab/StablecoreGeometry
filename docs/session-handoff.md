@@ -125,6 +125,23 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-synthetic-edge-list-batch11）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge explanation；
+  - 为 `SearchPolyCandidate2d` 新增 `inferredSyntheticEdges`，稳定暴露 candidate 上哪些 boundary edges 被判定为 synthetic；
+  - 当前产品侧不仅可读取 synthetic edge 数量/总长度，还可直接消费具体 synthetic edge 几何。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 clean candidate 补齐 `inferredSyntheticEdges.empty()` 断言；
+  - 为 representative synthetic candidate 子集补齐 `inferredSyntheticEdges.size()==inferredSyntheticEdgeCount` 与每条 synthetic edge `IsValid()/Length()>0` 的一致性断言；
+  - 为 clean-vs-synthetic peer 排序子集补齐 runner-up synthetic edge 列表断言。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。

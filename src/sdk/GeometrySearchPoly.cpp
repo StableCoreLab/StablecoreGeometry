@@ -36,6 +36,7 @@ struct CandidateMetrics2d
     std::size_t inferredSyntheticEdgeCount{0};
     std::size_t branchVertexCount{0};
     std::size_t syntheticBranchVertexCount{0};
+    std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     double branchScore{0.0};
 };
@@ -288,6 +289,7 @@ void AccumulateRingMetrics(
         {
             ++metrics.inferredSyntheticEdgeCount;
             metrics.inferredSyntheticPerimeter += edgeLength;
+            metrics.inferredSyntheticEdges.push_back(boundaryEdge);
             metrics.inferredSyntheticEdgeLengths.push_back(edgeLength);
         }
 
@@ -361,6 +363,7 @@ void AccumulateRingMetrics(
         metrics.branchVertexCount,
         metrics.syntheticBranchVertexCount,
         dominantPenaltyKind,
+        metrics.inferredSyntheticEdges,
         metrics.inferredSyntheticEdgeLengths,
         0};
 }
