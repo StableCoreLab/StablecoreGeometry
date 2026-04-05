@@ -27,7 +27,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2/P3：新增 detached + vertex-attached + edge-attached triple-open stable mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary；下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P2：新增 mixed coplanar strip + non-planar stable single-polygon merge 子集，以及 `GeometryHealing` 的 shared-boundary-edge conservative arbitration / vertex-touch non-competing closure 子集；下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -43,6 +43,7 @@
   - mixed vertex-attached + edge-attached dual-open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 2 open contours）
   - detached + vertex-attached + edge-attached triple-open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 3 open contours）
   - edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2）
+  - strip-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3）
 - 当前仍保留的 gap：
   - ambiguous non-manifold contour stitching
   - mixed open-curve / area edge-adjacency arbitration
@@ -55,9 +56,10 @@
 - 已覆盖 conservative trim-backfill 与 representative aggressive shell boundary-cap 子集
 - aggressive boundary-cap fallback 已从单-shell body 推进到 mixed body 内的 eligible shared-edge shell 子集
 - aggressive boundary-cap fallback 已进一步覆盖“同一 body 内多个彼此独立 eligible shared-edge shells 并存”的 deterministic 子集
-- aggressive boundary-cap 当前已新增保守 competing-shell arbitration 子集：独立 eligible shell 仍可闭合，而与其他 open shell 共享顶点的 eligible shells 保持 open
+- aggressive boundary-cap 当前已新增 shared-boundary-edge 级别的保守 competing-shell arbitration 子集：独立 eligible shell 仍可闭合，而与其他 open shell 共享 boundary edge 的 eligible shells 保持 open
+- aggressive boundary-cap 当前已进一步覆盖 vertex-touch non-competing 子集：仅共享单个顶点、但不共享 boundary edge 的 eligible shared-edge shells 仍可分别闭壳
 - src/sdk/GeometryHealing.cpp 已按 trim-backfill / shell-cap / aggressive 三个内部 pass helper 拆层，便于继续推进而不改外部 contract
-- 更一般 multi-shell shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
+- 更一般 multi-shell shared-boundary-loop / shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
 
 ### GeometrySearchPoly
 
@@ -104,7 +106,7 @@
 
 - 继续扩展 aggressive shell policy，但保持 conservative trim-backfill 与 topology-changing aggressive closure 的边界清晰
 - 当前 mixed body 中的 per-shell shared-edge boundary-cap 已有代表性 capability；下一步优先考虑更一般 multi-shell arbitration，而不是回退到单-shell-only
-- 当前已补独立 shell 可闭合、competing shared-vertex shells 保守跳过的子集；下一步优先推进真正共享边/共享边界回路的 multi-shell arbitration，而不是继续堆互不干扰的独立 shell 子例
+- 当前已补独立 shell 可闭合、competing shared-boundary-edge shells 保守跳过、以及 vertex-touch non-competing 可闭合的子集；下一步优先推进真正共享边界回路的 multi-shell arbitration，而不是继续扩散仅共享单点的子例
 
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 

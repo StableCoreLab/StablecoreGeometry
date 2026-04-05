@@ -15,7 +15,7 @@
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean` / `GeometrySearchPoly`。
 - 已同步 `AI Execution Spec` 的测试约束：后续每一轮默认要求 capability test、edge-case test，以及在存在歧义时保留 gap test。
-- 已新增 mixed area + open contour 的 representative section capability、dual edge-attached open contours 的 stable mixed-content 子集、mixed vertex-attached + edge-attached dual-open 子集、detached + vertex-attached + edge-attached triple-open 子集、mixed coplanar + non-planar edge-adjacent area merge、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、competing multi-shell shared-vertex arbitration 的保守子集、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top / synthetic-source / candidate-level causality explanation 子集。
+- 已新增 mixed area + open contour 的 representative section capability、dual edge-attached open contours 的 stable mixed-content 子集、mixed vertex-attached + edge-attached dual-open 子集、detached + vertex-attached + edge-attached triple-open 子集、mixed coplanar + non-planar edge-adjacent / strip-adjacent area merge、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、competing multi-shell shared-boundary-edge arbitration 的保守子集、vertex-touch eligible multi-shell non-competing closure 子集、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top / synthetic-source / candidate-level causality explanation 子集。
 - 已进一步新增 `GeometrySection` 的 vertex-attached mixed area + open contour 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 现状。
 - 下面的覆盖布局与子集清单已与当前代码状态一致。
 
@@ -75,6 +75,7 @@
   - 覆盖 mixed vertex-attached + edge-attached dual-open 子能力：一条 open contour 接触 polygon 顶点、一条接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 endpoint 方向/顺序固定
   - 覆盖 detached + vertex-attached + edge-attached triple-open 子能力：三条 open contours 分别 detached / 接触 polygon 顶点 / 接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 attached contours 方向固定为 boundary-outward、整体顺序固定
   - 覆盖 mixed coplanar/non-planar edge-adjacent merge 子能力：coplanar face area 与 non-planar cube mid-section 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2.0）
+  - 覆盖 mixed coplanar/non-planar strip-adjacent merge 子能力：cube mid-section 与相邻 two-face coplanar strip 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3.0）
   - 覆盖 coplanar 相邻 face fragment 在 `Section(...)` 中合并为单 polygon 的代表性 face-merge 子集
   - 覆盖 unit cube x=0.5 截面（法向 +x）的确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0），扩展钢筋线周长稳定性到 x 轴方向
   - 覆盖 `Section(BrepBody, Plane)` 的 unit cube x=0.5 截面（法向 +x）确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0）
@@ -104,7 +105,8 @@
   - `Heal(..., policy=Aggressive)` 已新增 standalone shared-edge holed shell 的代表性 boundary-cap 子集：support-plane mismatch + 缺失 trims 输入会先走 conservative trim-backfill，再补单一 holed cap face 完成闭壳
   - `Heal(..., policy=Aggressive)` 已新增 mixed body 内 eligible shared-edge shell 的 boundary-cap 子集：closed shell 保持稳定，同体内 open shared-edge shell 可独立补 cap 完成闭壳
   - `Heal(..., policy=Aggressive)` 已进一步覆盖 mixed body 内多个彼此独立 eligible shared-edge shells 并存的 boundary-cap 子集：多个 eligible shells 可分别独立补 cap，而 closed shell 保持稳定
-  - `Heal(..., policy=Aggressive)` 已新增 conservative competing-shell arbitration 子集：独立 eligible shell 仍可 boundary-cap 闭壳，而与其他 open shell 共享顶点的 eligible shells 保持 open
+  - `Heal(..., policy=Aggressive)` 已新增 conservative competing-shell arbitration 子集：独立 eligible shell 仍可 boundary-cap 闭壳，而与其他 open shell 共享 boundary edge 的 eligible shells 保持 open
+  - `Heal(..., policy=Aggressive)` 已新增 vertex-touch multi-shell arbitration 子集：仅共享单个顶点、但不共享 boundary edge 的 eligible shared-edge shells 可分别独立 boundary-cap 闭壳
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下保持 deterministic：closed shell 保持稳定、eligible open shell 闭壳、ineligible open shell 保持 open
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下可与 conservative trim-backfill 协同：eligible open shell 先回填 trims 后闭壳，ineligible open shell 保持 open
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible multi-face open-sheet 闭壳，同时保持 closed shell 稳定与 ineligible shell open 状态
@@ -255,11 +257,11 @@
 - 必需完成：切面钢筋线 deterministic 后处理与断言（线段去重/共线合并/短毛刺抑制/总长与根数稳定）
 
 - `tests/gaps/test_3d_section_gaps.cpp`
-  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge、mixed coplanar+non-planar coexistence、edge-adjacent mixed coplanar/non-planar single-merge，以及 detached mixed area+open contour 子集
+  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge、mixed coplanar+non-planar coexistence、edge-adjacent / strip-adjacent mixed coplanar/non-planar deterministic merge，以及 detached mixed area+open contour 子集
 - `tests/gaps/test_3d_brep_gaps.cpp`
   - 记录 coedge-loop ownership 编辑链路、non-planar trimmed face topology repair 仍未闭合（ownership gap 已覆盖 single-face + multi-face closed-shell no-op replacement 子集）
 - `tests/gaps/test_3d_healing_gaps.cpp`
-  - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 coplanar shared-edge boundary-cap（含 mixed-body eligible shell、独立 multi-shell 并存、conservative competing-shared-vertex arbitration）子集，但更一般 multi-shell shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合
+  - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 coplanar shared-edge boundary-cap（含 mixed-body eligible shell、独立 multi-shell 并存、conservative competing-shared-boundary-edge arbitration、vertex-touch non-competing closure）子集，但更一般 multi-shell shared-boundary-loop / shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合
 - `tests/gaps/test_3d_body_boolean_gaps.cpp`
   - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / touching union / touching external difference / touching empty intersection 子集，非单-box overlap、non-axis-aligned / richer touching intersection、shell-policy、healing integration 仍为 gap
 - `tests/gaps/test_searchpoly_gaps.cpp`

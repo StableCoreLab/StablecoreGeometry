@@ -716,6 +716,63 @@ void AppendUniqueLoopVertexIndices(
 namespace aggressive
 {
 
+using BoundaryEdgeKey = std::pair<std::size_t, std::size_t>;
+
+[[nodiscard]] BoundaryEdgeKey MakeBoundaryEdgeKey(std::size_t firstVertexIndex, std::size_t secondVertexIndex)
+{
+    if (secondVertexIndex < firstVertexIndex)
+    {
+        std::swap(firstVertexIndex, secondVertexIndex);
+    }
+
+    return {firstVertexIndex, secondVertexIndex};
+}
+
+void CollectShellBoundaryEdgeKeys(
+    const BrepBody& body,
+    const BrepShell& shell,
+    std::vector<BoundaryEdgeKey>& boundaryEdgeKeys)
+{
+    boundaryEdgeKeys.clear();
+
+    std::map<std::size_t, std::size_t> edgeUseCount;
+    shell_cap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
+
+    auto appendBoundaryEdgesFromLoop = [&](const BrepLoop& loop) {
+        for (const BrepCoedge& coedge : loop.Coedges())
+        {
+            const auto countIt = edgeUseCount.find(coedge.EdgeIndex());
+            if (countIt == edgeUseCount.end() || countIt->second != 1U)
+            {
+                continue;
+            }
+
+            std::size_t startVertexIndex = kInvalidIndex;
+            std::size_t endVertexIndex = kInvalidIndex;
+            if (!shell_cap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
+            {
+                continue;
+            }
+
+            boundaryEdgeKeys.push_back(MakeBoundaryEdgeKey(startVertexIndex, endVertexIndex));
+        }
+    };
+
+    for (const BrepFace& face : shell.Faces())
+    {
+        appendBoundaryEdgesFromLoop(face.OuterLoop());
+        for (const BrepLoop& hole : face.HoleLoops())
+        {
+            appendBoundaryEdgesFromLoop(hole);
+        }
+    }
+
+    std::sort(boundaryEdgeKeys.begin(), boundaryEdgeKeys.end());
+    boundaryEdgeKeys.erase(
+        std::unique(boundaryEdgeKeys.begin(), boundaryEdgeKeys.end()),
+        boundaryEdgeKeys.end());
+}
+
 [[nodiscard]] bool NeedsBrepHealing(const BrepBody& body, const GeometryTolerance3d& tolerance)
 {
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
@@ -772,18 +829,16 @@ namespace aggressive
 
 [[nodiscard]] std::vector<bool> DetectCompetingOpenShells(const BrepBody& body)
 {
-    std::vector<std::vector<std::size_t>> shellVertexIndices(body.ShellCount());
+    std::vector<std::vector<BoundaryEdgeKey>> shellBoundaryEdgeKeys(body.ShellCount());
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
     {
         const BrepShell shell = body.ShellAt(shellIndex);
-        for (const BrepFace& face : shell.Faces())
+        if (shell.IsClosed())
         {
-            shell_cap::AppendUniqueLoopVertexIndices(body, face.OuterLoop(), shellVertexIndices[shellIndex]);
-            for (const BrepLoop& hole : face.HoleLoops())
-            {
-                shell_cap::AppendUniqueLoopVertexIndices(body, hole, shellVertexIndices[shellIndex]);
-            }
+            continue;
         }
+
+        CollectShellBoundaryEdgeKeys(body, shell, shellBoundaryEdgeKeys[shellIndex]);
     }
 
     std::vector<bool> competing(body.ShellCount(), false);
@@ -801,20 +856,20 @@ namespace aggressive
                 continue;
             }
 
-            bool shareVertex = false;
-            for (const std::size_t vertexIndex : shellVertexIndices[first])
+            bool sharesBoundaryEdge = false;
+            for (const BoundaryEdgeKey& boundaryEdgeKey : shellBoundaryEdgeKeys[first])
             {
-                if (std::find(
-                        shellVertexIndices[second].begin(),
-                        shellVertexIndices[second].end(),
-                        vertexIndex) != shellVertexIndices[second].end())
+                if (std::binary_search(
+                        shellBoundaryEdgeKeys[second].begin(),
+                        shellBoundaryEdgeKeys[second].end(),
+                        boundaryEdgeKey))
                 {
-                    shareVertex = true;
+                    sharesBoundaryEdge = true;
                     break;
                 }
             }
 
-            if (shareVertex)
+            if (sharesBoundaryEdge)
             {
                 competing[first] = true;
                 competing[second] = true;

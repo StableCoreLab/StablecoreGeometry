@@ -62,6 +62,33 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch25）
+
+- 已更新 `src/sdk/GeometryHealing.cpp`：
+  - aggressive multi-shell competing 检测不再把“仅共享单个顶点”的 eligible shells 一律视为冲突；
+  - 当前 competing-shell arbitration 已收紧为 shared-boundary-edge 级别：共享 boundary edge 的 open shells 继续保守保持 open，而仅 vertex-touch 的 eligible shared-edge shells 可独立 boundary-cap 闭壳；
+  - public SDK contract 保持不变，更一般 shared-boundary-loop / richer multi-shell arbitration 仍保留为 gap。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `MixedCoplanarStripAndNonPlanarSectionMergesIntoSinglePolygon`
+    - 新增 `BrepMixedCoplanarStripAndNonPlanarSectionMergesIntoSinglePolygon`
+    - 验证 cube mid-section 与相邻 two-face coplanar strip 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3）
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 将原 competing-shell capability 明确为 `AggressiveHealingSkipsCompetingSharedBoundaryEdgeEligibleShells`
+    - 新增 `AggressiveHealingClosesVertexTouchingEligibleSharedEdgeShells`
+    - 验证 shared-boundary-edge eligible shells 保守保持 open，而仅 vertex-touch 的 eligible shared-edge shells 可分别闭壳
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 mixed coplanar/non-planar adjacency 已从单个 edge-adjacent merge 推进到 representative strip-adjacent merge 子集
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 aggressive multi-shell arbitration 已覆盖 shared-boundary-edge conservative skip 与 vertex-touch non-competing closure 两个代表性子集
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch21）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：

@@ -10,7 +10,7 @@
 - 已同步新增的 `AI Execution Spec` 到现有执行文档，明确 closed capability unit、P1+P2/P3 breadth、capability/edge-case/gap tests mandatory、capability-vs-gap discipline 与 diagnostics consistency 约束。
 - 已进一步同步 `GeometrySection` 的 vertex-attached mixed-content 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。
 - 已进一步同步 `GeometrySection` 的 edge-attached mixed-content 子集，并补记 `SearchPolygonContainingPoint(...)` 路径也会保留 synthetic explanation。
-- 已进一步同步 `GeometrySection` 的 edge-adjacent mixed coplanar/non-planar merge 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
+- 已进一步同步 `GeometrySection` 的 edge-adjacent / strip-adjacent mixed coplanar/non-planar merge 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
 - 已进一步同步 `GeometrySection` 的 dual edge-attached mixed-content 子集，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation。
 - 已进一步同步 `GeometrySection` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `GeometrySearchPoly` 的 ambiguous-top count explanation。
 - 已进一步同步 `GeometrySection` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。
@@ -179,11 +179,12 @@
   - 已新增 detached mixed area + open contour 子集，并同步到 capability / gap 文案
   - mixed open-curve / area gap 现收敛为更一般 adjacency arbitration，而不是否定已存在的 detached coexistence 子集
   - 已新增 edge-adjacent mixed coplanar + non-planar merge 子集：final section polygon merge 现会保留 open contours，并把 representative edge-adjacent mixed area 稳定收敛为单 polygon
+  - 已进一步新增 strip-adjacent mixed coplanar + non-planar merge 子集：cube mid-section 与相邻 two-face coplanar strip 在 Polyhedron / Brep 路径都稳定收敛为单 polygon（area=3）
 - `GeometryHealing`
   - 已将 shared-edge boundary-cap fallback 从单-shell body 推进到 mixed body 内的 eligible shell 子集
   - 已进一步把 deterministic boundary-cap 子集推进到“同一 body 内多个彼此独立 eligible shared-edge shells 并存”的场景
-  - 已新增 conservative competing-shell arbitration 子集：当 eligible open shells 与其他 open shells 共享顶点时，boundary-cap 会保守跳过这些 competing shells，而独立 eligible shell 仍可闭壳
-  - 已同步说明“更一般 multi-shell shared-edge arbitration 仍为 gap”，避免把更宽语义误记为已收敛
+  - 已将 conservative competing-shell arbitration 从 shared-vertex 级别收紧到 shared-boundary-edge 级别：共享 boundary edge 的 competing shells 保守保持 open，而仅 vertex-touch 的 eligible shells 可继续独立闭壳
+  - 已同步说明“更一般 multi-shell shared-boundary-loop / shared-edge arbitration 仍为 gap”，避免把更宽语义误记为已收敛
 - `GeometryBodyBoolean`
   - 已新增 face-touching external difference 子集，并把 touching intersection 与 richer overlap 继续保留为 gap
   - 已进一步新增 face-touching empty intersection 子集，并为 `BodyBooleanResult3d` 增加 `producedEmptyResult`
