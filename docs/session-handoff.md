@@ -68,6 +68,28 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-runnerup-explanation-batch8）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在不改稳定 SDK 入口的前提下补强 `SearchPolyResult2d` explanation；
+  - 新增 runner-up explanation 字段：
+    - `runnerUpSyntheticPerimeter`
+    - `runnerUpSyntheticEdgeCount`
+    - `runnerUpBranchVertexCount`
+    - `bestCandidateBeatsSyntheticRunnerUp`
+    - `bestCandidateBeatsBranchRunnerUp`
+  - 当前产品侧可直接判断 top candidate 是否因为“runner-up 带 synthetic closure”或“runner-up 带 branch penalty”而胜出，不必再自己比对前两名 candidate。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 invalid / no-closed / 单 candidate success 路径补齐 runner-up explanation 回零断言；
+  - 为 clean-vs-synthetic peer 子集补齐 synthetic runner-up explanation；
+  - 新增 `SearchPolygonsReportsRunnerUpBranchPenaltyExplanation`，补齐 branch-penalty runner-up explanation 子集。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。

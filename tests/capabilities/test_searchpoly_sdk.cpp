@@ -30,6 +30,11 @@ TEST(SearchPolySdkCapabilityTest, InvalidInputContractRejectsEmptyLineCollection
     EXPECT_DOUBLE_EQ(result.bestCandidateScoreMargin, 0.0);
     EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, 0.0);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
+    EXPECT_DOUBLE_EQ(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeCount, 0U);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_FALSE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
     EXPECT_EQ(result.candidateCountWithSyntheticEdges, 0U);
     EXPECT_EQ(result.candidateCountWithBranchPenalty, 0U);
     EXPECT_EQ(result.ambiguousTopCandidateCount, 0U);
@@ -60,6 +65,11 @@ TEST(SearchPolySdkCapabilityTest, NoClosedPolygonFoundKeepsDiagnosticsAndCandida
     EXPECT_DOUBLE_EQ(result.bestCandidateScoreMargin, 0.0);
     EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, 0.0);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
+    EXPECT_DOUBLE_EQ(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeCount, 0U);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_FALSE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
     EXPECT_EQ(result.candidateCountWithSyntheticEdges, 0U);
     EXPECT_EQ(result.candidateCountWithBranchPenalty, 0U);
     EXPECT_EQ(result.ambiguousTopCandidateCount, 0U);
@@ -96,6 +106,11 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsBuildsRepresentativeClosedCandid
     EXPECT_DOUBLE_EQ(result.bestCandidateScoreMargin, 0.0);
     EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, 0.0);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
+    EXPECT_DOUBLE_EQ(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeCount, 0U);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_FALSE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
     EXPECT_EQ(result.candidateCountWithSyntheticEdges, 0U);
     EXPECT_EQ(result.candidateCountWithBranchPenalty, 0U);
     EXPECT_EQ(result.ambiguousTopCandidateCount, 1U);
@@ -222,6 +237,11 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsRanksCleanCandidateAheadOfSynthe
     EXPECT_EQ(second.rank, 1U);
     EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, 0.0);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
+    EXPECT_GT(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_GE(result.runnerUpSyntheticEdgeCount, 1U);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_TRUE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
     EXPECT_EQ(result.candidateCountWithSyntheticEdges, 1U);
     EXPECT_EQ(result.candidateCountWithBranchPenalty, 0U);
     EXPECT_EQ(result.ambiguousTopCandidateCount, 1U);
@@ -249,6 +269,11 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsFakeEdgeDiagnosticsForAmb
     EXPECT_LT(result.candidates.front().branchScore, result.candidates.front().absoluteArea);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, result.candidates.front().inferredSyntheticEdgeCount);
     EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, result.candidates.front().inferredSyntheticPerimeter);
+    EXPECT_DOUBLE_EQ(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeCount, 0U);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_FALSE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
     EXPECT_EQ(result.candidateCountWithSyntheticEdges, 1U);
     EXPECT_EQ(result.ambiguousTopCandidateCount, 1U);
 }
@@ -275,6 +300,11 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsAppliesBranchPenaltyAtExplicitBr
     EXPECT_LT(result.candidates.front().branchScore, result.candidates.front().absoluteArea);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
     EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, 0.0);
+    EXPECT_DOUBLE_EQ(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeCount, 0U);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_FALSE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
     EXPECT_EQ(result.candidateCountWithSyntheticEdges, 0U);
     EXPECT_EQ(result.candidateCountWithBranchPenalty, 1U);
     EXPECT_EQ(result.ambiguousTopCandidateCount, 1U);
@@ -299,11 +329,45 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsTopCandidateExplanationAg
     EXPECT_EQ(result.ambiguousTopCandidateCount, 1U);
     EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
     EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, 0.0);
+    EXPECT_GT(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_GE(result.runnerUpSyntheticEdgeCount, 1U);
+    EXPECT_EQ(result.runnerUpBranchVertexCount, 0U);
+    EXPECT_TRUE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_FALSE(result.bestCandidateBeatsBranchRunnerUp);
     EXPECT_EQ(result.candidateCountWithSyntheticEdges, 1U);
     EXPECT_GT(result.bestCandidateScoreMargin, 0.0);
     EXPECT_DOUBLE_EQ(
         result.bestCandidateScoreMargin,
         result.candidates[0].branchScore - result.candidates[1].branchScore);
+}
+
+TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsRunnerUpBranchPenaltyExplanation)
+{
+    const MultiPolyline2d lines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{10.0, 0.0}, Point2d{14.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{14.0, 0.0}, Point2d{14.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{14.0, 4.0}, Point2d{10.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{10.0, 4.0}, Point2d{10.0, 2.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{10.0, 2.0}, Point2d{10.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{10.0, 2.0}, Point2d{9.0, 2.0}}, PolylineClosure::Open)};
+
+    const auto result = SearchPolygons(lines);
+
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_EQ(result.candidates.size(), 2U);
+    EXPECT_EQ(result.bestCandidateSyntheticEdgeCount, 0U);
+    EXPECT_DOUBLE_EQ(result.bestCandidateSyntheticPerimeter, 0.0);
+    EXPECT_DOUBLE_EQ(result.runnerUpSyntheticPerimeter, 0.0);
+    EXPECT_EQ(result.runnerUpSyntheticEdgeCount, 0U);
+    EXPECT_GE(result.runnerUpBranchVertexCount, 1U);
+    EXPECT_FALSE(result.bestCandidateBeatsSyntheticRunnerUp);
+    EXPECT_TRUE(result.bestCandidateBeatsBranchRunnerUp);
+    EXPECT_EQ(result.candidateCountWithSyntheticEdges, 0U);
+    EXPECT_EQ(result.candidateCountWithBranchPenalty, 1U);
 }
 
 TEST(SearchPolySdkCapabilityTest, SearchPolygonContainingPointReturnsSmallestContainingCandidate)

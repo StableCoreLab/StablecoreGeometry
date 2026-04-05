@@ -69,6 +69,11 @@ struct GEOMETRY_API SearchPolyResult2d
     double bestCandidateScoreMargin{0.0};
     double bestCandidateSyntheticPerimeter{0.0};
     std::size_t bestCandidateSyntheticEdgeCount{0};
+    double runnerUpSyntheticPerimeter{0.0};
+    std::size_t runnerUpSyntheticEdgeCount{0};
+    std::size_t runnerUpBranchVertexCount{0};
+    bool bestCandidateBeatsSyntheticRunnerUp{false};
+    bool bestCandidateBeatsBranchRunnerUp{false};
     std::size_t candidateCountWithSyntheticEdges{0};
     std::size_t candidateCountWithBranchPenalty{0};
     std::size_t ambiguousTopCandidateCount{0};

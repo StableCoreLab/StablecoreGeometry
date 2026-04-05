@@ -401,6 +401,19 @@ void PopulateResultExplanation(
         result.bestCandidateScoreMargin = bestCandidate.branchScore - candidate.branchScore;
         break;
     }
+
+    if (result.candidates.size() >= 2U)
+    {
+        const SearchPolyCandidate2d& runnerUp = result.candidates[1];
+        result.runnerUpSyntheticPerimeter = runnerUp.inferredSyntheticPerimeter;
+        result.runnerUpSyntheticEdgeCount = runnerUp.inferredSyntheticEdgeCount;
+        result.runnerUpBranchVertexCount = runnerUp.branchVertexCount + runnerUp.syntheticBranchVertexCount;
+        result.bestCandidateBeatsSyntheticRunnerUp =
+            bestCandidate.inferredSyntheticEdgeCount < runnerUp.inferredSyntheticEdgeCount;
+        const std::size_t bestBranchPenaltyCount =
+            bestCandidate.branchVertexCount + bestCandidate.syntheticBranchVertexCount;
+        result.bestCandidateBeatsBranchRunnerUp = bestBranchPenaltyCount < result.runnerUpBranchVertexCount;
+    }
 }
 } // namespace
 

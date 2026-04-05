@@ -14,7 +14,7 @@
 ## 2026-04-05 文档同步备注
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean` / `GeometrySearchPoly`。
-- 已新增 mixed area + open contour 的 representative section capability、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate explanation 子集。
+- 已新增 mixed area + open contour 的 representative section capability、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up explanation 子集。
 - 下面的覆盖布局与子集清单已与当前代码状态一致。
 
 ## Capability Tests
@@ -50,10 +50,11 @@
   - `SearchPolyCandidate2d` 已显式暴露 `branchScore`、`inferredSyntheticPerimeter`、`inferredSyntheticEdgeCount`、`branchVertexCount` 与 `syntheticBranchVertexCount`
   - `SearchPolyResult2d` 已显式暴露 `usedBranchScoring`，使产品侧可区分“仅建面成功”和“排序时已使用 branch/synthetic penalty”
   - `SearchPolyResult2d` 已新增 deterministic top-candidate explanation：`bestCandidateScoreMargin`、`bestCandidateSyntheticPerimeter`、`bestCandidateSyntheticEdgeCount`、`candidateCountWithSyntheticEdges`、`candidateCountWithBranchPenalty`、`ambiguousTopCandidateCount`
+  - `SearchPolyResult2d` 已进一步新增 runner-up explanation：`runnerUpSyntheticPerimeter`、`runnerUpSyntheticEdgeCount`、`runnerUpBranchVertexCount`、`bestCandidateBeatsSyntheticRunnerUp`、`bestCandidateBeatsBranchRunnerUp`
   - 已覆盖 clean candidate 与 synthetic candidate 并存时，`rank` 优先受 branch score 影响，而不是只按 area 稳定排序
   - 已覆盖 explicit branch vertex 子集：branch penalty 会进入 candidate score，但不会误报为 fake-edge
   - 已覆盖 `InvalidInput` / `NoClosedPolygonFound` / success 三类结果在 `issue / diagnostics / candidates / used*` 上的一致性与回零行为
-  - 已覆盖 top-candidate explanation 与 runner-up margin 的自洽性，避免产品侧需要扫描全量 candidate 才能解释 best-candidate 选择
+  - 已覆盖 top-candidate explanation、runner-up margin，以及 synthetic / branch runner-up causal explanation 的自洽性，避免产品侧需要扫描全量 candidate 才能解释 best-candidate 选择
 - `tests/capabilities/test_topology_indexing.cpp`
   - touching / intersecting / basic contains / equal、duplicate-equal topology parent tie-break 当前已具备能力
 - `tests/capabilities/test_3d_section.cpp`
@@ -244,7 +245,7 @@
 - `tests/gaps/test_3d_body_boolean_gaps.cpp`
   - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / face-touching union / face-touching external difference 子集，非单-box overlap、touching intersection、shell-policy、healing integration 仍为 gap
 - `tests/gaps/test_searchpoly_gaps.cpp`
-  - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、top-candidate explanation，以及 result/diagnostics consistency 与 auto-flag gating
+  - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、top-candidate / runner-up explanation，以及 result/diagnostics consistency 与 auto-flag gating
 - `tests/gaps/test_3d_conversion_gaps.cpp`
   - 记录高保真 Brep->mesh 特征保持（超出 planar holed+multi-face area-preserving + shared-edge vertex-reuse + disconnected closed-shell component-preserving 子集）、鲁棒 non-planar polyhedron->Brep repair（超出 affine-planar + support-plane-refit + all-loop scored holed-face refit + mild outer/hole loop-projection + collinear-leading-loop + duplicate outer/hole loop-normalization 子集）仍未闭合
 - 2D 历史 gap 场景已全部转正到 `tests/capabilities`；当前 `tests/gaps` 专注 3D P1 骨架跟踪
