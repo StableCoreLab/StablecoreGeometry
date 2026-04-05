@@ -79,6 +79,7 @@ struct GEOMETRY_API SearchPolyCandidate2d
     std::size_t syntheticBranchVertexCount{0};
     SearchPolyPenaltyKind2d dominantPenaltyKind{SearchPolyPenaltyKind2d::None};
     SearchPolySyntheticEdgeKind2d dominantSyntheticEdgeKind{SearchPolySyntheticEdgeKind2d::Unknown};
+    SearchPolySyntheticEdgeSource2d dominantSyntheticEdgeSource{SearchPolySyntheticEdgeSource2d::Unknown};
     std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
     std::vector<SearchPolySyntheticEdgeSource2d> inferredSyntheticEdgeSources{};
@@ -107,14 +108,17 @@ struct GEOMETRY_API SearchPolyResult2d
     double bestCandidateSyntheticPerimeter{0.0};
     std::size_t bestCandidateSyntheticEdgeCount{0};
     SearchPolySyntheticEdgeKind2d bestCandidateSyntheticEdgeKind{SearchPolySyntheticEdgeKind2d::Unknown};
+    SearchPolySyntheticEdgeSource2d bestCandidateSyntheticEdgeSource{SearchPolySyntheticEdgeSource2d::Unknown};
     double runnerUpSyntheticPerimeter{0.0};
     std::size_t runnerUpSyntheticEdgeCount{0};
     SearchPolySyntheticEdgeKind2d runnerUpSyntheticEdgeKind{SearchPolySyntheticEdgeKind2d::Unknown};
+    SearchPolySyntheticEdgeSource2d runnerUpSyntheticEdgeSource{SearchPolySyntheticEdgeSource2d::Unknown};
     std::size_t runnerUpBranchVertexCount{0};
     SearchPolyPenaltyKind2d bestCandidatePenaltyKind{SearchPolyPenaltyKind2d::None};
     SearchPolyPenaltyKind2d runnerUpPenaltyKind{SearchPolyPenaltyKind2d::None};
     SearchPolyPenaltyKind2d ambiguousTopPenaltyKind{SearchPolyPenaltyKind2d::None};
     SearchPolySyntheticEdgeKind2d ambiguousTopSyntheticEdgeKind{SearchPolySyntheticEdgeKind2d::Unknown};
+    SearchPolySyntheticEdgeSource2d ambiguousTopSyntheticEdgeSource{SearchPolySyntheticEdgeSource2d::Unknown};
     std::size_t ambiguousTopCandidateCountWithSyntheticEdges{0};
     std::size_t ambiguousTopCandidateCountWithBranchPenalty{0};
     bool bestCandidateBeatsSyntheticRunnerUp{false};

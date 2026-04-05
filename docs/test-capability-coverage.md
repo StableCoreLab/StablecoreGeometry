@@ -15,7 +15,7 @@
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean` / `GeometrySearchPoly`。
 - 已同步 `AI Execution Spec` 的测试约束：后续每一轮默认要求 capability test、edge-case test，以及在存在歧义时保留 gap test。
-- 已新增 mixed area + open contour 的 representative section capability、dual edge-attached open contours 的 stable mixed-content 子集、mixed vertex-attached + edge-attached dual-open 子集、mixed coplanar + non-planar edge-adjacent area merge、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、competing multi-shell shared-vertex arbitration 的保守子集、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top / candidate-level causality explanation 子集。
+- 已新增 mixed area + open contour 的 representative section capability、dual edge-attached open contours 的 stable mixed-content 子集、mixed vertex-attached + edge-attached dual-open 子集、detached + vertex-attached + edge-attached triple-open 子集、mixed coplanar + non-planar edge-adjacent area merge、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、competing multi-shell shared-vertex arbitration 的保守子集、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top / synthetic-source / candidate-level causality explanation 子集。
 - 已进一步新增 `GeometrySection` 的 vertex-attached mixed area + open contour 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 现状。
 - 下面的覆盖布局与子集清单已与当前代码状态一致。
 
@@ -53,8 +53,9 @@
   - `SearchPolyResult2d` 已显式暴露 `usedBranchScoring`，使产品侧可区分“仅建面成功”和“排序时已使用 branch/synthetic penalty”
   - `SearchPolyResult2d` 已新增 deterministic top-candidate explanation：`bestCandidateScoreMargin`、`bestCandidateSyntheticPerimeter`、`bestCandidateSyntheticEdgeCount`、`bestCandidateSyntheticEdgeKind`、`candidateCountWithSyntheticEdges`、`candidateCountWithBranchPenalty`、`ambiguousTopCandidateCount`
   - `SearchPolyResult2d` 已进一步新增 runner-up explanation：`runnerUpSyntheticPerimeter`、`runnerUpSyntheticEdgeCount`、`runnerUpSyntheticEdgeKind`、`runnerUpBranchVertexCount`、`bestCandidateBeatsSyntheticRunnerUp`、`bestCandidateBeatsBranchRunnerUp`
+  - `SearchPolyResult2d` 已进一步新增 synthetic-source summary explanation：`bestCandidateSyntheticEdgeSource`、`runnerUpSyntheticEdgeSource`、`ambiguousTopSyntheticEdgeSource`
   - `SearchPolyResult2d` 已进一步新增 ambiguous-top summary explanation：`ambiguousTopPenaltyKind`、`ambiguousTopSyntheticEdgeKind`、`ambiguousTopCandidateCountWithSyntheticEdges`、`ambiguousTopCandidateCountWithBranchPenalty`
-  - `SearchPolyCandidate2d` 已新增 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network touch mapping / vertex identity mapping
+  - `SearchPolyCandidate2d` 已新增 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`dominantSyntheticEdgeSource`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network touch mapping / vertex identity mapping
   - 已覆盖 clean candidate 与 synthetic candidate 并存时，`rank` 优先受 branch score 影响，而不是只按 area 稳定排序
   - 已覆盖 explicit branch vertex 子集：branch penalty 会进入 candidate score，但不会误报为 fake-edge
   - 已覆盖 `InvalidInput` / `NoClosedPolygonFound` / success 三类结果在 `issue / diagnostics / candidates / used*` 上的一致性与回零行为
@@ -72,6 +73,7 @@
   - 覆盖 edge-attached mixed-content 子能力：open contour 接触 polygon 边中点时，在 Polyhedron / Brep 路径同样稳定保留为 `Mixed`
   - 覆盖 dual edge-attached mixed-content 子能力：两条 open contours 同时接触 polygon 边中点时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 endpoint 方向/顺序固定
   - 覆盖 mixed vertex-attached + edge-attached dual-open 子能力：一条 open contour 接触 polygon 顶点、一条接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 endpoint 方向/顺序固定
+  - 覆盖 detached + vertex-attached + edge-attached triple-open 子能力：三条 open contours 分别 detached / 接触 polygon 顶点 / 接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 attached contours 方向固定为 boundary-outward、整体顺序固定
   - 覆盖 mixed coplanar/non-planar edge-adjacent merge 子能力：coplanar face area 与 non-planar cube mid-section 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2.0）
   - 覆盖 coplanar 相邻 face fragment 在 `Section(...)` 中合并为单 polygon 的代表性 face-merge 子集
   - 覆盖 unit cube x=0.5 截面（法向 +x）的确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0），扩展钢筋线周长稳定性到 x 轴方向
@@ -83,6 +85,7 @@
   - 当前仍保留的 gap：更一般 ambiguous non-manifold contour stitching、mixed open-curve / area edge-adjacency arbitration、非邻接 coplanar fragment 跨 convex-hull gap 的 merge
 - `tests/capabilities/test_searchpoly_sdk.cpp`
   - 已进一步覆盖 `SearchPolygonContainingPoint(...)` 路径的 synthetic explanation 保留，避免 point-pick 路径丢失 candidate-level diagnostics
+  - 已进一步覆盖 top-candidate / runner-up / ambiguous-top 的 synthetic-source summary，避免产品侧需要自行扫描 synthetic-edge-source 列表才能判断 tied-top 与 runner-up 的 fake-edge 成因
   - 已进一步覆盖 ambiguous-top summary/count explanation，避免产品侧需要自行扫描 tied-top candidates 才能判断 top tie 的 penalty/synthetic profile
 - `tests/capabilities/test_3d_brep.cpp`
   - 倾斜截面经过 `RebuildSectionBrepBody(...)` 得到只读 topology 完整的单面 `BrepBody`（1 shell / 1 face / 4 coedge loop），双立方体截面经 `RebuildSectionBrepBodies(...)` 稳定拆分为 2 个独立 body；并新增最小 coedge-loop 编辑链路 `InsertCoedge -> FlipCoedgeDirection -> RemoveCoedge`
@@ -260,7 +263,7 @@
 - `tests/gaps/test_3d_body_boolean_gaps.cpp`
   - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / touching union / touching external difference / touching empty intersection 子集，非单-box overlap、non-axis-aligned / richer touching intersection、shell-policy、healing integration 仍为 gap
 - `tests/gaps/test_searchpoly_gaps.cpp`
-  - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、candidate-level causality explanation、top-candidate / runner-up / ambiguous-top explanation/counts，以及 result/diagnostics consistency 与 auto-flag gating
+  - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、candidate-level causality explanation、top-candidate / runner-up / ambiguous-top explanation/counts/source-summary，以及 result/diagnostics consistency 与 auto-flag gating
 - `tests/gaps/test_3d_conversion_gaps.cpp`
   - 记录高保真 Brep->mesh 特征保持（超出 planar holed+multi-face area-preserving + shared-edge vertex-reuse + disconnected closed-shell component-preserving 子集）、鲁棒 non-planar polyhedron->Brep repair（超出 affine-planar + support-plane-refit + all-loop scored holed-face refit + mild outer/hole loop-projection + collinear-leading-loop + duplicate outer/hole loop-normalization 子集）仍未闭合
 - 2D 历史 gap 场景已全部转正到 `tests/capabilities`；当前 `tests/gaps` 专注 3D P1 骨架跟踪

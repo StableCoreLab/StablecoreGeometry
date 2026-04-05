@@ -13,6 +13,7 @@
 - 已进一步同步 `GeometrySection` 的 edge-adjacent mixed coplanar/non-planar merge 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
 - 已进一步同步 `GeometrySection` 的 dual edge-attached mixed-content 子集，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation。
 - 已进一步同步 `GeometrySection` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `GeometrySearchPoly` 的 ambiguous-top count explanation。
+- 已进一步同步 `GeometrySection` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。
 - 已把当前收敛能力与 open gap 重新对齐到：
   - `GeometrySection`
   - `GeometryHealing`
@@ -194,9 +195,10 @@
 - `GeometrySearchPoly`
   - 已为 `SearchPolyResult2d` 新增 deterministic top-candidate explanation 字段，减少产品侧自行扫描 candidates 的负担
   - 已进一步新增 runner-up explanation 字段，使产品侧可直接判断 top candidate 是否因 synthetic / branch penalty runner-up 而胜出
+  - 已进一步新增 `bestCandidateSyntheticEdgeSource`、`runnerUpSyntheticEdgeSource` 与 `ambiguousTopSyntheticEdgeSource`，让产品侧可直接读取 top / runner-up / tied-top 的 dominant fake-edge source 摘要
   - 已进一步新增 ambiguous-top summary explanation：产品侧可直接读取 tied-top candidates 的 penalty / synthetic-kind 摘要是否一致
   - 已进一步新增 ambiguous-top count explanation：产品侧可直接读取 tied-top candidates 中带 synthetic edges / branch penalty 的 candidate 数量
-  - 已为 `SearchPolyCandidate2d` 新增 `dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`、逐边 line-network touch mapping 与 vertex identity mapping，补齐 candidate-level causal explanation
+  - 已为 `SearchPolyCandidate2d` 新增 `dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`dominantSyntheticEdgeSource`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`、逐边 line-network touch mapping 与 vertex identity mapping，补齐 candidate-level causal explanation
   - 已为 `SearchPolyResult2d` 新增 `bestCandidateSyntheticEdgeKind` 与 `runnerUpSyntheticEdgeKind`，减少产品侧再扫 synthetic-edge-kind 列表做归因摘要
   - 已同步 capability 文案：invalid / no-closed / success 三类结果下 explanation 字段均保持 contract 一致性
   - richer fake-edge causal explanation 与 Delphi 级 ambiguous recovery 仍继续保留为 gap

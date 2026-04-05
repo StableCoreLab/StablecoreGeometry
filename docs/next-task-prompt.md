@@ -27,7 +27,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2/P3：新增 mixed area + open contour 的 representative section capability、mixed vertex-attached + edge-attached dual-open stable mixed-content 子集、mixed coplanar + non-planar edge-adjacent area merge、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability，以及 `GeometrySearchPoly` 的 ambiguous-top summary/count explanation；下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P2/P3：新增 detached + vertex-attached + edge-attached triple-open stable mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary；下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -41,6 +41,7 @@
   - detached / vertex-attached / edge-attached mixed area + open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`
   - dual edge-attached open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 2 open contours）
   - mixed vertex-attached + edge-attached dual-open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 2 open contours）
+  - detached + vertex-attached + edge-attached triple-open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 3 open contours）
   - edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2）
 - 当前仍保留的 gap：
   - ambiguous non-manifold contour stitching
@@ -63,8 +64,9 @@
 - 稳定 SDK 入口位于 `include/sdk/GeometrySearchPoly.h`
 - 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics、result / diagnostics consistency、auto-flag gating
 - `SearchPolyResult2d` 已补充 deterministic top-candidate explanation：best-candidate synthetic metrics、top-score margin、synthetic/branch aggregate counts、ambiguous-top count，以及 runner-up synthetic / branch penalty explanation；并已补充 `bestCandidateSyntheticEdgeKind` / `runnerUpSyntheticEdgeKind`
+- `SearchPolyResult2d` 已进一步补充 synthetic-source summary explanation：`bestCandidateSyntheticEdgeSource` / `runnerUpSyntheticEdgeSource` / `ambiguousTopSyntheticEdgeSource`
 - `SearchPolyResult2d` 已进一步补充 ambiguous-top summary explanation：`ambiguousTopPenaltyKind` / `ambiguousTopSyntheticEdgeKind`，以及 `ambiguousTopCandidateCountWithSyntheticEdges` / `ambiguousTopCandidateCountWithBranchPenalty`
-- `SearchPolyCandidate2d` 已补充 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network mapping（start/end vertex index、start/end degree、dangling-touch-count、branch-touch-count）；`SearchPolygonContainingPoint(...)` 路径同样保留这些 explanation
+- `SearchPolyCandidate2d` 已补充 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`dominantSyntheticEdgeSource`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network mapping（start/end vertex index、start/end degree、dangling-touch-count、branch-touch-count）；`SearchPolygonContainingPoint(...)` 路径同样保留这些 explanation
 - richer fake-edge explanation、Delphi 级 ambiguous recovery、完整 smart-search parity 仍为 gap
 
 ### GeometryBodyBoolean
@@ -107,7 +109,7 @@
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
 - GeometrySearchPoly：推进 richer fake-edge explanation 与 ambiguous recovery，但保持 result-consistency / auto-flag contract 只做确定性补强
-- 当前 SearchPoly 已有 top-candidate + runner-up explanation 摘要，以及 candidate-level penalty kind / dominant-synthetic-kind / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind / synthetic-edge-source / line-network touch mapping / vertex identity mapping；下一步优先考虑更强的 fake-edge causal explanation 与 ambiguous recovery，而不是继续堆简单计数字段
+- 当前 SearchPoly 已有 top-candidate + runner-up explanation 摘要，以及 candidate-level penalty kind / dominant-synthetic-kind / dominant-synthetic-source / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind / synthetic-edge-source / line-network touch mapping / vertex identity mapping；下一步优先考虑更强的 fake-edge causal explanation 与 ambiguous recovery，而不是继续扩散临时摘要字段
 - GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 axis-aligned touching union / external difference / empty intersection 子集已收敛，下一步优先考虑 non-axis-aligned / richer touching intersection 与非单-box touching 边界
 
 ### P4：继续推进 SDK 风格统一与接口收口

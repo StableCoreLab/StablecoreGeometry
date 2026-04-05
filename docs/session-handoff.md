@@ -27,6 +27,41 @@
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
 
+## 本轮新增（2026-04-05，fasttrack-section-searchpoly-source-summary-batch24）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - mixed-content section 的 open contour 方向归一化不再只看词典序；
+  - 当 open contour 仅一端接触现有 polygon 边界时，会稳定按“boundary-attached endpoint -> outward spur”方向输出；
+  - 当前 detached + vertex-attached + edge-attached triple-open 子集在 Polyhedron / Brep 路径都可稳定保留为 `1 polygon + 3 open contours`，且 attached contours 方向固定。
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
+  - 为 `SearchPolyCandidate2d` 新增 `dominantSyntheticEdgeSource`；
+  - 为 `SearchPolyResult2d` 新增：
+    - `bestCandidateSyntheticEdgeSource`
+    - `runnerUpSyntheticEdgeSource`
+    - `ambiguousTopSyntheticEdgeSource`
+  - 当前产品侧不仅可读取 synthetic-edge kind，还可直接读取 top / runner-up / tied-top candidate 的 dominant synthetic-edge source 摘要。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `DetachedVertexAndEdgeAttachedOpenContoursBuildStableMixedContent`
+    - 新增 `BrepDetachedVertexAndEdgeAttachedOpenContoursBuildStableMixedContent`
+    - 验证 detached + vertex-attached + edge-attached triple-open mixed-content 在 Polyhedron / Brep 路径都稳定保留，并且 attached open contour 方向固定为 boundary-outward
+  - `tests/capabilities/test_searchpoly_sdk.cpp`
+    - 为 invalid / no-closed / clean / synthetic / branch / tied-top 子集补齐 dominant synthetic-edge-source 断言
+    - 新增 `SearchPolygonsSummarizesAmbiguousTopSyntheticSourcesForTiedGapClosures`
+    - 验证 tied synthetic gap-closure candidates 会稳定报告 `ambiguousTopSyntheticEdgeSource == SingleGapClose`
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 detached + vertex-attached + edge-attached triple-open mixed-content 子集已进入 covered subset
+  - `tests/gaps/test_searchpoly_gaps.cpp`
+    - 明确 top-candidate / runner-up / ambiguous-top synthetic-source summary 已进入 covered subset
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch21）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：

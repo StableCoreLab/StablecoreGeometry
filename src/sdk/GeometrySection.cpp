@@ -175,9 +175,40 @@ void RebuildUniqueSegmentsFromContours(
     }
 }
 
-void NormalizeOpenContourDirection(SectionPolyline3d& contour, double eps)
+[[nodiscard]] bool IsPointOnAnyPolygonBoundary(
+    const Point3d& point,
+    const PolyhedronSection3d& section,
+    double eps)
+{
+    const Point2d projected = ProjectPointToSectionBasis(point, section);
+    for (const Polygon2d& polygon : section.polygons)
+    {
+        if (LocatePoint(projected, polygon, eps) == PointContainment2d::OnBoundary)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void NormalizeOpenContourDirection(
+    const PolyhedronSection3d& section,
+    SectionPolyline3d& contour,
+    double eps)
 {
     if (contour.closed || contour.points.size() < 2)
+    {
+        return;
+    }
+
+    const bool firstOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.front(), section, eps);
+    const bool lastOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.back(), section, eps);
+    if (lastOnBoundary && !firstOnBoundary)
+    {
+        std::reverse(contour.points.begin(), contour.points.end());
+        return;
+    }
+    if (firstOnBoundary && !lastOnBoundary)
     {
         return;
     }
@@ -203,7 +234,7 @@ void SortOpenContoursStable(PolyhedronSection3d& section, double eps)
             continue;
         }
 
-        NormalizeOpenContourDirection(contour, eps);
+        NormalizeOpenContourDirection(section, contour, eps);
         openContours.push_back(std::move(contour));
     }
 
