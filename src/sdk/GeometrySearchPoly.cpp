@@ -36,6 +36,7 @@ struct CandidateMetrics2d
     std::size_t inferredSyntheticEdgeCount{0};
     std::size_t branchVertexCount{0};
     std::size_t syntheticBranchVertexCount{0};
+    std::vector<double> inferredSyntheticEdgeLengths{};
     double branchScore{0.0};
 };
 
@@ -287,6 +288,7 @@ void AccumulateRingMetrics(
         {
             ++metrics.inferredSyntheticEdgeCount;
             metrics.inferredSyntheticPerimeter += edgeLength;
+            metrics.inferredSyntheticEdgeLengths.push_back(edgeLength);
         }
 
         if (BranchDegreeAtPoint(analysis.vertices, start, epsilon) > 2U)
@@ -327,6 +329,27 @@ void AccumulateRingMetrics(
     const Polygon2d& polygon,
     const CandidateMetrics2d& metrics)
 {
+    SearchPolyPenaltyKind2d dominantPenaltyKind = SearchPolyPenaltyKind2d::None;
+    const bool hasSynthetic = metrics.inferredSyntheticEdgeCount > 0U;
+    const bool hasBranch = metrics.branchVertexCount > 0U;
+    const bool hasSyntheticBranch = metrics.syntheticBranchVertexCount > 0U;
+    if (hasSyntheticBranch)
+    {
+        dominantPenaltyKind = SearchPolyPenaltyKind2d::SyntheticBranchPenalty;
+    }
+    else if (hasSynthetic && hasBranch)
+    {
+        dominantPenaltyKind = SearchPolyPenaltyKind2d::Mixed;
+    }
+    else if (hasSynthetic)
+    {
+        dominantPenaltyKind = SearchPolyPenaltyKind2d::SyntheticClosure;
+    }
+    else if (hasBranch)
+    {
+        dominantPenaltyKind = SearchPolyPenaltyKind2d::BranchPenalty;
+    }
+
     const double polygonArea = polygon.Area();
     return SearchPolyCandidate2d{
         polygon,
@@ -337,6 +360,8 @@ void AccumulateRingMetrics(
         metrics.inferredSyntheticEdgeCount,
         metrics.branchVertexCount,
         metrics.syntheticBranchVertexCount,
+        dominantPenaltyKind,
+        metrics.inferredSyntheticEdgeLengths,
         0};
 }
 
@@ -375,6 +400,7 @@ void PopulateResultExplanation(
     const SearchPolyCandidate2d& bestCandidate = result.candidates.front();
     result.bestCandidateSyntheticPerimeter = bestCandidate.inferredSyntheticPerimeter;
     result.bestCandidateSyntheticEdgeCount = bestCandidate.inferredSyntheticEdgeCount;
+    result.bestCandidatePenaltyKind = bestCandidate.dominantPenaltyKind;
 
     for (const SearchPolyCandidate2d& candidate : result.candidates)
     {
@@ -408,6 +434,7 @@ void PopulateResultExplanation(
         result.runnerUpSyntheticPerimeter = runnerUp.inferredSyntheticPerimeter;
         result.runnerUpSyntheticEdgeCount = runnerUp.inferredSyntheticEdgeCount;
         result.runnerUpBranchVertexCount = runnerUp.branchVertexCount + runnerUp.syntheticBranchVertexCount;
+        result.runnerUpPenaltyKind = runnerUp.dominantPenaltyKind;
         result.bestCandidateBeatsSyntheticRunnerUp =
             bestCandidate.inferredSyntheticEdgeCount < runnerUp.inferredSyntheticEdgeCount;
         const std::size_t bestBranchPenaltyCount =

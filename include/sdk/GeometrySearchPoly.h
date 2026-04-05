@@ -18,6 +18,15 @@ enum class SearchPolyIssue2d
     NoClosedPolygonFound
 };
 
+enum class SearchPolyPenaltyKind2d
+{
+    None,
+    SyntheticClosure,
+    BranchPenalty,
+    SyntheticBranchPenalty,
+    Mixed
+};
+
 struct GEOMETRY_API SearchPolyDiagnostics2d
 {
     std::size_t inputPolylineCount{0};
@@ -52,6 +61,8 @@ struct GEOMETRY_API SearchPolyCandidate2d
     std::size_t inferredSyntheticEdgeCount{0};
     std::size_t branchVertexCount{0};
     std::size_t syntheticBranchVertexCount{0};
+    SearchPolyPenaltyKind2d dominantPenaltyKind{SearchPolyPenaltyKind2d::None};
+    std::vector<double> inferredSyntheticEdgeLengths{};
     std::size_t rank{0};
 
     [[nodiscard]] bool IsValid() const
@@ -72,6 +83,8 @@ struct GEOMETRY_API SearchPolyResult2d
     double runnerUpSyntheticPerimeter{0.0};
     std::size_t runnerUpSyntheticEdgeCount{0};
     std::size_t runnerUpBranchVertexCount{0};
+    SearchPolyPenaltyKind2d bestCandidatePenaltyKind{SearchPolyPenaltyKind2d::None};
+    SearchPolyPenaltyKind2d runnerUpPenaltyKind{SearchPolyPenaltyKind2d::None};
     bool bestCandidateBeatsSyntheticRunnerUp{false};
     bool bestCandidateBeatsBranchRunnerUp{false};
     std::size_t candidateCountWithSyntheticEdges{0};

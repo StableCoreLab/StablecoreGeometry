@@ -90,6 +90,28 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-candidate-causality-batch9）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 candidate-level causal explanation；
+  - 为 `SearchPolyCandidate2d` 新增：
+    - `dominantPenaltyKind`
+    - `inferredSyntheticEdgeLengths`
+  - 为 `SearchPolyResult2d` 新增：
+    - `bestCandidatePenaltyKind`
+    - `runnerUpPenaltyKind`
+  - 当前产品侧不仅能知道 top/runner-up 谁赢谁输，还能直接区分是 synthetic closure、branch penalty、synthetic-branch penalty 还是 mixed penalty 主导了当前 candidate。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 补齐 clean / synthetic / branch 三类代表性 candidate 的 `dominantPenaltyKind` 断言；
+  - 补齐 representative fake-edge 子集的 `inferredSyntheticEdgeLengths` 正数断言；
+  - 补齐 top/runner-up penalty-kind explanation 与 synthetic / branch runner-up explanation 的一致性断言。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。
