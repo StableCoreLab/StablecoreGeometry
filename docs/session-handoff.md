@@ -112,6 +112,19 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-healing-multi-eligible-shell-batch10）
+
+- 已扩展 capability tests：`tests/capabilities/test_3d_healing.cpp`
+  - 新增 `AggressiveHealingCanBoundaryCapTwoSharedEdgeShellsInsideMixedBody`
+  - 验证 mixed body 中 1 个 closed shell + 2 个 eligible shared-edge open shells 并存时，aggressive boundary-cap 会对两个 eligible shells 分别独立补 cap，而已闭壳保持不变；
+  - 当前 deterministic per-shell boundary-cap 子集已从“单个 eligible shell”推进到“多个彼此独立 eligible shells 并存”。
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成测试代码与文档同步。
+
 ## 本轮新增（2026-04-04，docs-handoff-sync）
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。

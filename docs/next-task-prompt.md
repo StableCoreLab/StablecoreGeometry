@@ -40,6 +40,7 @@
 - public SDK 入口保持不变
 - 已覆盖 conservative trim-backfill 与 representative aggressive shell boundary-cap 子集
 - aggressive boundary-cap fallback 已从单-shell body 推进到 mixed body 内的 eligible shared-edge shell 子集
+- aggressive boundary-cap fallback 已进一步覆盖“同一 body 内多个彼此独立 eligible shared-edge shells 并存”的 deterministic 子集
 - src/sdk/GeometryHealing.cpp 已按 trim-backfill / shell-cap / aggressive 三个内部 pass helper 拆层，便于继续推进而不改外部 contract
 - 更一般 multi-shell shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
 
@@ -86,6 +87,7 @@
 
 - 继续扩展 aggressive shell policy，但保持 conservative trim-backfill 与 topology-changing aggressive closure 的边界清晰
 - 当前 mixed body 中的 per-shell shared-edge boundary-cap 已有代表性 capability；下一步优先考虑更一般 multi-shell arbitration，而不是回退到单-shell-only
+- 下一步优先从“相互邻接/竞争的 multi-shell shared-edge arbitration”切入，而不是继续堆互不干扰的独立 shell 子例
 
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 

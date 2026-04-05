@@ -169,6 +169,7 @@
   - mixed open-curve / area gap 现收敛为更一般 adjacency arbitration，而不是否定已存在的 detached coexistence 子集
 - `GeometryHealing`
   - 已将 shared-edge boundary-cap fallback 从单-shell body 推进到 mixed body 内的 eligible shell 子集
+  - 已进一步把 deterministic boundary-cap 子集推进到“同一 body 内多个彼此独立 eligible shared-edge shells 并存”的场景
   - 已同步说明“更一般 multi-shell shared-edge arbitration 仍为 gap”，避免把更宽语义误记为已收敛
 - `GeometryBodyBoolean`
   - 已新增 face-touching external difference 子集，并把 touching intersection 与 richer overlap 继续保留为 gap

@@ -471,6 +471,123 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapSharedEdgeShellInsi
     assert(capFace.HoleTrims().empty());
 }
 
+// Demonstrates the mixed-body shared-edge boundary-cap subset scales to more
+// than one eligible shell: each eligible shared-edge shell is capped
+// independently while an already-closed shell remains unchanged.
+TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapTwoSharedEdgeShellsInsideMixedBody)
+{
+    std::vector<BrepVertex> vertices{
+        // Closed shell.
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        // Eligible shared-edge shell A.
+        BrepVertex(Point3d{3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 1.0, 0.0}),
+        BrepVertex(Point3d{3.0, 1.0, 0.0}),
+        BrepVertex(Point3d{5.0, 0.0, 0.0}),
+        BrepVertex(Point3d{5.0, 1.0, 0.0}),
+        // Eligible shared-edge shell B.
+        BrepVertex(Point3d{7.0, 0.0, 0.0}),
+        BrepVertex(Point3d{8.0, 0.0, 0.0}),
+        BrepVertex(Point3d{8.0, 1.0, 0.0}),
+        BrepVertex(Point3d{7.0, 1.0, 0.0}),
+        BrepVertex(Point3d{9.0, 0.0, 0.0}),
+        BrepVertex(Point3d{9.0, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Closed shell.
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+    // Eligible shell A.
+    addEdge(4, 5);
+    addEdge(5, 6); // shared interior edge
+    addEdge(6, 7);
+    addEdge(7, 4);
+    addEdge(5, 8);
+    addEdge(8, 9);
+    addEdge(9, 6);
+    // Eligible shell B.
+    addEdge(10, 11);
+    addEdge(11, 12); // shared interior edge
+    addEdge(12, 13);
+    addEdge(13, 10);
+    addEdge(11, 14);
+    addEdge(14, 15);
+    addEdge(15, 12);
+
+    const PlaneSurface planeSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+
+    const BrepLoop closedOuter({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop closedOuterReversed({BrepCoedge(3, true), BrepCoedge(2, true), BrepCoedge(1, true), BrepCoedge(0, true)});
+
+    const BrepLoop outerA0({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+    const BrepLoop outerA1({BrepCoedge(8, false), BrepCoedge(9, false), BrepCoedge(10, false), BrepCoedge(5, true)});
+
+    const BrepLoop outerB0({BrepCoedge(11, false), BrepCoedge(12, false), BrepCoedge(13, false), BrepCoedge(14, false)});
+    const BrepLoop outerB1({BrepCoedge(15, false), BrepCoedge(16, false), BrepCoedge(17, false), BrepCoedge(12, true)});
+
+    const BrepBody mixedBody(
+        vertices,
+        edges,
+        {
+            BrepShell(
+                {
+                    BrepFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), closedOuter),
+                    BrepFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), closedOuterReversed),
+                },
+                true),
+            BrepShell(
+                {
+                    BrepFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerA0),
+                    BrepFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerA1),
+                },
+                false),
+            BrepShell(
+                {
+                    BrepFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerB0),
+                    BrepFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerB1),
+                },
+                false),
+        });
+    assert(mixedBody.IsValid());
+    assert(mixedBody.ShellCount() == 3);
+    assert(mixedBody.ShellAt(0).IsClosed());
+    assert(!mixedBody.ShellAt(1).IsClosed());
+    assert(!mixedBody.ShellAt(2).IsClosed());
+
+    const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.issue == HealingIssue3d::None);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 3);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(healed.body.ShellAt(1).IsClosed());
+    assert(healed.body.ShellAt(2).IsClosed());
+    assert(healed.body.ShellAt(0).FaceCount() == 2);
+    assert(healed.body.ShellAt(1).FaceCount() == 3);
+    assert(healed.body.ShellAt(2).FaceCount() == 3);
+    assert(healed.body.FaceCount() == 8);
+    assert(healed.body.ShellAt(1).FaceAt(2).OuterTrim().IsValid());
+    assert(healed.body.ShellAt(2).FaceAt(2).OuterTrim().IsValid());
+}
+
 // Demonstrates aggressive closure also supports a recoverable holed planar
 // single-face open shell by mirroring outer and hole loops.
 TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableHoledOpenShell)

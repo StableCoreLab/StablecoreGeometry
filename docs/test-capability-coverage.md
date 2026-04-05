@@ -89,6 +89,7 @@
   - `Heal(..., policy=Aggressive)` 在存在 shared-edge 邻接的 planar multi-face open-sheet 上也可执行确定性闭壳，不再局限于边完全不共享的分离面片
   - `Heal(..., policy=Aggressive)` 已新增 standalone shared-edge holed shell 的代表性 boundary-cap 子集：support-plane mismatch + 缺失 trims 输入会先走 conservative trim-backfill，再补单一 holed cap face 完成闭壳
   - `Heal(..., policy=Aggressive)` 已新增 mixed body 内 eligible shared-edge shell 的 boundary-cap 子集：closed shell 保持稳定，同体内 open shared-edge shell 可独立补 cap 完成闭壳
+  - `Heal(..., policy=Aggressive)` 已进一步覆盖 mixed body 内多个彼此独立 eligible shared-edge shells 并存的 boundary-cap 子集：多个 eligible shells 可分别独立补 cap，而 closed shell 保持稳定
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下保持 deterministic：closed shell 保持稳定、eligible open shell 闭壳、ineligible open shell 保持 open
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下可与 conservative trim-backfill 协同：eligible open shell 先回填 trims 后闭壳，ineligible open shell 保持 open
   - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible multi-face open-sheet 闭壳，同时保持 closed shell 稳定与 ineligible shell open 状态
