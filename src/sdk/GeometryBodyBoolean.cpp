@@ -737,6 +737,24 @@ namespace
     return positiveOverlapAxes == 2U && touchingAxes == 1U;
 }
 
+[[nodiscard]] bool BoxContains(
+    const Box3d& container,
+    const Box3d& containee,
+    double epsilon)
+{
+    if (!container.IsValid() || !containee.IsValid())
+    {
+        return false;
+    }
+
+    return container.MinPoint().x <= containee.MinPoint().x + epsilon &&
+           container.MinPoint().y <= containee.MinPoint().y + epsilon &&
+           container.MinPoint().z <= containee.MinPoint().z + epsilon &&
+           container.MaxPoint().x >= containee.MaxPoint().x - epsilon &&
+           container.MaxPoint().y >= containee.MaxPoint().y - epsilon &&
+           container.MaxPoint().z >= containee.MaxPoint().z - epsilon;
+}
+
 [[nodiscard]] bool TryDetectNonVolumeTouchingIntersectionEmpty(
     const Box3d& first,
     const Box3d& second,
@@ -875,6 +893,13 @@ namespace
             differenceBox,
             epsilon,
             "Deterministic axis-aligned overlap-box difference subset.");
+    }
+
+    if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
+        TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
+        BoxContains(secondBox, firstBox, epsilon))
+    {
+        return MakeEmptyResult("Deterministic axis-aligned contained difference empty subset.");
     }
 
     if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&

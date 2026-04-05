@@ -317,6 +317,20 @@ TEST(BodyBooleanSdkCapabilityTest, OverlappingPolyhedronDifferenceReturnsRemaini
     EXPECT_NEAR(bounds.MaxPoint().z, 1.0, 1e-12);
 }
 
+TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronDifferenceReturnsDeterministicEmptyResult)
+{
+    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5);
+
+    const auto result = DifferenceBodies(first, second);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    EXPECT_TRUE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
 TEST(BodyBooleanSdkCapabilityTest, NonBoxOverlapUnionAndDifferenceRemainUnsupported)
 {
     const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
@@ -456,6 +470,22 @@ TEST(BodyBooleanSdkCapabilityTest, VertexTouchingBrepIntersectionReturnsDetermin
     ASSERT_TRUE(second.success);
 
     const auto result = IntersectBodies(first.body, second.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    EXPECT_TRUE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, ContainedBrepDifferenceReturnsDeterministicEmptyResult)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = DifferenceBodies(first.body, second.body);
 
     ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
     ASSERT_TRUE(result.IsSuccess());

@@ -970,6 +970,170 @@ void AddUniquePlaneEdgeSegments(
     }
 }
 
+[[nodiscard]] bool ReconstructSectionGraphContours(
+    const std::vector<LineSegment3d>& rawSegments,
+    const Plane& plane,
+    const PlaneProjectionBasis& basis,
+    double eps,
+    bool skipDegenerateClosedLoops,
+    PolyhedronSection3d& result)
+{
+    std::vector<Point2d> projectedNodes;
+    std::vector<Point3d> nodePoints3d;
+    std::vector<IndexedSegment2d> indexedSegments;
+    indexedSegments.reserve(rawSegments.size());
+    for (const LineSegment3d& segment : rawSegments)
+    {
+        const Point2d first2d = ProjectToLocalPlaneCoordinates(segment.startPoint, plane, basis);
+        const Point2d second2d = ProjectToLocalPlaneCoordinates(segment.endPoint, plane, basis);
+        const std::size_t firstIndex = FindOrAddPoint2d(first2d, projectedNodes, eps);
+        const std::size_t secondIndex = FindOrAddPoint2d(second2d, projectedNodes, eps);
+        if (firstIndex == secondIndex)
+        {
+            continue;
+        }
+
+        while (nodePoints3d.size() < projectedNodes.size())
+        {
+            nodePoints3d.push_back(Point3d{});
+        }
+        nodePoints3d[firstIndex] = segment.startPoint;
+        nodePoints3d[secondIndex] = segment.endPoint;
+
+        bool duplicate = false;
+        for (const IndexedSegment2d& existing : indexedSegments)
+        {
+            if ((existing.first == firstIndex && existing.second == secondIndex) ||
+                (existing.first == secondIndex && existing.second == firstIndex))
+            {
+                duplicate = true;
+                break;
+            }
+        }
+
+        if (!duplicate)
+        {
+            indexedSegments.push_back(IndexedSegment2d{firstIndex, secondIndex});
+        }
+    }
+
+    std::vector<std::vector<std::size_t>> adjacency(projectedNodes.size());
+    for (const IndexedSegment2d& segment : indexedSegments)
+    {
+        adjacency[segment.first].push_back(segment.second);
+        adjacency[segment.second].push_back(segment.first);
+    }
+
+    std::vector<bool> edgeVisited(indexedSegments.size(), false);
+    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
+    {
+        if (adjacency[nodeIndex].size() != 1 || !HasUnvisitedIncidentEdge(nodeIndex, adjacency, indexedSegments, edgeVisited))
+        {
+            continue;
+        }
+
+        const PolylineBuildResult polyline = BuildPolylineFromNode(
+            nodeIndex,
+            false,
+            adjacency,
+            indexedSegments,
+            edgeVisited);
+        if (!polyline.success)
+        {
+            result.issue = SectionIssue3d::OpenContour;
+            return false;
+        }
+
+        std::vector<Point3d> contour3d;
+        std::vector<Point2d> contour2d;
+        contour3d.reserve(polyline.nodeIndices.size());
+        contour2d.reserve(polyline.nodeIndices.size());
+        for (std::size_t contourNodeIndex : polyline.nodeIndices)
+        {
+            contour3d.push_back(nodePoints3d[contourNodeIndex]);
+            contour2d.push_back(projectedNodes[contourNodeIndex]);
+        }
+
+        SimplifyOpenPolyline(contour3d, contour2d, eps);
+        if (contour2d.size() < 2)
+        {
+            result.issue = SectionIssue3d::InvalidContour;
+            return false;
+        }
+
+        result.contours.push_back(SectionPolyline3d{false, std::move(contour3d)});
+    }
+
+    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
+    {
+        if (CountUnvisitedIncidentEdges(nodeIndex, indexedSegments, edgeVisited) > 2U)
+        {
+            result.issue = SectionIssue3d::NonManifoldContour;
+            return false;
+        }
+    }
+
+    for (std::size_t edgeIndex = 0; edgeIndex < indexedSegments.size(); ++edgeIndex)
+    {
+        if (edgeVisited[edgeIndex])
+        {
+            continue;
+        }
+
+        const PolylineBuildResult polyline = BuildPolylineFromNode(
+            indexedSegments[edgeIndex].first,
+            true,
+            adjacency,
+            indexedSegments,
+            edgeVisited);
+        if (!polyline.success)
+        {
+            result.issue = SectionIssue3d::InvalidContour;
+            return false;
+        }
+
+        std::vector<Point3d> contour3d;
+        std::vector<Point2d> contour2d;
+        contour3d.reserve(polyline.nodeIndices.size());
+        contour2d.reserve(polyline.nodeIndices.size());
+        for (std::size_t contourNodeIndex : polyline.nodeIndices)
+        {
+            contour3d.push_back(nodePoints3d[contourNodeIndex]);
+            contour2d.push_back(projectedNodes[contourNodeIndex]);
+        }
+
+        SimplifyLoop(contour3d, contour2d, eps);
+        if (contour2d.size() < 3)
+        {
+            if (skipDegenerateClosedLoops)
+            {
+                continue;
+            }
+
+            result.issue = SectionIssue3d::InvalidContour;
+            return false;
+        }
+
+        EnsureCounterClockwise(contour3d, contour2d);
+        Polygon2d polygon(Polyline2d(contour2d, PolylineClosure::Closed));
+        if (!polygon.IsValid())
+        {
+            if (skipDegenerateClosedLoops)
+            {
+                continue;
+            }
+
+            result.issue = SectionIssue3d::InvalidContour;
+            return false;
+        }
+
+        result.contours.push_back(SectionPolyline3d{true, std::move(contour3d)});
+        result.polygons.push_back(std::move(polygon));
+    }
+
+    return true;
+}
+
 } // namespace
 
 PolyhedronSection3d Section(
@@ -1106,148 +1270,15 @@ PolyhedronSection3d Section(
         result.polygons.clear();
     }
 
-    std::vector<Point2d> projectedNodes;
-    std::vector<Point3d> nodePoints3d;
-    std::vector<IndexedSegment2d> indexedSegments;
-    indexedSegments.reserve(rawSegments.size());
-    for (const LineSegment3d& segment : rawSegments)
-    {
-        const Point2d first2d = ProjectToLocalPlaneCoordinates(segment.startPoint, plane, basis);
-        const Point2d second2d = ProjectToLocalPlaneCoordinates(segment.endPoint, plane, basis);
-        const std::size_t firstIndex = FindOrAddPoint2d(first2d, projectedNodes, tolerance.distanceEpsilon);
-        const std::size_t secondIndex = FindOrAddPoint2d(second2d, projectedNodes, tolerance.distanceEpsilon);
-        if (firstIndex == secondIndex)
-        {
-            continue;
-        }
-
-        while (nodePoints3d.size() < projectedNodes.size())
-        {
-            nodePoints3d.push_back(Point3d{});
-        }
-        nodePoints3d[firstIndex] = segment.startPoint;
-        nodePoints3d[secondIndex] = segment.endPoint;
-
-        bool duplicate = false;
-        for (const IndexedSegment2d& existing : indexedSegments)
-        {
-            if ((existing.first == firstIndex && existing.second == secondIndex) ||
-                (existing.first == secondIndex && existing.second == firstIndex))
-            {
-                duplicate = true;
-                break;
-            }
-        }
-
-        if (!duplicate)
-        {
-            indexedSegments.push_back(IndexedSegment2d{firstIndex, secondIndex});
-        }
-    }
-
-    std::vector<std::vector<std::size_t>> adjacency(projectedNodes.size());
-    for (const IndexedSegment2d& segment : indexedSegments)
-    {
-        adjacency[segment.first].push_back(segment.second);
-        adjacency[segment.second].push_back(segment.first);
-    }
-
-    // Extract representative open contours first so attached spurs do not
-    // force the remaining closed-loop graph into an early non-manifold verdict.
-    std::vector<bool> edgeVisited(indexedSegments.size(), false);
-    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
-    {
-        if (adjacency[nodeIndex].size() != 1 || !HasUnvisitedIncidentEdge(nodeIndex, adjacency, indexedSegments, edgeVisited))
-        {
-            continue;
-        }
-
-        const PolylineBuildResult polyline = BuildPolylineFromNode(
-            nodeIndex,
+    if (!ReconstructSectionGraphContours(
+            rawSegments,
+            plane,
+            basis,
+            tolerance.distanceEpsilon,
             false,
-            adjacency,
-            indexedSegments,
-            edgeVisited);
-        if (!polyline.success)
-        {
-            result.issue = SectionIssue3d::OpenContour;
-            return result;
-        }
-
-        std::vector<Point3d> contour3d;
-        std::vector<Point2d> contour2d;
-        contour3d.reserve(polyline.nodeIndices.size());
-        contour2d.reserve(polyline.nodeIndices.size());
-        for (std::size_t contourNodeIndex : polyline.nodeIndices)
-        {
-            contour3d.push_back(nodePoints3d[contourNodeIndex]);
-            contour2d.push_back(projectedNodes[contourNodeIndex]);
-        }
-
-        SimplifyOpenPolyline(contour3d, contour2d, tolerance.distanceEpsilon);
-        if (contour2d.size() < 2)
-        {
-            result.issue = SectionIssue3d::InvalidContour;
-            return result;
-        }
-
-        result.contours.push_back(SectionPolyline3d{false, std::move(contour3d)});
-    }
-
-    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
+            result))
     {
-        if (CountUnvisitedIncidentEdges(nodeIndex, indexedSegments, edgeVisited) > 2U)
-        {
-            result.issue = SectionIssue3d::NonManifoldContour;
-            return result;
-        }
-    }
-
-    for (std::size_t edgeIndex = 0; edgeIndex < indexedSegments.size(); ++edgeIndex)
-    {
-        if (edgeVisited[edgeIndex])
-        {
-            continue;
-        }
-
-        const PolylineBuildResult polyline = BuildPolylineFromNode(
-            indexedSegments[edgeIndex].first,
-            true,
-            adjacency,
-            indexedSegments,
-            edgeVisited);
-        if (!polyline.success)
-        {
-            result.issue = SectionIssue3d::InvalidContour;
-            return result;
-        }
-
-        std::vector<Point3d> contour3d;
-        std::vector<Point2d> contour2d;
-        contour3d.reserve(polyline.nodeIndices.size());
-        contour2d.reserve(polyline.nodeIndices.size());
-        for (std::size_t contourNodeIndex : polyline.nodeIndices)
-        {
-            contour3d.push_back(nodePoints3d[contourNodeIndex]);
-            contour2d.push_back(projectedNodes[contourNodeIndex]);
-        }
-
-        SimplifyLoop(contour3d, contour2d, tolerance.distanceEpsilon);
-        if (contour2d.size() < 3)
-        {
-            result.issue = SectionIssue3d::InvalidContour;
-            return result;
-        }
-
-        Polygon2d polygon(Polyline2d(contour2d, PolylineClosure::Closed));
-        if (!polygon.IsValid())
-        {
-            result.issue = SectionIssue3d::InvalidContour;
-            return result;
-        }
-
-        result.contours.push_back(SectionPolyline3d{true, std::move(contour3d)});
-        result.polygons.push_back(std::move(polygon));
+        return result;
     }
 
     MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
@@ -1413,142 +1444,15 @@ PolyhedronSection3d Section(
         return result;
     }
 
-    std::vector<Point2d> projectedNodes;
-    std::vector<Point3d> nodePoints3d;
-    std::vector<IndexedSegment2d> indexedSegments;
-    indexedSegments.reserve(rawSegments.size());
-    for (const LineSegment3d& segment : rawSegments)
-    {
-        const Point2d first2d = ProjectToLocalPlaneCoordinates(segment.startPoint, plane, basis);
-        const Point2d second2d = ProjectToLocalPlaneCoordinates(segment.endPoint, plane, basis);
-        const std::size_t firstIndex = FindOrAddPoint2d(first2d, projectedNodes, tolerance.distanceEpsilon);
-        const std::size_t secondIndex = FindOrAddPoint2d(second2d, projectedNodes, tolerance.distanceEpsilon);
-        if (firstIndex == secondIndex)
-        {
-            continue;
-        }
-
-        while (nodePoints3d.size() < projectedNodes.size())
-        {
-            nodePoints3d.push_back(Point3d{});
-        }
-        nodePoints3d[firstIndex] = segment.startPoint;
-        nodePoints3d[secondIndex] = segment.endPoint;
-
-        bool duplicate = false;
-        for (const IndexedSegment2d& existing : indexedSegments)
-        {
-            if ((existing.first == firstIndex && existing.second == secondIndex) ||
-                (existing.first == secondIndex && existing.second == firstIndex))
-            {
-                duplicate = true;
-                break;
-            }
-        }
-
-        if (!duplicate)
-        {
-            indexedSegments.push_back(IndexedSegment2d{firstIndex, secondIndex});
-        }
-    }
-
-    std::vector<std::vector<std::size_t>> adjacency(projectedNodes.size());
-    for (const IndexedSegment2d& segment : indexedSegments)
-    {
-        adjacency[segment.first].push_back(segment.second);
-        adjacency[segment.second].push_back(segment.first);
-    }
-
-    // Mirror the same open-first arbitration on the Brep path so mixed
-    // area/open subsets stay aligned with the Polyhedron behavior.
-    std::vector<bool> edgeVisited(indexedSegments.size(), false);
-    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
-    {
-        if (adjacency[nodeIndex].size() != 1 ||
-            !HasUnvisitedIncidentEdge(nodeIndex, adjacency, indexedSegments, edgeVisited))
-        {
-            continue;
-        }
-
-        const PolylineBuildResult polyline = BuildPolylineFromNode(
-            nodeIndex,
-            false,
-            adjacency,
-            indexedSegments,
-            edgeVisited);
-        if (!polyline.success)
-        {
-            result.issue = SectionIssue3d::OpenContour;
-            return result;
-        }
-
-        std::vector<Point3d> contour3d;
-        std::vector<Point2d> contour2d;
-        contour3d.reserve(polyline.nodeIndices.size());
-        contour2d.reserve(polyline.nodeIndices.size());
-        for (std::size_t contourNodeIndex : polyline.nodeIndices)
-        {
-            contour3d.push_back(nodePoints3d[contourNodeIndex]);
-            contour2d.push_back(projectedNodes[contourNodeIndex]);
-        }
-
-        SimplifyOpenPolyline(contour3d, contour2d, tolerance.distanceEpsilon);
-        if (contour2d.size() < 2)
-        {
-            result.issue = SectionIssue3d::InvalidContour;
-            return result;
-        }
-
-        result.contours.push_back(SectionPolyline3d{false, std::move(contour3d)});
-    }
-
-    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
-    {
-        if (CountUnvisitedIncidentEdges(nodeIndex, indexedSegments, edgeVisited) > 2U)
-        {
-            result.issue = SectionIssue3d::NonManifoldContour;
-            return result;
-        }
-    }
-
-    for (std::size_t edgeIndex = 0; edgeIndex < indexedSegments.size(); ++edgeIndex)
-    {
-        if (edgeVisited[edgeIndex])
-        {
-            continue;
-        }
-
-        const PolylineBuildResult polyline = BuildPolylineFromNode(
-            indexedSegments[edgeIndex].first,
+    if (!ReconstructSectionGraphContours(
+            rawSegments,
+            plane,
+            basis,
+            tolerance.distanceEpsilon,
             true,
-            adjacency,
-            indexedSegments,
-            edgeVisited);
-        if (!polyline.success)
-        {
-            result.issue = SectionIssue3d::InvalidContour;
-            return result;
-        }
-
-        std::vector<Point3d> contour3d;
-        std::vector<Point2d> contour2d;
-        contour3d.reserve(polyline.nodeIndices.size());
-        contour2d.reserve(polyline.nodeIndices.size());
-        for (std::size_t contourNodeIndex : polyline.nodeIndices)
-        {
-            contour3d.push_back(nodePoints3d[contourNodeIndex]);
-            contour2d.push_back(projectedNodes[contourNodeIndex]);
-        }
-
-        SimplifyLoop(contour3d, contour2d, tolerance.distanceEpsilon);
-        if (contour2d.size() < 3)
-        {
-            continue;
-        }
-
-        result.contours.push_back(SectionPolyline3d{true, contour3d});
-        EnsureCounterClockwise(contour3d, contour2d);
-        result.polygons.emplace_back(Polyline2d(std::move(contour2d), PolylineClosure::Closed));
+            result))
+    {
+        return result;
     }
 
     MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);

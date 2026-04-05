@@ -240,6 +240,41 @@ PolyhedronBody BuildMixedCoplanarStripAndNonPlanarSectionBody()
     return PolyhedronBody(std::move(faces));
 }
 
+PolyhedronBody BuildMixedCoplanarStripAndEdgeAttachedOpenSectionBody()
+{
+    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    std::vector<PolyhedronFace3d> faces = cube.Faces();
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{1.0, 0.0, 0.5}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({
+            Point3d{1.0, 0.0, 0.5},
+            Point3d{2.0, 0.0, 0.5},
+            Point3d{2.0, 1.0, 0.5},
+            Point3d{1.0, 1.0, 0.5},
+        }));
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{2.0, 0.0, 0.5}, Vector3d{0.0, 0.0, 1.0}),
+        PolyhedronLoop3d({
+            Point3d{2.0, 0.0, 0.5},
+            Point3d{3.0, 0.0, 0.5},
+            Point3d{3.0, 1.0, 0.5},
+            Point3d{2.0, 1.0, 0.5},
+        }));
+
+    faces.emplace_back(
+        Plane::FromPointAndNormal(Point3d{0.5, 1.0, 0.0}, Vector3d{1.0, 0.0, 0.0}),
+        PolyhedronLoop3d({
+            Point3d{0.5, 1.0, 0.0},
+            Point3d{0.5, 2.0, 0.0},
+            Point3d{0.5, 2.0, 1.0},
+            Point3d{0.5, 1.0, 1.0},
+        }));
+
+    return PolyhedronBody(std::move(faces));
+}
+
 PolyhedronBody BuildTwoEdgeAttachedOpenSectionBody()
 {
     const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
@@ -1179,6 +1214,98 @@ TEST(Section3dCapabilityTest, BrepMixedCoplanarStripAndNonPlanarSectionMergesInt
     assert(components.components.size() == 1);
 
     assert(ClassifySectionContent(section) == SectionContentKind3d::Area);
+}
+
+// Demonstrates mixed-content arbitration still survives the broader strip
+// merge subset: after the area side expands from one face to a strip, the
+// edge-attached open contour is still preserved as Mixed content.
+TEST(Section3dCapabilityTest, MixedCoplanarStripAndEdgeAttachedOpenContourBuildsMixedContent)
+{
+    const PolyhedronBody body = BuildMixedCoplanarStripAndEdgeAttachedOpenSectionBody();
+    assert(body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 2);
+    assert(section.segments.size() == 6);
+
+    std::size_t closedContours = 0;
+    std::size_t openContours = 0;
+    for (const auto& contour : section.contours)
+    {
+        if (contour.closed)
+        {
+            ++closedContours;
+            assert(contour.points.size() == 5);
+        }
+        else
+        {
+            ++openContours;
+            assert(contour.points.size() == 2);
+            assert(std::abs(contour.points.front().x - 0.5) < 1e-12);
+            assert(std::abs(contour.points.front().y - 1.0) < 1e-12);
+            assert(std::abs(contour.points.back().x - 0.5) < 1e-12);
+            assert(std::abs(contour.points.back().y - 2.0) < 1e-12);
+        }
+    }
+
+    assert(closedContours == 1);
+    assert(openContours == 1);
+    assert(std::abs(section.polygons[0].Area() - 3.0) < 1e-12);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
+}
+
+TEST(Section3dCapabilityTest, BrepMixedCoplanarStripAndEdgeAttachedOpenContourBuildsMixedContent)
+{
+    const PolyhedronBody polyBody = BuildMixedCoplanarStripAndEdgeAttachedOpenSectionBody();
+    assert(polyBody.IsValid());
+
+    const auto converted = ConvertToBrepBody(polyBody);
+    assert(converted.success);
+    assert(converted.issue == BrepConversionIssue3d::None);
+    assert(converted.body.IsValid());
+
+    const Plane cut = Plane::FromPointAndNormal(
+        Point3d{0.0, 0.0, 0.5},
+        Vector3d{0.0, 0.0, 1.0});
+    const auto section = Section(converted.body, cut);
+    assert(section.success);
+    assert(section.IsValid());
+
+    assert(section.polygons.size() == 1);
+    assert(section.contours.size() == 2);
+    assert(section.segments.size() == 6);
+
+    std::size_t closedContours = 0;
+    std::size_t openContours = 0;
+    for (const auto& contour : section.contours)
+    {
+        if (contour.closed)
+        {
+            ++closedContours;
+            assert(contour.points.size() == 5);
+        }
+        else
+        {
+            ++openContours;
+            assert(contour.points.size() == 2);
+            assert(std::abs(contour.points.front().x - 0.5) < 1e-12);
+            assert(std::abs(contour.points.front().y - 1.0) < 1e-12);
+            assert(std::abs(contour.points.back().x - 0.5) < 1e-12);
+            assert(std::abs(contour.points.back().y - 2.0) < 1e-12);
+        }
+    }
+
+    assert(closedContours == 1);
+    assert(openContours == 1);
+    assert(std::abs(section.polygons[0].Area() - 3.0) < 1e-12);
+    assert(ClassifySectionContent(section) == SectionContentKind3d::Mixed);
 }
 
 // Demonstrates mixed open-curve/area arbitration also keeps two representative

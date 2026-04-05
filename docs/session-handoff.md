@@ -89,6 +89,35 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-bodyboolean-contained-batch26）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - 将 raw segment -> contour/polygon graph reconstruction 收口到共享 helper，保持 Polyhedron / Brep 两条 section 路径的 open-first arbitration 一致；
+  - 当前 mixed coplanar/non-planar strip merge 已可与 edge-attached open contour 组合：strip-adjacent area 扩展后，open contour 仍可稳定保留为 `Mixed`。
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 新增 axis-aligned contained difference-empty 子集；
+  - 当 `second` 完整包含 `first` 时，`DifferenceBodies(first, second)` 现在稳定返回 deterministic empty result，而不是继续落到 `UnsupportedOperation`。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `MixedCoplanarStripAndEdgeAttachedOpenContourBuildsMixedContent`
+    - 新增 `BrepMixedCoplanarStripAndEdgeAttachedOpenContourBuildsMixedContent`
+    - 验证 strip-adjacent merged area + edge-attached open contour 在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 1 open contour`（area=3）
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 `ContainedPolyhedronDifferenceReturnsDeterministicEmptyResult`
+    - 新增 `ContainedBrepDifferenceReturnsDeterministicEmptyResult`
+    - 验证 axis-aligned contained difference 在 Polyhedron / Brep 路径都稳定返回 empty result
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 mixed open-curve / area arbitration 已新增 strip-adjacent merged-area + edge-attached open 子集
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 axis-aligned contained difference-empty 子集已纳入 capability
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch21）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：

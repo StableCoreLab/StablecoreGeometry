@@ -27,7 +27,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2：新增 mixed coplanar strip + non-planar stable single-polygon merge 子集，以及 `GeometryHealing` 的 shared-boundary-edge conservative arbitration / vertex-touch non-competing closure 子集；下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P3：新增 strip-adjacent merged-area + edge-attached open stable mixed-content 子集，以及 `GeometryBodyBoolean` 的 axis-aligned contained difference-empty 子集；下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -44,6 +44,7 @@
   - detached + vertex-attached + edge-attached triple-open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 3 open contours）
   - edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2）
   - strip-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3）
+  - strip-adjacent merged area + edge-attached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
 - 当前仍保留的 gap：
   - ambiguous non-manifold contour stitching
   - mixed open-curve / area edge-adjacency arbitration
@@ -74,7 +75,7 @@
 ### GeometryBodyBoolean
 
 - `include/sdk/GeometryBodyBoolean.h` public contract 保持稳定
-- 已覆盖 identical / disjoint closed-body 子集、axis-aligned single-box overlap 子集、face-touching union 子集、face-touching external difference 子集，以及 axis-aligned face/edge/vertex touching empty intersection 子集
+- 已覆盖 identical / disjoint closed-body 子集、axis-aligned single-box overlap 子集、face-touching union 子集、face-touching external difference 子集、axis-aligned contained difference-empty 子集，以及 axis-aligned face/edge/vertex touching empty intersection 子集
 - 非 axis-aligned / richer touching intersection、非 box touching、shell-policy、healing integration 仍为 gap
 
 ### Geometry.h / include-sdk 收口
