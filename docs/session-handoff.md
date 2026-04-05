@@ -118,6 +118,35 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-bodyboolean-identical-batch27）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - Polyhedron 路径的 graph reconstruction 现在在存在 coplanar merged-area 背景时，也会跳过 graph 中退化 closed loop，与 Brep 路径保持一致；
+  - 当前 strip-adjacent merged-area mixed-content 子集已从 edge-attached 进一步扩到 vertex-attached open contour，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`。
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 为 closed-body difference 增加 explicit identical-difference-empty contract；
+  - 当前 identical closed bodies 不再只依赖 contained difference 兜底，而是稳定返回 deterministic empty result。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `MixedCoplanarStripAndVertexAttachedOpenContourBuildsMixedContent`
+    - 新增 `BrepMixedCoplanarStripAndVertexAttachedOpenContourBuildsMixedContent`
+    - 验证 strip-adjacent merged area + vertex-attached open contour 在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 1 open contour`（area=3）
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 `IdenticalPolyhedronDifferenceReturnsDeterministicEmptyResult`
+    - 新增 `IdenticalBrepDifferenceReturnsDeterministicEmptyResult`
+    - 验证 identical closed-body difference 在 Polyhedron / Brep 路径都稳定返回 empty result
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 mixed open-curve / area arbitration 已新增 strip-adjacent merged-area + vertex-attached open 子集
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 identical difference-empty 子集已纳入 deterministic closed-body capability
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch21）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：

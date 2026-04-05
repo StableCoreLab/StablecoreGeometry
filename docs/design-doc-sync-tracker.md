@@ -10,7 +10,7 @@
 - 已同步新增的 `AI Execution Spec` 到现有执行文档，明确 closed capability unit、P1+P2/P3 breadth、capability/edge-case/gap tests mandatory、capability-vs-gap discipline 与 diagnostics consistency 约束。
 - 已进一步同步 `GeometrySection` 的 vertex-attached mixed-content 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。
 - 已进一步同步 `GeometrySection` 的 edge-attached mixed-content 子集，并补记 `SearchPolygonContainingPoint(...)` 路径也会保留 synthetic explanation。
-- 已进一步同步 `GeometrySection` 的 edge-adjacent / strip-adjacent mixed coplanar/non-planar merge 子集、strip-adjacent merged-area + edge-attached open mixed-content 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
+- 已进一步同步 `GeometrySection` 的 edge-adjacent / strip-adjacent mixed coplanar/non-planar merge 子集、strip-adjacent merged-area + edge-attached / vertex-attached open mixed-content 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
 - 已进一步同步 `GeometrySection` 的 dual edge-attached mixed-content 子集，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation。
 - 已进一步同步 `GeometrySection` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `GeometrySearchPoly` 的 ambiguous-top count explanation。
 - 已进一步同步 `GeometrySection` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。
@@ -181,6 +181,7 @@
   - 已新增 edge-adjacent mixed coplanar + non-planar merge 子集：final section polygon merge 现会保留 open contours，并把 representative edge-adjacent mixed area 稳定收敛为单 polygon
   - 已进一步新增 strip-adjacent mixed coplanar + non-planar merge 子集：cube mid-section 与相邻 two-face coplanar strip 在 Polyhedron / Brep 路径都稳定收敛为单 polygon（area=3）
   - 已进一步新增 strip-adjacent merged-area + edge-attached open mixed-content 子集：merged area 扩展到 two-face strip 后，edge-attached open contour 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`
+  - 已进一步新增 strip-adjacent merged-area + vertex-attached open mixed-content 子集：merged area 扩展到 two-face strip 后，vertex-attached open contour 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`
   - 已将 raw segment -> contour/polygon graph reconstruction 收口到共享 helper，降低 Polyhedron / Brep 两条路径后续继续推进时的分叉风险
 - `GeometryHealing`
   - 已将 shared-edge boundary-cap fallback 从单-shell body 推进到 mixed body 内的 eligible shell 子集
@@ -192,6 +193,7 @@
   - 已进一步新增 face-touching empty intersection 子集，并为 `BodyBooleanResult3d` 增加 `producedEmptyResult`
   - 已进一步把 axis-aligned touching empty intersection 从 face-touching 推进到 edge-touching / vertex-touching 子集
   - 已进一步新增 axis-aligned contained difference-empty 子集：当 second 完整包含 first 时，`DifferenceBodies(first, second)` 稳定返回 empty result
+  - 已进一步新增 identical difference-empty 子集：当两个 closed bodies 完全相同时，`DifferenceBodies(first, second)` 稳定返回 empty result
   - 已同步 `tests/capabilities/test_3d_body_boolean_sdk.cpp` 与 `tests/gaps/test_3d_body_boolean_gaps.cpp` 的边界说明
 
 ## 2026-04-05 GeometrySearchPoly explanation 同步

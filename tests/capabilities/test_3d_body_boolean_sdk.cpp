@@ -139,6 +139,20 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronUnionReturnsSingleClosedBo
     EXPECT_TRUE(result.bodies.empty());
 }
 
+TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronDifferenceReturnsDeterministicEmptyResult)
+{
+    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+
+    const auto result = DifferenceBodies(first, second);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    EXPECT_TRUE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
+}
+
 TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronUnionReturnsTwoBodies)
 {
     const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
@@ -357,6 +371,20 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepIntersectionReturnsClosedBody)
     EXPECT_EQ(result.body.FaceCount(), 6U);
     EXPECT_EQ(result.body.ShellCount(), 1U);
     EXPECT_TRUE(result.body.ShellAt(0).IsClosed());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepDifferenceReturnsDeterministicEmptyResult)
+{
+    const auto converted = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    ASSERT_TRUE(converted.success);
+
+    const auto result = DifferenceBodies(converted.body, converted.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    EXPECT_TRUE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 0U);
+    EXPECT_TRUE(result.bodies.empty());
 }
 
 TEST(BodyBooleanSdkCapabilityTest, OverlappingBrepUnionReturnsSingleAxisAlignedBox)

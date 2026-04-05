@@ -1275,7 +1275,7 @@ PolyhedronSection3d Section(
             plane,
             basis,
             tolerance.distanceEpsilon,
-            false,
+            hasCoplanarFace,
             result))
     {
         return result;

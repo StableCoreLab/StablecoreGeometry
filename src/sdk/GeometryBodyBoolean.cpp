@@ -875,6 +875,11 @@ namespace
     const BodyBooleanOptions3d& options)
 {
     const double epsilon = ResolveTolerance(options);
+    if (BodiesLookIdentical(first, second, epsilon))
+    {
+        return MakeEmptyResult("Deterministic identical-body difference empty subset.");
+    }
+
     if (BoundsDisjoint(first.Bounds(), second.Bounds(), epsilon))
     {
         return MakeSingleBodyResult(first, "Deterministic disjoint-body difference subset.");
