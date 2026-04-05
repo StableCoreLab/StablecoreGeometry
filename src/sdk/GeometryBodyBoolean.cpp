@@ -55,6 +55,8 @@ namespace
     return BrepBody(body.Vertices(), body.Edges(), {BrepShell(shell.Faces(), true)});
 }
 
+[[nodiscard]] bool BoundsLexicographicallyLess(const Box3d& first, const Box3d& second, double epsilon);
+
 [[nodiscard]] BodyBooleanResult3d MakeSingleBodyResult(BrepBody body, const char* message)
 {
     BodyBooleanResult3d result;
@@ -68,6 +70,15 @@ namespace
 {
     BodyBooleanResult3d result;
     result.issue = BodyBooleanIssue3d::None;
+    std::sort(
+        bodies.begin(),
+        bodies.end(),
+        [](const BrepBody& first, const BrepBody& second) {
+            return BoundsLexicographicallyLess(
+                first.Bounds(),
+                second.Bounds(),
+                geometry::kDefaultEpsilon);
+        });
     result.bodies = std::move(bodies);
     result.message = message;
     return result;
@@ -114,6 +125,35 @@ namespace
            NearlyEqual(left.MaxPoint().x, right.MaxPoint().x, epsilon) &&
            NearlyEqual(left.MaxPoint().y, right.MaxPoint().y, epsilon) &&
            NearlyEqual(left.MaxPoint().z, right.MaxPoint().z, epsilon);
+}
+
+[[nodiscard]] bool BoundsLexicographicallyLess(const Box3d& first, const Box3d& second, double epsilon)
+{
+    if (!NearlyEqual(first.MinPoint().x, second.MinPoint().x, epsilon))
+    {
+        return first.MinPoint().x < second.MinPoint().x;
+    }
+    if (!NearlyEqual(first.MinPoint().y, second.MinPoint().y, epsilon))
+    {
+        return first.MinPoint().y < second.MinPoint().y;
+    }
+    if (!NearlyEqual(first.MinPoint().z, second.MinPoint().z, epsilon))
+    {
+        return first.MinPoint().z < second.MinPoint().z;
+    }
+    if (!NearlyEqual(first.MaxPoint().x, second.MaxPoint().x, epsilon))
+    {
+        return first.MaxPoint().x < second.MaxPoint().x;
+    }
+    if (!NearlyEqual(first.MaxPoint().y, second.MaxPoint().y, epsilon))
+    {
+        return first.MaxPoint().y < second.MaxPoint().y;
+    }
+    if (!NearlyEqual(first.MaxPoint().z, second.MaxPoint().z, epsilon))
+    {
+        return first.MaxPoint().z < second.MaxPoint().z;
+    }
+    return false;
 }
 
 [[nodiscard]] bool BoundsDisjoint(const Box3d& left, const Box3d& right, double epsilon)

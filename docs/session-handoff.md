@@ -85,6 +85,34 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-healing-ordered-union-batch30）
+
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 新增 deterministic disjoint multi-body union ordering 子集；
+  - disjoint `UnionBodies(...)` 现在会按 body bounds 的稳定词典序返回 `bodies`，避免结果顺序依赖输入顺序。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子集；
+    - 验证在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 3 open contours`（area=3）。
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 mixed closed-shell + competing pair + vertex-touch shell arbitration 子集；
+    - 验证 closed shell 保持稳定、competing pair 保持 open，而 vertex-touch shell 可闭壳。
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 disjoint union reverse-input ordering 在 Polyhedron / Brep 路径的 deterministic normalization 子集。
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 已进入 covered subset
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 mixed closed-shell + competing-pair + vertex-touch shell subset 已进入 covered subset
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 deterministic disjoint ordered-multi-body union 已进入 covered subset
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-searchpoly-source-summary-batch24）
 
 - 已更新 `src/sdk/GeometrySection.cpp`：

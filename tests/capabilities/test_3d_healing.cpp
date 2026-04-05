@@ -1017,6 +1017,130 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentAndVertexTouchSh
     assert(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
 }
 
+// Demonstrates the same arbitration still composes in a mixed body containing
+// an already-closed shell: the closed shell stays unchanged, the competing pair
+// stays open, and the vertex-touch shell can still close.
+TEST(Healing3dCapabilityTest, AggressiveHealingKeepsClosedShellAndCompetingPairWhileClosingVertexTouchShell)
+{
+    std::vector<BrepVertex> vertices{
+        // Closed shell.
+        BrepVertex(Point3d{-4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{-3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{-3.0, 1.0, 0.0}),
+        BrepVertex(Point3d{-4.0, 1.0, 0.0}),
+        // Competing shell A.
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        BrepVertex(Point3d{2.0, 0.0, 0.0}),
+        BrepVertex(Point3d{2.0, 1.0, 0.0}),
+        // Competing shell B shares boundary edge (8,9) with shell A.
+        BrepVertex(Point3d{3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{3.0, 1.0, 0.0}),
+        BrepVertex(Point3d{4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{4.0, 1.0, 0.0}),
+        // Vertex-touch shell C shares only vertex 13 with shell B.
+        BrepVertex(Point3d{5.0, 1.0, 0.0}),
+        BrepVertex(Point3d{5.0, 2.0, 0.0}),
+        BrepVertex(Point3d{4.0, 2.0, 0.0}),
+        BrepVertex(Point3d{6.0, 1.0, 0.0}),
+        BrepVertex(Point3d{6.0, 2.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Closed shell.
+    addEdge(0, 1);
+    addEdge(1, 2);
+    addEdge(2, 3);
+    addEdge(3, 0);
+
+    // Competing shell A.
+    addEdge(4, 5);
+    addEdge(5, 6); // shared interior edge
+    addEdge(6, 7);
+    addEdge(7, 4);
+    addEdge(5, 8);
+    addEdge(8, 9);
+    addEdge(9, 6);
+
+    // Competing shell B shares boundary edge (8,9) with shell A.
+    addEdge(8, 10);
+    addEdge(10, 11); // shared interior edge
+    addEdge(11, 9);
+    addEdge(9, 8);
+    addEdge(10, 12);
+    addEdge(12, 13);
+    addEdge(13, 11);
+
+    // Vertex-touch shell C shares only vertex 13 with shell B.
+    addEdge(13, 14);
+    addEdge(14, 15); // shared interior edge
+    addEdge(15, 16);
+    addEdge(16, 13);
+    addEdge(14, 17);
+    addEdge(17, 18);
+    addEdge(18, 15);
+
+    const BrepLoop closedOuter({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop closedOuterReversed({BrepCoedge(3, true), BrepCoedge(2, true), BrepCoedge(1, true), BrepCoedge(0, true)});
+    const BrepLoop shellA0({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(7, false)});
+    const BrepLoop shellA1({BrepCoedge(8, false), BrepCoedge(9, false), BrepCoedge(10, false), BrepCoedge(5, true)});
+    const BrepLoop shellB0({BrepCoedge(11, false), BrepCoedge(12, false), BrepCoedge(13, false), BrepCoedge(14, false)});
+    const BrepLoop shellB1({BrepCoedge(15, false), BrepCoedge(16, false), BrepCoedge(17, false), BrepCoedge(12, true)});
+    const BrepLoop shellC0({BrepCoedge(18, false), BrepCoedge(19, false), BrepCoedge(20, false), BrepCoedge(21, false)});
+    const BrepLoop shellC1({BrepCoedge(22, false), BrepCoedge(23, false), BrepCoedge(24, false), BrepCoedge(19, true)});
+
+    const PlaneSurface planeSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    const BrepFace closedFaceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), closedOuter);
+    const BrepFace closedFaceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), closedOuterReversed);
+    const BrepFace faceA0(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellA0);
+    const BrepFace faceA1(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellA1);
+    const BrepFace faceB0(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellB0);
+    const BrepFace faceB1(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellB1);
+    const BrepFace faceC0(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellC0);
+    const BrepFace faceC1(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellC1);
+
+    const BrepBody body(
+        vertices,
+        edges,
+        {
+            BrepShell({closedFaceA, closedFaceB}, true),
+            BrepShell({faceA0, faceA1}, false),
+            BrepShell({faceB0, faceB1}, false),
+            BrepShell({faceC0, faceC1}, false),
+        });
+    assert(body.IsValid());
+    assert(body.ShellCount() == 4);
+
+    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.issue == HealingIssue3d::None);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 4);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(!healed.body.ShellAt(1).IsClosed());
+    assert(!healed.body.ShellAt(2).IsClosed());
+    assert(healed.body.ShellAt(3).IsClosed());
+    assert(healed.body.ShellAt(0).FaceCount() == 2);
+    assert(healed.body.ShellAt(1).FaceCount() == 2);
+    assert(healed.body.ShellAt(2).FaceCount() == 2);
+    assert(healed.body.ShellAt(3).FaceCount() == 3);
+    assert(healed.body.FaceCount() == 9);
+    assert(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
+}
+
 // Demonstrates aggressive closure also supports a recoverable holed planar
 // single-face open shell by mirroring outer and hole loops.
 TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableHoledOpenShell)

@@ -168,6 +168,26 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronUnionReturnsTwoBodies)
     EXPECT_EQ(result.bodies[1].FaceCount(), 6U);
 }
 
+TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronUnionNormalizesBodyOrder)
+{
+    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = BuildTranslatedUnitCubeBody(3.0, 0.0, 0.0);
+
+    const auto result = UnionBodies(second, first);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_EQ(result.bodies.size(), 2U);
+    EXPECT_EQ(result.bodies[0].FaceCount(), 6U);
+    EXPECT_EQ(result.bodies[1].FaceCount(), 6U);
+    const auto firstBounds = result.bodies[0].Bounds();
+    const auto secondBounds = result.bodies[1].Bounds();
+    EXPECT_NEAR(firstBounds.MinPoint().x, 0.0, 1e-12);
+    EXPECT_NEAR(firstBounds.MaxPoint().x, 1.0, 1e-12);
+    EXPECT_NEAR(secondBounds.MinPoint().x, 3.0, 1e-12);
+    EXPECT_NEAR(secondBounds.MaxPoint().x, 4.0, 1e-12);
+}
+
 TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronDifferenceReturnsOriginalBody)
 {
     const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
@@ -511,6 +531,28 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointBrepIntersectionReturnsDeterministicE
     EXPECT_TRUE(result.producedEmptyResult);
     EXPECT_EQ(result.body.FaceCount(), 0U);
     EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, DisjointBrepUnionNormalizesBodyOrder)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto second = geometry::sdk::ConvertToBrepBody(BuildTranslatedUnitCubeBody(3.0, 0.0, 0.0));
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = UnionBodies(second.body, first.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_EQ(result.bodies.size(), 2U);
+    EXPECT_EQ(result.bodies[0].FaceCount(), 6U);
+    EXPECT_EQ(result.bodies[1].FaceCount(), 6U);
+    const auto firstBounds = result.bodies[0].Bounds();
+    const auto secondBounds = result.bodies[1].Bounds();
+    EXPECT_NEAR(firstBounds.MinPoint().x, 0.0, 1e-12);
+    EXPECT_NEAR(firstBounds.MaxPoint().x, 1.0, 1e-12);
+    EXPECT_NEAR(secondBounds.MinPoint().x, 3.0, 1e-12);
+    EXPECT_NEAR(secondBounds.MaxPoint().x, 4.0, 1e-12);
 }
 
 TEST(BodyBooleanSdkCapabilityTest, OverlappingBrepUnionReturnsSingleAxisAlignedBox)
