@@ -145,6 +145,25 @@
     - 明确 SearchPoly 已覆盖 edge-level synthetic explanation（kind/source/vertex-identity/touch-mapping），remaining gap 继续保留为 Delphi-grade ambiguous recovery / richer explanation / full smart-search parity
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-edge-attached-open-batch20）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - 保持 open-first arbitration 不变，并补充实现注释，明确当前 representative mixed-content 语义是“先抽 open spur，再对剩余闭环执行 non-manifold 检查”；
+  - 该口径现在同样覆盖 edge-attached spur 子集。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `EdgeAttachedOpenContourSectionBuildsMixedContent`
+    - 新增 `BrepEdgeAttachedOpenContourSectionBuildsMixedContent`
+    - 验证 open contour 接触 polygon 边中点时，在 Polyhedron / Brep 路径都可与 closed area 共存，并稳定分类为 `Mixed`
+  - `tests/capabilities/test_searchpoly_sdk.cpp`
+    - 新增 `SearchPolygonContainingPointPreservesSyntheticExplanation`
+    - 验证 `SearchPolygonContainingPoint(...)` 选中 synthetic candidate 时，不会丢失 candidate-level synthetic explanation
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 detached / vertex-attached / edge-attached mixed-content 子集已进入 covered subset；
+    - remaining gap 继续收敛为更一般 edge-adjacency arbitration 与 non-manifold topology
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-explanation-batch7）
 
 - 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：

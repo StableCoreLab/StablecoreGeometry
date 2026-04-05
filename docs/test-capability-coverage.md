@@ -68,6 +68,7 @@
   - 覆盖 `Section(BrepBody, Plane)` 的 multi-component 子能力：双立方体先转 Brep 后截切，稳定得到 2 polygons / 2 roots / 2 components
   - 覆盖 detached mixed-content 子能力：closed area + detached open contour 在 Polyhedron / Brep 路径都可共存于同一 section 结果，并稳定分类为 `Mixed`
   - 覆盖 vertex-attached mixed-content 子能力：open contour 接触 polygon 单个顶点时，在 Polyhedron / Brep 路径都不会误报 `NonManifoldContour`，而会稳定保留为 `Mixed`
+  - 覆盖 edge-attached mixed-content 子能力：open contour 接触 polygon 边中点时，在 Polyhedron / Brep 路径同样稳定保留为 `Mixed`
   - 覆盖 coplanar 相邻 face fragment 在 `Section(...)` 中合并为单 polygon 的代表性 face-merge 子集
   - 覆盖 unit cube x=0.5 截面（法向 +x）的确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0），扩展钢筋线周长稳定性到 x 轴方向
   - 覆盖 `Section(BrepBody, Plane)` 的 unit cube x=0.5 截面（法向 +x）确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0）
@@ -76,6 +77,8 @@
   - 覆盖 2×2×1 矩形棱柱 z=0.5 截面的确定性四段闭合方形轮廓（perimeter=8.0 / area=4.0），验证非单位截面的钢筋线周长稳定性
   - `Section(...)` 在输出阶段新增 contour 驱动的 deterministic segment 后处理：基于 contour 重建线段并做无向去重、共线简化后短毛刺抑制（长度<=eps 段过滤），稳定钢筋线根数统计
   - 当前仍保留的 gap：更一般 ambiguous non-manifold contour stitching、mixed open-curve / area edge-adjacency arbitration、非邻接 coplanar fragment 跨 convex-hull gap 的 merge
+- `tests/capabilities/test_searchpoly_sdk.cpp`
+  - 已进一步覆盖 `SearchPolygonContainingPoint(...)` 路径的 synthetic explanation 保留，避免 point-pick 路径丢失 candidate-level diagnostics
 - `tests/capabilities/test_3d_brep.cpp`
   - 倾斜截面经过 `RebuildSectionBrepBody(...)` 得到只读 topology 完整的单面 `BrepBody`（1 shell / 1 face / 4 coedge loop），双立方体截面经 `RebuildSectionBrepBodies(...)` 稳定拆分为 2 个独立 body；并新增最小 coedge-loop 编辑链路 `InsertCoedge -> FlipCoedgeDirection -> RemoveCoedge`
   - 覆盖端到端 Brep 路径：`ConvertToBrepBody -> Section(BrepBody, Plane) -> RebuildSectionBrepBodies` 在双组件输入下稳定输出 2 个独立重建 body

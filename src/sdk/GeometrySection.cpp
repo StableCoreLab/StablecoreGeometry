@@ -1020,6 +1020,8 @@ PolyhedronSection3d Section(
         adjacency[segment.second].push_back(segment.first);
     }
 
+    // Extract representative open contours first so attached spurs do not
+    // force the remaining closed-loop graph into an early non-manifold verdict.
     std::vector<bool> edgeVisited(indexedSegments.size(), false);
     for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
     {
@@ -1325,6 +1327,8 @@ PolyhedronSection3d Section(
         adjacency[segment.second].push_back(segment.first);
     }
 
+    // Mirror the same open-first arbitration on the Brep path so mixed
+    // area/open subsets stay aligned with the Polyhedron behavior.
     std::vector<bool> edgeVisited(indexedSegments.size(), false);
     for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
     {

@@ -625,3 +625,39 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonContainingPointReturnsSmallestCon
     EXPECT_DOUBLE_EQ(candidate->absoluteArea, 16.0);
     EXPECT_EQ(candidate->rank, 1U);
 }
+
+TEST(SearchPolySdkCapabilityTest, SearchPolygonContainingPointPreservesSyntheticExplanation)
+{
+    const MultiPolyline2d lines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{8.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{8.0, 0.0}, Point2d{8.0, 8.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{8.0, 8.0}, Point2d{0.0, 8.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 8.0}, Point2d{0.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{20.0, 0.0}, Point2d{24.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{24.0, 0.0}, Point2d{24.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{24.0, 4.0}, Point2d{20.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{20.0, 4.0}, Point2d{20.0, 0.3}}, PolylineClosure::Open)};
+
+    const auto candidate = SearchPolygonContainingPoint(lines, Point2d{22.0, 2.0});
+
+    ASSERT_TRUE(candidate.has_value());
+    EXPECT_TRUE(candidate->IsValid());
+    EXPECT_EQ(candidate->rank, 1U);
+    EXPECT_EQ(candidate->dominantPenaltyKind, SearchPolyPenaltyKind2d::SyntheticClosure);
+    EXPECT_EQ(candidate->dominantSyntheticEdgeKind, SearchPolySyntheticEdgeKind2d::GapClosure);
+    EXPECT_GE(candidate->inferredSyntheticEdgeCount, 1U);
+    ASSERT_EQ(candidate->inferredSyntheticEdges.size(), candidate->inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate->inferredSyntheticEdgeKinds.size(), candidate->inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate->inferredSyntheticEdgeSources.size(), candidate->inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate->inferredSyntheticEdgeStartVertexIndices.size(), candidate->inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate->inferredSyntheticEdgeEndVertexIndices.size(), candidate->inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate->inferredSyntheticEdgeDanglingTouchCounts.size(), candidate->inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate->inferredSyntheticEdgeBranchTouchCounts.size(), candidate->inferredSyntheticEdgeCount);
+    for (std::size_t index = 0; index < candidate->inferredSyntheticEdgeCount; ++index)
+    {
+        EXPECT_EQ(candidate->inferredSyntheticEdgeKinds[index], SearchPolySyntheticEdgeKind2d::GapClosure);
+        EXPECT_EQ(candidate->inferredSyntheticEdgeSources[index], SearchPolySyntheticEdgeSource2d::SingleGapClose);
+        EXPECT_EQ(candidate->inferredSyntheticEdgeDanglingTouchCounts[index], 2U);
+        EXPECT_EQ(candidate->inferredSyntheticEdgeBranchTouchCounts[index], 0U);
+    }
+}
