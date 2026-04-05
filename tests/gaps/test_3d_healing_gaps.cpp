@@ -22,3 +22,21 @@ TEST(Healing3dGapTest, MultiStepMeshBodyJointHealingRemainsOpen)
     (void)meshHealing;
     GTEST_SKIP() << "Known 3D gap: multi-step mesh/body joint healing workflow is still open.";
 }
+
+TEST(Healing3dGapTest, AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells)
+{
+    GTEST_SKIP() << "Known 3D gap: two eligible open shells whose boundary loops only partially overlap still need explicit competing-shell arbitration. "
+                    "Expected future capability: keep both shells open instead of boundary-capping them into overlapping or self-intersecting closures.";
+}
+
+TEST(Healing3dGapTest, AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair)
+{
+    GTEST_SKIP() << "Known 3D gap: a mixed body containing one independent eligible shell plus a partially overlapped competing pair still needs local arbitration coverage. "
+                    "Expected future capability: close the independent shell while preserving the partial-overlap pair as open.";
+}
+
+TEST(Healing3dGapTest, AggressiveHealingRejectsNonPlanarSharedEdgeShellForBoundaryCap)
+{
+    GTEST_SKIP() << "Known 3D gap: a shell that shares boundary edges but is not globally planar should not be boundary-capped by the planar aggressive path. "
+                    "Expected future capability: keep the shell open and surface the gap explicitly instead of silent fallback.";
+}

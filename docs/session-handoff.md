@@ -8,11 +8,13 @@
 - 后续会话应聚焦于源码与文档编写
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
+- 后续轮次优先把 `tests/gaps` 里已经具体化的用例推进为 `tests/capabilities`，把 gap 名称变成真实测试名，而不是继续扩写抽象描述
 
 ## AI 执行规范（2026-04-05 已同步）
 
 - 后续每一轮默认必须产出两个 closed capability unit：
-  - 至少 2 个新的 deterministic / testable capability
+  - 至少 3 个新的 deterministic / testable capability
+  - 其中至少 2 个必须属于 P1
   - 至少 1 个明确保留或新增的 gap
   - 代码 + 测试 + 文档同步落地
 - 每一轮必须完整完成 P1，并且至少触达 2 个 P2 / P3；不接受只做单模块的窄轮次
@@ -52,11 +54,13 @@
     - 新增 edge-touching ordered multi-body union 与 vertex-touching external difference 在 Polyhedron / Brep 路径的 deterministic 子集。
 - 已同步收敛 gap test：
   - `tests/gaps/test_3d_section_gaps.cpp`
-    - 明确 detached-left-vs-edge-attached ordering representative subset 已进入 covered subset
+    - 明确 detached-left-vs-edge-attached ordering representative subset 已进入 covered subset，并补齐剩余 section gap 的具体测试命名
   - `tests/gaps/test_3d_healing_gaps.cpp`
-    - 明确 duplicated-topology geometrically coincident shared-boundary-loop arbitration representative subset 已进入 covered subset
+    - 明确 duplicated-topology geometrically coincident shared-boundary-loop arbitration representative subset 已进入 covered subset，并补齐剩余 healing gap 的具体测试命名
   - `tests/gaps/test_3d_body_boolean_gaps.cpp`
-    - 明确 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集已进入 covered subset
+    - 明确 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集已进入 covered subset，并补齐剩余 body boolean gap 的具体测试命名
+  - `tests/gaps/test_searchpoly_gaps.cpp`
+    - 补齐 `SearchPoly` 剩余 gap 的具体测试命名，聚焦 synthetic runner-up explain 与 ambiguous recovery
 - 已同步更新：
   - `docs/session-handoff.md`
   - `docs/next-task-prompt.md`

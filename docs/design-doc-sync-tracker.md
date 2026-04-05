@@ -8,6 +8,7 @@
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。
 - 已同步新增的 `AI Execution Spec` 到现有执行文档，明确 closed capability unit、P1+P2/P3 breadth、capability/edge-case/gap tests mandatory、capability-vs-gap discipline 与 diagnostics consistency 约束。
+- 已进一步把后续执行口径收紧为：每轮至少 3 项能力提升，其中至少 2 项来自 P1，并优先把 gap tests 推进为 capability tests。
 - 已进一步同步 `GeometrySection` 的 vertex-attached mixed-content 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。
 - 已进一步同步 `GeometrySection` 的 edge-attached mixed-content 子集，并补记 `SearchPolygonContainingPoint(...)` 路径也会保留 synthetic explanation。
 - 已进一步同步 `GeometrySection` 的 edge-adjacent / strip-adjacent mixed coplanar/non-planar merge 子集、strip-adjacent merged-area + edge-attached / vertex-attached open mixed-content 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
@@ -15,6 +16,8 @@
 - 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 子集、`GeometryHealing` 的 independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集，以及 `GeometryBodyBoolean` 的 disjoint empty intersection 子集。
 - 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子集、`GeometryHealing` 的 mixed closed-shell + competing-pair + vertex-touch shell arbitration 子集，以及 `GeometryBodyBoolean` 的 disjoint ordered-multi-body union 子集。
 - 已进一步同步 `GeometrySection` 的 detached-left + edge-attached stable ordering 子集、`GeometryHealing` 的 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集，以及 `GeometryBodyBoolean` 的 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集。
+- 已将当前 remaining gaps 从抽象方向改写为更具体的场景 / 候选测试用例，并同步到 `docs/next-task-prompt.md`，减少后续轮次继续做“抽象盘点”的成本。
+- 已同步这些具体化 gap 名称到 `tests/gaps/test_3d_section_gaps.cpp`、`tests/gaps/test_3d_healing_gaps.cpp`、`tests/gaps/test_3d_body_boolean_gaps.cpp`、`tests/gaps/test_searchpoly_gaps.cpp`，保证文档与测试名一致。
 - 已进一步同步 `GeometrySection` 的 dual edge-attached mixed-content 子集，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation。
 - 已进一步同步 `GeometrySection` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `GeometrySearchPoly` 的 ambiguous-top count explanation。
 - 已进一步同步 `GeometrySection` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。

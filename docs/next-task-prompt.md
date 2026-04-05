@@ -11,7 +11,8 @@
 - 不要跑构建
 - 不要回退已有改动
 - 每一轮必须形成两个 closed capability unit：
-  - 至少 2 个新的 deterministic、testable capability
+  - 至少 3 个新的 deterministic、testable capability
+  - 其中至少 2 个必须属于 P1
   - 至少 1 个明确标注的 gap 或未支持边界
   - 代码 + 测试 + 文档必须同时落地
 - 每一轮必须完整完成 P1，并且至少触达2个 P2 / P3
@@ -100,12 +101,41 @@
 优先方向：
 
 - 在不改 public SDK 的前提下继续推进更高阶 section 语义
-- 重点补：
+- 重点补，但要尽量落成“具体测试场景”，不要只写抽象语义：
   - mixed open-curve / area edge-adjacency arbitration
+    - 候选测试 1：`DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea`
+      - 场景：一个 closed polygon，同侧两条 edge-attached open contours 共享同一 polygon edge，但 attachment 区间不重叠，外加一条 detached open contour
+      - 要解决的问题：确认不会因为都贴在同一条边上就误 stitch 成单条长 open contour，也不会吞进 area merge
+      - 期望：`1 polygon + 3 open contours`，且两条 edge-attached contour 顺序稳定
+    - 候选测试 2：`VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`
+      - 场景：一条 open contour 接在 polygon 顶点，另一条 open contour 从该顶点相邻边中点出发
+      - 要解决的问题：确认 vertex-touch 与 edge-touch 不会被错误当成同一 non-manifold graph 然后拼接
+      - 期望：仍输出两条 open contours，而不是 `NonManifoldContour` 或单条 stitched contour
   - 更一般 non-planar dominant contour stitching
+    - 候选测试 1：`TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane`
+      - 场景：同一截面同时切过两个互不接触的 non-planar closed components
+      - 要解决的问题：确认 graph reconstruction 不会因为 projected node 接近而误把两个闭环 stitch 到一起
+      - 期望：`2 closed contours / 2 polygons / 2 topology roots`
+    - 候选测试 2：`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`
+      - 场景：non-planar dominant closed loop 上再挂一条由某个 face 贡献的 open spur
+      - 要解决的问题：确认 closed loop 保持 area，spur 保持 open，不会误把整图判成 invalid/non-manifold
+      - 期望：`1 polygon + 1 open contour`
   - 更一般 mixed coplanar/non-planar adjacency merge
+    - 候选测试 1：`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`
+      - 场景：非平面 cube mid-section 与两个 L 形相邻的 coplanar patches 同时接触，形成比 strip 更高阶的 area 扩展
+      - 要解决的问题：确认 merge 不只支持单 edge-adjacent / strip-adjacent，而能稳定处理 L-corner 邻接
+      - 期望：输出单 polygon，面积为 `1 + 2 = 3`
+    - 候选测试 2：`MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
+      - 场景：coplanar frame-with-hole 与相邻 non-planar section area 接触
+      - 要解决的问题：确认 merge 后仍保留 hole，而不是退化成多个 polygons 或 hole 丢失
+      - 期望：`1 polygon-with-hole`
   - 当前 detached-left + edge-attached ordering 只是一个 representative ordering 子集，不等于更一般 adjacency 语义已闭合
 - 保持 capability / gap 边界清晰，不要把仍不稳定语义伪装成已完成
+- 实现方式要求：
+  - 优先把 `tests/gaps` 里已经具体化的用例转成 `tests/capabilities`
+  - 每轮至少把 3 个 gap 场景推进为 capability test 通过
+  - 其中至少 2 个 gap 场景必须来自 P1 方向，也就是 `GeometrySection`
+  - 如果某个 gap 仍然不能稳定通过，就保留 gap test，并在本轮给出更精确的失败场景描述
 
 建议触达文件：
 
@@ -118,17 +148,89 @@
 - 继续扩展 aggressive shell policy，但保持 conservative trim-backfill 与 topology-changing aggressive closure 的边界清晰
 - 当前 mixed body 中的 per-shell shared-edge boundary-cap 已有代表性 capability；下一步优先考虑更一般 multi-shell arbitration，而不是回退到单-shell-only
 - 当前已补独立 shell 可闭合、competing shared-boundary-edge shells 保守跳过、duplicated-topology geometrically coincident shared-boundary-loop 保守跳过、vertex-touch non-competing 可闭合、competing-pair-plus-vertex-touch 组合 arbitration、independent-plus-competing-pair-plus-vertex-touch 四壳组合子集、以及 mixed closed-shell + competing-pair + vertex-touch shell 子集；下一步优先推进更一般 partial-overlap shared-boundary-loop / shared-edge arbitration，而不是继续扩散仅共享单点的子例
+- 实现方式要求：
+  - 优先把 `tests/gaps/test_3d_healing_gaps.cpp` 里具体化的用例转成 capability tests
+  - 每轮至少有 1 个 healing gap 场景推进成 capability
+  - 如果当前轮不能稳定实现，就把 gap 描述改成更具体的输入拓扑和期望结果
+- 建议直接转成以下测试目标：
+  - `AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells`
+    - 场景：两个 open shells 的 boundary loops 只在一段区间上重合，而不是整圈重合
+    - 要解决的问题：确认 partial-overlap 也会被视为 competing，而不是各自被 cap 后生成自相交/重叠闭壳
+    - 期望：两个 shells 都保持 open，并且 issue 不 silent fallback
+  - `AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair`
+    - 场景：body 内同时存在一个独立 eligible shell 和一对 partial-overlap competing shells
+    - 要解决的问题：确认 arbitration 仍是局部的，独立 shell 可闭壳，partial-overlap pair 保持 open
+    - 期望：`closed + open + open`
+  - `AggressiveHealingRejectsNonPlanarSharedEdgeShellForBoundaryCap`
+    - 场景：两个 faces 共享边，但 shell 整体不共面
+    - 要解决的问题：明确 non-planar shell repair 仍未支持，避免错误进入 planar boundary-cap
+    - 期望：shell 保持 open，并由 gap test 明确标注
 
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
 - GeometrySearchPoly：推进 richer fake-edge explanation 与 ambiguous recovery，但保持 result-consistency / auto-flag contract 只做确定性补强
 - 当前 SearchPoly 已有 top-candidate + runner-up explanation 摘要，以及 candidate-level penalty kind / dominant-synthetic-kind / dominant-synthetic-source / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind / synthetic-edge-source / line-network touch mapping / vertex identity mapping；下一步优先考虑更强的 fake-edge causal explanation 与 ambiguous recovery，而不是继续扩散临时摘要字段
+- GeometrySearchPoly 可直接转成以下测试目标：
+  - `SearchPolygonsExplainsWhySyntheticRunnerUpLostToCleanWinner`
+    - 场景：top candidate 为 clean polygon，runner-up 为 single-gap-close polygon
+    - 要解决的问题：让产品侧不必回扫 candidates，就能直接解释“为什么 fake-edge 候选输了”
+  - `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
+    - 场景：两个 tied-top candidates 都需要 synthetic edges，但 synthetic source 不同
+    - 要解决的问题：明确 ambiguous recovery 需要返回什么解释，而不是只有 `ambiguousTopCandidateCount`
 - GeometryBodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 disjoint ordered-union / axis-aligned contained / face-touching single-box union / edge-vertex-touching ordered multi-body union / external difference / empty intersection 子集已收敛，下一步优先考虑 non-axis-aligned / richer touching intersection 与非单-box touching 边界
+- 实现方式要求：
+  - 优先把 `tests/gaps/test_searchpoly_gaps.cpp` 和 `tests/gaps/test_3d_body_boolean_gaps.cpp` 里能明确落地的场景转成 capability
+  - 每轮至少有 1 个 P2 / P3 场景从 gap 转成 capability
+  - 其余未能实现的项，保留 gap test，不要停留在文案层
+- GeometryBodyBoolean 建议直接转成以下测试目标：
+  - `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap`
+    - 场景：三个 axis-aligned boxes 形成 L 形并集，而不是单 box
+    - 要解决的问题：明确“非单-box touching”到底指什么，防止后续 capability/gap 边界漂移
+    - 期望：当前仍 `UnsupportedOperation`
+  - `RotatedBoxIntersectionRemainsUnsupported`
+    - 场景：一个 axis-aligned box 与一个绕 z 轴旋转的小 box 有正体积交集
+    - 要解决的问题：把 non-axis-aligned intersection gap 具体化
+    - 期望：当前仍 `UnsupportedOperation`
+  - `ContainedShellPolicyOptionStillHasNoEffectAndStaysGap`
+    - 场景：`operateOnShells=true` 的 contained / touching 输入
+    - 要解决的问题：明确 shell-policy 尚未接管语义，避免产品侧误以为 option 已生效
+    - 期望：当前结果与默认路径一致，或 gap test 明确未支持
 
 ### P4：继续推进 SDK 风格统一与接口收口
 
 - 继续收紧 `include/sdk` 暴露面，优先通过 umbrella / public contract 文档收口，而不是扩散临时 helper
 - 继续统一 Delphi-facing SDK 的 `Options / Result / Issue` 风格，但避免引入大范围 API 重设计
+
+## 剩余任务具体化清单
+
+后续轮次优先从下面这些“可直接命名为测试”的条目里挑，而不是继续写抽象 gap 名词：
+
+1. `GeometrySection`
+   - `DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea`
+   - `VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`
+   - `TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane`
+   - `NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`
+   - `LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`
+   - `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
+2. `GeometryHealing`
+   - `AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells`
+   - `AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair`
+   - `AggressiveHealingRejectsNonPlanarSharedEdgeShellForBoundaryCap`
+3. `GeometrySearchPoly`
+   - `SearchPolygonsExplainsWhySyntheticRunnerUpLostToCleanWinner`
+   - `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
+4. `GeometryBodyBoolean`
+   - `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap`
+   - `RotatedBoxIntersectionRemainsUnsupported`
+   - `ContainedShellPolicyOptionStillHasNoEffectAndStaysGap`
+
+## 本轮执行口径
+
+- 目标不是继续扩充抽象清单，而是把 gap tests 一个个转成 capability tests
+- 每轮至少实现 3 项能力提升
+- 其中至少 2 项必须来自 P1，也就是 `GeometrySection`
+- 其余 1 项可以来自 P2 / P3
+- 如果某条 gap 仍然不能稳定通过，就继续保留 gap test，并把失败场景描述改得更具体、更可复现
 
 ## 交付口径
 

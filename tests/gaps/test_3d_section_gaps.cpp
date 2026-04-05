@@ -77,3 +77,39 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
                     "Remaining open: non-adjacent fragment merge across convex-hull gaps, mixed open-curve/area edge-adjacency arbitration beyond representative detached / vertex-attached / edge-attached / detached-left-vs-edge-attached ordering / dual-edge-attached / mixed vertex+edge-attached / detached+vertex+edge-attached / strip-adjacent-detached / strip-adjacent-edge-attached / strip-adjacent-vertex-attached / strip-adjacent-vertex+edge-attached / strip-adjacent-detached+vertex+edge-attached subsets, "
                     "and more general mixed coplanar/non-planar adjacency arbitration beyond the representative edge-adjacent / strip-adjacent deterministic merge subsets.";
 }
+
+TEST(Section3dGapTest, DetachedPlusTwoEdgeAttachedContoursRemainSeparateFromMergedArea)
+{
+    GTEST_SKIP() << "Known 3D gap: a closed polygon with two boundary-attached open contours that share the same polygon edge, plus a detached open contour, still needs a stronger mixed open-curve/area arbitration policy to prove it will not stitch into a single polyline or contaminate the merged area. "
+                    "Expected future capability: keep 1 polygon + 3 open contours, with both edge-attached contours remaining separate and ordered deterministically ahead of detached contours.";
+}
+
+TEST(Section3dGapTest, VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline)
+{
+    GTEST_SKIP() << "Known 3D gap: a vertex-attached open contour and a nearby edge-attached open contour can still be misclassified by more general non-manifold contour stitching. "
+                    "Expected future capability: preserve both open contours separately instead of collapsing them into a single stitched polyline or raising NonManifoldContour.";
+}
+
+TEST(Section3dGapTest, TwoDisjointNonPlanarLoopsStaySeparatedInSameSectionPlane)
+{
+    GTEST_SKIP() << "Known 3D gap: two disjoint non-planar closed loops in the same section plane still need explicit non-planar dominant contour stitching coverage. "
+                    "Expected future capability: 2 closed contours / 2 polygons / 2 roots, with no accidental stitching between projected components.";
+}
+
+TEST(Section3dGapTest, NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate)
+{
+    GTEST_SKIP() << "Known 3D gap: a non-planar closed loop with an interior open spur attached to one contributing face still needs explicit mixed contour handling. "
+                    "Expected future capability: keep the closed contour as area and the spur as a separate open contour, instead of collapsing them into invalid topology.";
+}
+
+TEST(Section3dGapTest, LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon)
+{
+    GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar adjacency beyond a straight strip, such as an L-corner coplanar patch meeting a non-planar area, still lacks deterministic merge coverage. "
+                    "Expected future capability: merge into a single polygon with the correct combined area, without splitting into separate polygons.";
+}
+
+TEST(Section3dGapTest, MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole)
+{
+    GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar adjacency with an interior hole still needs explicit hole-preserving merge coverage. "
+                    "Expected future capability: preserve the hole and return a single polygon-with-hole rather than multiple polygons or hole loss.";
+}
