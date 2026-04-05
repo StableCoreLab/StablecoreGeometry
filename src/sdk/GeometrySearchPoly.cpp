@@ -38,6 +38,7 @@ struct CandidateMetrics2d
     std::size_t syntheticBranchVertexCount{0};
     std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
+    std::vector<SearchPolySyntheticEdgeSource2d> inferredSyntheticEdgeSources{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     double branchScore{0.0};
 };
@@ -255,6 +256,22 @@ struct CandidateMetrics2d
     return SearchPolySyntheticEdgeKind2d::Unknown;
 }
 
+[[nodiscard]] SearchPolySyntheticEdgeSource2d ClassifySyntheticEdgeSource(
+    SearchPolySyntheticEdgeKind2d syntheticEdgeKind)
+{
+    switch (syntheticEdgeKind)
+    {
+    case SearchPolySyntheticEdgeKind2d::GapClosure:
+        return SearchPolySyntheticEdgeSource2d::SingleGapClose;
+    case SearchPolySyntheticEdgeKind2d::BranchCleanup:
+        return SearchPolySyntheticEdgeSource2d::BranchCleanup;
+    case SearchPolySyntheticEdgeKind2d::Mixed:
+        return SearchPolySyntheticEdgeSource2d::MixedBridge;
+    default:
+        return SearchPolySyntheticEdgeSource2d::Unknown;
+    }
+}
+
 [[nodiscard]] bool CoversBoundaryEdge(
     const LineSegment2d& boundaryEdge,
     const std::vector<LineSegment2d>& inputSegments,
@@ -372,11 +389,14 @@ void AccumulateRingMetrics(
         const bool inferredSynthetic = !CoversBoundaryEdge(boundaryEdge, analysis.segments, epsilon);
         if (inferredSynthetic)
         {
+            const SearchPolySyntheticEdgeKind2d syntheticKind =
+                ClassifySyntheticEdgeKind(analysis, start, end, epsilon);
             ++metrics.inferredSyntheticEdgeCount;
             metrics.inferredSyntheticPerimeter += edgeLength;
             metrics.inferredSyntheticEdges.push_back(boundaryEdge);
-            metrics.inferredSyntheticEdgeKinds.push_back(
-                ClassifySyntheticEdgeKind(analysis, start, end, epsilon));
+            metrics.inferredSyntheticEdgeKinds.push_back(syntheticKind);
+            metrics.inferredSyntheticEdgeSources.push_back(
+                ClassifySyntheticEdgeSource(syntheticKind));
             metrics.inferredSyntheticEdgeLengths.push_back(edgeLength);
         }
 
@@ -455,6 +475,7 @@ void AccumulateRingMetrics(
         dominantSyntheticEdgeKind,
         metrics.inferredSyntheticEdges,
         metrics.inferredSyntheticEdgeKinds,
+        metrics.inferredSyntheticEdgeSources,
         metrics.inferredSyntheticEdgeLengths,
         0};
 }

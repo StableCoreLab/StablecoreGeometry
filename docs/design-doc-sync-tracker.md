@@ -19,6 +19,7 @@
   - face-touching external difference 的 body boolean 子集
 - 已新增并同步 `GeometrySearchPoly` 的 deterministic top-candidate / runner-up explanation 子集，以及 candidate-level causality explanation 子集，补充产品侧可直接消费的 best-candidate 摘要字段
 - 已进一步同步 `GeometrySearchPoly` 的 dominant synthetic-edge-kind explanation，补齐 best / runner-up 与 candidate-level 的 synthetic-cause 摘要
+- 已进一步同步 `GeometrySearchPoly` 的 edge-level synthetic-edge-source explanation，补齐逐边 source-cause 映射
 
 ## 状态说明
 
@@ -183,7 +184,7 @@
 - `GeometrySearchPoly`
   - 已为 `SearchPolyResult2d` 新增 deterministic top-candidate explanation 字段，减少产品侧自行扫描 candidates 的负担
   - 已进一步新增 runner-up explanation 字段，使产品侧可直接判断 top candidate 是否因 synthetic / branch penalty runner-up 而胜出
-  - 已为 `SearchPolyCandidate2d` 新增 `dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges` 与 `inferredSyntheticEdgeKinds`，补齐 candidate-level causal explanation
+  - 已为 `SearchPolyCandidate2d` 新增 `dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds` 与 `inferredSyntheticEdgeSources`，补齐 candidate-level causal explanation
   - 已为 `SearchPolyResult2d` 新增 `bestCandidateSyntheticEdgeKind` 与 `runnerUpSyntheticEdgeKind`，减少产品侧再扫 synthetic-edge-kind 列表做归因摘要
   - 已同步 capability 文案：invalid / no-closed / success 三类结果下 explanation 字段均保持 contract 一致性
   - richer fake-edge causal explanation 与 Delphi 级 ambiguous recovery 仍继续保留为 gap

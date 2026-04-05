@@ -61,6 +61,23 @@
   - 为 clean-vs-synthetic peer 子集补齐 runner-up synthetic-edge-kind explanation 一致性断言。
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-edge-source-mapping-batch16）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
+  - 新增 `SearchPolySyntheticEdgeSource2d`；
+  - 为 `SearchPolyCandidate2d` 新增 `inferredSyntheticEdgeSources`，当前可逐边稳定区分：
+    - `SingleGapClose`
+    - `BranchCleanup`
+    - `MixedBridge`
+    - `Unknown`
+  - 当前产品侧不仅能看到 synthetic edge 几何、kind 与 dominant summary，还能逐条读取 synthetic edge 的 source-cause 映射。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 clean candidate / branch-only candidate 补齐 `inferredSyntheticEdgeSources.empty()` 断言；
+  - 为 representative `GapClosure` synthetic candidate 子集补齐 `SingleGapClose` source 断言；
+  - 为 representative `BranchCleanup` / `Mixed` synthetic candidate 子集补齐逐边 source-cause 断言。
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-explanation-batch7）
 
 - 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：

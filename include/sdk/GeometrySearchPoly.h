@@ -35,6 +35,14 @@ enum class SearchPolySyntheticEdgeKind2d
     Mixed
 };
 
+enum class SearchPolySyntheticEdgeSource2d
+{
+    Unknown,
+    SingleGapClose,
+    BranchCleanup,
+    MixedBridge
+};
+
 struct GEOMETRY_API SearchPolyDiagnostics2d
 {
     std::size_t inputPolylineCount{0};
@@ -73,6 +81,7 @@ struct GEOMETRY_API SearchPolyCandidate2d
     SearchPolySyntheticEdgeKind2d dominantSyntheticEdgeKind{SearchPolySyntheticEdgeKind2d::Unknown};
     std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
+    std::vector<SearchPolySyntheticEdgeSource2d> inferredSyntheticEdgeSources{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     std::size_t rank{0};
 
