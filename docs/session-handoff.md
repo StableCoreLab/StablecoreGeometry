@@ -58,6 +58,39 @@
   - `docs/design-doc-sync-tracker.md`
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-section-searchpoly-ambiguity-batch22）
+
+- 已更新 `src/sdk/GeometrySection.cpp`：
+  - 为 mixed-content section 结果补充 open contour 稳定化；
+  - open contours 现在会做端点方向归一化并按几何位置稳定排序；
+  - 当前 dual edge-attached open contours 子集在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`，且 contour 顺序/方向固定。
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 ambiguous-top explanation；
+  - 为 `SearchPolyResult2d` 新增：
+    - `ambiguousTopPenaltyKind`
+    - `ambiguousTopSyntheticEdgeKind`
+  - 当前产品侧不仅知道 ambiguous top 有几个，还能直接知道这些 tied-top candidates 的 penalty / synthetic-cause 摘要是否一致。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `TwoEdgeAttachedOpenContoursBuildStableMixedContent`
+    - 新增 `BrepTwoEdgeAttachedOpenContoursBuildStableMixedContent`
+    - 验证 1 polygon + 2 edge-attached open contours 在 Polyhedron / Brep 路径都可稳定保留，并且 open contour 端点方向/排序固定
+  - `tests/capabilities/test_searchpoly_sdk.cpp`
+    - 为 invalid / no-closed / single-top success 路径补齐 ambiguous-top summary 默认值与单 candidate 映射断言
+    - 新增 `SearchPolygonsSummarizesAmbiguousTopKindsForTiedCandidates`
+    - 验证 clean tied-top candidates 会稳定报告 `ambiguousTopCandidateCount==2` 且 ambiguous-top summary 与 tied-top profile 一致
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 dual edge-attached mixed-content 子集已进入 covered subset
+  - `tests/gaps/test_searchpoly_gaps.cpp`
+    - 明确 ambiguous-top summary explanation 已进入 covered subset，remaining gap 继续保留为 Delphi-grade ambiguous recovery / richer fake-edge explanation / full smart-search parity
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-batch6）
 
 - 已更新 `src/sdk/GeometryHealing.cpp`：

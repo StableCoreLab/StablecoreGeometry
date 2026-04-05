@@ -47,6 +47,19 @@ struct PolylineBuildResult
     std::vector<std::size_t> nodeIndices{};
 };
 
+[[nodiscard]] bool Point3dLexicographicallyLess(const Point3d& first, const Point3d& second, double eps)
+{
+    if (std::abs(first.x - second.x) > eps)
+    {
+        return first.x < second.x;
+    }
+    if (std::abs(first.y - second.y) > eps)
+    {
+        return first.y < second.y;
+    }
+    return first.z < second.z - eps;
+}
+
 [[nodiscard]] PlaneProjectionBasis BuildPlaneProjectionBasis(const Plane& plane, double eps)
 {
     const Vector3d normal = plane.UnitNormal(eps);
@@ -160,6 +173,71 @@ void RebuildUniqueSegmentsFromContours(
                 eps);
         }
     }
+}
+
+void NormalizeOpenContourDirection(SectionPolyline3d& contour, double eps)
+{
+    if (contour.closed || contour.points.size() < 2)
+    {
+        return;
+    }
+
+    if (Point3dLexicographicallyLess(contour.points.back(), contour.points.front(), eps))
+    {
+        std::reverse(contour.points.begin(), contour.points.end());
+    }
+}
+
+void SortOpenContoursStable(PolyhedronSection3d& section, double eps)
+{
+    std::vector<SectionPolyline3d> closedContours;
+    std::vector<SectionPolyline3d> openContours;
+    closedContours.reserve(section.contours.size());
+    openContours.reserve(section.contours.size());
+
+    for (SectionPolyline3d contour : section.contours)
+    {
+        if (contour.closed)
+        {
+            closedContours.push_back(std::move(contour));
+            continue;
+        }
+
+        NormalizeOpenContourDirection(contour, eps);
+        openContours.push_back(std::move(contour));
+    }
+
+    std::sort(
+        openContours.begin(),
+        openContours.end(),
+        [eps](const SectionPolyline3d& first, const SectionPolyline3d& second) {
+            if (first.points.empty() || second.points.empty())
+            {
+                return first.points.size() < second.points.size();
+            }
+
+            if (Point3dLexicographicallyLess(first.points.front(), second.points.front(), eps))
+            {
+                return true;
+            }
+            if (Point3dLexicographicallyLess(second.points.front(), first.points.front(), eps))
+            {
+                return false;
+            }
+            if (Point3dLexicographicallyLess(first.points.back(), second.points.back(), eps))
+            {
+                return true;
+            }
+            if (Point3dLexicographicallyLess(second.points.back(), first.points.back(), eps))
+            {
+                return false;
+            }
+
+            return first.points.size() < second.points.size();
+        });
+
+    closedContours.insert(closedContours.end(), openContours.begin(), openContours.end());
+    section.contours = std::move(closedContours);
 }
 
 void AddUniqueIntersectionPoint(
@@ -656,6 +734,7 @@ void MergeCoplanarSectionPolygons(
 {
     if (section.polygons.size() < 2)
     {
+        SortOpenContoursStable(section, eps);
         RebuildUniqueSegmentsFromContours(section, eps);
         return;
     }
@@ -681,6 +760,7 @@ void MergeCoplanarSectionPolygons(
     section.polygons = std::move(polygons);
     RebuildCoplanarSectionGeometryFromPolygons(section, eps);
     section.contours.insert(section.contours.end(), openContours.begin(), openContours.end());
+    SortOpenContoursStable(section, eps);
     RebuildUniqueSegmentsFromContours(section, eps);
 }
 

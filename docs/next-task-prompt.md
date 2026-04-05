@@ -27,7 +27,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2/P3：新增 mixed area + open contour 的 representative section capability、mixed coplanar + non-planar edge-adjacent area merge、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability，以及 competing multi-shell shared-vertex arbitration 的保守子集；下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P2/P3：新增 mixed area + open contour 的 representative section capability、dual edge-attached open contours 的 stable mixed-content 子集、mixed coplanar + non-planar edge-adjacent area merge、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation；下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -39,6 +39,7 @@
   - unit cube / rectangular prism / triangular prism 的多组 deterministic non-planar section perimeter 子集
   - mixed coplanar frame + non-planar cube section 在 Polyhedron / Brep 路径共存（2 polygons / 3 closed contours / total area=9）
   - detached / vertex-attached / edge-attached mixed area + open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`
+  - dual edge-attached open contours 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 2 open contours）
   - edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2）
 - 当前仍保留的 gap：
   - ambiguous non-manifold contour stitching
@@ -61,6 +62,7 @@
 - 稳定 SDK 入口位于 `include/sdk/GeometrySearchPoly.h`
 - 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics、result / diagnostics consistency、auto-flag gating
 - `SearchPolyResult2d` 已补充 deterministic top-candidate explanation：best-candidate synthetic metrics、top-score margin、synthetic/branch aggregate counts、ambiguous-top count，以及 runner-up synthetic / branch penalty explanation；并已补充 `bestCandidateSyntheticEdgeKind` / `runnerUpSyntheticEdgeKind`
+- `SearchPolyResult2d` 已进一步补充 ambiguous-top summary explanation：`ambiguousTopPenaltyKind` / `ambiguousTopSyntheticEdgeKind`
 - `SearchPolyCandidate2d` 已补充 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network mapping（start/end vertex index、start/end degree、dangling-touch-count、branch-touch-count）；`SearchPolygonContainingPoint(...)` 路径同样保留这些 explanation
 - richer fake-edge explanation、Delphi 级 ambiguous recovery、完整 smart-search parity 仍为 gap
 

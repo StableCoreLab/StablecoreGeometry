@@ -277,6 +277,25 @@ struct CandidateMetrics2d
     return SearchPolySyntheticEdgeKind2d::Unknown;
 }
 
+[[nodiscard]] SearchPolyPenaltyKind2d SummarizePenaltyKinds(
+    const std::vector<SearchPolyPenaltyKind2d>& penaltyKinds)
+{
+    if (penaltyKinds.empty())
+    {
+        return SearchPolyPenaltyKind2d::None;
+    }
+
+    const SearchPolyPenaltyKind2d first = penaltyKinds.front();
+    for (const SearchPolyPenaltyKind2d candidate : penaltyKinds)
+    {
+        if (candidate != first)
+        {
+            return SearchPolyPenaltyKind2d::Mixed;
+        }
+    }
+    return first;
+}
+
 [[nodiscard]] SearchPolySyntheticEdgeSource2d ClassifySyntheticEdgeSource(
     SearchPolySyntheticEdgeKind2d syntheticEdgeKind)
 {
@@ -584,18 +603,24 @@ void PopulateResultExplanation(
     }
 
     result.ambiguousTopCandidateCount = 1U;
+    std::vector<SearchPolyPenaltyKind2d> ambiguousTopPenaltyKinds{bestCandidate.dominantPenaltyKind};
+    std::vector<SearchPolySyntheticEdgeKind2d> ambiguousTopSyntheticKinds{bestCandidate.dominantSyntheticEdgeKind};
     for (std::size_t index = 1; index < result.candidates.size(); ++index)
     {
         const SearchPolyCandidate2d& candidate = result.candidates[index];
         if (std::abs(candidate.branchScore - bestCandidate.branchScore) <= 1e-12)
         {
             ++result.ambiguousTopCandidateCount;
+            ambiguousTopPenaltyKinds.push_back(candidate.dominantPenaltyKind);
+            ambiguousTopSyntheticKinds.push_back(candidate.dominantSyntheticEdgeKind);
             continue;
         }
 
         result.bestCandidateScoreMargin = bestCandidate.branchScore - candidate.branchScore;
         break;
     }
+    result.ambiguousTopPenaltyKind = SummarizePenaltyKinds(ambiguousTopPenaltyKinds);
+    result.ambiguousTopSyntheticEdgeKind = DetermineDominantSyntheticEdgeKind(ambiguousTopSyntheticKinds);
 
     if (result.candidates.size() >= 2U)
     {
