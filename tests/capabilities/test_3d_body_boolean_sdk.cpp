@@ -260,6 +260,52 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronIntersectionReturnsDetermin
     EXPECT_TRUE(intersection.bodies.empty());
 }
 
+TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronIntersectionReturnsInnerBody)
+{
+    const PolyhedronBody first = BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5);
+    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+
+    const auto result = IntersectBodies(first, second);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_TRUE(result.bodies.empty());
+    EXPECT_FALSE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 6U);
+    EXPECT_EQ(result.body.ShellCount(), 1U);
+    EXPECT_TRUE(result.body.ShellAt(0).IsClosed());
+    const auto bounds = result.body.Bounds();
+    EXPECT_NEAR(bounds.MinPoint().x, 0.0, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().y, 0.0, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().z, 0.0, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().x, 1.0, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().y, 1.0, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().z, 1.0, 1e-12);
+}
+
+TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronUnionReturnsOuterBody)
+{
+    const PolyhedronBody first = BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5);
+    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+
+    const auto result = UnionBodies(first, second);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_TRUE(result.bodies.empty());
+    EXPECT_FALSE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 6U);
+    EXPECT_EQ(result.body.ShellCount(), 1U);
+    EXPECT_TRUE(result.body.ShellAt(0).IsClosed());
+    const auto bounds = result.body.Bounds();
+    EXPECT_NEAR(bounds.MinPoint().x, -0.5, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().y, -0.5, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().z, -0.5, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().x, 1.5, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().y, 1.5, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().z, 1.5, 1e-12);
+}
+
 TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingPolyhedronIntersectionReturnsDeterministicEmptyResult)
 {
     const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
@@ -385,6 +431,56 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepDifferenceReturnsDeterministicEm
     EXPECT_TRUE(result.producedEmptyResult);
     EXPECT_EQ(result.body.FaceCount(), 0U);
     EXPECT_TRUE(result.bodies.empty());
+}
+
+TEST(BodyBooleanSdkCapabilityTest, ContainedBrepIntersectionReturnsInnerBody)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
+    const auto second = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = IntersectBodies(first.body, second.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_TRUE(result.bodies.empty());
+    EXPECT_FALSE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 6U);
+    EXPECT_EQ(result.body.ShellCount(), 1U);
+    EXPECT_TRUE(result.body.ShellAt(0).IsClosed());
+    const auto bounds = result.body.Bounds();
+    EXPECT_NEAR(bounds.MinPoint().x, 0.0, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().y, 0.0, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().z, 0.0, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().x, 1.0, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().y, 1.0, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().z, 1.0, 1e-12);
+}
+
+TEST(BodyBooleanSdkCapabilityTest, ContainedBrepUnionReturnsOuterBody)
+{
+    const auto first = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
+    const auto second = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    ASSERT_TRUE(first.success);
+    ASSERT_TRUE(second.success);
+
+    const auto result = UnionBodies(first.body, second.body);
+
+    ASSERT_EQ(result.issue, BodyBooleanIssue3d::None);
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_TRUE(result.bodies.empty());
+    EXPECT_FALSE(result.producedEmptyResult);
+    EXPECT_EQ(result.body.FaceCount(), 6U);
+    EXPECT_EQ(result.body.ShellCount(), 1U);
+    EXPECT_TRUE(result.body.ShellAt(0).IsClosed());
+    const auto bounds = result.body.Bounds();
+    EXPECT_NEAR(bounds.MinPoint().x, -0.5, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().y, -0.5, 1e-12);
+    EXPECT_NEAR(bounds.MinPoint().z, -0.5, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().x, 1.5, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().y, 1.5, 1e-12);
+    EXPECT_NEAR(bounds.MaxPoint().z, 1.5, 1e-12);
 }
 
 TEST(BodyBooleanSdkCapabilityTest, OverlappingBrepUnionReturnsSingleAxisAlignedBox)

@@ -35,7 +35,7 @@ namespace
     result.issue = BodyBooleanIssue3d::UnsupportedOperation;
     result.message =
         "3D body boolean currently supports only deterministic identical/disjoint closed-body subsets "
-        "plus axis-aligned single-box overlap and face-touching union subsets.";
+        "plus axis-aligned contained/overlap single-box and representative touching subsets.";
     return result;
 }
 
@@ -817,6 +817,20 @@ namespace
     Box3d secondBox;
     Box3d overlapBox;
     if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
+        TryExtractAxisAlignedBox(second, epsilon, secondBox))
+    {
+        if (BoxContains(firstBox, secondBox, epsilon))
+        {
+            return MakeSingleBodyResult(second, "Deterministic axis-aligned contained-body intersection subset.");
+        }
+
+        if (BoxContains(secondBox, firstBox, epsilon))
+        {
+            return MakeSingleBodyResult(first, "Deterministic axis-aligned contained-body intersection subset.");
+        }
+    }
+
+    if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
         TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
         TryComputePositiveIntersectionBox(firstBox, secondBox, epsilon, overlapBox))
     {
@@ -855,6 +869,20 @@ namespace
     Box3d secondBox;
     Box3d overlapBox;
     Box3d unionBox;
+    if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
+        TryExtractAxisAlignedBox(second, epsilon, secondBox))
+    {
+        if (BoxContains(firstBox, secondBox, epsilon))
+        {
+            return MakeSingleBodyResult(first, "Deterministic axis-aligned contained-body union subset.");
+        }
+
+        if (BoxContains(secondBox, firstBox, epsilon))
+        {
+            return MakeSingleBodyResult(second, "Deterministic axis-aligned contained-body union subset.");
+        }
+    }
+
     if (TryExtractAxisAlignedBox(first, epsilon, firstBox) &&
         TryExtractAxisAlignedBox(second, epsilon, secondBox) &&
         TryComputeIntersectionBox(firstBox, secondBox, epsilon, overlapBox) &&

@@ -11,6 +11,7 @@
 - 已进一步同步 `GeometrySection` 的 vertex-attached mixed-content 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。
 - 已进一步同步 `GeometrySection` 的 edge-attached mixed-content 子集，并补记 `SearchPolygonContainingPoint(...)` 路径也会保留 synthetic explanation。
 - 已进一步同步 `GeometrySection` 的 edge-adjacent / strip-adjacent mixed coplanar/non-planar merge 子集、strip-adjacent merged-area + edge-attached / vertex-attached open mixed-content 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
+- 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + detached open mixed-content 子集、`GeometryHealing` 的 competing-pair-plus-vertex-touch arbitration 子集，以及 `GeometryBodyBoolean` 的 contained-body intersection / union 子集。
 - 已进一步同步 `GeometrySection` 的 dual edge-attached mixed-content 子集，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation。
 - 已进一步同步 `GeometrySection` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `GeometrySearchPoly` 的 ambiguous-top count explanation。
 - 已进一步同步 `GeometrySection` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。

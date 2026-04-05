@@ -16,7 +16,8 @@ TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
 
     GTEST_SKIP() << "Known 3D gap: Delphi-grade body/shell boolean workflow remains open. "
                     "Current fast-track now covers invalid-input contract, deterministic "
-                    "identical/disjoint closed-body subsets including identical difference-empty, axis-aligned single-box overlap "
+                    "identical/disjoint closed-body subsets including identical difference-empty, axis-aligned contained-body "
+                    "intersection/union subsets, axis-aligned single-box overlap "
                     "subsets, face-touching axis-aligned box union subsets whose result remains "
                     "one closed box, face-touching external difference subsets that preserve "
                     "the original closed box, axis-aligned contained difference-empty subsets, "

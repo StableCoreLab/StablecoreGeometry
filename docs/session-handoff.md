@@ -11,11 +11,11 @@
 
 ## AI 执行规范（2026-04-05 已同步）
 
-- 后续每一轮默认必须产出一个 closed capability unit：
-  - 至少 1 个新的 deterministic / testable capability
+- 后续每一轮默认必须产出两个 closed capability unit：
+  - 至少 2 个新的 deterministic / testable capability
   - 至少 1 个明确保留或新增的 gap
   - 代码 + 测试 + 文档同步落地
-- 每一轮必须完整完成 P1，并且至少触达一个 P2 / P3；不接受只做单模块的窄轮次
+- 每一轮必须完整完成 P1，并且至少触达 2 个 P2 / P3；不接受只做单模块的窄轮次
 - 每一轮测试默认至少包含：
   - capability test
   - edge-case test
@@ -26,6 +26,36 @@
   - 不允许 silent fallback，也不允许把未稳定逻辑伪装成已完成 capability
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
+
+## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-contained-union-batch28）
+
+- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+  - 新增 axis-aligned contained-body intersection / union 子集；
+  - 当一个 closed box 完整包含另一个 closed box 时，`IntersectBodies(...)` 现在稳定返回 inner body，`UnionBodies(...)` 稳定返回 outer body；
+  - public SDK contract 保持不变，non-axis-aligned / richer touching / non-box overlap 仍保留为 gap。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 strip-adjacent merged-area + detached open mixed-content 子集；
+    - 验证在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 1 open contour`（area=3）。
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 competing shared-boundary-edge pair + vertex-touch shell 组合 arbitration 子集；
+    - 验证 competing pair 继续保守保持 open，而仅 vertex-touch 的 eligible shell 仍可独立闭壳。
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
+    - 新增 contained intersection / union 在 Polyhedron / Brep 路径的代表性子集；
+    - 验证 inner / outer box contract 在 success + single-body result 下稳定成立。
+- 已同步收敛 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 明确 strip-adjacent merged-area + detached open mixed-content 已进入 covered subset
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 明确 competing-pair-plus-vertex-touch arbitration representative subset 已进入 covered subset
+  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+    - 明确 axis-aligned contained-body intersection / union 已进入 covered subset
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
 ## 本轮新增（2026-04-05，fasttrack-section-searchpoly-source-summary-batch24）
 
