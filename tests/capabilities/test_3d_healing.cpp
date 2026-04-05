@@ -805,6 +805,197 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSkipsGeometricallyCoincidentBound
     assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
 }
 
+TEST(Healing3dCapabilityTest, AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells)
+{
+    std::vector<BrepVertex> vertices{
+        // Partial-overlap shell A.
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        BrepVertex(Point3d{2.0, 0.0, 0.0}),
+        BrepVertex(Point3d{2.0, 1.0, 0.0}),
+        // Partial-overlap shell B. Its boundary only overlaps shell A on a
+        // sub-interval, never on a whole boundary edge.
+        BrepVertex(Point3d{0.5, 0.0, 0.0}),
+        BrepVertex(Point3d{1.5, 0.0, 0.0}),
+        BrepVertex(Point3d{1.5, 1.0, 0.0}),
+        BrepVertex(Point3d{0.5, 1.0, 0.0}),
+        BrepVertex(Point3d{2.5, 0.0, 0.0}),
+        BrepVertex(Point3d{2.5, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Shell A.
+    addEdge(0, 1);
+    addEdge(1, 2); // shared interior edge
+    addEdge(2, 3);
+    addEdge(3, 0);
+    addEdge(1, 4);
+    addEdge(4, 5);
+    addEdge(5, 2);
+
+    // Shell B.
+    addEdge(6, 7);
+    addEdge(7, 8); // shared interior edge
+    addEdge(8, 9);
+    addEdge(9, 6);
+    addEdge(7, 10);
+    addEdge(10, 11);
+    addEdge(11, 8);
+
+    const BrepLoop shellA0({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop shellA1({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(1, true)});
+    const BrepLoop shellB0({BrepCoedge(7, false), BrepCoedge(8, false), BrepCoedge(9, false), BrepCoedge(10, false)});
+    const BrepLoop shellB1({BrepCoedge(11, false), BrepCoedge(12, false), BrepCoedge(13, false), BrepCoedge(8, true)});
+
+    const PlaneSurface planeSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    const BrepFace faceA0(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellA0);
+    const BrepFace faceA1(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellA1);
+    const BrepFace faceB0(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellB0);
+    const BrepFace faceB1(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellB1);
+
+    const BrepBody body(
+        vertices,
+        edges,
+        {
+            BrepShell({faceA0, faceA1}, false),
+            BrepShell({faceB0, faceB1}, false),
+        });
+    assert(body.IsValid());
+    assert(body.ShellCount() == 2);
+
+    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.issue == HealingIssue3d::None);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 2);
+    assert(!healed.body.ShellAt(0).IsClosed());
+    assert(!healed.body.ShellAt(1).IsClosed());
+    assert(healed.body.ShellAt(0).FaceCount() == 2);
+    assert(healed.body.ShellAt(1).FaceCount() == 2);
+    assert(healed.body.FaceCount() == 4);
+    assert(healed.body.ShellAt(0).FaceAt(0).OuterTrim().IsValid());
+    assert(healed.body.ShellAt(1).FaceAt(0).OuterTrim().IsValid());
+}
+
+TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair)
+{
+    std::vector<BrepVertex> vertices{
+        // Independent eligible shell.
+        BrepVertex(Point3d{-4.0, 0.0, 0.0}),
+        BrepVertex(Point3d{-3.0, 0.0, 0.0}),
+        BrepVertex(Point3d{-3.0, 1.0, 0.0}),
+        BrepVertex(Point3d{-4.0, 1.0, 0.0}),
+        BrepVertex(Point3d{-2.0, 0.0, 0.0}),
+        BrepVertex(Point3d{-2.0, 1.0, 0.0}),
+        // Partial-overlap shell A.
+        BrepVertex(Point3d{0.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 0.0, 0.0}),
+        BrepVertex(Point3d{1.0, 1.0, 0.0}),
+        BrepVertex(Point3d{0.0, 1.0, 0.0}),
+        BrepVertex(Point3d{2.0, 0.0, 0.0}),
+        BrepVertex(Point3d{2.0, 1.0, 0.0}),
+        // Partial-overlap shell B.
+        BrepVertex(Point3d{0.5, 0.0, 0.0}),
+        BrepVertex(Point3d{1.5, 0.0, 0.0}),
+        BrepVertex(Point3d{1.5, 1.0, 0.0}),
+        BrepVertex(Point3d{0.5, 1.0, 0.0}),
+        BrepVertex(Point3d{2.5, 0.0, 0.0}),
+        BrepVertex(Point3d{2.5, 1.0, 0.0})};
+
+    std::vector<BrepEdge> edges;
+    auto addEdge = [&](std::size_t start, std::size_t end) {
+        const Point3d first = vertices[start].Point();
+        const Point3d second = vertices[end].Point();
+        edges.emplace_back(
+            std::make_shared<LineCurve3d>(LineCurve3d::FromLine(
+                Line3d::FromOriginAndDirection(first, second - first),
+                Intervald{0.0, 1.0})),
+            start,
+            end);
+    };
+
+    // Independent shell.
+    addEdge(0, 1);
+    addEdge(1, 2); // shared interior edge
+    addEdge(2, 3);
+    addEdge(3, 0);
+    addEdge(1, 4);
+    addEdge(4, 5);
+    addEdge(5, 2);
+
+    // Partial-overlap shell A.
+    addEdge(6, 7);
+    addEdge(7, 8); // shared interior edge
+    addEdge(8, 9);
+    addEdge(9, 6);
+    addEdge(7, 10);
+    addEdge(10, 11);
+    addEdge(11, 8);
+
+    // Partial-overlap shell B.
+    addEdge(12, 13);
+    addEdge(13, 14); // shared interior edge
+    addEdge(14, 15);
+    addEdge(15, 12);
+    addEdge(13, 16);
+    addEdge(16, 17);
+    addEdge(17, 14);
+
+    const BrepLoop independentA({BrepCoedge(0, false), BrepCoedge(1, false), BrepCoedge(2, false), BrepCoedge(3, false)});
+    const BrepLoop independentB({BrepCoedge(4, false), BrepCoedge(5, false), BrepCoedge(6, false), BrepCoedge(1, true)});
+    const BrepLoop shellA0({BrepCoedge(7, false), BrepCoedge(8, false), BrepCoedge(9, false), BrepCoedge(10, false)});
+    const BrepLoop shellA1({BrepCoedge(11, false), BrepCoedge(12, false), BrepCoedge(13, false), BrepCoedge(8, true)});
+    const BrepLoop shellB0({BrepCoedge(14, false), BrepCoedge(15, false), BrepCoedge(16, false), BrepCoedge(17, false)});
+    const BrepLoop shellB1({BrepCoedge(18, false), BrepCoedge(19, false), BrepCoedge(20, false), BrepCoedge(15, true)});
+
+    const PlaneSurface planeSurface = PlaneSurface::FromPlane(
+        Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
+    const BrepFace independentFaceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), independentA);
+    const BrepFace independentFaceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), independentB);
+    const BrepFace faceA0(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellA0);
+    const BrepFace faceA1(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellA1);
+    const BrepFace faceB0(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellB0);
+    const BrepFace faceB1(std::shared_ptr<Surface>(planeSurface.Clone().release()), shellB1);
+
+    const BrepBody body(
+        vertices,
+        edges,
+        {
+            BrepShell({independentFaceA, independentFaceB}, false),
+            BrepShell({faceA0, faceA1}, false),
+            BrepShell({faceB0, faceB1}, false),
+        });
+    assert(body.IsValid());
+    assert(body.ShellCount() == 3);
+
+    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    assert(healed.success);
+    assert(healed.issue == HealingIssue3d::None);
+    assert(healed.body.IsValid());
+    assert(healed.body.ShellCount() == 3);
+    assert(healed.body.ShellAt(0).IsClosed());
+    assert(!healed.body.ShellAt(1).IsClosed());
+    assert(!healed.body.ShellAt(2).IsClosed());
+    assert(healed.body.ShellAt(0).FaceCount() == 3);
+    assert(healed.body.ShellAt(1).FaceCount() == 2);
+    assert(healed.body.ShellAt(2).FaceCount() == 2);
+    assert(healed.body.FaceCount() == 7);
+    assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
+}
+
 // Demonstrates multi-shell arbitration is no longer blocked by a mere
 // vertex-touch between eligible shared-edge shells: without a shared boundary
 // edge, both shells can still be boundary-capped independently.

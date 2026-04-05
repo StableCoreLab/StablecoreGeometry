@@ -29,6 +29,39 @@
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
 
+## 本轮新增（2026-04-05，fasttrack-section-healing-partial-overlap-batch34）
+
+- 已更新 `src/sdk/GeometryHealing.cpp`：
+  - aggressive competing-shell arbitration 不再只识别“整条 boundary edge / geometry edge 完全重合”；
+  - 现在会进一步保守识别共线且区间重叠的 partial-overlap boundary spans；
+  - 结果是 partial-overlap competing shells 会保持 open，不会误走 boundary-cap 闭壳。
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`
+    - 新增 `NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`
+    - 新增 `LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`
+    - 并补齐上述三个场景在 Brep 路径的稳定子集
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 `AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells`
+    - 新增 `AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair`
+    - 验证 partial-overlap pair 保守保持 open，而独立 eligible shell 仍可局部闭壳
+- 已同步收窄 gap test：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 移除已转正的 `VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`
+    - 移除已转正的 `NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`
+    - 移除已转正的 `LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`
+    - 保留 `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`，并把失败场景细化到 frame-with-hole + adjacent non-planar area
+  - `tests/gaps/test_3d_healing_gaps.cpp`
+    - 移除已转正的 partial-overlap pair / independent+partial-overlap pair
+  - `tests/gaps/test_searchpoly_gaps.cpp`
+    - 继续保留 ambiguous recovery gap，并补齐“tied-top candidates synthetic source 不同”的更具体失败场景
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-searchpoly-gap-to-capability-batch33）
 
 - 已扩展 capability tests：

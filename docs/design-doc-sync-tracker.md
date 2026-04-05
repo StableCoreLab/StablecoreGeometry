@@ -7,6 +7,9 @@
 ## 2026-04-05 文档同步
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。
+- 已进一步把 `GeometrySection` 的三条具体 gap 场景转正为 capability tests：`VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`、`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`、`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`。
+- 已进一步把 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 子集转正为 capability tests，并同步到“独立 shell 可闭合、partial-overlap competing pair 保持 open”的 local arbitration 子集。
+- 已进一步把 `GeometrySearchPoly` ambiguous recovery gap 细化到“tied-top candidates dominant synthetic source 不同”的可复现场景，避免下轮重新抽象。
 - 已同步新增的 `AI Execution Spec` 到现有执行文档，明确 closed capability unit、P1+P2/P3 breadth、capability/edge-case/gap tests mandatory、capability-vs-gap discipline 与 diagnostics consistency 约束。
 - 已进一步把后续执行口径收紧为：每轮至少 3 项能力提升，其中至少 2 项来自 P1，并优先把 gap tests 推进为 capability tests。
 - 已进一步同步 `GeometrySection` 的 vertex-attached mixed-content 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。
@@ -190,11 +193,16 @@
   - 已进一步新增 strip-adjacent mixed coplanar + non-planar merge 子集：cube mid-section 与相邻 two-face coplanar strip 在 Polyhedron / Brep 路径都稳定收敛为单 polygon（area=3）
   - 已进一步新增 strip-adjacent merged-area + edge-attached open mixed-content 子集：merged area 扩展到 two-face strip 后，edge-attached open contour 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`
   - 已进一步新增 strip-adjacent merged-area + vertex-attached open mixed-content 子集：merged area 扩展到 two-face strip 后，vertex-attached open contour 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`
+  - 已进一步新增 explicit vertex-touch + edge-touch double-open arbitration 子集：相邻边中点与 polygon 顶点挂接的两条 open contours 在 Polyhedron / Brep 路径都稳定保留为两条 open contours
+  - 已进一步新增 non-planar loop + interior open spur 子集：closed non-planar loop 与 interior open spur 在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 1 open contour`
+  - 已进一步新增 L-corner mixed coplanar/non-planar merge 子集：cube mid-section 与两个 L-corner coplanar patches 在 Polyhedron / Brep 路径都稳定 merge 为单 polygon（area=3）
   - 已进一步新增 detached-left + edge-attached stable ordering 子集：open contour 稳定排序不再只依赖词典序，boundary-attached contour 会优先于 detached contour 输出
   - 已将 raw segment -> contour/polygon graph reconstruction 收口到共享 helper，降低 Polyhedron / Brep 两条路径后续继续推进时的分叉风险
 - `GeometryHealing`
   - 已将 shared-edge boundary-cap fallback 从单-shell body 推进到 mixed body 内的 eligible shell 子集
   - 已进一步把 deterministic boundary-cap 子集推进到“同一 body 内多个彼此独立 eligible shared-edge shells 并存”的场景
+  - 已进一步把 competing-shell arbitration 推进到 partial-overlap shared-boundary-loop 子集：共线且区间重叠的 boundary spans 也会保守保持 open
+  - 已进一步把 partial-overlap arbitration 推进到 local mixed-body 子集：independent eligible shell 仍可闭壳，而 partial-overlap competing pair 保持 open
   - 已将 conservative competing-shell arbitration 从 shared-vertex 级别收紧到 shared-boundary-edge 级别：共享 boundary edge 的 competing shells 保守保持 open，而仅 vertex-touch 的 eligible shells 可继续独立闭壳
   - 已进一步把 competing-shell arbitration 推进到 duplicated-topology geometrically coincident shared-boundary-loop 子集：即使 topology 独立，只要几何边界重合，也会保守保持 open
   - 已同步说明“更一般 multi-shell shared-boundary-loop / shared-edge arbitration 仍为 gap”，避免把更宽语义误记为已收敛

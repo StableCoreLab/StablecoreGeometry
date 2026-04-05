@@ -721,6 +721,12 @@ using BoundaryEdgeKey = std::pair<std::size_t, std::size_t>;
 using BoundaryGeometryPointKey = std::array<long long, 3>;
 using BoundaryGeometryEdgeKey = std::pair<BoundaryGeometryPointKey, BoundaryGeometryPointKey>;
 
+struct BoundaryGeometrySegment
+{
+    Point3d startPoint{};
+    Point3d endPoint{};
+};
+
 [[nodiscard]] BoundaryEdgeKey MakeBoundaryEdgeKey(std::size_t firstVertexIndex, std::size_t secondVertexIndex)
 {
     if (secondVertexIndex < firstVertexIndex)
@@ -851,6 +857,89 @@ void CollectShellBoundaryGeometryEdgeKeys(
         boundaryGeometryEdgeKeys.end());
 }
 
+void CollectShellBoundaryGeometrySegments(
+    const BrepBody& body,
+    const BrepShell& shell,
+    std::vector<BoundaryGeometrySegment>& boundaryGeometrySegments)
+{
+    boundaryGeometrySegments.clear();
+
+    std::map<std::size_t, std::size_t> edgeUseCount;
+    shell_cap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
+
+    auto appendBoundaryEdgesFromLoop = [&](const BrepLoop& loop) {
+        for (const BrepCoedge& coedge : loop.Coedges())
+        {
+            const auto countIt = edgeUseCount.find(coedge.EdgeIndex());
+            if (countIt == edgeUseCount.end() || countIt->second != 1U)
+            {
+                continue;
+            }
+
+            std::size_t startVertexIndex = kInvalidIndex;
+            std::size_t endVertexIndex = kInvalidIndex;
+            if (!shell_cap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
+            {
+                continue;
+            }
+
+            boundaryGeometrySegments.push_back(BoundaryGeometrySegment{
+                body.VertexAt(startVertexIndex).Point(),
+                body.VertexAt(endVertexIndex).Point()});
+        }
+    };
+
+    for (const BrepFace& face : shell.Faces())
+    {
+        appendBoundaryEdgesFromLoop(face.OuterLoop());
+        for (const BrepLoop& hole : face.HoleLoops())
+        {
+            appendBoundaryEdgesFromLoop(hole);
+        }
+    }
+}
+
+[[nodiscard]] bool BoundaryGeometrySegmentsPartiallyOverlap(
+    const BoundaryGeometrySegment& first,
+    const BoundaryGeometrySegment& second,
+    double eps)
+{
+    const Vector3d firstDirection = first.endPoint - first.startPoint;
+    const double firstLength = firstDirection.Length();
+    if (firstLength <= eps)
+    {
+        return false;
+    }
+
+    const Vector3d secondDirection = second.endPoint - second.startPoint;
+    if (secondDirection.Length() <= eps)
+    {
+        return false;
+    }
+
+    const double secondStartOffset =
+        Cross(firstDirection, second.startPoint - first.startPoint).Length() / firstLength;
+    const double secondEndOffset =
+        Cross(firstDirection, second.endPoint - first.startPoint).Length() / firstLength;
+    if (secondStartOffset > eps || secondEndOffset > eps)
+    {
+        return false;
+    }
+
+    const double firstLengthSquared = std::max(firstDirection.LengthSquared(), geometry::kDefaultEpsilon);
+    double secondStartParameter = Dot(second.startPoint - first.startPoint, firstDirection) / firstLengthSquared;
+    double secondEndParameter = Dot(second.endPoint - first.startPoint, firstDirection) / firstLengthSquared;
+    if (secondEndParameter < secondStartParameter)
+    {
+        std::swap(secondStartParameter, secondEndParameter);
+    }
+
+    const double parameterTolerance = eps / firstLength;
+    const double overlapStart = std::max(0.0, secondStartParameter);
+    const double overlapEnd = std::min(1.0, secondEndParameter);
+    return overlapEnd - overlapStart > parameterTolerance;
+}
+
 [[nodiscard]] bool NeedsBrepHealing(const BrepBody& body, const GeometryTolerance3d& tolerance)
 {
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
@@ -911,6 +1000,7 @@ void CollectShellBoundaryGeometryEdgeKeys(
 {
     std::vector<std::vector<BoundaryEdgeKey>> shellBoundaryEdgeKeys(body.ShellCount());
     std::vector<std::vector<BoundaryGeometryEdgeKey>> shellBoundaryGeometryEdgeKeys(body.ShellCount());
+    std::vector<std::vector<BoundaryGeometrySegment>> shellBoundaryGeometrySegments(body.ShellCount());
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
     {
         const BrepShell shell = body.ShellAt(shellIndex);
@@ -925,6 +1015,10 @@ void CollectShellBoundaryGeometryEdgeKeys(
             shell,
             tolerance.distanceEpsilon,
             shellBoundaryGeometryEdgeKeys[shellIndex]);
+        CollectShellBoundaryGeometrySegments(
+            body,
+            shell,
+            shellBoundaryGeometrySegments[shellIndex]);
     }
 
     std::vector<bool> competing(body.ShellCount(), false);
@@ -971,7 +1065,31 @@ void CollectShellBoundaryGeometryEdgeKeys(
                 }
             }
 
-            if (sharesBoundaryEdge || sharesBoundaryGeometryEdge)
+            bool sharesPartiallyOverlappedBoundarySpan = false;
+            if (!sharesBoundaryEdge && !sharesBoundaryGeometryEdge)
+            {
+                for (const BoundaryGeometrySegment& firstBoundarySegment : shellBoundaryGeometrySegments[first])
+                {
+                    for (const BoundaryGeometrySegment& secondBoundarySegment : shellBoundaryGeometrySegments[second])
+                    {
+                        if (BoundaryGeometrySegmentsPartiallyOverlap(
+                                firstBoundarySegment,
+                                secondBoundarySegment,
+                                tolerance.distanceEpsilon))
+                        {
+                            sharesPartiallyOverlappedBoundarySpan = true;
+                            break;
+                        }
+                    }
+
+                    if (sharesPartiallyOverlappedBoundarySpan)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (sharesBoundaryEdge || sharesBoundaryGeometryEdge || sharesPartiallyOverlappedBoundarySpan)
             {
                 competing[first] = true;
                 competing[second] = true;

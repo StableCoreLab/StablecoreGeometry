@@ -82,26 +82,9 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
                     "and more general mixed coplanar/non-planar adjacency arbitration beyond the representative edge-adjacent / strip-adjacent deterministic merge subsets.";
 }
 
-TEST(Section3dGapTest, VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline)
-{
-    GTEST_SKIP() << "Known 3D gap: a vertex-attached open contour and a nearby edge-attached open contour can still be misclassified by more general non-manifold contour stitching. "
-                    "Expected future capability: preserve both open contours separately instead of collapsing them into a single stitched polyline or raising NonManifoldContour.";
-}
-
-TEST(Section3dGapTest, NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate)
-{
-    GTEST_SKIP() << "Known 3D gap: a non-planar closed loop with an interior open spur attached to one contributing face still needs explicit mixed contour handling. "
-                    "Expected future capability: keep the closed contour as area and the spur as a separate open contour, instead of collapsing them into invalid topology.";
-}
-
-TEST(Section3dGapTest, LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon)
-{
-    GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar adjacency beyond a straight strip, such as an L-corner coplanar patch meeting a non-planar area, still lacks deterministic merge coverage. "
-                    "Expected future capability: merge into a single polygon with the correct combined area, without splitting into separate polygons.";
-}
-
 TEST(Section3dGapTest, MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole)
 {
     GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar adjacency with an interior hole still needs explicit hole-preserving merge coverage. "
-                    "Expected future capability: preserve the hole and return a single polygon-with-hole rather than multiple polygons or hole loss.";
+                    "Representative unresolved scenario: a coplanar 3x3 frame-with-hole (outer [0,3]x[0,3], inner [1,2]x[1,2]) merged with an adjacent non-planar area along the outer boundary at z=0.5. "
+                    "Expected future capability: preserve the interior hole and still return a single polygon-with-hole rather than multiple polygons or hole loss.";
 }

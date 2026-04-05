@@ -16,5 +16,7 @@ TEST(SearchPolyGapTest, DelphiGradeAmbiguousBranchScoringRemainsOpen)
 TEST(SearchPolyGapTest, SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization)
 {
     GTEST_SKIP() << "Known 2D gap: ambiguous recovery for tied candidates after synthetic penalty normalization is still not a complete Delphi-grade contract. "
-                    "Expected future capability: return a stable ambiguous-recovery explanation that names the tied candidates and their synthetic-source profile.";
+                    "Representative unresolved scenario: two top-ranked candidates tie on normalized branch score, both require synthetic edges, but their dominant synthetic sources differ "
+                    "(for example SingleGapClose vs MixedBridge / BranchCleanup). "
+                    "Expected future capability: return a stable ambiguous-recovery explanation that names the tied candidates and makes their competing synthetic-source profile directly readable.";
 }
