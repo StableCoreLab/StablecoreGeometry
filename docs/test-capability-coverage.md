@@ -14,6 +14,7 @@
 ## 2026-04-05 文档同步备注
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean` / `GeometrySearchPoly`。
+- 已同步 `AI Execution Spec` 的测试约束：后续每一轮默认要求 capability test、edge-case test，以及在存在歧义时保留 gap test。
 - 已新增 mixed area + open contour 的 representative section capability、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、face-touching external difference 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / candidate-level causality explanation 子集。
 - 下面的覆盖布局与子集清单已与当前代码状态一致。
 

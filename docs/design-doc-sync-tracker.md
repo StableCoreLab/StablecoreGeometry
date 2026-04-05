@@ -7,6 +7,7 @@
 ## 2026-04-05 文档同步
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。
+- 已同步新增的 `AI Execution Spec` 到现有执行文档，明确 closed capability unit、P1+P2/P3 breadth、capability/edge-case/gap tests mandatory、capability-vs-gap discipline 与 diagnostics consistency 约束。
 - 已把当前收敛能力与 open gap 重新对齐到：
   - `GeometrySection`
   - `GeometryHealing`

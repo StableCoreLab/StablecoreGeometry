@@ -9,6 +9,14 @@
 - 不要编译
 - 不要跑构建
 - 不要回退已有改动
+- 每一轮必须形成一个 closed capability unit：
+  - 至少 1 个新的 deterministic、testable capability
+  - 至少 1 个明确标注的 gap 或未支持边界
+  - 代码 + 测试 + 文档必须同时落地
+- 每一轮必须完整完成 P1，并且至少触达一个 P2 / P3
+- 不允许只做单模块而不覆盖本轮要求的 breadth
+- 只要存在歧义或未稳定支持，必须保留或新增 gap test
+- 如果模块带 diagnostics / explanation，必须保持 result / diagnostics contract 一致，不能 silent fallback
 - 每完成一轮后至少同步：
   - `docs/session-handoff.md`
   - `docs/next-task-prompt.md`
@@ -108,3 +116,11 @@
 2. 哪些 gap 继续保留
 3. 更新了哪些代码、测试与文档
 4. 提交号是什么
+
+并且默认满足以下检查：
+
+- 至少包含 capability test（happy path）
+- 至少包含 edge-case test（boundary condition）
+- 如存在歧义或未支持边界，至少包含 gap test
+- 不把不稳定逻辑伪装成 capability
+- 不引入 breaking public SDK contract

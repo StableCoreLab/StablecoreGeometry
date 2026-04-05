@@ -9,6 +9,24 @@
 - 编译 / 构建 / 运行由用户手动完成
 - 不必担心 `gtest` 环境接入，用户会按需要调整 CMake / 构建侧
 
+## AI 执行规范（2026-04-05 已同步）
+
+- 后续每一轮默认必须产出一个 closed capability unit：
+  - 至少 1 个新的 deterministic / testable capability
+  - 至少 1 个明确保留或新增的 gap
+  - 代码 + 测试 + 文档同步落地
+- 每一轮必须完整完成 P1，并且至少触达一个 P2 / P3；不接受只做单模块的窄轮次
+- 每一轮测试默认至少包含：
+  - capability test
+  - edge-case test
+  - 若存在歧义或未支持边界，则补 gap test
+- capability / gap discipline：
+  - 稳定、可复现、可覆盖的行为才能记为 capability
+  - 不稳定、歧义、未覆盖行为必须继续记为 gap
+  - 不允许 silent fallback，也不允许把未稳定逻辑伪装成已完成 capability
+- 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
+- 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
+
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-batch6）
 
 - 已更新 `src/sdk/GeometryHealing.cpp`：
