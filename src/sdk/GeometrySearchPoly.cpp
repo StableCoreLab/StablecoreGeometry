@@ -39,6 +39,8 @@ struct CandidateMetrics2d
     std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
     std::vector<SearchPolySyntheticEdgeSource2d> inferredSyntheticEdgeSources{};
+    std::vector<std::size_t> inferredSyntheticEdgeStartVertexIndices{};
+    std::vector<std::size_t> inferredSyntheticEdgeEndVertexIndices{};
     std::vector<std::size_t> inferredSyntheticEdgeStartDegrees{};
     std::vector<std::size_t> inferredSyntheticEdgeEndDegrees{};
     std::vector<std::size_t> inferredSyntheticEdgeDanglingTouchCounts{};
@@ -174,6 +176,21 @@ struct CandidateMetrics2d
         }
     }
     return 0;
+}
+
+[[nodiscard]] std::size_t FindVertexIndex(
+    const std::vector<GraphVertex2d>& vertices,
+    const Point2d& point,
+    double epsilon)
+{
+    for (std::size_t index = 0; index < vertices.size(); ++index)
+    {
+        if (vertices[index].point.AlmostEquals(point, epsilon))
+        {
+            return index;
+        }
+    }
+    return vertices.size();
 }
 
 [[nodiscard]] SearchPolySyntheticEdgeKind2d ClassifySyntheticEdgeKind(
@@ -407,6 +424,8 @@ void AccumulateRingMetrics(
         const bool inferredSynthetic = !CoversBoundaryEdge(boundaryEdge, analysis.segments, epsilon);
         if (inferredSynthetic)
         {
+            const std::size_t startVertexIndex = FindVertexIndex(analysis.vertices, start, epsilon);
+            const std::size_t endVertexIndex = FindVertexIndex(analysis.vertices, end, epsilon);
             const std::size_t startDegree = BranchDegreeAtPoint(analysis.vertices, start, epsilon);
             const std::size_t endDegree = BranchDegreeAtPoint(analysis.vertices, end, epsilon);
             const SearchPolySyntheticEdgeKind2d syntheticKind =
@@ -417,6 +436,8 @@ void AccumulateRingMetrics(
             metrics.inferredSyntheticEdgeKinds.push_back(syntheticKind);
             metrics.inferredSyntheticEdgeSources.push_back(
                 ClassifySyntheticEdgeSource(syntheticKind));
+            metrics.inferredSyntheticEdgeStartVertexIndices.push_back(startVertexIndex);
+            metrics.inferredSyntheticEdgeEndVertexIndices.push_back(endVertexIndex);
             metrics.inferredSyntheticEdgeStartDegrees.push_back(startDegree);
             metrics.inferredSyntheticEdgeEndDegrees.push_back(endDegree);
             metrics.inferredSyntheticEdgeDanglingTouchCounts.push_back(
@@ -502,6 +523,8 @@ void AccumulateRingMetrics(
         metrics.inferredSyntheticEdges,
         metrics.inferredSyntheticEdgeKinds,
         metrics.inferredSyntheticEdgeSources,
+        metrics.inferredSyntheticEdgeStartVertexIndices,
+        metrics.inferredSyntheticEdgeEndVertexIndices,
         metrics.inferredSyntheticEdgeStartDegrees,
         metrics.inferredSyntheticEdgeEndDegrees,
         metrics.inferredSyntheticEdgeDanglingTouchCounts,

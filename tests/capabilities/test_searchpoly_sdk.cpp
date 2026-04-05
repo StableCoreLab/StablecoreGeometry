@@ -138,6 +138,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsBuildsRepresentativeClosedCandid
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdges.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeKinds.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeSources.empty());
+    EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeStartVertexIndices.empty());
+    EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeEndVertexIndices.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeStartDegrees.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeEndDegrees.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeDanglingTouchCounts.empty());
@@ -193,6 +195,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsRepairDiagnosticsForNearC
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdges.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeKinds.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeSources.size(), result.candidates.front().inferredSyntheticEdgeCount);
+    ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeStartVertexIndices.size(), result.candidates.front().inferredSyntheticEdgeCount);
+    ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeEndVertexIndices.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeStartDegrees.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeEndDegrees.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeDanglingTouchCounts.size(), result.candidates.front().inferredSyntheticEdgeCount);
@@ -212,6 +216,11 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsRepairDiagnosticsForNearC
     }
     for (std::size_t index = 0; index < result.candidates.front().inferredSyntheticEdgeCount; ++index)
     {
+        EXPECT_LT(result.candidates.front().inferredSyntheticEdgeStartVertexIndices[index], result.diagnostics.uniqueVertexCount);
+        EXPECT_LT(result.candidates.front().inferredSyntheticEdgeEndVertexIndices[index], result.diagnostics.uniqueVertexCount);
+        EXPECT_NE(
+            result.candidates.front().inferredSyntheticEdgeStartVertexIndices[index],
+            result.candidates.front().inferredSyntheticEdgeEndVertexIndices[index]);
         EXPECT_EQ(result.candidates.front().inferredSyntheticEdgeDanglingTouchCounts[index], 2U);
         EXPECT_EQ(result.candidates.front().inferredSyntheticEdgeBranchTouchCounts[index], 0U);
         EXPECT_EQ(result.candidates.front().inferredSyntheticEdgeStartDegrees[index], 1U);
@@ -295,6 +304,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsRanksCleanCandidateAheadOfSynthe
     EXPECT_TRUE(first.inferredSyntheticEdges.empty());
     EXPECT_TRUE(first.inferredSyntheticEdgeKinds.empty());
     EXPECT_TRUE(first.inferredSyntheticEdgeSources.empty());
+    EXPECT_TRUE(first.inferredSyntheticEdgeStartVertexIndices.empty());
+    EXPECT_TRUE(first.inferredSyntheticEdgeEndVertexIndices.empty());
     EXPECT_TRUE(first.inferredSyntheticEdgeStartDegrees.empty());
     EXPECT_TRUE(first.inferredSyntheticEdgeEndDegrees.empty());
     EXPECT_TRUE(first.inferredSyntheticEdgeDanglingTouchCounts.empty());
@@ -302,6 +313,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsRanksCleanCandidateAheadOfSynthe
     ASSERT_EQ(second.inferredSyntheticEdges.size(), second.inferredSyntheticEdgeCount);
     ASSERT_EQ(second.inferredSyntheticEdgeKinds.size(), second.inferredSyntheticEdgeCount);
     ASSERT_EQ(second.inferredSyntheticEdgeSources.size(), second.inferredSyntheticEdgeCount);
+    ASSERT_EQ(second.inferredSyntheticEdgeStartVertexIndices.size(), second.inferredSyntheticEdgeCount);
+    ASSERT_EQ(second.inferredSyntheticEdgeEndVertexIndices.size(), second.inferredSyntheticEdgeCount);
     ASSERT_EQ(second.inferredSyntheticEdgeStartDegrees.size(), second.inferredSyntheticEdgeCount);
     ASSERT_EQ(second.inferredSyntheticEdgeEndDegrees.size(), second.inferredSyntheticEdgeCount);
     ASSERT_EQ(second.inferredSyntheticEdgeDanglingTouchCounts.size(), second.inferredSyntheticEdgeCount);
@@ -347,6 +360,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsFakeEdgeDiagnosticsForAmb
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdges.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeKinds.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeSources.size(), result.candidates.front().inferredSyntheticEdgeCount);
+    ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeStartVertexIndices.size(), result.candidates.front().inferredSyntheticEdgeCount);
+    ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeEndVertexIndices.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeStartDegrees.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeEndDegrees.size(), result.candidates.front().inferredSyntheticEdgeCount);
     ASSERT_EQ(result.candidates.front().inferredSyntheticEdgeDanglingTouchCounts.size(), result.candidates.front().inferredSyntheticEdgeCount);
@@ -366,6 +381,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsFakeEdgeDiagnosticsForAmb
     }
     for (std::size_t index = 0; index < result.candidates.front().inferredSyntheticEdgeCount; ++index)
     {
+        EXPECT_LT(result.candidates.front().inferredSyntheticEdgeStartVertexIndices[index], result.diagnostics.uniqueVertexCount);
+        EXPECT_LT(result.candidates.front().inferredSyntheticEdgeEndVertexIndices[index], result.diagnostics.uniqueVertexCount);
         EXPECT_EQ(result.candidates.front().inferredSyntheticEdgeDanglingTouchCounts[index], 2U);
         EXPECT_EQ(result.candidates.front().inferredSyntheticEdgeBranchTouchCounts[index], 0U);
     }
@@ -406,6 +423,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsAppliesBranchPenaltyAtExplicitBr
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdges.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeKinds.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeSources.empty());
+    EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeStartVertexIndices.empty());
+    EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeEndVertexIndices.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeStartDegrees.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeEndDegrees.empty());
     EXPECT_TRUE(result.candidates.front().inferredSyntheticEdgeDanglingTouchCounts.empty());
@@ -515,6 +534,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsClassifiesBranchCleanupSynthetic
     const auto& candidate = result.candidates.front();
     ASSERT_EQ(candidate.inferredSyntheticEdgeKinds.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeSources.size(), candidate.inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate.inferredSyntheticEdgeStartVertexIndices.size(), candidate.inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate.inferredSyntheticEdgeEndVertexIndices.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeStartDegrees.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeEndDegrees.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeDanglingTouchCounts.size(), candidate.inferredSyntheticEdgeCount);
@@ -532,6 +553,9 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsClassifiesBranchCleanupSynthetic
     }
     for (std::size_t index = 0; index < candidate.inferredSyntheticEdgeCount; ++index)
     {
+        EXPECT_LT(candidate.inferredSyntheticEdgeStartVertexIndices[index], result.diagnostics.uniqueVertexCount);
+        EXPECT_LT(candidate.inferredSyntheticEdgeEndVertexIndices[index], result.diagnostics.uniqueVertexCount);
+        EXPECT_NE(candidate.inferredSyntheticEdgeStartVertexIndices[index], candidate.inferredSyntheticEdgeEndVertexIndices[index]);
         EXPECT_EQ(candidate.inferredSyntheticEdgeDanglingTouchCounts[index], 0U);
         EXPECT_EQ(candidate.inferredSyntheticEdgeBranchTouchCounts[index], 2U);
         EXPECT_GT(candidate.inferredSyntheticEdgeStartDegrees[index], 2U);
@@ -555,6 +579,8 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsClassifiesMixedSyntheticEdges)
     const auto& candidate = result.candidates.front();
     ASSERT_EQ(candidate.inferredSyntheticEdgeKinds.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeSources.size(), candidate.inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate.inferredSyntheticEdgeStartVertexIndices.size(), candidate.inferredSyntheticEdgeCount);
+    ASSERT_EQ(candidate.inferredSyntheticEdgeEndVertexIndices.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeStartDegrees.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeEndDegrees.size(), candidate.inferredSyntheticEdgeCount);
     ASSERT_EQ(candidate.inferredSyntheticEdgeDanglingTouchCounts.size(), candidate.inferredSyntheticEdgeCount);
@@ -572,6 +598,9 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsClassifiesMixedSyntheticEdges)
     }
     for (std::size_t index = 0; index < candidate.inferredSyntheticEdgeCount; ++index)
     {
+        EXPECT_LT(candidate.inferredSyntheticEdgeStartVertexIndices[index], result.diagnostics.uniqueVertexCount);
+        EXPECT_LT(candidate.inferredSyntheticEdgeEndVertexIndices[index], result.diagnostics.uniqueVertexCount);
+        EXPECT_NE(candidate.inferredSyntheticEdgeStartVertexIndices[index], candidate.inferredSyntheticEdgeEndVertexIndices[index]);
         EXPECT_EQ(candidate.inferredSyntheticEdgeDanglingTouchCounts[index], 1U);
         EXPECT_EQ(candidate.inferredSyntheticEdgeBranchTouchCounts[index], 1U);
     }

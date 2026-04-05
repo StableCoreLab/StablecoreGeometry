@@ -94,6 +94,20 @@
   - 为 representative `BranchCleanup` / `Mixed` synthetic candidate 子集补齐 branch-touch / mixed-touch 的逐边映射断言。
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-edge-vertex-identity-batch18）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
+  - 为 `SearchPolyCandidate2d` 新增：
+    - `inferredSyntheticEdgeStartVertexIndices`
+    - `inferredSyntheticEdgeEndVertexIndices`
+  - 当前产品侧可直接读取每条 synthetic edge 在输入 line network 中桥接的是哪两个稳定 vertex index，而不必只依赖 degree / touch-count 推断端点身份。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 clean / branch-only candidate 补齐 vertex-index 映射空数组断言；
+  - 为 representative synthetic candidate 子集补齐 `start/end vertex index < uniqueVertexCount`、`start != end` 的稳定断言；
+  - 保持逐边 kind / source / touch mapping 与 vertex identity 映射长度一致。
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-explanation-batch7）
 
 - 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
