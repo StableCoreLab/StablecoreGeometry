@@ -426,6 +426,52 @@ TEST(SearchPolySdkCapabilityTest, SearchPolygonsReportsRunnerUpBranchPenaltyExpl
     EXPECT_EQ(result.candidateCountWithBranchPenalty, 1U);
 }
 
+TEST(SearchPolySdkCapabilityTest, SearchPolygonsClassifiesBranchCleanupSyntheticEdges)
+{
+    const MultiPolyline2d lines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{-1.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 5.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{-1.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{0.0, -1.0}}, PolylineClosure::Open)};
+
+    const auto result = SearchPolygons(lines);
+
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_EQ(result.candidates.size(), 1U);
+    const auto& candidate = result.candidates.front();
+    ASSERT_EQ(candidate.inferredSyntheticEdgeKinds.size(), candidate.inferredSyntheticEdgeCount);
+    ASSERT_GE(candidate.inferredSyntheticEdgeKinds.size(), 1U);
+    for (const auto syntheticKind : candidate.inferredSyntheticEdgeKinds)
+    {
+        EXPECT_EQ(syntheticKind, SearchPolySyntheticEdgeKind2d::BranchCleanup);
+    }
+}
+
+TEST(SearchPolySdkCapabilityTest, SearchPolygonsClassifiesMixedSyntheticEdges)
+{
+    const MultiPolyline2d lines{
+        Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{-1.0, 4.0}}, PolylineClosure::Open),
+        Polyline2d({Point2d{0.0, 4.0}, Point2d{0.0, 5.0}}, PolylineClosure::Open)};
+
+    const auto result = SearchPolygons(lines);
+
+    ASSERT_TRUE(result.IsSuccess());
+    ASSERT_EQ(result.candidates.size(), 1U);
+    const auto& candidate = result.candidates.front();
+    ASSERT_EQ(candidate.inferredSyntheticEdgeKinds.size(), candidate.inferredSyntheticEdgeCount);
+    ASSERT_GE(candidate.inferredSyntheticEdgeKinds.size(), 1U);
+    for (const auto syntheticKind : candidate.inferredSyntheticEdgeKinds)
+    {
+        EXPECT_EQ(syntheticKind, SearchPolySyntheticEdgeKind2d::Mixed);
+    }
+}
+
 TEST(SearchPolySdkCapabilityTest, SearchPolygonContainingPointReturnsSmallestContainingCandidate)
 {
     const MultiPolyline2d lines{
