@@ -82,6 +82,10 @@ struct GEOMETRY_API SearchPolyCandidate2d
     std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
     std::vector<SearchPolySyntheticEdgeSource2d> inferredSyntheticEdgeSources{};
+    std::vector<std::size_t> inferredSyntheticEdgeStartDegrees{};
+    std::vector<std::size_t> inferredSyntheticEdgeEndDegrees{};
+    std::vector<std::size_t> inferredSyntheticEdgeDanglingTouchCounts{};
+    std::vector<std::size_t> inferredSyntheticEdgeBranchTouchCounts{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     std::size_t rank{0};
 

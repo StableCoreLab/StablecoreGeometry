@@ -78,6 +78,22 @@
   - 为 representative `BranchCleanup` / `Mixed` synthetic candidate 子集补齐逐边 source-cause 断言。
 - 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
 
+## 本轮新增（2026-04-05，fasttrack-searchpoly-edge-network-touch-mapping-batch17）
+
+- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+  - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
+  - 为 `SearchPolyCandidate2d` 新增逐边输入线网触达字段：
+    - `inferredSyntheticEdgeStartDegrees`
+    - `inferredSyntheticEdgeEndDegrees`
+    - `inferredSyntheticEdgeDanglingTouchCounts`
+    - `inferredSyntheticEdgeBranchTouchCounts`
+  - 当前产品侧可直接读取每条 synthetic edge 在输入线网两端对应的 degree，以及它桥接了多少 dangling endpoints / branch vertices，而不必自行回扫原始 line network。
+- 已扩展 capability tests：`tests/capabilities/test_searchpoly_sdk.cpp`
+  - 为 clean / branch-only candidate 补齐逐边 touch-mapping 空数组断言；
+  - 为 representative `GapClosure` synthetic candidate 子集补齐 `start/end degree == 1` 与 dangling-touch-count `== 2` 断言；
+  - 为 representative `BranchCleanup` / `Mixed` synthetic candidate 子集补齐 branch-touch / mixed-touch 的逐边映射断言。
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-explanation-batch7）
 
 - 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：

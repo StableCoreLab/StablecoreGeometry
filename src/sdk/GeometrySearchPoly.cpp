@@ -39,6 +39,10 @@ struct CandidateMetrics2d
     std::vector<LineSegment2d> inferredSyntheticEdges{};
     std::vector<SearchPolySyntheticEdgeKind2d> inferredSyntheticEdgeKinds{};
     std::vector<SearchPolySyntheticEdgeSource2d> inferredSyntheticEdgeSources{};
+    std::vector<std::size_t> inferredSyntheticEdgeStartDegrees{};
+    std::vector<std::size_t> inferredSyntheticEdgeEndDegrees{};
+    std::vector<std::size_t> inferredSyntheticEdgeDanglingTouchCounts{};
+    std::vector<std::size_t> inferredSyntheticEdgeBranchTouchCounts{};
     std::vector<double> inferredSyntheticEdgeLengths{};
     double branchScore{0.0};
 };
@@ -272,6 +276,20 @@ struct CandidateMetrics2d
     }
 }
 
+[[nodiscard]] std::size_t CountDanglingTouches(
+    std::size_t startDegree,
+    std::size_t endDegree)
+{
+    return (startDegree == 1U ? 1U : 0U) + (endDegree == 1U ? 1U : 0U);
+}
+
+[[nodiscard]] std::size_t CountBranchTouches(
+    std::size_t startDegree,
+    std::size_t endDegree)
+{
+    return (startDegree > 2U ? 1U : 0U) + (endDegree > 2U ? 1U : 0U);
+}
+
 [[nodiscard]] bool CoversBoundaryEdge(
     const LineSegment2d& boundaryEdge,
     const std::vector<LineSegment2d>& inputSegments,
@@ -389,6 +407,8 @@ void AccumulateRingMetrics(
         const bool inferredSynthetic = !CoversBoundaryEdge(boundaryEdge, analysis.segments, epsilon);
         if (inferredSynthetic)
         {
+            const std::size_t startDegree = BranchDegreeAtPoint(analysis.vertices, start, epsilon);
+            const std::size_t endDegree = BranchDegreeAtPoint(analysis.vertices, end, epsilon);
             const SearchPolySyntheticEdgeKind2d syntheticKind =
                 ClassifySyntheticEdgeKind(analysis, start, end, epsilon);
             ++metrics.inferredSyntheticEdgeCount;
@@ -397,6 +417,12 @@ void AccumulateRingMetrics(
             metrics.inferredSyntheticEdgeKinds.push_back(syntheticKind);
             metrics.inferredSyntheticEdgeSources.push_back(
                 ClassifySyntheticEdgeSource(syntheticKind));
+            metrics.inferredSyntheticEdgeStartDegrees.push_back(startDegree);
+            metrics.inferredSyntheticEdgeEndDegrees.push_back(endDegree);
+            metrics.inferredSyntheticEdgeDanglingTouchCounts.push_back(
+                CountDanglingTouches(startDegree, endDegree));
+            metrics.inferredSyntheticEdgeBranchTouchCounts.push_back(
+                CountBranchTouches(startDegree, endDegree));
             metrics.inferredSyntheticEdgeLengths.push_back(edgeLength);
         }
 
@@ -476,6 +502,10 @@ void AccumulateRingMetrics(
         metrics.inferredSyntheticEdges,
         metrics.inferredSyntheticEdgeKinds,
         metrics.inferredSyntheticEdgeSources,
+        metrics.inferredSyntheticEdgeStartDegrees,
+        metrics.inferredSyntheticEdgeEndDegrees,
+        metrics.inferredSyntheticEdgeDanglingTouchCounts,
+        metrics.inferredSyntheticEdgeBranchTouchCounts,
         metrics.inferredSyntheticEdgeLengths,
         0};
 }
