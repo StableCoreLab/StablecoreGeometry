@@ -28,7 +28,7 @@
 
 ## 当前状态（2026-04-05）
 
-> 本轮已继续推进 P1/P2/P3：新增 `GeometrySection` 的 mixed merged polygon-with-hole 与 detached-open mixed polygon-with-hole 子集，新增 `GeometryBodyBoolean` 的 face-touching L-shape union / rotated-box intersection explicit-unsupported contract 子集；上一轮已补入 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 与 `GeometrySearchPoly` ambiguous recovery gap 细化场景。下面状态已与当前代码库对齐。
+> 本轮已继续推进 P1/P2/P3：新增 `GeometrySection` 的 merged polygon-with-hole + edge-attached / vertex-attached outer-boundary open-contour 子集，新增 `GeometryHealing` 的 closed-shell + partial-overlap pair / independent+vertex-touch+partial-overlap pair arbitration 子集，并继续细化 `GeometrySearchPoly` ambiguous recovery gap。下面状态已与当前代码库对齐。
 
 ### GeometrySection
 
@@ -52,6 +52,8 @@
   - L-corner mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3）
   - frame-with-hole + adjacent non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon-with-hole（area=9）
   - merged polygon-with-hole + detached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon-with-hole + 1 open contour / area=9）
+  - merged polygon-with-hole + edge-attached outer-boundary open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon-with-hole + 1 open contour / area=9）
+  - merged polygon-with-hole + vertex-attached outer-boundary open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon-with-hole + 1 open contour / area=9）
   - strip-adjacent merged area + detached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
   - strip-adjacent merged area + edge-attached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
   - strip-adjacent merged area + vertex-attached open contour 在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3）
@@ -62,7 +64,7 @@
   - ambiguous non-manifold contour stitching
   - mixed open-curve / area edge-adjacency arbitration（超出已收敛的 vertex-touch + edge-touch 双 open representative 子集）
   - 非邻接 coplanar fragments 跨 convex-hull gap 的 merge
-  - mixed coplanar/non-planar merged polygon-with-hole 的 boundary-attached open-curve arbitration
+  - mixed coplanar/non-planar merged polygon-with-hole 的 higher-order boundary-attached open-curve arbitration（超出 single edge-attached / single vertex-attached outer-boundary spur 子集）
 
 ### GeometryHealing
 
@@ -78,6 +80,8 @@
 - aggressive boundary-cap 当前已进一步覆盖 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集：几何上共享同一 boundary loop、但 topology 独立的 eligible shells 会保守保持 open
 - aggressive boundary-cap 当前已进一步覆盖 partial-overlap shared-boundary-loop arbitration 子集：共线且区间重叠的 boundary spans 也会保守保持 open
 - aggressive boundary-cap 当前已进一步覆盖 independent + partial-overlap pair local arbitration 子集：独立 eligible shell 可继续闭壳，而 partial-overlap competing pair 保持 open
+- aggressive boundary-cap 当前已进一步覆盖 mixed closed-shell + partial-overlap pair arbitration 子集：closed shell 保持稳定，而 partial-overlap competing pair 继续保持 open
+- aggressive boundary-cap 当前已进一步覆盖 independent + vertex-touch + partial-overlap pair local arbitration 子集：独立 eligible shell 与仅 vertex-touch 的 eligible shell 可继续闭壳，而 partial-overlap competing pair 保持 open
 - aggressive boundary-cap 当前已进一步覆盖 non-planar shared-edge shell reject 子集：共享 interior edge 但整体不共面的 shell 不会误走 planar boundary-cap，而会继续保持 open
 - src/sdk/GeometryHealing.cpp 已按 trim-backfill / shell-cap / aggressive 三个内部 pass helper 拆层，便于继续推进而不改外部 contract
 - 更一般 multi-shell shared-boundary-loop / shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
@@ -120,10 +124,10 @@
     - `LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`
     - `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole`
   - 当前剩余重点：
-    - `MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen`
-      - 场景：coplanar frame-with-hole 与相邻 non-planar section area 已 merge 成单 polygon-with-hole，再额外挂一条接在 merged outer boundary 上的 open contour
-      - 要解决的问题：确认 boundary-attached open contour 不会破坏 hole 语义，也不会与 polygon-with-hole 轮廓错误拼接
-      - 期望：未来稳定支持 `1 polygon-with-hole + 1 open contour`
+    - `MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration`
+      - 场景：coplanar frame-with-hole 与相邻 non-planar section area 已 merge 成单 polygon-with-hole，再额外挂两条接在 merged outer boundary 上的 open contours（例如一条 edge-attached、一条 vertex-attached）
+      - 要解决的问题：确认 dual boundary-attached open contours 不会破坏 hole 语义，也不会彼此错误拼接或改写稳定排序
+      - 期望：未来稳定支持 `1 polygon-with-hole + 2 open contours`
     - 更一般 ambiguous non-manifold contour stitching
       - 建议继续落成具体测试名，而不是只保留抽象 gap 名词
   - 当前 detached-left + edge-attached ordering 只是一个 representative ordering 子集，不等于更一般 adjacency 语义已闭合
@@ -144,20 +148,16 @@
 
 - 继续扩展 aggressive shell policy，但保持 conservative trim-backfill 与 topology-changing aggressive closure 的边界清晰
 - 当前 mixed body 中的 per-shell shared-edge boundary-cap 已有代表性 capability；下一步优先考虑更一般 multi-shell arbitration，而不是回退到单-shell-only
-- 当前已补独立 shell 可闭合、competing shared-boundary-edge shells 保守跳过、duplicated-topology geometrically coincident shared-boundary-loop 保守跳过、partial-overlap shared-boundary-loop 保守跳过、vertex-touch non-competing 可闭合、competing-pair-plus-vertex-touch 组合 arbitration、independent-plus-competing-pair-plus-vertex-touch 四壳组合子集、independent-plus-partial-overlap-pair local arbitration、以及 mixed closed-shell + competing-pair + vertex-touch shell 子集；下一步优先推进更一般 three-shell / mixed closed-shell + partial-overlap shared-boundary-loop arbitration，而不是继续扩散仅共享单点的子例
+- 当前已补独立 shell 可闭合、competing shared-boundary-edge shells 保守跳过、duplicated-topology geometrically coincident shared-boundary-loop 保守跳过、partial-overlap shared-boundary-loop 保守跳过、vertex-touch non-competing 可闭合、competing-pair-plus-vertex-touch 组合 arbitration、independent-plus-competing-pair-plus-vertex-touch 四壳组合子集、independent-plus-partial-overlap-pair local arbitration、mixed closed-shell + competing-pair + vertex-touch shell 子集、mixed closed-shell + partial-overlap pair 子集，以及 independent + vertex-touch + partial-overlap pair 子集；下一步优先推进更一般 three-shell / mixed closed-shell + partial-overlap shared-boundary-loop arbitration，而不是继续扩散仅共享单点的子例
 - 实现方式要求：
   - 优先把 `tests/gaps/test_3d_healing_gaps.cpp` 里具体化的用例转成 capability tests
   - 每轮至少有 1 个 healing gap 场景推进成 capability
   - 如果当前轮不能稳定实现，就把 gap 描述改成更具体的输入拓扑和期望结果
 - 建议直接转成以下测试目标：
-  - `AggressiveHealingKeepsClosedShellWhileSkippingPartialOverlapPair`
-    - 场景：body 内同时存在一个已闭壳 shell 和一对 partial-overlap competing shells
-    - 要解决的问题：确认 arbitration 不会因为 closed shell 共存而放宽对 partial-overlap pair 的保守跳过
-    - 期望：`closed + open + open`
-  - `AggressiveHealingClosesIndependentAndVertexTouchShellsWhileSkippingPartialOverlapPair`
-    - 场景：body 内同时存在一个独立 eligible shell、一个仅 vertex-touch 的 eligible shell，以及一对 partial-overlap competing shells
-    - 要解决的问题：确认 arbitration 仍是局部的，可闭壳 shells 继续闭壳，而 partial-overlap pair 保持 open
-    - 期望：`closed + open + open + closed`
+  - `AggressiveHealingKeepsClosedAndIndependentShellsWhileSkippingPartialOverlapPair`
+    - 场景：body 内同时存在一个已闭壳 shell、一个独立 eligible shell，以及一对 partial-overlap competing shells
+    - 要解决的问题：确认 arbitration 仍保持局部，closed / independent shells 不会被 partial-overlap pair 拖成保守整体跳过
+    - 期望：`closed + closed + open + open`
 
 ### P3：继续深化 GeometrySearchPoly / GeometryBodyBoolean
 
@@ -188,10 +188,9 @@
 后续轮次优先从下面这些“可直接命名为测试”的条目里挑，而不是继续写抽象 gap 名词：
 
 1. `GeometrySection`
-   - `MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen`
+   - `MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration`
 2. `GeometryHealing`
-   - `AggressiveHealingKeepsClosedShellWhileSkippingPartialOverlapPair`
-   - `AggressiveHealingClosesIndependentAndVertexTouchShellsWhileSkippingPartialOverlapPair`
+   - `AggressiveHealingKeepsClosedAndIndependentShellsWhileSkippingPartialOverlapPair`
 3. `GeometrySearchPoly`
    - `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
 4. `GeometryBodyBoolean`

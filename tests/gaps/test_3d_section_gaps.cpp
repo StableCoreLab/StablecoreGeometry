@@ -65,6 +65,10 @@ TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
                     "(single polygon-with-hole / area=9 representative subset), "
                     "plus mixed merged polygon-with-hole + detached open contour on PolyhedronBody / BrepBody paths "
                     "(1 polygon-with-hole + 1 open contour representative subset), "
+                    "plus mixed merged polygon-with-hole + edge-attached open contour on PolyhedronBody / BrepBody paths "
+                    "(1 polygon-with-hole + 1 open contour representative subset), "
+                    "plus mixed merged polygon-with-hole + vertex-attached open contour on PolyhedronBody / BrepBody paths "
+                    "(1 polygon-with-hole + 1 open contour representative subset), "
                     "and plus dual disjoint non-planar closed loops in the same section plane on the PolyhedronBody path "
                     "(2 polygons / 2 contours / 2 roots representative subset).";
 }
@@ -87,10 +91,11 @@ TEST(Section3dGapTest, FaceMergeSemanticsAfterSectionRemainsOpen)
                     "and more general mixed coplanar/non-planar adjacency arbitration beyond the representative edge-adjacent / strip-adjacent deterministic merge subsets.";
 }
 
-TEST(Section3dGapTest, MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen)
+TEST(Section3dGapTest, MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration)
 {
-    GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar merged area with an interior hole still lacks explicit boundary-attached open-curve arbitration coverage. "
+    GTEST_SKIP() << "Known 3D gap: mixed coplanar/non-planar merged polygon-with-hole now covers single detached / edge-attached / vertex-attached outer-boundary open-contour subsets, "
+                    "but higher-order boundary-attached arbitration is still open once multiple open contours are present. "
                     "Representative unresolved scenario: a coplanar 3x3 frame-with-hole (outer [0,3]x[0,3], inner [1,2]x[1,2]) merged with an adjacent non-planar area along the outer boundary at z=0.5, "
-                    "plus an extra open contour attached to the merged outer boundary. "
-                    "Expected future capability: preserve the single polygon-with-hole and keep the boundary-attached open contour separate instead of collapsing hole semantics or contour attachment ordering.";
+                    "plus two extra open contours where one is edge-attached on the merged outer boundary and the other is vertex-attached at an adjacent outer-boundary corner. "
+                    "Expected future capability: preserve the single polygon-with-hole and keep both boundary-attached open contours separate with deterministic ordering instead of collapsing hole semantics or cross-stitching the spurs.";
 }

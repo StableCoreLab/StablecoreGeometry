@@ -7,12 +7,12 @@
 ## 2026-04-05 文档同步
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。
-- 已进一步把 `GeometrySection` 的 `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole` 转正为 capability test，并新增 `MixedMergedAreaWithInteriorHoleAndDetachedOpenContourStaysMixed` 的 mixed 子集。
+- 已进一步把 `GeometrySection` 的 merged polygon-with-hole 语义从 detached open contour 子集推进到 single edge-attached / single vertex-attached outer-boundary open-contour 子集，并保持 Polyhedron / Brep 路径一致。
 - 已进一步把 `GeometryBodyBoolean` 的 `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap` 与 `RotatedBoxIntersectionRemainsUnsupported` 转正为 explicit-unsupported capability tests，明确 UnsupportedOperation 也是稳定 contract。
-- 已把剩余 `GeometrySection` gap 从“hole-preserving merge”收敛到更具体的 `MixedMergedAreaWithInteriorHoleAndBoundaryAttachedOpenContourRemainsOpen`，并把 `GeometryBodyBoolean` 剩余 gap 收敛到 shell-policy option 尚未接管语义。
+- 已把剩余 `GeometrySection` gap 从 single boundary-attached outer-boundary spur 收敛到更具体的 `MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration`，并把 `GeometryBodyBoolean` 剩余 gap 收敛到 shell-policy option 尚未接管语义。
 - 已进一步把 `GeometrySection` 的三条具体 gap 场景转正为 capability tests：`VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`、`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`、`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`。
-- 已进一步把 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 子集转正为 capability tests，并同步到“独立 shell 可闭合、partial-overlap competing pair 保持 open”的 local arbitration 子集。
-- 已进一步把 `GeometrySearchPoly` ambiguous recovery gap 细化到“tied-top candidates dominant synthetic source 不同”的可复现场景，避免下轮重新抽象。
+- 已进一步把 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 子集推进到 mixed closed-shell + partial-overlap pair，以及 independent + vertex-touch + partial-overlap pair 两个 capability 子集。
+- 已进一步把 `GeometrySearchPoly` ambiguous recovery gap 细化到“tied-top candidates dominant synthetic source 不同且当前缺少 candidate-identity 级解释”的可复现场景，避免下轮重新抽象。
 - 已同步新增的 `AI Execution Spec` 到现有执行文档，明确 closed capability unit、P1+P2/P3 breadth、capability/edge-case/gap tests mandatory、capability-vs-gap discipline 与 diagnostics consistency 约束。
 - 已进一步把后续执行口径收紧为：每轮至少 3 项能力提升，其中至少 2 项来自 P1，并优先把 gap tests 推进为 capability tests。
 - 已进一步同步 `GeometrySection` 的 vertex-attached mixed-content 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。

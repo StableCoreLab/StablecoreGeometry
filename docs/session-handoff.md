@@ -29,6 +29,32 @@
 - 对带 diagnostics / explanation 的模块，必须保持 result / diagnostics consistency
 - 默认不修改 public SDK contract，不引入 breaking change；允许内部 helper / pass 重构
 
+## 本轮新增（2026-04-05，fasttrack-section-hole-boundary-arbitration-healing-batch36）
+
+- 已扩展 capability tests：
+  - `tests/capabilities/test_3d_section.cpp`
+    - 新增 `MixedMergedAreaWithInteriorHoleAndEdgeAttachedOpenContourStaysMixed`
+    - 新增 `MixedMergedAreaWithInteriorHoleAndVertexAttachedOpenContourStaysMixed`
+    - 并补齐上述两个场景在 Brep 路径的稳定子集
+    - 验证 merged `polygon-with-hole` 在 single boundary-attached outer-boundary spur 子集下仍稳定保持 `1 polygon-with-hole + 1 open contour`
+  - `tests/capabilities/test_3d_healing.cpp`
+    - 新增 `AggressiveHealingKeepsClosedShellWhileSkippingPartialOverlapPair`
+    - 新增 `AggressiveHealingClosesIndependentAndVertexTouchShellsWhileSkippingPartialOverlapPair`
+    - 验证 aggressive arbitration 对 partial-overlap competing pair 继续保持保守跳过，同时 closed / independent / vertex-touch non-competing shells 仍按局部规则闭壳
+- 已同步收窄 / 细化 gap tests：
+  - `tests/gaps/test_3d_section_gaps.cpp`
+    - 移除已失效的单条 boundary-attached outer-boundary spur gap 表述
+    - 改为更具体的 `MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration`
+  - `tests/gaps/test_searchpoly_gaps.cpp`
+    - 保留 `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`
+    - 并补记当前已有 ambiguous-top summary / mixed synthetic-source summary，但仍缺少 tied candidate identity 级解释
+- 已同步更新：
+  - `docs/session-handoff.md`
+  - `docs/next-task-prompt.md`
+  - `docs/test-capability-coverage.md`
+  - `docs/design-doc-sync-tracker.md`
+- 本轮未编译、未跑构建；仅完成代码、测试代码与文档同步。
+
 ## 本轮新增（2026-04-05，fasttrack-section-hole-merge-bodyboolean-unsupported-batch35）
 
 - 已扩展 capability tests：
