@@ -69,6 +69,10 @@ target_include_directories(stablecore_geometry
 
 target_compile_features(stablecore_geometry PUBLIC cxx_std_20)
 
+if (MSVC)
+    target_compile_options(stablecore_geometry PRIVATE /utf-8)
+endif()
+
 if (BUILD_SHARED_LIBS)
     target_compile_definitions(stablecore_geometry PRIVATE GEOMETRY_BUILD_DLL)
 endif()
