@@ -65,6 +65,11 @@ function(SCGeometryConfigureOutputDirs target_name)
     endif()
 endfunction()
 
+function(SCGeometryConfigureTarget target_name)
+    SCGeometryConfigureOutputDirs(${target_name})
+    SCEnableUtf8ForTargets(${target_name})
+endfunction()
+
 # -------------------
 # SCGeometry 库
 # -------------------
@@ -111,7 +116,7 @@ add_library(${SCGEOMETRY_TARGET} SHARED
     src/sdk/Polygon2d.cpp
     src/sdk/Rectangle2d.cpp
 )
-SCGeometryConfigureOutputDirs(${SCGEOMETRY_TARGET})
+SCGeometryConfigureTarget(${SCGEOMETRY_TARGET})
 
 add_library(SCGeometry::Geometry ALIAS ${SCGEOMETRY_TARGET})
 
@@ -122,7 +127,6 @@ target_include_directories(${SCGEOMETRY_TARGET}
 )
 
 target_compile_features(${SCGEOMETRY_TARGET} PUBLIC cxx_std_20)
-SCEnableUtf8ForTargets(${SCGEOMETRY_TARGET})
 if (MSVC)
     target_compile_options(${SCGEOMETRY_TARGET} PRIVATE /MP)
 endif()
