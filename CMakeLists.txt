@@ -28,6 +28,7 @@ endif()
 
 set(SCGEOMETRY_INSTALL_BIN_DIR "${CMAKE_INSTALL_BINDIR}/$<CONFIG>/${SCGEOMETRY_INSTALL_PLATFORM}")
 set(SCGEOMETRY_INSTALL_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${SCGEOMETRY_INSTALL_PLATFORM}")
+set(SCGEOMETRY_INSTALL_PDB_DIR "${SCGEOMETRY_INSTALL_BIN_DIR}")
 
 function(SCGeometryConfigureOutputDirs target_name)
     if (MSVC AND CMAKE_GENERATOR MATCHES "Visual Studio")
@@ -45,6 +46,15 @@ function(SCGeometryConfigureOutputDirs target_name)
             COMPILE_PDB_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
             PDB_NAME "${target_name}"
             COMPILE_PDB_NAME "${target_name}"
+            MSVC_DEBUG_INFORMATION_FORMAT ProgramDatabase
+        )
+        target_compile_options(${target_name} PRIVATE
+            $<$<CONFIG:Release>:/Zi>
+            $<$<CONFIG:RelWithDebInfo>:/Zi>
+        )
+        target_link_options(${target_name} PRIVATE
+            $<$<CONFIG:Release>:/DEBUG>
+            $<$<CONFIG:RelWithDebInfo>:/DEBUG>
         )
     else()
         set_target_properties(${target_name} PROPERTIES
@@ -167,6 +177,11 @@ install(TARGETS ${SCGEOMETRY_TARGET}
     LIBRARY DESTINATION ${SCGEOMETRY_INSTALL_BIN_DIR}
     ARCHIVE DESTINATION ${SCGEOMETRY_INSTALL_LIB_DIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(FILES $<TARGET_PDB_FILE:${SCGEOMETRY_TARGET}>
+    CONFIGURATIONS Debug RelWithDebInfo Release
+    DESTINATION ${SCGEOMETRY_INSTALL_PDB_DIR}
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
