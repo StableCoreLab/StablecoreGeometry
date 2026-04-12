@@ -4,7 +4,7 @@ setlocal
 set "SCRIPT_DIR=%~dp0"
 if "%SCRIPT_DIR:~-1%"=="\" set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 
-set "BUILD_DIR=%SCRIPT_DIR%..\StablecoreGeometryBuild"
+set "BUILD_DIR=%SCRIPT_DIR%..\..\Build\GeometryVs2022"
 set "GENERATOR=Visual Studio 17 2022"
 set "ARCH=x64"
 set "BUILD_TESTS=ON"
@@ -28,12 +28,12 @@ echo [INFO] Generator   : %GENERATOR%
 echo [INFO] Architecture: %ARCH%
 echo [INFO] Build Tests : %BUILD_TESTS%
 
-cmake -S "%SCRIPT_DIR%" -B "%BUILD_DIR%" -G "%GENERATOR%" -A "%ARCH%" -DSTABLECORE_GEOMETRY_BUILD_TESTS=%BUILD_TESTS%
+cmake -S "%SCRIPT_DIR%" -B "%BUILD_DIR%" -G "%GENERATOR%" -A "%ARCH%" -DSCGEOMETRY_BUILD_TESTS=%BUILD_TESTS%
 if errorlevel 1 (
     echo [ERROR] Failed to generate the Visual Studio solution.
     exit /b 1
 )
 
 echo [OK] Solution generated successfully.
-echo [OK] Open: "%BUILD_DIR%\stablecore_geometry.sln"
+echo [OK] Open: "%BUILD_DIR%\SCGeometry.sln"
 exit /b 0

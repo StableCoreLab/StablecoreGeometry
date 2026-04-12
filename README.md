@@ -51,7 +51,7 @@ Quick options:
 generate_vs_solution.bat
 ```
 
-This generates into `../StablecoreGeometryBuild` relative to the repository root and produces `stablecore_geometry.sln`.
+This generates into `../Build/GeometryVs2022` relative to the repository root and produces `SCGeometry.sln`.
 
 2. Or use the checked-in CMake preset:
 
@@ -65,20 +65,22 @@ The workspace also includes `.vscode/settings.json` so VS Code CMake Tools can u
 
 ## Install
 
-The library installs into a `bin/lib/include` layout that separates configuration and platform:
+The library installs into a release-friendly layout that separates configuration and platform:
 
-- `Bin/Release/x64`
-- `Bin/RelWithDebInfo/x64`
-- `Lib/Release/x64`
-- `Lib/RelWithDebInfo/x64`
-- `include`
-- `lib/cmake/stablecore_geometry`
+### Release Layout
+
+- `Bin/Release/x64` for DLLs and executables
+- `Bin/RelWithDebInfo/x64` for DLLs and executables with debug info
+- `Lib/Release/x64` for import libraries and static archives
+- `Lib/RelWithDebInfo/x64` for import libraries and static archives with debug info
+- `include` for public headers
+- `lib/cmake/SCGeometry` for CMake package files
 
 After installing, downstream projects can consume it with CMake:
 
 ```cmake
-find_package(stablecore_geometry CONFIG REQUIRED)
-target_link_libraries(your_target PRIVATE stablecore::geometry)
+find_package(SCGeometry CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE SCGeometry::Geometry)
 ```
 
 For a local install prefix, you can use either configuration:

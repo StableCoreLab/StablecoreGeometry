@@ -11,10 +11,10 @@
       "displayName": "VS2022 x64",
       "generator": "Visual Studio 17 2022",
       "architecture": "x64",
-      "binaryDir": "${sourceDir}/../StablecoreGeometryBuild",
+      "binaryDir": "${sourceDir}/../Build/GeometryVs2022",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "STABLECORE_GEOMETRY_BUILD_TESTS": "ON"
+        "SCGEOMETRY_BUILD_TESTS": "ON"
       }
     }
   ],

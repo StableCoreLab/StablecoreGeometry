@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.16)
 
-project(stablecore_geometry LANGUAGES CXX)
+project(SCGeometry LANGUAGES CXX)
 
 # 设置 CMP0135 政策，消除 FetchContent 下载时间戳警告
 if(POLICY CMP0135)
@@ -11,23 +11,54 @@ include(CTest)
 include(FetchContent)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/SCUtf8.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/SCTestHelpers.cmake)
 
-option(STABLECORE_GEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
+option(SCGEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
 
-set(STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/stablecore_geometry")
+set(SCGEOMETRY_TARGET SCGeometry)
+set(SCGEOMETRY_BIN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../Bin")
+
+set(SCGEOMETRY_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/SCGeometry")
 if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(STABLECORE_GEOMETRY_INSTALL_PLATFORM "x64")
+    set(SCGEOMETRY_INSTALL_PLATFORM "x64")
 else()
-    set(STABLECORE_GEOMETRY_INSTALL_PLATFORM "${CMAKE_SYSTEM_PROCESSOR}")
+    set(SCGEOMETRY_INSTALL_PLATFORM "${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
-set(STABLECORE_GEOMETRY_INSTALL_BIN_DIR "${CMAKE_INSTALL_BINDIR}/$<CONFIG>/${STABLECORE_GEOMETRY_INSTALL_PLATFORM}")
-set(STABLECORE_GEOMETRY_INSTALL_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${STABLECORE_GEOMETRY_INSTALL_PLATFORM}")
+set(SCGEOMETRY_INSTALL_BIN_DIR "${CMAKE_INSTALL_BINDIR}/$<CONFIG>/${SCGEOMETRY_INSTALL_PLATFORM}")
+set(SCGEOMETRY_INSTALL_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${SCGEOMETRY_INSTALL_PLATFORM}")
+
+function(SCGeometryConfigureOutputDirs target_name)
+    if (MSVC AND CMAKE_GENERATOR MATCHES "Visual Studio")
+        set(SCGEOMETRY_OUTPUT_PLATFORM "${CMAKE_VS_PLATFORM_NAME}")
+    else()
+        set(SCGEOMETRY_OUTPUT_PLATFORM "$<PLATFORM_ID>")
+    endif()
+
+    if (MSVC)
+        set_target_properties(${target_name} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+            LIBRARY_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+            ARCHIVE_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+            PDB_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+            COMPILE_PDB_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+            PDB_NAME "${target_name}"
+            COMPILE_PDB_NAME "${target_name}"
+        )
+    else()
+        set_target_properties(${target_name} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+            LIBRARY_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+            ARCHIVE_OUTPUT_DIRECTORY "${SCGEOMETRY_BIN_ROOT}/$<CONFIG>/${SCGEOMETRY_OUTPUT_PLATFORM}"
+        )
+    endif()
+endfunction()
 
 # -------------------
-# stablecore_geometry 库
+# SCGeometry 库
 # -------------------
-add_library(stablecore_geometry
+add_library(${SCGEOMETRY_TARGET} SHARED
     src/serialize/GeometryText.cpp
     src/sdk/ArcSegment2d.cpp
     src/sdk/Circle2d.cpp
@@ -70,29 +101,32 @@ add_library(stablecore_geometry
     src/sdk/Polygon2d.cpp
     src/sdk/Rectangle2d.cpp
 )
+SCGeometryConfigureOutputDirs(${SCGEOMETRY_TARGET})
 
-add_library(stablecore::geometry ALIAS stablecore_geometry)
+add_library(SCGeometry::Geometry ALIAS ${SCGEOMETRY_TARGET})
 
-target_include_directories(stablecore_geometry
+target_include_directories(${SCGEOMETRY_TARGET}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(stablecore_geometry PUBLIC cxx_std_20)
-
+target_compile_features(${SCGEOMETRY_TARGET} PUBLIC cxx_std_20)
+SCEnableUtf8ForTargets(${SCGEOMETRY_TARGET})
 if (MSVC)
-    target_compile_options(stablecore_geometry PRIVATE /utf-8 /MP)
+    target_compile_options(${SCGEOMETRY_TARGET} PRIVATE /MP)
 endif()
 
-if (BUILD_SHARED_LIBS)
-    target_compile_definitions(stablecore_geometry PRIVATE GEOMETRY_BUILD_DLL)
-endif()
+target_compile_definitions(${SCGEOMETRY_TARGET} PRIVATE GEOMETRY_BUILD_DLL)
+
+set_target_properties(${SCGEOMETRY_TARGET} PROPERTIES
+    EXPORT_NAME Geometry
+)
 
 # -------------------
 # 测试配置
 # -------------------
-if (STABLECORE_GEOMETRY_BUILD_TESTS)
+if (SCGEOMETRY_BUILD_TESTS)
     enable_testing()
 
     # 尝试查找系统或已安装 GTest
@@ -101,13 +135,15 @@ if (STABLECORE_GEOMETRY_BUILD_TESTS)
     if (NOT GTest_FOUND)
         # 强制使用共享 CRT
         set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+        set(INSTALL_GMOCK OFF CACHE BOOL "" FORCE)
 
-        set(_gtest_local_path "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/GoogleTest")
-        if (EXISTS "${_gtest_local_path}")
+        set(SCGEOMETRY_GTEST_LOCAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/GoogleTest")
+        if (EXISTS "${SCGEOMETRY_GTEST_LOCAL_PATH}")
             # 优先使用本地 ThirdParty 路径的 GTest（与其他依赖库共享的本地副本）
             FetchContent_Declare(
                 googletest
-                SOURCE_DIR "${_gtest_local_path}"
+                SOURCE_DIR "${SCGEOMETRY_GTEST_LOCAL_PATH}"
             )
         else()
             # 本地路径不存在时，回退到从 GitHub 下载
@@ -125,11 +161,11 @@ if (STABLECORE_GEOMETRY_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-install(TARGETS stablecore_geometry
-    EXPORT stablecore_geometryTargets
-    RUNTIME DESTINATION ${STABLECORE_GEOMETRY_INSTALL_BIN_DIR}
-    LIBRARY DESTINATION ${STABLECORE_GEOMETRY_INSTALL_BIN_DIR}
-    ARCHIVE DESTINATION ${STABLECORE_GEOMETRY_INSTALL_LIB_DIR}
+install(TARGETS ${SCGEOMETRY_TARGET}
+    EXPORT SCGeometryTargets
+    RUNTIME DESTINATION ${SCGEOMETRY_INSTALL_BIN_DIR}
+    LIBRARY DESTINATION ${SCGEOMETRY_INSTALL_BIN_DIR}
+    ARCHIVE DESTINATION ${SCGEOMETRY_INSTALL_LIB_DIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
@@ -137,26 +173,26 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(EXPORT stablecore_geometryTargets
-    FILE stablecore_geometryTargets.cmake
-    NAMESPACE stablecore::
-    DESTINATION ${STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR}
+install(EXPORT SCGeometryTargets
+    FILE SCGeometryTargets.cmake
+    NAMESPACE SCGeometry::
+    DESTINATION ${SCGEOMETRY_INSTALL_CMAKE_DIR}
 )
 
 configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/stablecore_geometryConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfig.cmake
-    INSTALL_DESTINATION ${STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/SCGeometryConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/SCGeometryConfig.cmake
+    INSTALL_DESTINATION ${SCGEOMETRY_INSTALL_CMAKE_DIR}
 )
 
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfigVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/SCGeometryConfigVersion.cmake
     VERSION 1.0.0
     COMPATIBILITY SameMajorVersion
 )
 
 install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfig.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfigVersion.cmake
-    DESTINATION ${STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/SCGeometryConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/SCGeometryConfigVersion.cmake
+    DESTINATION ${SCGEOMETRY_INSTALL_CMAKE_DIR}
 )

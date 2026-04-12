@@ -1721,7 +1721,7 @@
   - `tests/gaps`
   - `tests/support`
 - `tests/CMakeLists.txt` 已接入 capability 与 gap 两个 gtest 可执行目标
-- `stablecore_geometry_capabilities_gtest` 在前一轮修复后已通过
+- `SCGeometryCapabilitiesTests` 在前一轮修复后已通过
 
 ### API / 命名状态
 
