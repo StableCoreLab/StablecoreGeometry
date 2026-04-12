@@ -9,8 +9,20 @@ endif()
 
 include(CTest)
 include(FetchContent)
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 option(STABLECORE_GEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
+
+set(STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/stablecore_geometry")
+if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(STABLECORE_GEOMETRY_INSTALL_PLATFORM "x64")
+else()
+    set(STABLECORE_GEOMETRY_INSTALL_PLATFORM "${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
+set(STABLECORE_GEOMETRY_INSTALL_BIN_DIR "${CMAKE_INSTALL_BINDIR}/$<CONFIG>/${STABLECORE_GEOMETRY_INSTALL_PLATFORM}")
+set(STABLECORE_GEOMETRY_INSTALL_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>/${STABLECORE_GEOMETRY_INSTALL_PLATFORM}")
 
 # -------------------
 # stablecore_geometry 库
@@ -70,7 +82,7 @@ target_include_directories(stablecore_geometry
 target_compile_features(stablecore_geometry PUBLIC cxx_std_20)
 
 if (MSVC)
-    target_compile_options(stablecore_geometry PRIVATE /utf-8)
+    target_compile_options(stablecore_geometry PRIVATE /utf-8 /MP)
 endif()
 
 if (BUILD_SHARED_LIBS)
@@ -90,7 +102,7 @@ if (STABLECORE_GEOMETRY_BUILD_TESTS)
         # 强制使用共享 CRT
         set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-        set(_gtest_local_path "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/googletest-1.17.0")
+        set(_gtest_local_path "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/GoogleTest")
         if (EXISTS "${_gtest_local_path}")
             # 优先使用本地 ThirdParty 路径的 GTest（与其他依赖库共享的本地副本）
             FetchContent_Declare(
@@ -112,3 +124,39 @@ if (STABLECORE_GEOMETRY_BUILD_TESTS)
     # 添加测试子目录
     add_subdirectory(tests)
 endif()
+
+install(TARGETS stablecore_geometry
+    EXPORT stablecore_geometryTargets
+    RUNTIME DESTINATION ${STABLECORE_GEOMETRY_INSTALL_BIN_DIR}
+    LIBRARY DESTINATION ${STABLECORE_GEOMETRY_INSTALL_BIN_DIR}
+    ARCHIVE DESTINATION ${STABLECORE_GEOMETRY_INSTALL_LIB_DIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT stablecore_geometryTargets
+    FILE stablecore_geometryTargets.cmake
+    NAMESPACE stablecore::
+    DESTINATION ${STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR}
+)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/stablecore_geometryConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfig.cmake
+    INSTALL_DESTINATION ${STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR}
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfigVersion.cmake
+    VERSION 1.0.0
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/stablecore_geometryConfigVersion.cmake
+    DESTINATION ${STABLECORE_GEOMETRY_INSTALL_CMAKE_DIR}
+)
