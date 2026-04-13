@@ -1,10 +1,8 @@
-﻿#include <gtest/gtest.h>
-#include <cassert>
+#include <gtest/gtest.h>
 #include <numbers>
 #include <string>
 
 #include "serialize/GeometryText.h"
-#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 TEST(SerializeTest, CoversCurrentCapabilities)
@@ -48,15 +46,13 @@ TEST(SerializeTest, CoversCurrentCapabilities)
     const std::string polylineText = ToText(polyline);
     const std::string polygonText = ToText(polygon);
 
-    assert(pointText == "Point2d 1.25 -3.5");
-    assert(vectorText == "Vector2d -4 8.5");
-    assert(boxText == "Box2d 0 1 2 3");
-    assert(projectionText == "SegmentProjection2d 4 5 0.25 12.5 1");
-    assert(arcText == "ArcSegment2d 0 0 1 0 1.5707963267948966");
-    assert(polylineText == "Polyline2d open 3 0 0 3 0 3 4");
-    assert(
-        polygonText ==
-        "Polygon2d Polyline2d closed 4 0 0 4 0 4 4 0 4 1 Polyline2d closed 4 1 1 1 3 3 3 3 1");
+    ASSERT_EQ(pointText, "Point2d 1.25 -3.5");
+    ASSERT_EQ(vectorText, "Vector2d -4 8.5");
+    ASSERT_EQ(boxText, "Box2d 0 1 2 3");
+    ASSERT_EQ(projectionText, "SegmentProjection2d 4 5 0.25 12.5 1");
+    ASSERT_EQ(arcText, "ArcSegment2d 0 0 1 0 1.5707963267948966");
+    ASSERT_EQ(polylineText, "Polyline2d open 3 0 0 3 0 3 4");
+    ASSERT_EQ(polygonText, "Polygon2d Polyline2d closed 4 0 0 4 0 4 4 0 4 1 Polyline2d closed 4 1 1 1 3 3 3 3 1");
 
     Point2d parsedPoint{};
     Vector2d parsedVector{};
@@ -66,32 +62,32 @@ TEST(SerializeTest, CoversCurrentCapabilities)
     Polyline2d parsedPolyline;
     Polygon2d parsedPolygon;
 
-    assert(FromText(pointText, parsedPoint));
-    assert(FromText(vectorText, parsedVector));
-    assert(FromText(boxText, parsedBox));
-    assert(FromText(projectionText, parsedProjection));
-    assert(FromText(arcText, parsedArc));
-    assert(FromText(polylineText, parsedPolyline));
-    assert(FromText(polygonText, parsedPolygon));
+    ASSERT_TRUE(FromText(pointText, parsedPoint));
+    ASSERT_TRUE(FromText(vectorText, parsedVector));
+    ASSERT_TRUE(FromText(boxText, parsedBox));
+    ASSERT_TRUE(FromText(projectionText, parsedProjection));
+    ASSERT_TRUE(FromText(arcText, parsedArc));
+    ASSERT_TRUE(FromText(polylineText, parsedPolyline));
+    ASSERT_TRUE(FromText(polygonText, parsedPolygon));
 
-    assert(parsedPoint == point);
-    assert(parsedVector == vector);
-    assert(parsedBox == box);
-    assert(parsedProjection.point == projection.point);
-    assert(parsedProjection.parameter == projection.parameter);
-    assert(parsedProjection.distanceSquared == projection.distanceSquared);
-    assert(parsedProjection.isOnSegment == projection.isOnSegment);
-    assert(parsedArc.AlmostEquals(arc));
+    ASSERT_EQ(parsedPoint, point);
+    ASSERT_EQ(parsedVector, vector);
+    ASSERT_EQ(parsedBox, box);
+    ASSERT_EQ(parsedProjection.point, projection.point);
+    ASSERT_EQ(parsedProjection.parameter, projection.parameter);
+    ASSERT_EQ(parsedProjection.distanceSquared, projection.distanceSquared);
+    ASSERT_EQ(parsedProjection.isOnSegment, projection.isOnSegment);
+    ASSERT_TRUE(parsedArc.AlmostEquals(arc));
     GEOMETRY_TEST_ASSERT_POLYLINE_NEAR(parsedPolyline, polyline, 1e-12);
     GEOMETRY_TEST_ASSERT_POLYGON_NEAR(parsedPolygon, polygon, 1e-12);
 
-    assert(!FromText("Point2d 1.0", parsedPoint));
-    assert(!FromText("Vector2d 1 2 3", parsedVector));
-    assert(!FromText("Box2d 0 0 1", parsedBox));
-    assert(!FromText("SegmentProjection2d 1 2 3 4", parsedProjection));
-    assert(!FromText("ArcSegment2d 0 0 1 0 0", parsedArc));
-    assert(!FromText("Polyline2d open 2 0 0 1", parsedPolyline));
-    assert(!FromText("Polygon2d Polyline2d open 2 0 0 1 0 0", parsedPolygon));
+    ASSERT_FALSE(FromText("Point2d 1.0", parsedPoint));
+    ASSERT_FALSE(FromText("Vector2d 1 2 3", parsedVector));
+    ASSERT_FALSE(FromText("Box2d 0 0 1", parsedBox));
+    ASSERT_FALSE(FromText("SegmentProjection2d 1 2 3 4", parsedProjection));
+    ASSERT_FALSE(FromText("ArcSegment2d 0 0 1 0 0", parsedArc));
+    ASSERT_FALSE(FromText("Polyline2d open 2 0 0 1", parsedPolyline));
+    ASSERT_FALSE(FromText("Polygon2d Polyline2d open 2 0 0 1 0 0", parsedPolygon));
 }
 
 

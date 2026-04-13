@@ -7,10 +7,6 @@ function(SCCopyRuntimeDependenciesToTarget destination_target source_target)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_FILE:${source_target}>
             $<TARGET_FILE_DIR:${destination_target}>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${source_target}>
-            $<TARGET_FILE_DIR:${destination_target}>
-        COMMAND_EXPAND_LISTS
         VERBATIM
     )
 endfunction()

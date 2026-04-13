@@ -1,4 +1,3 @@
-#include <cassert>
 
 #include <gtest/gtest.h>
 
@@ -94,29 +93,29 @@ geometry::sdk::PolyhedronBody BuildTwoSeparatedUnitCubes()
 TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFaceBrepWithValidOuterLoop)
 {
     const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
-    assert(cubeBody.IsValid());
+    ASSERT_TRUE(cubeBody.IsValid());
 
-    // plane: x + z = 0.5 â€” oblique cut yielding a quadrilateral section
+    // plane: x + z = 0.5 â€?oblique cut yielding a quadrilateral section
     const Plane slantedCut = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{1.0, 0.0, 1.0});
     const auto section = Section(cubeBody, slantedCut);
-    assert(section.success);
-    assert(section.IsValid());
-    assert(!section.polygons.empty());
+    ASSERT_TRUE(section.success);
+    ASSERT_TRUE(section.IsValid());
+    ASSERT_FALSE(section.polygons.empty());
 
     const SectionBrepBodyRebuild3d rebuilt = RebuildSectionBrepBody(section);
-    assert(rebuilt.success);
-    assert(rebuilt.body.IsValid());
-    assert(rebuilt.body.ShellCount() == 1);
-    assert(!rebuilt.body.ShellAt(0).IsClosed());
-    assert(rebuilt.body.FaceCount() == 1);
+    ASSERT_TRUE(rebuilt.success);
+    ASSERT_TRUE(rebuilt.body.IsValid());
+    ASSERT_EQ(rebuilt.body.ShellCount(), 1);
+    ASSERT_FALSE(rebuilt.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(rebuilt.body.FaceCount(), 1);
 
     const BrepShell firstShell = rebuilt.body.ShellAt(0);
     const BrepFace firstFace = firstShell.FaceAt(0);
-    assert(firstFace.OuterLoop().IsValid());
-    // The slanted plane cuts 4 faces of the cube â†’ quadrilateral section â†’ 4 coedges
-    assert(firstFace.OuterLoop().CoedgeCount() == 4);
+    ASSERT_TRUE(firstFace.OuterLoop().IsValid());
+    // The slanted plane cuts 4 faces of the cube â†?quadrilateral section â†?4 coedges
+    ASSERT_EQ(firstFace.OuterLoop().CoedgeCount(), 4);
 }
 
 // Demonstrates the Polyhedron rebuild path from section is also stable:
@@ -124,24 +123,24 @@ TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFaceBrepWithValidOuterLoop)
 TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFacePolyhedronBody)
 {
     const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
-    assert(cubeBody.IsValid());
+    ASSERT_TRUE(cubeBody.IsValid());
 
     const Plane slantedCut = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{1.0, 0.0, 1.0});
     const auto section = Section(cubeBody, slantedCut);
-    assert(section.success);
-    assert(section.IsValid());
-    assert(!section.polygons.empty());
+    ASSERT_TRUE(section.success);
+    ASSERT_TRUE(section.IsValid());
+    ASSERT_FALSE(section.polygons.empty());
 
     const SectionBodyRebuild3d rebuilt = RebuildSectionBody(section);
-    assert(rebuilt.success);
-    assert(rebuilt.body.IsValid());
-    assert(rebuilt.body.FaceCount() == 1);
+    ASSERT_TRUE(rebuilt.success);
+    ASSERT_TRUE(rebuilt.body.IsValid());
+    ASSERT_EQ(rebuilt.body.FaceCount(), 1);
 
     const PolyhedronFace3d face = rebuilt.body.FaceAt(0);
-    assert(face.OuterLoop().IsValid());
-    assert(face.OuterLoop().VertexCount() == 4);
+    ASSERT_TRUE(face.OuterLoop().IsValid());
+    ASSERT_EQ(face.OuterLoop().VertexCount(), 4);
 }
 
 // Demonstrates multi-component section rebuild: a horizontal cut through two
@@ -149,27 +148,27 @@ TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFacePolyhedronBody)
 TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoBrepBodies)
 {
     const PolyhedronBody body = BuildTwoSeparatedUnitCubes();
-    assert(body.IsValid());
-    assert(body.FaceCount() == 12);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 12);
 
     const Plane cutPlane = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{0.0, 0.0, 1.0});
     const auto section = Section(body, cutPlane);
-    assert(section.success);
-    assert(section.IsValid());
-    assert(section.polygons.size() == 2);
+    ASSERT_TRUE(section.success);
+    ASSERT_TRUE(section.IsValid());
+    ASSERT_EQ(section.polygons.size(), 2);
 
     const SectionBrepBodySetRebuild3d rebuilt = RebuildSectionBrepBodies(section);
-    assert(rebuilt.success);
-    assert(rebuilt.bodies.size() == 2);
-    assert(rebuilt.rootPolygonIndices.size() == 2);
+    ASSERT_TRUE(rebuilt.success);
+    ASSERT_EQ(rebuilt.bodies.size(), 2);
+    ASSERT_EQ(rebuilt.rootPolygonIndices.size(), 2);
     for (const BrepBody& rebuiltBody : rebuilt.bodies)
     {
-        assert(rebuiltBody.IsValid());
-        assert(rebuiltBody.ShellCount() == 1);
-        assert(!rebuiltBody.ShellAt(0).IsClosed());
-        assert(rebuiltBody.FaceCount() == 1);
+        ASSERT_TRUE(rebuiltBody.IsValid());
+        ASSERT_EQ(rebuiltBody.ShellCount(), 1);
+        ASSERT_FALSE(rebuiltBody.ShellAt(0).IsClosed());
+        ASSERT_EQ(rebuiltBody.FaceCount(), 1);
     }
 }
 
@@ -178,25 +177,25 @@ TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoBrepBodies)
 TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoPolyhedronBodies)
 {
     const PolyhedronBody body = BuildTwoSeparatedUnitCubes();
-    assert(body.IsValid());
-    assert(body.FaceCount() == 12);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 12);
 
     const Plane cutPlane = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{0.0, 0.0, 1.0});
     const auto section = Section(body, cutPlane);
-    assert(section.success);
-    assert(section.IsValid());
-    assert(section.polygons.size() == 2);
+    ASSERT_TRUE(section.success);
+    ASSERT_TRUE(section.IsValid());
+    ASSERT_EQ(section.polygons.size(), 2);
 
     const SectionBodySetRebuild3d rebuilt = RebuildSectionBodies(section);
-    assert(rebuilt.success);
-    assert(rebuilt.bodies.size() == 2);
-    assert(rebuilt.rootPolygonIndices.size() == 2);
+    ASSERT_TRUE(rebuilt.success);
+    ASSERT_EQ(rebuilt.bodies.size(), 2);
+    ASSERT_EQ(rebuilt.rootPolygonIndices.size(), 2);
     for (const PolyhedronBody& rebuiltBody : rebuilt.bodies)
     {
-        assert(rebuiltBody.IsValid());
-        assert(rebuiltBody.FaceCount() == 1);
+        ASSERT_TRUE(rebuiltBody.IsValid());
+        ASSERT_EQ(rebuiltBody.FaceCount(), 1);
     }
 }
 
@@ -206,33 +205,33 @@ TEST(Brep3dCapabilityTest, TwoSeparatedCubeSectionsRebuildIntoTwoPolyhedronBodie
 TEST(Brep3dCapabilityTest, TwoSeparatedCubeBrepSectionRebuildsIntoTwoBrepBodies)
 {
     const PolyhedronBody source = BuildTwoSeparatedUnitCubes();
-    assert(source.IsValid());
-    assert(source.FaceCount() == 12);
+    ASSERT_TRUE(source.IsValid());
+    ASSERT_EQ(source.FaceCount(), 12);
 
     const auto converted = ConvertToBrepBody(source);
-    assert(converted.success);
-    assert(converted.issue == BrepConversionIssue3d::None);
-    assert(converted.body.IsValid());
-    assert(converted.body.FaceCount() == 12);
+    ASSERT_TRUE(converted.success);
+    ASSERT_EQ(converted.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(converted.body.IsValid());
+    ASSERT_EQ(converted.body.FaceCount(), 12);
 
     const Plane cutPlane = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{0.0, 0.0, 1.0});
     const auto section = Section(converted.body, cutPlane);
-    assert(section.success);
-    assert(section.IsValid());
-    assert(section.polygons.size() == 2);
+    ASSERT_TRUE(section.success);
+    ASSERT_TRUE(section.IsValid());
+    ASSERT_EQ(section.polygons.size(), 2);
 
     const SectionBrepBodySetRebuild3d rebuilt = RebuildSectionBrepBodies(section);
-    assert(rebuilt.success);
-    assert(rebuilt.bodies.size() == 2);
-    assert(rebuilt.rootPolygonIndices.size() == 2);
+    ASSERT_TRUE(rebuilt.success);
+    ASSERT_EQ(rebuilt.bodies.size(), 2);
+    ASSERT_EQ(rebuilt.rootPolygonIndices.size(), 2);
     for (const BrepBody& rebuiltBody : rebuilt.bodies)
     {
-        assert(rebuiltBody.IsValid());
-        assert(rebuiltBody.ShellCount() == 1);
-        assert(!rebuiltBody.ShellAt(0).IsClosed());
-        assert(rebuiltBody.FaceCount() == 1);
+        ASSERT_TRUE(rebuiltBody.IsValid());
+        ASSERT_EQ(rebuiltBody.ShellCount(), 1);
+        ASSERT_FALSE(rebuiltBody.ShellAt(0).IsClosed());
+        ASSERT_EQ(rebuiltBody.FaceCount(), 1);
     }
 }
 
@@ -245,41 +244,41 @@ TEST(Brep3dCapabilityTest, CoedgeLoopEditingInsertFlipRemoveRoundTrips)
         Point3d{0.0, 0.0, 0.5},
         Vector3d{1.0, 0.0, 1.0});
     const auto section = Section(cubeBody, slantedCut);
-    assert(section.success);
+    ASSERT_TRUE(section.success);
 
     const SectionBrepBodyRebuild3d rebuilt = RebuildSectionBrepBody(section);
-    assert(rebuilt.success);
+    ASSERT_TRUE(rebuilt.success);
     const auto originalLoop = rebuilt.body.ShellAt(0).FaceAt(0).OuterLoop();
-    assert(originalLoop.IsValid());
-    assert(originalLoop.CoedgeCount() == 4);
+    ASSERT_TRUE(originalLoop.IsValid());
+    ASSERT_EQ(originalLoop.CoedgeCount(), 4);
 
     const auto seedCoedge = originalLoop.CoedgeAt(2);
     const BrepLoopEdit3d inserted = InsertCoedge(
         originalLoop,
         2,
         geometry::sdk::BrepCoedge(seedCoedge.EdgeIndex(), true));
-    assert(inserted.success);
-    assert(inserted.issue == BrepLoopEditIssue3d::None);
-    assert(inserted.loop.IsValid());
-    assert(inserted.loop.CoedgeCount() == 5);
-    assert(inserted.loop.CoedgeAt(2).Reversed());
+    ASSERT_TRUE(inserted.success);
+    ASSERT_EQ(inserted.issue, BrepLoopEditIssue3d::None);
+    ASSERT_TRUE(inserted.loop.IsValid());
+    ASSERT_EQ(inserted.loop.CoedgeCount(), 5);
+    ASSERT_TRUE(inserted.loop.CoedgeAt(2).Reversed());
 
     const BrepLoopEdit3d flipped = FlipCoedgeDirection(inserted.loop, 2);
-    assert(flipped.success);
-    assert(flipped.issue == BrepLoopEditIssue3d::None);
-    assert(flipped.loop.IsValid());
-    assert(!flipped.loop.CoedgeAt(2).Reversed());
+    ASSERT_TRUE(flipped.success);
+    ASSERT_EQ(flipped.issue, BrepLoopEditIssue3d::None);
+    ASSERT_TRUE(flipped.loop.IsValid());
+    ASSERT_FALSE(flipped.loop.CoedgeAt(2).Reversed());
 
     const BrepLoopEdit3d removed = RemoveCoedge(flipped.loop, 2);
-    assert(removed.success);
-    assert(removed.issue == BrepLoopEditIssue3d::None);
-    assert(removed.loop.IsValid());
-    assert(removed.loop.CoedgeCount() == originalLoop.CoedgeCount());
+    ASSERT_TRUE(removed.success);
+    ASSERT_EQ(removed.issue, BrepLoopEditIssue3d::None);
+    ASSERT_TRUE(removed.loop.IsValid());
+    ASSERT_EQ(removed.loop.CoedgeCount(), originalLoop.CoedgeCount());
 
     for (std::size_t i = 0; i < originalLoop.CoedgeCount(); ++i)
     {
-        assert(removed.loop.CoedgeAt(i).EdgeIndex() == originalLoop.CoedgeAt(i).EdgeIndex());
-        assert(removed.loop.CoedgeAt(i).Reversed() == originalLoop.CoedgeAt(i).Reversed());
+        ASSERT_EQ(removed.loop.CoedgeAt(i).EdgeIndex(), originalLoop.CoedgeAt(i).EdgeIndex());
+        ASSERT_EQ(removed.loop.CoedgeAt(i).Reversed(), originalLoop.CoedgeAt(i).Reversed());
     }
 }
 
@@ -292,11 +291,11 @@ TEST(Brep3dCapabilityTest, OwnershipConsistentEditingWorkflowRoundTripsIntoBody)
         Point3d{0.0, 0.0, 0.5},
         Vector3d{1.0, 0.0, 1.0});
     const auto section = Section(cubeBody, slantedCut);
-    assert(section.success);
+    ASSERT_TRUE(section.success);
 
     const SectionBrepBodyRebuild3d rebuilt = RebuildSectionBrepBody(section);
-    assert(rebuilt.success);
-    assert(rebuilt.body.IsValid());
+    ASSERT_TRUE(rebuilt.success);
+    ASSERT_TRUE(rebuilt.body.IsValid());
 
     const BrepBody originalBody = rebuilt.body;
     const BrepShell originalShell = originalBody.ShellAt(0);
@@ -307,33 +306,33 @@ TEST(Brep3dCapabilityTest, OwnershipConsistentEditingWorkflowRoundTripsIntoBody)
         originalLoop,
         1,
         geometry::sdk::BrepCoedge(originalLoop.CoedgeAt(1).EdgeIndex(), true));
-    assert(inserted.success);
+    ASSERT_TRUE(inserted.success);
 
     const BrepLoopEdit3d removed = RemoveCoedge(inserted.loop, 1);
-    assert(removed.success);
-    assert(removed.loop.CoedgeCount() == originalLoop.CoedgeCount());
+    ASSERT_TRUE(removed.success);
+    ASSERT_EQ(removed.loop.CoedgeCount(), originalLoop.CoedgeCount());
 
     const BrepFaceEdit3d editedFace = ReplaceOuterLoop(originalFace, removed.loop);
-    assert(editedFace.success);
-    assert(editedFace.face.IsValid());
+    ASSERT_TRUE(editedFace.success);
+    ASSERT_TRUE(editedFace.face.IsValid());
 
     const BrepShellEdit3d editedShell = ReplaceFace(originalShell, 0, editedFace.face);
-    assert(editedShell.success);
-    assert(editedShell.shell.IsValid());
-    assert(editedShell.shell.FaceCount() == 1);
+    ASSERT_TRUE(editedShell.success);
+    ASSERT_TRUE(editedShell.shell.IsValid());
+    ASSERT_EQ(editedShell.shell.FaceCount(), 1);
 
     const BrepBodyEdit3d editedBody = ReplaceShell(originalBody, 0, editedShell.shell);
-    assert(editedBody.success);
-    assert(editedBody.body.IsValid());
-    assert(editedBody.body.ShellCount() == 1);
-    assert(editedBody.body.FaceCount() == 1);
+    ASSERT_TRUE(editedBody.success);
+    ASSERT_TRUE(editedBody.body.IsValid());
+    ASSERT_EQ(editedBody.body.ShellCount(), 1);
+    ASSERT_EQ(editedBody.body.FaceCount(), 1);
 
     const BrepLoop roundTrippedLoop = editedBody.body.ShellAt(0).FaceAt(0).OuterLoop();
-    assert(roundTrippedLoop.CoedgeCount() == originalLoop.CoedgeCount());
+    ASSERT_EQ(roundTrippedLoop.CoedgeCount(), originalLoop.CoedgeCount());
     for (std::size_t i = 0; i < originalLoop.CoedgeCount(); ++i)
     {
-        assert(roundTrippedLoop.CoedgeAt(i).EdgeIndex() == originalLoop.CoedgeAt(i).EdgeIndex());
-        assert(roundTrippedLoop.CoedgeAt(i).Reversed() == originalLoop.CoedgeAt(i).Reversed());
+        ASSERT_EQ(roundTrippedLoop.CoedgeAt(i).EdgeIndex(), originalLoop.CoedgeAt(i).EdgeIndex());
+        ASSERT_EQ(roundTrippedLoop.CoedgeAt(i).Reversed(), originalLoop.CoedgeAt(i).Reversed());
     }
 }
 
@@ -343,38 +342,38 @@ TEST(Brep3dCapabilityTest, OwnershipConsistentEditingWorkflowRoundTripsIntoBody)
 TEST(Brep3dCapabilityTest, OwnershipReplacementWorkflowOnMultiFaceClosedShell)
 {
     const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
-    assert(cubeBody.IsValid());
+    ASSERT_TRUE(cubeBody.IsValid());
 
     const auto converted = ConvertToBrepBody(cubeBody);
-    assert(converted.success);
-    assert(converted.issue == BrepConversionIssue3d::None);
-    assert(converted.body.IsValid());
-    assert(converted.body.ShellCount() == 1);
-    assert(converted.body.ShellAt(0).IsClosed());
-    assert(converted.body.FaceCount() == 6);
+    ASSERT_TRUE(converted.success);
+    ASSERT_EQ(converted.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(converted.body.IsValid());
+    ASSERT_EQ(converted.body.ShellCount(), 1);
+    ASSERT_TRUE(converted.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(converted.body.FaceCount(), 6);
 
     const BrepBody originalBody = converted.body;
     const BrepShell originalShell = originalBody.ShellAt(0);
     const BrepFace firstFace = originalShell.FaceAt(0);
     const BrepLoop firstOuter = firstFace.OuterLoop();
-    assert(firstOuter.IsValid());
+    ASSERT_TRUE(firstOuter.IsValid());
 
     // No-op outer-loop replacement still exercises loop->face->shell->body
     // ownership propagation in a multi-face shell.
     const BrepFaceEdit3d sameFace = ReplaceOuterLoop(firstFace, firstOuter);
-    assert(sameFace.success);
-    assert(sameFace.face.IsValid());
+    ASSERT_TRUE(sameFace.success);
+    ASSERT_TRUE(sameFace.face.IsValid());
 
     const BrepShellEdit3d shellEdited = ReplaceFace(originalShell, 0, sameFace.face);
-    assert(shellEdited.success);
-    assert(shellEdited.shell.IsValid());
-    assert(shellEdited.shell.FaceCount() == originalShell.FaceCount());
-    assert(shellEdited.shell.IsClosed() == originalShell.IsClosed());
+    ASSERT_TRUE(shellEdited.success);
+    ASSERT_TRUE(shellEdited.shell.IsValid());
+    ASSERT_EQ(shellEdited.shell.FaceCount(), originalShell.FaceCount());
+    ASSERT_EQ(shellEdited.shell.IsClosed(), originalShell.IsClosed());
 
     const BrepBodyEdit3d bodyEdited = ReplaceShell(originalBody, 0, shellEdited.shell);
-    assert(bodyEdited.success);
-    assert(bodyEdited.body.IsValid());
-    assert(bodyEdited.body.ShellCount() == 1);
-    assert(bodyEdited.body.ShellAt(0).IsClosed());
-    assert(bodyEdited.body.FaceCount() == 6);
+    ASSERT_TRUE(bodyEdited.success);
+    ASSERT_TRUE(bodyEdited.body.IsValid());
+    ASSERT_EQ(bodyEdited.body.ShellCount(), 1);
+    ASSERT_TRUE(bodyEdited.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(bodyEdited.body.FaceCount(), 6);
 }

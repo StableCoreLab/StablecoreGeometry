@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <cassert>
 #include <cmath>
 #include <memory>
 #include <utility>
@@ -8,7 +7,6 @@
 #include "types/ArcSegment2.h"
 #include "types/LineSegment2.h"
 #include "types/Polygon2.h"
-#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::Box2d;
@@ -52,17 +50,17 @@ TEST(PolygonTest, CoversCurrentCapabilities)
     });
 
     Polygon2d polygon(outerRing, {holeRing});
-    assert(polygon.IsValid());
-    assert(polygon.OuterRing().IsClosed());
-    assert(polygon.HoleCount() == 1);
-    assert(polygon.HoleAt(0).IsClosed());
+    ASSERT_TRUE(polygon.IsValid());
+    ASSERT_TRUE(polygon.OuterRing().IsClosed());
+    ASSERT_EQ(polygon.HoleCount(), 1);
+    ASSERT_TRUE(polygon.HoleAt(0).IsClosed());
 
-    assert(std::abs(polygon.Area() - 12.0) < 1e-12);
-    assert(std::abs(polygon.Perimeter() - 24.0) < 1e-12);
+    ASSERT_LT(std::abs(polygon.Area() - 12.0), 1e-12);
+    ASSERT_LT(std::abs(polygon.Perimeter() - 24.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(polygon.Centroid(), Point2d(2.0, 2.0), 1e-12);
 
     const Box2d box = polygon.Bounds();
-    assert(box.IsValid());
+    ASSERT_TRUE(box.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(box.MinPoint(), Point2d(0.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(box.MaxPoint(), Point2d(4.0, 4.0), 1e-12);
 
@@ -73,7 +71,7 @@ TEST(PolygonTest, CoversCurrentCapabilities)
         {Point2d(1.0, 3.0), Point2d(1.0, 1.0)},
     });
     Polygon2d invalidPolygon(outerRing, {badHole});
-    assert(!invalidPolygon.IsValid());
+    ASSERT_FALSE(invalidPolygon.IsValid());
 
     std::vector<std::shared_ptr<geometry::Segment2d>> arcSegments;
     arcSegments.push_back(std::make_shared<LineSegment2d>(Point2d(0.0, 0.0), Point2d(1.0, 0.0)));
@@ -86,9 +84,9 @@ TEST(PolygonTest, CoversCurrentCapabilities)
     arcSegments.push_back(std::make_shared<LineSegment2d>(Point2d(0.0, 1.0), Point2d(0.0, 0.0)));
 
     Polygon2d quarterDisk(Polyline2d(std::move(arcSegments), PolylineClosure::Closed));
-    assert(quarterDisk.IsValid());
-    assert(std::abs(quarterDisk.Area() - (std::acos(-1.0) / 4.0)) < 1e-12);
-    assert(std::abs(quarterDisk.Perimeter() - (2.0 + std::acos(-1.0) * 0.5)) < 1e-12);
+    ASSERT_TRUE(quarterDisk.IsValid());
+    ASSERT_LT(std::abs(quarterDisk.Area() - (std::acos(-1.0) / 4.0)), 1e-12);
+    ASSERT_LT(std::abs(quarterDisk.Perimeter() - (2.0 + std::acos(-1.0) * 0.5)), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(
         quarterDisk.Centroid(),
         Point2d(4.0 / (3.0 * std::acos(-1.0)), 4.0 / (3.0 * std::acos(-1.0))),

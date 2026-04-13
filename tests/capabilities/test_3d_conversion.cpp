@@ -1,4 +1,3 @@
-ï»¿#include <cassert>
 #include <cmath>
 #include <memory>
 
@@ -223,7 +222,7 @@ PolyhedronBody BuildDeformedUnitCubeBody()
     const Point3d v6{1.0, 1.0,  1.0};
     const Point3d v7{0.0, 1.0,  1.0};
 
-    // Support planes are the original axis-aligned planes of the unit cube â€”
+    // Support planes are the original axis-aligned planes of the unit cube ¡ª
     // intentionally wrong for the three faces that contain v0.
     const Plane bottom{Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, -1.0}};
     const Plane top   {Point3d{0.0, 0.0, 1.0}, Vector3d{0.0, 0.0,  1.0}};
@@ -1203,7 +1202,7 @@ PolyhedronBody BuildTinyScaleClosedTetrahedronBody()
     const Point3d v3{0.5 * s,  0.289 * s,  0.816 * s};
 
     // Deliberately flat support plane (z=2e-6, normal +z) while actual face
-    // normals vary â€” the per-face refit must compute the correct orientation.
+    // normals vary ¡ª the per-face refit must compute the correct orientation.
     const Plane mismatchedPlane =
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0});
 
@@ -1222,7 +1221,7 @@ PolyhedronBody BuildTinyScaleTriangularFaceChainBody()
     //   T1/T2 share edge b-c; T2/T3 share edge c-d (traversed reversed).
     // Key property: every shared vertex is one of the 3 defining vertices of
     // EVERY triangle that contains it, so after per-face refit its distance to
-    // that face's refit-plane is exactly 0 â€” no projection occurs and the
+    // that face's refit-plane is exactly 0 ¡ª no projection occurs and the
     // original 3D position is preserved unchanged. FindOrAddBrepVertex therefore
     // merges all shared vertices exactly, giving VertexCount=5, EdgeCount=7.
     const double s = 1e-5;
@@ -1248,10 +1247,10 @@ PolyhedronBody BuildTinyScaleTriangularFanBody()
     //   T0=(apex,v0,v1), T1=(apex,v1,v2), T2=(apex,v2,v3), T3=(apex,v3,v0)
     // Each radial edge (apex-vk) is shared by exactly two triangles, the four
     // outer edges (vk-v(k+1 mod 4)) are each used once.
-    // Key: apex is one of the 3 defining vertices of all 4 triangles â†’ after
-    // per-face refit its distance to each refit-plane is exactly 0 â†’ apex is
-    // never projected â†’ it is preserved at its original position in all faces
-    // â†’ FindOrAddBrepVertex merges it exactly once.
+    // Key: apex is one of the 3 defining vertices of all 4 triangles ¡ú after
+    // per-face refit its distance to each refit-plane is exactly 0 ¡ú apex is
+    // never projected ¡ú it is preserved at its original position in all faces
+    // ¡ú FindOrAddBrepVertex merges it exactly once.
     // Expected: VertexCount=5, EdgeCount=8 (4 radial + 4 outer).
     const double s = 1e-5;
     const Point3d apex{0.0,  0.0,  s};
@@ -1901,7 +1900,7 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedPrismAllVerticesWithDualDuplic
 }
 PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody()
 {
-    // Tiny-scale 2Ã—1Ã—1 rectangular box (pure-quad closed shell) where all 8
+    // Tiny-scale 2¡Á1¡Á1 rectangular box (pure-quad closed shell) where all 8
     // logical shared vertices have near-equal variants across their 3 incident
     // faces. All faces use a single mismatched support plane. Tests that
     // representative-average vertex placement works for a pure-quad closed-shell
@@ -1910,42 +1909,42 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody()
     const double s = 1e-5;
     const double w = 2.0 * s; // width in x-direction (twice the other dimensions)
 
-    // v0 â‰ˆ (0,0,0): bottom + front + left
+    // v0 ¡Ö (0,0,0): bottom + front + left
     const Point3d v0a{1.0e-7, 0.0, 0.0};
     const Point3d v0b{-1.0e-7, 0.0, 0.0};
     const Point3d v0c{0.0, 0.0, 0.0};
 
-    // v1 â‰ˆ (w,0,0): bottom + front + right
+    // v1 ¡Ö (w,0,0): bottom + front + right
     const Point3d v1a{w + 2.0e-7, 0.0, 0.0};
     const Point3d v1b{w - 1.0e-7, 0.0, 0.0};
     const Point3d v1c{w + 1.0e-7, 0.0, 0.0};
 
-    // v2 â‰ˆ (w,s,0): bottom + back + right
+    // v2 ¡Ö (w,s,0): bottom + back + right
     const Point3d v2a{w + 1.0e-7, s, 0.0};
     const Point3d v2b{w, s + 1.0e-7, 0.0};
     const Point3d v2c{w, s, 0.0};
 
-    // v3 â‰ˆ (0,s,0): bottom + back + left
+    // v3 ¡Ö (0,s,0): bottom + back + left
     const Point3d v3a{0.0, s + 2.0e-7, 0.0};
     const Point3d v3b{0.0, s, 0.0};
     const Point3d v3c{-1.0e-7, s, 0.0};
 
-    // v4 â‰ˆ (0,0,s): top + front + left
+    // v4 ¡Ö (0,0,s): top + front + left
     const Point3d v4a{0.0, 0.0, s};
     const Point3d v4b{1.0e-7, 0.0, s};
     const Point3d v4c{0.0, 0.0, s + 1.0e-7};
 
-    // v5 â‰ˆ (w,0,s): top + front + right
+    // v5 ¡Ö (w,0,s): top + front + right
     const Point3d v5a{w + 1.0e-7, 0.0, s};
     const Point3d v5b{w, 0.0, s - 1.0e-7};
     const Point3d v5c{w, 0.0, s};
 
-    // v6 â‰ˆ (w,s,s): top + back + right
+    // v6 ¡Ö (w,s,s): top + back + right
     const Point3d v6a{w, s, s + 1.0e-7};
     const Point3d v6b{w + 1.0e-7, s, s};
     const Point3d v6c{w, s + 1.0e-7, s};
 
-    // v7 â‰ˆ (0,s,s): top + back + left
+    // v7 ¡Ö (0,s,s): top + back + left
     const Point3d v7a{0.0, s, s};
     const Point3d v7b{-1.0e-7, s, s};
     const Point3d v7c{0.0, s, s + 1.0e-7};
@@ -1954,17 +1953,17 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody()
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 3e-6}, Vector3d{0.0, 0.0, 1.0});
 
     return PolyhedronBody({
-        // Bottom (zâ‰ˆ0, normal -z): v0, v3, v2, v1
+        // Bottom (z¡Ö0, normal -z): v0, v3, v2, v1
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0a, v3a, v2a, v1a})),
-        // Top (zâ‰ˆs, normal +z): v4, v5, v6, v7
+        // Top (z¡Ös, normal +z): v4, v5, v6, v7
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v4a, v5a, v6a, v7a})),
-        // Front (yâ‰ˆ0, normal -y): v0, v1, v5, v4
+        // Front (y¡Ö0, normal -y): v0, v1, v5, v4
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0b, v1b, v5b, v4b})),
-        // Back (yâ‰ˆs, normal +y): v3, v7, v6, v2
+        // Back (y¡Ös, normal +y): v3, v7, v6, v2
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v3b, v7b, v6b, v2b})),
-        // Left (xâ‰ˆ0, normal -x): v0, v4, v7, v3
+        // Left (x¡Ö0, normal -x): v0, v4, v7, v3
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0c, v4c, v7c, v3c})),
-        // Right (xâ‰ˆw, normal +x): v1, v2, v6, v5
+        // Right (x¡Öw, normal +x): v1, v2, v6, v5
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v2c, v6c, v5c}))});
 }
 
@@ -2239,7 +2238,7 @@ void AssertClosedCuboidAllVerticesRepresentativeTargets(const BrepBody& body)
         Point3d{-third, s, s + third}};
     std::vector<std::size_t> expectedMatchCounts(expectedPoints.size(), 0);
 
-    assert(body.VertexCount() == expectedPoints.size());
+    ASSERT_EQ(body.VertexCount(), expectedPoints.size());
     for (std::size_t i = 0; i < body.VertexCount(); ++i)
     {
         const Point3d point = body.VertexAt(i).Point();
@@ -2257,34 +2256,34 @@ void AssertClosedCuboidAllVerticesRepresentativeTargets(const BrepBody& body)
             }
         }
 
-        assert(matched);
+        ASSERT_TRUE(matched);
     }
 
     for (const std::size_t count : expectedMatchCounts)
     {
-        assert(count == 1);
+        ASSERT_EQ(count, 1);
     }
 }
 } // namespace
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
 // to a TriangleMesh with the correct triangle count and total surface area.
-// High-fidelity feature-preserving conversion and non-planar polyhedronâ†’Brep
+// High-fidelity feature-preserving conversion and non-planar polyhedron¡úBrep
 // repair remain open gaps.
 TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToTriangleMesh)
 {
     const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
-    assert(cubeBody.IsValid());
-    assert(cubeBody.FaceCount() == 6);
+    ASSERT_TRUE(cubeBody.IsValid());
+    ASSERT_EQ(cubeBody.FaceCount(), 6);
 
     const PolyhedronMeshConversion3d result = ConvertToTriangleMesh(cubeBody);
-    assert(result.success);
-    assert(result.issue == MeshConversionIssue3d::None);
-    assert(result.mesh.IsValid());
-    // Each of the 6 quad faces is split into 2 triangles â†’ 12 total
-    assert(result.mesh.TriangleCount() == 12);
-    // Total surface area of a unit cube = 6 Ã— (1Ã—1) = 6.0
-    assert(std::abs(result.mesh.SurfaceArea() - 6.0) < 1e-10);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, MeshConversionIssue3d::None);
+    ASSERT_TRUE(result.mesh.IsValid());
+    // Each of the 6 quad faces is split into 2 triangles ¡ú 12 total
+    ASSERT_EQ(result.mesh.TriangleCount(), 12);
+    // Total surface area of a unit cube = 6 ¡Á (1¡Á1) = 6.0
+    ASSERT_LT(std::abs(result.mesh.SurfaceArea() - 6.0), 1e-10);
 }
 
 // Demonstrates that a valid PolyhedronBody can be lifted into a planar-line
@@ -2292,18 +2291,18 @@ TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToTriangleMesh)
 TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToBrepBody)
 {
     const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
-    assert(cubeBody.IsValid());
-    assert(cubeBody.FaceCount() == 6);
+    ASSERT_TRUE(cubeBody.IsValid());
+    ASSERT_EQ(cubeBody.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(cubeBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 }
 
 // Demonstrates representative-id global target averaging participates in final
@@ -2312,18 +2311,18 @@ TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToBrepBody)
 TEST(Conversion3dCapabilityTest, NearEqualSharedEdgeVerticesUseRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildNearEqualSharedEdgeQuadPairBody();
-    assert(body.IsValid());
-    assert(body.FaceCount() == 2);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 2);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 7);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 2);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 7);
 
     const double s = 1e-5;
     const double dx = 2e-7;
@@ -2336,12 +2335,12 @@ TEST(Conversion3dCapabilityTest, NearEqualSharedEdgeVerticesUseRepresentativeAve
         if (std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedBLikeCount;
-            assert(std::abs(point.x - expectedSharedX) < 1e-12);
-            assert(std::abs(point.x - s) > 5e-8);
+            ASSERT_LT(std::abs(point.x - expectedSharedX), 1e-12);
+            ASSERT_GT(std::abs(point.x - s), 5e-8);
         }
     }
 
-    assert(sharedBLikeCount == 1);
+    ASSERT_EQ(sharedBLikeCount, 1);
 }
 
 // Demonstrates representative-average shared-vertex placement also holds when
@@ -2349,18 +2348,18 @@ TEST(Conversion3dCapabilityTest, NearEqualSharedEdgeVerticesUseRepresentativeAve
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedEdgeQuadPairBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 2);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 2);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 7);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 2);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 7);
 
     const double s = 1e-5;
     const double dx = 2e-7;
@@ -2373,12 +2372,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeRepairsWithRe
         if (std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedBLikeCount;
-            assert(std::abs(point.x - expectedSharedX) < 1e-12);
-            assert(std::abs(point.x - s) > 5e-8);
+            ASSERT_LT(std::abs(point.x - expectedSharedX), 1e-12);
+            ASSERT_GT(std::abs(point.x - s), 5e-8);
         }
     }
 
-    assert(sharedBLikeCount == 1);
+    ASSERT_EQ(sharedBLikeCount, 1);
 }
 
 // Demonstrates representative-id global averaging with support-plane refit on
@@ -2387,18 +2386,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeRepairsWithRe
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualApexFanRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualApexTriangularFanBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 5);
-    assert(result.body.EdgeCount() == 8);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 5);
+    ASSERT_EQ(result.body.EdgeCount(), 8);
 
     const double s = 1e-5;
     const double expectedApexX = 5e-8;
@@ -2410,12 +2409,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualApexFanRepairsWithRepre
         if (point.z > 0.5 * s)
         {
             ++apexLikeCount;
-            assert(std::abs(point.x - expectedApexX) < 1e-12);
-            assert(std::abs(point.y) < 1e-12);
+            ASSERT_LT(std::abs(point.x - expectedApexX), 1e-12);
+            ASSERT_LT(std::abs(point.y), 1e-12);
         }
     }
 
-    assert(apexLikeCount == 1);
+    ASSERT_EQ(apexLikeCount, 1);
 }
 // Demonstrates representative-average shared-vertex placement scales to a
 // support-mismatch shared-edge chain (three faces) with near-equal middle-face
@@ -2423,18 +2422,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualApexFanRepairsWithRepre
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeChainRepairsWithRepresentativeAverageTargets)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedEdgeChainBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 10);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
 
     const double s = 1e-5;
     const double dx = 2e-7;
@@ -2459,8 +2458,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeChainRepairsW
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates representative-average shared-vertex placement also works for
@@ -2468,18 +2467,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeChainRepairsW
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedCornerFanRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedCornerQuadFanBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 10);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
 
     std::size_t sharedCornerCount = 0;
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
@@ -2491,7 +2490,7 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedCornerFanRepairsW
         }
     }
 
-    assert(sharedCornerCount == 1);
+    ASSERT_EQ(sharedCornerCount, 1);
 }
 
 // Demonstrates representative-average shared-vertex placement remains stable
@@ -2499,18 +2498,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedCornerFanRepairsW
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
 
     std::size_t sharedV0Count = 0;
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
@@ -2522,7 +2521,7 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronRepair
         }
     }
 
-    assert(sharedV0Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
 }
 
 // Demonstrates representative-average placement remains deterministic when
@@ -2531,18 +2530,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronRepair
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeChainWithDuplicateRepairsWithRepresentativeAverageTargets)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedEdgeChainWithDuplicateBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 10);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
 
     const double s = 1e-5;
     const double dx = 2e-7;
@@ -2567,8 +2566,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeChainWithDupl
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates representative-average placement remains stable when
@@ -2577,18 +2576,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeChainWithDupl
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainMixedContentWithDuplicateHoleRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedChainMixedContentWithDuplicateHoleBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
 
     const double s = 1e-5;
     const double dx = 2e-7;
@@ -2613,8 +2612,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainMixedContent
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates representative-average placement remains deterministic for
@@ -2623,18 +2622,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainMixedContent
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainFullCompositionRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedChainFullCompositionBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 13);
-    assert(result.body.EdgeCount() == 15);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 13);
+    ASSERT_EQ(result.body.EdgeCount(), 15);
 
     const double s = 1e-5;
     const double dx = 2e-7;
@@ -2659,8 +2658,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainFullComposit
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates representative-average placement stays deterministic for
@@ -2668,18 +2667,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainFullComposit
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainDualDuplicateFullCompositionRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedChainDualDuplicateFullCompositionBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 13);
-    assert(result.body.EdgeCount() == 15);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 13);
+    ASSERT_EQ(result.body.EdgeCount(), 15);
 
     const double s = 1e-5;
     const double dx = 2e-7;
@@ -2704,8 +2703,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainDualDuplicat
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates representative-average placement can simultaneously stabilize
@@ -2713,18 +2712,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainDualDuplicat
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVerticesRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
 
     const double s = 1e-5;
     const double expectedV1X = s + (2e-7 - 1e-7 + 0.0) / 3.0;
@@ -2741,12 +2740,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVe
         if (std::abs(point.y) < 1e-12 && std::abs(point.z - 1.2e-6) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV1Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV1Count, 1);
 }
 
 // Demonstrates representative-average placement on near-equal
@@ -2755,18 +2754,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVe
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
 
     const double s = 1e-5;
     const double expectedV1X = s + (2e-7 - 1e-7 + 0.0) / 3.0;
@@ -2783,12 +2782,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVe
         if (std::abs(point.y) < 1e-12 && std::abs(point.z - 1.2e-6) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV1Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV1Count, 1);
 }
 // Demonstrates representative-average placement on near-equal
 // closed-tetra dual-shared-vertices remains stable when duplicate-loop
@@ -2796,17 +2795,17 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVe
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronDualVerticesWithDualDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
     const double s = 1e-5;
     const double expectedV1X = s + (2e-7 - 1e-7 + 0.0) / 3.0;
     std::size_t sharedV0Count = 0;
@@ -2821,29 +2820,29 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronDualVe
         if (std::abs(point.y) < 1e-12 && std::abs(point.z - 1.2e-6) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
     }
-    assert(sharedV0Count == 1);
-    assert(sharedV1Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV1Count, 1);
 }
 // Demonstrates representative-average placement scales to all four shared
 // vertices simultaneously on a support-mismatch closed tetrahedron.
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVerticesRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronAllVerticesBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
 
     const double s = 1e-5;
     const double expectedV1X = s + 1.0e-7 / 3.0;
@@ -2857,17 +2856,17 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVer
         if (std::abs(point.y) < 1e-12 && point.z > 0.5e-6 && point.z < 2.0e-6 && point.x > 0.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (point.z > 0.7 * s && point.x > 0.3 * s && point.x < 0.7 * s)
         {
             ++sharedV3Count;
-            assert(std::abs(point.x - expectedV3X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV3X), 1e-10);
         }
     }
 
-    assert(sharedV1Count == 1);
-    assert(sharedV3Count == 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV3Count, 1);
 }
 
 // Demonstrates representative-average placement on the near-equal closed-tetra
@@ -2876,18 +2875,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVer
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronAllVerticesWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
 
     const double s = 1e-5;
     const double expectedV1X = s + 1.0e-7 / 3.0;
@@ -2901,17 +2900,17 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVer
         if (std::abs(point.y) < 1e-12 && point.z > 0.5e-6 && point.z < 2.0e-6 && point.x > 0.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (point.z > 0.7 * s && point.x > 0.3 * s && point.x < 0.7 * s)
         {
             ++sharedV3Count;
-            assert(std::abs(point.x - expectedV3X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV3X), 1e-10);
         }
     }
 
-    assert(sharedV1Count == 1);
-    assert(sharedV3Count == 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV3Count, 1);
 }
 
 // Demonstrates representative-average placement on the near-equal closed-tetra
@@ -2920,18 +2919,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVer
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedTetrahedronAllVerticesWithDualDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
 
     const double s = 1e-5;
     const double expectedV1X = s + 1.0e-7 / 3.0;
@@ -2945,17 +2944,17 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVer
         if (std::abs(point.y) < 1e-12 && point.z > 0.5e-6 && point.z < 2.0e-6 && point.x > 0.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (point.z > 0.7 * s && point.x > 0.3 * s && point.x < 0.7 * s)
         {
             ++sharedV3Count;
-            assert(std::abs(point.x - expectedV3X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV3X), 1e-10);
         }
     }
 
-    assert(sharedV1Count == 1);
-    assert(sharedV3Count == 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV3Count, 1);
 }
 // Demonstrates representative-average shared-vertex placement scales to a
 // closed triangular prism topology: two non-adjacent near-equal shared vertices
@@ -2963,18 +2962,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedTetrahedronAllVer
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVerticesRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismDualVerticesBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 5);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 9);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 5);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 9);
 
     const double s = 1e-5;
     const double expectedV4X = s + 1.0e-7 / 3.0;
@@ -2992,12 +2991,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
             && point.z > 0.5 * s && point.z < 1.5 * s)
         {
             ++sharedV4Count;
-            assert(std::abs(point.x - expectedV4X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV4X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV4Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV4Count, 1);
 }
 
 // Demonstrates representative-average placement on the near-equal
@@ -3006,18 +3005,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismDualVerticesWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 5);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 9);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 5);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 9);
 
     const double s = 1e-5;
     const double expectedV4X = s + 1.0e-7 / 3.0;
@@ -3035,12 +3034,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
             && point.z > 0.5 * s && point.z < 1.5 * s)
         {
             ++sharedV4Count;
-            assert(std::abs(point.x - expectedV4X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV4X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV4Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV4Count, 1);
 }
 // Demonstrates representative-average placement on the near-equal
 // closed-prism dual-vertices subset remains stable when duplicate-loop
@@ -3048,17 +3047,17 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismDualVerticesWithDualDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 5);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 9);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 5);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 9);
     const double s = 1e-5;
     const double expectedV4X = s + 1.0e-7 / 3.0;
     std::size_t sharedV0Count = 0;
@@ -3074,11 +3073,11 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
             && point.z > 0.5 * s && point.z < 1.5 * s)
         {
             ++sharedV4Count;
-            assert(std::abs(point.x - expectedV4X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV4X), 1e-10);
         }
     }
-    assert(sharedV0Count == 1);
-    assert(sharedV4Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV4Count, 1);
 }
 // Demonstrates representative-average placement also stabilizes all shared
 // vertices on a closed triangular prism when every logical shared vertex is
@@ -3086,18 +3085,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismDualVertices
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismAllVerticesBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 5);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 9);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 5);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 9);
 
     const double s = 1e-5;
     const double expectedV1X = s + 1.0e-7 / 3.0;
@@ -3111,18 +3110,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesR
         if (std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (std::abs(point.y) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s
             && point.z > 0.5 * s && point.z < 1.5 * s)
         {
             ++sharedV4Count;
-            assert(std::abs(point.x - expectedV4X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV4X), 1e-10);
         }
     }
 
-    assert(sharedV1Count == 1);
-    assert(sharedV4Count == 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV4Count, 1);
 }
 
 // Demonstrates representative-average placement on the near-equal
@@ -3131,18 +3130,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesR
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 5);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 9);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 5);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 9);
 
     const double s = 1e-5;
     const double expectedV1X = s + 1.0e-7 / 3.0;
@@ -3156,18 +3155,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesW
         if (std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (std::abs(point.y) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s
             && point.z > 0.5 * s && point.z < 1.5 * s)
         {
             ++sharedV4Count;
-            assert(std::abs(point.x - expectedV4X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV4X), 1e-10);
         }
     }
 
-    assert(sharedV1Count == 1);
-    assert(sharedV4Count == 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV4Count, 1);
 }
 // Demonstrates representative-average placement on the near-equal
 // closed-prism all-vertices subset remains stable when duplicate-loop
@@ -3175,17 +3174,17 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesW
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedPrismAllVerticesWithDualDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 5);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 9);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 5);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 9);
     const double s = 1e-5;
     const double expectedV1X = s + 1.0e-7 / 3.0;
     const double expectedV4X = s + 2.0e-7 / 3.0;
@@ -3197,17 +3196,17 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedPrismAllVerticesW
         if (std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (std::abs(point.y) < 1e-12 && point.x > 0.5 * s && point.x < 1.5 * s
             && point.z > 0.5 * s && point.z < 1.5 * s)
         {
             ++sharedV4Count;
-            assert(std::abs(point.x - expectedV4X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV4X), 1e-10);
         }
     }
-    assert(sharedV1Count == 1);
-    assert(sharedV4Count == 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV4Count, 1);
 }
 // Demonstrates a non-axis-aligned (affine-skewed) polyhedron subset can be
 // converted to BrepBody without requiring robust non-planar repair.
@@ -3241,17 +3240,17 @@ TEST(Conversion3dCapabilityTest, SkewedCubePolyhedronBodyConvertsToBrepBody)
 TEST(Conversion3dCapabilityTest, SupportPlaneMismatchedCubeCanBeRepairedToBrepBody)
 {
     const PolyhedronBody mismatchedBody = BuildSupportPlaneMismatchedCubeBody();
-    assert(!mismatchedBody.IsValid());
+    ASSERT_FALSE(mismatchedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(mismatchedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates conversion can repair mildly non-planar face loops by
@@ -3259,17 +3258,17 @@ TEST(Conversion3dCapabilityTest, SupportPlaneMismatchedCubeCanBeRepairedToBrepBo
 TEST(Conversion3dCapabilityTest, MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody)
 {
     const PolyhedronBody nonPlanarBody = BuildMildlyNonPlanarCubeFaceBody();
-    assert(!nonPlanarBody.IsValid());
+    ASSERT_FALSE(nonPlanarBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(nonPlanarBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates that when a single shared vertex is displaced (making three
@@ -3281,17 +3280,17 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody)
 TEST(Conversion3dCapabilityTest, MultipleNonPlanarFacesFromDisplacedVertexRepairsToBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDeformedUnitCubeBody();
-    assert(!deformedBody.IsValid());
+    ASSERT_FALSE(deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates the deformed-cube multi-face non-planar repair path remains
@@ -3299,17 +3298,17 @@ TEST(Conversion3dCapabilityTest, MultipleNonPlanarFacesFromDisplacedVertexRepair
 TEST(Conversion3dCapabilityTest, DeformedCubeWithDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDeformedUnitCubeWithDuplicateLoopBody();
-    assert(!deformedBody.IsValid());
+    ASSERT_FALSE(deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates the deformed-cube multi-face non-planar repair path remains
@@ -3317,17 +3316,17 @@ TEST(Conversion3dCapabilityTest, DeformedCubeWithDuplicateLoopRepairsToClosedSha
 TEST(Conversion3dCapabilityTest, DeformedCubeWithDualDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDeformedUnitCubeWithDualDuplicateLoopBody();
-    assert(!deformedBody.IsValid());
+    ASSERT_FALSE(deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates a stronger multi-face non-planar case: two opposite displaced
@@ -3336,17 +3335,17 @@ TEST(Conversion3dCapabilityTest, DeformedCubeWithDualDuplicateLoopRepairsToClose
 TEST(Conversion3dCapabilityTest, DualDeformedCubeRepairsToClosedSharedTopologyBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDualDeformedUnitCubeBody();
-    assert(!deformedBody.IsValid());
+    ASSERT_FALSE(deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates the dual-deformed-cube multi-face non-planar repair path remains
@@ -3354,17 +3353,17 @@ TEST(Conversion3dCapabilityTest, DualDeformedCubeRepairsToClosedSharedTopologyBr
 TEST(Conversion3dCapabilityTest, DualDeformedCubeWithDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDualDeformedUnitCubeWithDuplicateLoopBody();
-    assert(!deformedBody.IsValid());
+    ASSERT_FALSE(deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates the dual-deformed-cube non-planar repair path remains stable
@@ -3372,17 +3371,17 @@ TEST(Conversion3dCapabilityTest, DualDeformedCubeWithDuplicateLoopRepairsToClose
 TEST(Conversion3dCapabilityTest, DualDeformedCubeWithDualDuplicateLoopRepairsToClosedSharedTopologyBrepBody)
 {
     const PolyhedronBody deformedBody = BuildDualDeformedUnitCubeWithDualDuplicateLoopBody();
-    assert(!deformedBody.IsValid());
+    ASSERT_FALSE(deformedBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(deformedBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates refit-plane projection repair also handles mildly non-planar
@@ -3390,15 +3389,15 @@ TEST(Conversion3dCapabilityTest, DualDeformedCubeWithDualDuplicateLoopRepairsToC
 TEST(Conversion3dCapabilityTest, MildlyNonPlanarHoleLoopCanBeRepairedToBrepBody)
 {
     const PolyhedronBody nonPlanarHoledBody = BuildMildlyNonPlanarHoledFaceBody();
-    assert(!nonPlanarHoledBody.IsValid());
+    ASSERT_FALSE(nonPlanarHoledBody.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(nonPlanarHoledBody);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 8);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 8);
 }
 
 // Demonstrates refit support-plane selection now scores all loop vertices, so
@@ -3407,20 +3406,20 @@ TEST(Conversion3dCapabilityTest, MildlyNonPlanarHoleLoopCanBeRepairedToBrepBody)
 TEST(Conversion3dCapabilityTest, HoleDominatedNonPlanarHoledFaceRepairsToPlanarBrepBody)
 {
     const PolyhedronBody body = BuildHoleDominatedNonPlanarHoledFaceBody();
-    assert(!body.IsValid());
+    ASSERT_FALSE(body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 8);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 8);
 
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
     {
         const Point3d point = result.body.VertexAt(i).Point();
-        assert(std::abs(point.z) < 1e-10);
+        ASSERT_LT(std::abs(point.z), 1e-10);
     }
 }
 
@@ -3431,23 +3430,23 @@ TEST(Conversion3dCapabilityTest, HoleDominatedNonPlanarHoledFaceRepairsToPlanarB
 TEST(Conversion3dCapabilityTest, SharedEdgeHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody)
 {
     const PolyhedronBody body = BuildSharedEdgeHoleDominatedMixedContentBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 2);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 2);
-    assert(result.body.VertexCount() == 10);
-    assert(result.body.EdgeCount() == 11);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 2);
+    ASSERT_EQ(result.body.VertexCount(), 10);
+    ASSERT_EQ(result.body.EdgeCount(), 11);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
     {
         const Point3d point = result.body.VertexAt(i).Point();
-        assert(std::abs(point.z) < 1e-10);
+        ASSERT_LT(std::abs(point.z), 1e-10);
     }
 }
 
@@ -3458,23 +3457,23 @@ TEST(Conversion3dCapabilityTest, SharedEdgeHoleDominatedMixedContentRepairsToPla
 TEST(Conversion3dCapabilityTest, SharedChainHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody)
 {
     const PolyhedronBody body = BuildSharedChainHoleDominatedMixedContentBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
     {
         const Point3d point = result.body.VertexAt(i).Point();
-        assert(std::abs(point.z) < 1e-10);
+        ASSERT_LT(std::abs(point.z), 1e-10);
     }
 }
 
@@ -3486,18 +3485,18 @@ TEST(Conversion3dCapabilityTest, SharedChainHoleDominatedMixedContentRepairsToPl
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominatedMixedContentRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedChainHoleDominatedMixedContentBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 
     const double expectedLeftX = 2.0 + 0.5 * 2.0e-7;
     const double expectedRightX = 6.0 + 0.5 * 2.0e-7;
@@ -3506,7 +3505,7 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
     {
         const Point3d point = result.body.VertexAt(i).Point();
-        assert(std::abs(point.z) < 1e-10);
+        ASSERT_LT(std::abs(point.z), 1e-10);
 
         if (std::abs(point.y) < 1e-12 || std::abs(point.y - 2.0) < 1e-12)
         {
@@ -3521,8 +3520,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates duplicate-hole normalization composes with the
@@ -3532,18 +3531,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominatedMixedContentWithDuplicateHoleRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedChainHoleDominatedMixedContentWithDuplicateHoleBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 
     const double expectedLeftX = 2.0 + 0.5 * 2.0e-7;
     const double expectedRightX = 6.0 + 0.5 * 2.0e-7;
@@ -3552,7 +3551,7 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
     {
         const Point3d point = result.body.VertexAt(i).Point();
-        assert(std::abs(point.z) < 1e-10);
+        ASSERT_LT(std::abs(point.z), 1e-10);
 
         if (std::abs(point.y) < 1e-12 || std::abs(point.y - 2.0) < 1e-12)
         {
@@ -3567,8 +3566,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates collinear-leading fallback also composes with the
@@ -3578,18 +3577,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominatedFullCompositionRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualSharedChainHoleDominatedFullCompositionBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 13);
-    assert(result.body.EdgeCount() == 15);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 13);
+    ASSERT_EQ(result.body.EdgeCount(), 15);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 
     const double expectedLeftX = 2.0 + 0.5 * 2.0e-7;
     const double expectedRightX = 6.0 + 0.5 * 2.0e-7;
@@ -3598,7 +3597,7 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
     for (std::size_t i = 0; i < result.body.VertexCount(); ++i)
     {
         const Point3d point = result.body.VertexAt(i).Point();
-        assert(std::abs(point.z) < 1e-10);
+        ASSERT_LT(std::abs(point.z), 1e-10);
 
         if (std::abs(point.y) < 1e-12 || std::abs(point.y - 2.0) < 1e-12)
         {
@@ -3613,8 +3612,8 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
         }
     }
 
-    assert(leftCount == 2);
-    assert(rightCount == 2);
+    ASSERT_EQ(leftCount, 2);
+    ASSERT_EQ(rightCount, 2);
 }
 
 // Demonstrates refit-plane repair remains robust when leading loop vertices
@@ -3622,15 +3621,15 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedChainHoleDominate
 TEST(Conversion3dCapabilityTest, CollinearLeadingLoopStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildSupportPlaneMismatchedCollinearLeadingLoopBody();
-    assert(!body.IsValid());
+    ASSERT_FALSE(body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 5);
-    assert(result.body.EdgeCount() == 5);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 5);
+    ASSERT_EQ(result.body.EdgeCount(), 5);
 }
 
 // Demonstrates conversion repair can normalize consecutive duplicate loop
@@ -3638,15 +3637,15 @@ TEST(Conversion3dCapabilityTest, CollinearLeadingLoopStillRepairsToBrepBody)
 TEST(Conversion3dCapabilityTest, DuplicateVertexLoopStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildDuplicateVertexLoopBody();
-    assert(!body.IsValid());
+    ASSERT_FALSE(body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 4);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 4);
 }
 
 // Demonstrates duplicate vertices in a hole loop are normalized before
@@ -3654,15 +3653,15 @@ TEST(Conversion3dCapabilityTest, DuplicateVertexLoopStillRepairsToBrepBody)
 TEST(Conversion3dCapabilityTest, DuplicateVertexHoleLoopStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildDuplicateVertexHoleLoopBody();
-    assert(!body.IsValid());
+    ASSERT_FALSE(body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 8);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 8);
 }
 
 // Demonstrates repair sub-strategies compose deterministically on one face:
@@ -3671,15 +3670,15 @@ TEST(Conversion3dCapabilityTest, DuplicateVertexHoleLoopStillRepairsToBrepBody)
 TEST(Conversion3dCapabilityTest, CompositeRepairStressFaceStillConvertsToBrepBody)
 {
     const PolyhedronBody body = BuildCompositeRepairStressFaceBody();
-    assert(!body.IsValid());
+    ASSERT_FALSE(body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 10);
-    assert(result.body.EdgeCount() == 10);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 10);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
 }
 
 // Demonstrates robust refit can recover a tiny-scale non-planar loop even
@@ -3687,15 +3686,15 @@ TEST(Conversion3dCapabilityTest, CompositeRepairStressFaceStillConvertsToBrepBod
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarFaceStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarRepairBody();
-    assert(!body.IsValid());
+    ASSERT_FALSE(body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 4);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 4);
 }
 
 // Demonstrates tiny-scale refit/projection repair also stabilizes holed
@@ -3703,15 +3702,15 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarFaceStillRepairsToBrepBody)
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarHoledFaceStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarHoledRepairBody();
-    assert(!body.IsValid());
+    ASSERT_FALSE(body.IsValid());
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 1);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 8);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 1);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 8);
 }
 
 // Demonstrates tiny-scale non-planar repair remains stable for multi-face
@@ -3719,16 +3718,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarHoledFaceStillRepairsToBrepBo
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMultiFaceStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarMultiFaceRepairBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 2);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 2);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 8);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 2);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 8);
 }
 
 // Demonstrates tiny-scale non-planar repair remains stable for mixed-content
@@ -3736,16 +3735,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMultiFaceStillRepairsToBrepBo
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMixedContentStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarMixedContentBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 2);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 2);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 2);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 }
 
 // Demonstrates tiny-scale non-planar repair remains stable when adjacent faces
@@ -3753,16 +3752,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarMixedContentStillRepairsToBre
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeFacesStillRepairToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarSharedEdgeBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 2);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 2);
-    assert(result.body.VertexCount() == 6);
-    assert(result.body.EdgeCount() == 7);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 2);
+    ASSERT_EQ(result.body.VertexCount(), 6);
+    ASSERT_EQ(result.body.EdgeCount(), 7);
 }
 
 // Demonstrates tiny-scale non-planar repair remains stable on a shared-edge
@@ -3773,16 +3772,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeFacesStillRepairToB
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeChainStillRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarSharedEdgeChainBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 10);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
 }
 
 // Demonstrates support-plane mismatch across a tiny-scale quad shared-edge
@@ -3791,18 +3790,18 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeChainStillRepairsTo
 TEST(Conversion3dCapabilityTest, TinyScaleSupportMismatchSharedEdgeChainRepairsWithSharedTopology)
 {
     const PolyhedronBody body = BuildTinyScaleSupportMismatchSharedEdgeChainBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 10);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates representative-id propagation through normalization can keep
@@ -3811,18 +3810,18 @@ TEST(Conversion3dCapabilityTest, TinyScaleSupportMismatchSharedEdgeChainRepairsW
 TEST(Conversion3dCapabilityTest, TinyScaleSupportMismatchSharedEdgeChainWithDuplicateRepairsWithSharedTopology)
 {
     const PolyhedronBody body = BuildTinyScaleSupportMismatchSharedEdgeChainWithDuplicateBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 10);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates tiny-scale shared-edge adjacency chain repair also supports
@@ -3830,16 +3829,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleSupportMismatchSharedEdgeChainWithDupl
 TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeChainMixedContentRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarSharedEdgeChainMixedContentBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
 }
 
 // Demonstrates shared-edge chain tiny-scale repair remains stable when one
@@ -3847,16 +3846,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleNonPlanarSharedEdgeChainMixedContentRe
 TEST(Conversion3dCapabilityTest, TinyScaleSharedEdgeChainWithDuplicateLoopRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleNonPlanarSharedEdgeChainWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 10);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 10);
 }
 
 // Demonstrates duplicate-hole-loop normalization composes with shared-edge
@@ -3864,16 +3863,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedEdgeChainWithDuplicateLoopRepair
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentDuplicateHoleRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedEdgeChainMixedContentWithDuplicateHoleBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
 }
 
 // Demonstrates shared-chain mixed-content tiny-scale repair remains stable
@@ -3881,16 +3880,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentDuplicateHoleRe
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentCollinearLeadingRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedChainMixedContentWithCollinearLeadingBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 13);
-    assert(result.body.EdgeCount() == 15);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 13);
+    ASSERT_EQ(result.body.EdgeCount(), 15);
 }
 
 // Demonstrates support-plane mismatch composes with shared-chain mixed-content
@@ -3898,16 +3897,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentCollinearLeadin
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentSupportPlaneMismatchRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedChainMixedContentSupportPlaneMismatchBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
 }
 
 // Demonstrates support-plane mismatch and duplicate-hole normalization can
@@ -3916,18 +3915,18 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentSupportPlaneMis
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentSupportMismatchWithDuplicateHoleRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedChainMixedContentSupportMismatchWithDuplicateHoleBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 12);
-    assert(result.body.EdgeCount() == 14);
-    assert(result.body.ShellCount() == 1);
-    assert(!result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 12);
+    ASSERT_EQ(result.body.EdgeCount(), 14);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_FALSE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates support-plane mismatch and collinear-leading fallback can
@@ -3935,16 +3934,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainMixedContentSupportMismatch
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainSupportMismatchAndCollinearRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedChainSupportMismatchAndCollinearBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 13);
-    assert(result.body.EdgeCount() == 15);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 13);
+    ASSERT_EQ(result.body.EdgeCount(), 15);
 }
 
 // Demonstrates shared-chain mixed-content tiny-scale conversion remains stable
@@ -3953,16 +3952,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainSupportMismatchAndCollinear
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainFullCompositionRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedChainFullCompositionBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 13);
-    assert(result.body.EdgeCount() == 15);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 13);
+    ASSERT_EQ(result.body.EdgeCount(), 15);
 }
 
 // Demonstrates shared-chain mixed-content tiny-scale conversion remains stable
@@ -3971,16 +3970,16 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainFullCompositionRepairsToBre
 TEST(Conversion3dCapabilityTest, TinyScaleSharedChainDualDuplicateFullCompositionRepairsToBrepBody)
 {
     const PolyhedronBody body = BuildTinyScaleSharedChainDualDuplicateFullCompositionBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 13);
-    assert(result.body.EdgeCount() == 15);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 13);
+    ASSERT_EQ(result.body.EdgeCount(), 15);
 }
 
 // Demonstrates that a tiny-scale closed tetrahedron polyhedron (4 triangular
@@ -3992,39 +3991,39 @@ TEST(Conversion3dCapabilityTest, TinyScaleSharedChainDualDuplicateFullCompositio
 TEST(Conversion3dCapabilityTest, TinyScaleClosedTetrahedronConvertsToBrepBodyWithClosedShell)
 {
     const PolyhedronBody body = BuildTinyScaleClosedTetrahedronBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.VertexCount() == 4);
-    assert(result.body.EdgeCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.VertexCount(), 4);
+    ASSERT_EQ(result.body.EdgeCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
 }
 
 // Demonstrates that for a strip of triangular faces sharing edges (all with
 // mismatched support planes), independent per-face refit achieves provably
 // correct shared-edge vertex consistency.  Each shared vertex is one of the
 // 3 defining points of every triangle that contains it, so its distance to
-// that face's refit-plane is exactly 0 â€” no projection divergence.  The
+// that face's refit-plane is exactly 0 ¡ª no projection divergence.  The
 // result is VertexCount=5 and EdgeCount=7 (2 shared edges properly reused).
 TEST(Conversion3dCapabilityTest, TinyScaleTriangularFaceChainRepairsToBrepBodyWithSharedEdgeConsistency)
 {
     const PolyhedronBody body = BuildTinyScaleTriangularFaceChainBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 3);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 3);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 3);
-    assert(result.body.VertexCount() == 5);
-    assert(result.body.EdgeCount() == 7);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 3);
+    ASSERT_EQ(result.body.VertexCount(), 5);
+    ASSERT_EQ(result.body.EdgeCount(), 7);
 }
 
 // Demonstrates planar holed BrepBody conversion keeps representative area by
@@ -4032,22 +4031,22 @@ TEST(Conversion3dCapabilityTest, TinyScaleTriangularFaceChainRepairsToBrepBodyWi
 // Demonstrates that four triangular faces sharing a common apex vertex (square
 // pyramid cap without base), all with mismatched support planes, produce a
 // BrepBody with exactly VertexCount=5 and EdgeCount=8. The shared apex is a
-// defining vertex of all four triangles â†’ distance 0 from each refit-plane â†’
-// never projected â†’ exact merge.  Four radial edges are each used twice;
-// four outer edges are each used once â€” the open boundary is deterministic.
+// defining vertex of all four triangles ¡ú distance 0 from each refit-plane ¡ú
+// never projected ¡ú exact merge.  Four radial edges are each used twice;
+// four outer edges are each used once ¡ª the open boundary is deterministic.
 TEST(Conversion3dCapabilityTest, TinyScaleTriangularFanRepairsToBrepBodyWithSharedApex)
 {
     const PolyhedronBody body = BuildTinyScaleTriangularFanBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 4);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 4);
-    assert(result.body.VertexCount() == 5);
-    assert(result.body.EdgeCount() == 8);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 4);
+    ASSERT_EQ(result.body.VertexCount(), 5);
+    ASSERT_EQ(result.body.EdgeCount(), 8);
 }
 
 // Demonstrates planar holed BrepBody conversion keeps representative area by
@@ -4118,13 +4117,13 @@ TEST(Conversion3dCapabilityTest, PlanarHoledBrepBodyConvertsToMeshWithExpectedAr
         outerTrim,
         {holeTrim});
     const BrepBody body(vertices, edges, {BrepShell({face}, false)});
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const PolyhedronMeshConversion3d mesh = ConvertToTriangleMesh(body);
-    assert(mesh.success);
-    assert(mesh.mesh.IsValid());
+    ASSERT_TRUE(mesh.success);
+    ASSERT_TRUE(mesh.mesh.IsValid());
     // Expected area: 4x4 outer minus 2x2 hole = 12.
-    assert(std::abs(mesh.mesh.SurfaceArea() - 12.0) < 1e-8);
+    ASSERT_LT(std::abs(mesh.mesh.SurfaceArea() - 12.0), 1e-8);
 }
 
 // Demonstrates planar multi-face BrepBody conversion keeps representative
@@ -4208,13 +4207,13 @@ TEST(Conversion3dCapabilityTest, PlanarMultiFaceBrepBodyConvertsToMeshWithExpect
         trimB,
         {});
     const BrepBody body(vertices, edges, {BrepShell({faceA, faceB}, false)});
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const PolyhedronMeshConversion3d mesh = ConvertToTriangleMesh(body);
-    assert(mesh.success);
-    assert(mesh.mesh.IsValid());
+    ASSERT_TRUE(mesh.success);
+    ASSERT_TRUE(mesh.mesh.IsValid());
     // Expected area: 4 + 2 = 6.
-    assert(std::abs(mesh.mesh.SurfaceArea() - 6.0) < 1e-8);
+    ASSERT_LT(std::abs(mesh.mesh.SurfaceArea() - 6.0), 1e-8);
 }
 
 // Demonstrates representative shared-edge Brep->mesh conversion can preserve
@@ -4285,14 +4284,14 @@ TEST(Conversion3dCapabilityTest, PlanarSharedEdgeBrepBodyConvertsToMeshWithShare
         {});
 
     const BrepBody body(vertices, edges, {BrepShell({faceA, faceB}, false)});
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const PolyhedronMeshConversion3d mesh = ConvertToTriangleMesh(body);
-    assert(mesh.success);
-    assert(mesh.mesh.IsValid());
-    assert(mesh.mesh.TriangleCount() == 4);
-    assert(mesh.mesh.VertexCount() == 6);
-    assert(std::abs(mesh.mesh.SurfaceArea() - 2.0) < 1e-8);
+    ASSERT_TRUE(mesh.success);
+    ASSERT_TRUE(mesh.mesh.IsValid());
+    ASSERT_EQ(mesh.mesh.TriangleCount(), 4);
+    ASSERT_EQ(mesh.mesh.VertexCount(), 6);
+    ASSERT_LT(std::abs(mesh.mesh.SurfaceArea() - 2.0), 1e-8);
 }
 
 // Demonstrates planar mixed content conversion: one holed face plus one
@@ -4389,13 +4388,13 @@ TEST(Conversion3dCapabilityTest, PlanarHoledAndMultiFaceBrepBodyConvertsToMeshWi
         outerTrimB,
         {});
     const BrepBody body(vertices, edges, {BrepShell({faceA, faceB}, false)});
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const PolyhedronMeshConversion3d mesh = ConvertToTriangleMesh(body);
-    assert(mesh.success);
-    assert(mesh.mesh.IsValid());
+    ASSERT_TRUE(mesh.success);
+    ASSERT_TRUE(mesh.mesh.IsValid());
     // Expected area: (16 - 4) + 2 = 14.
-    assert(std::abs(mesh.mesh.SurfaceArea() - 14.0) < 1e-8);
+    ASSERT_LT(std::abs(mesh.mesh.SurfaceArea() - 14.0), 1e-8);
 }
 
 // Demonstrates disconnected closed-shell Brep->mesh conversion preserves
@@ -4403,25 +4402,25 @@ TEST(Conversion3dCapabilityTest, PlanarHoledAndMultiFaceBrepBodyConvertsToMeshWi
 TEST(Conversion3dCapabilityTest, TwoSeparatedCubeBrepBodyConvertsToMeshWithTwoComponents)
 {
     const PolyhedronBody twoCubes = BuildTwoSeparatedUnitCubeBody();
-    assert(twoCubes.IsValid());
-    assert(twoCubes.FaceCount() == 12);
+    ASSERT_TRUE(twoCubes.IsValid());
+    ASSERT_EQ(twoCubes.FaceCount(), 12);
 
     const PolyhedronBrepBodyConversion3d brep = ConvertToBrepBody(twoCubes);
-    assert(brep.success);
-    assert(brep.issue == BrepConversionIssue3d::None);
-    assert(brep.body.IsValid());
-    assert(brep.body.FaceCount() == 12);
+    ASSERT_TRUE(brep.success);
+    ASSERT_EQ(brep.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(brep.body.IsValid());
+    ASSERT_EQ(brep.body.FaceCount(), 12);
 
     const PolyhedronMeshConversion3d mesh = ConvertToTriangleMesh(brep.body);
-    assert(mesh.success);
-    assert(mesh.mesh.IsValid());
-    assert(mesh.mesh.TriangleCount() == 24);
-    assert(std::abs(mesh.mesh.SurfaceArea() - 12.0) < 1e-8);
+    ASSERT_TRUE(mesh.success);
+    ASSERT_TRUE(mesh.mesh.IsValid());
+    ASSERT_EQ(mesh.mesh.TriangleCount(), 24);
+    ASSERT_LT(std::abs(mesh.mesh.SurfaceArea() - 12.0), 1e-8);
 
     const auto components = ComputeTriangleConnectedComponents(mesh.mesh);
-    assert(components.size() == 2);
-    assert(components[0].size() == 12);
-    assert(components[1].size() == 12);
+    ASSERT_EQ(components.size(), 2);
+    ASSERT_EQ(components[0].size(), 12);
+    ASSERT_EQ(components[1].size(), 12);
 }
 
 // Demonstrates the pure-quad closed-shell analogue of the triangular-prism
@@ -4431,18 +4430,18 @@ TEST(Conversion3dCapabilityTest, TwoSeparatedCubeBrepBodyConvertsToMeshWithTwoCo
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidAllVerticesRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
     AssertClosedCuboidAllVerticesRepresentativeTargets(result.body);
 }
 
@@ -4452,18 +4451,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidAllVertices
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidAllVerticesWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
     AssertClosedCuboidAllVerticesRepresentativeTargets(result.body);
 }
 
@@ -4473,18 +4472,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidAllVertices
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidAllVerticesWithDualDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
     AssertClosedCuboidAllVerticesRepresentativeTargets(result.body);
 }
 
@@ -4494,18 +4493,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidAllVertices
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVerticesWithDuplicateLoopRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidDualVerticesWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 
     const double s = 1e-5;
     const double w = 2.0 * s;
@@ -4523,12 +4522,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVertice
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
         {
             ++sharedV6Count;
-            assert(std::abs(point.x - expectedV6X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV6X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV6Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV6Count, 1);
 }
 
 // Demonstrates representative-average placement and closed-shell topology
@@ -4537,18 +4536,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVertice
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVerticesWithDualDuplicateLoopRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidDualVerticesWithDualDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 
     const double s = 1e-5;
     const double w = 2.0 * s;
@@ -4566,12 +4565,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVertice
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
         {
             ++sharedV6Count;
-            assert(std::abs(point.x - expectedV6X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV6X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV6Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV6Count, 1);
 }
 
 // Demonstrates representative-average placement and closed-shell topology also
@@ -4580,18 +4579,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVertice
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVerticesRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidDualVerticesBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 
     const double s = 1e-5;
     const double w = 2.0 * s;
@@ -4609,12 +4608,12 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVertice
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
         {
             ++sharedV6Count;
-            assert(std::abs(point.x - expectedV6X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV6X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV6Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV6Count, 1);
 }
 
 // Demonstrates representative-average placement covers an intermediate
@@ -4623,18 +4622,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidDualVertice
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerticesRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 
     const double s = 1e-5;
     const double w = 2.0 * s;
@@ -4654,18 +4653,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerti
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
         {
             ++sharedV6Count;
-            assert(std::abs(point.x - expectedV6X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV6X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV1Count == 1);
-    assert(sharedV6Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV6Count, 1);
 }
 
 // Demonstrates that triple-shared-vertices near-equal perturbation paired with
@@ -4674,18 +4673,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerti
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 
     const double s = 1e-5;
     const double w = 2.0 * s;
@@ -4705,18 +4704,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerti
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
         {
             ++sharedV6Count;
-            assert(std::abs(point.x - expectedV6X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV6X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV1Count == 1);
-    assert(sharedV6Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV6Count, 1);
 }
 
 // Demonstrates triple-shared-vertices near-equal perturbation remains stable
@@ -4724,18 +4723,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerti
 TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerticesWithDualDuplicateLoopRepairsToValidBrepBody)
 {
     const PolyhedronBody body = BuildSupportMismatchNearEqualClosedCuboidTripleVerticesWithDualDuplicateLoopBody();
-    assert(!body.IsValid());
-    assert(body.FaceCount() == 6);
+    ASSERT_FALSE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 6);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    assert(result.success);
-    assert(result.issue == BrepConversionIssue3d::None);
-    assert(result.body.IsValid());
-    assert(result.body.FaceCount() == 6);
-    assert(result.body.ShellCount() == 1);
-    assert(result.body.ShellAt(0).IsClosed());
-    assert(result.body.VertexCount() == 8);
-    assert(result.body.EdgeCount() == 12);
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
+    ASSERT_TRUE(result.body.IsValid());
+    ASSERT_EQ(result.body.FaceCount(), 6);
+    ASSERT_EQ(result.body.ShellCount(), 1);
+    ASSERT_TRUE(result.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(result.body.VertexCount(), 8);
+    ASSERT_EQ(result.body.EdgeCount(), 12);
 
     const double s = 1e-5;
     const double w = 2.0 * s;
@@ -4755,18 +4754,18 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerti
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y) < 1e-12 && std::abs(point.z) < 1e-12)
         {
             ++sharedV1Count;
-            assert(std::abs(point.x - expectedV1X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV1X), 1e-10);
         }
         if (point.x > 1.5 * s && point.x < 2.5 * s && std::abs(point.y - s) < 1e-12 && std::abs(point.z - s) < 1e-12)
         {
             ++sharedV6Count;
-            assert(std::abs(point.x - expectedV6X) < 1e-10);
+            ASSERT_LT(std::abs(point.x - expectedV6X), 1e-10);
         }
     }
 
-    assert(sharedV0Count == 1);
-    assert(sharedV1Count == 1);
-    assert(sharedV6Count == 1);
+    ASSERT_EQ(sharedV0Count, 1);
+    ASSERT_EQ(sharedV1Count, 1);
+    ASSERT_EQ(sharedV6Count, 1);
 }
 
 

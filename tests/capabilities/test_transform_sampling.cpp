@@ -1,11 +1,9 @@
-﻿#include <gtest/gtest.h>
-#include <cassert>
+#include <gtest/gtest.h>
 #include <cmath>
 
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometrySampling.h"
 #include "sdk/GeometryTransform.h"
-#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::ArcSegment2d;
@@ -34,18 +32,18 @@ TEST(TransformSamplingTest, CoversCurrentCapabilities)
 
     const ArcSegment2d arc(Point2d{0.0, 0.0}, 1.0, 0.0, std::acos(-1.0) * 0.5);
     const auto arcSamples = geometry::sdk::SampleByMaxAngle(arc, std::acos(-1.0) * 0.25);
-    assert(arcSamples.size() == 3);
+    ASSERT_EQ(arcSamples.size(), 3);
 
     const Polyline2d path(
         {Point2d{0.0, 0.0}, Point2d{2.0, 0.0}, Point2d{2.0, 0.0}, Point2d{2.0, 2.0}},
         PolylineClosure::Open);
     const auto normalized = geometry::sdk::Normalize(path);
-    assert(normalized.PointCount() == 3);
+    ASSERT_EQ(normalized.PointCount(), 3);
 
     const auto inserted = geometry::sdk::InsertPoint(
         Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
         Point2d{2.0, 0.0});
-    assert(inserted.PointCount() == 3);
+    ASSERT_EQ(inserted.PointCount(), 3);
 
     const Polygon2d polygon(
         Polyline2d(

@@ -1,4 +1,3 @@
-#include <cassert>
 
 #include <gtest/gtest.h>
 
@@ -34,14 +33,14 @@ using geometry::sdk::Surface;
 TEST(Healing3dCapabilityTest, UnitCubePolyhedronBodyHealingPreservesAllSixFaces)
 {
     const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
-    assert(cubeBody.IsValid());
-    assert(cubeBody.FaceCount() == 6);
+    ASSERT_TRUE(cubeBody.IsValid());
+    ASSERT_EQ(cubeBody.FaceCount(), 6);
 
     const PolyhedronHealing3d healed = Heal(cubeBody);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.FaceCount() == 6);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.FaceCount(), 6);
 }
 
 // Demonstrates trim backfill on a planar line-edge BrepFace where topology is
@@ -86,17 +85,17 @@ TEST(Healing3dCapabilityTest, PlanarBrepFaceWithoutTrimIsHealedWithBackfilledTri
     const BrepFace face(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerLoop);
     const BrepBody body(vertices, edges, {BrepShell({face}, false)});
 
-    assert(body.IsValid());
-    assert(!face.OuterTrim().IsValid());
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_FALSE(face.OuterTrim().IsValid());
 
     const BrepHealing3d healed = Heal(body);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.FaceCount() == 1);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.FaceCount(), 1);
     const auto healedFace = healed.body.ShellAt(0).FaceAt(0);
-    assert(healedFace.OuterTrim().IsValid());
-    assert(healedFace.OuterTrim().PointCount() == 4);
+    ASSERT_TRUE(healedFace.OuterTrim().IsValid());
+    ASSERT_EQ(healedFace.OuterTrim().PointCount(), 4);
 }
 
 // Demonstrates conservative healing can backfill both outer and hole trims for
@@ -141,20 +140,20 @@ TEST(Healing3dCapabilityTest, PlanarHoledBrepFaceWithoutAnyTrimIsHealed)
     const BrepFace face(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerLoop, {holeLoop});
     const BrepBody body(vertices, edges, {BrepShell({face}, false)});
 
-    assert(body.IsValid());
-    assert(!face.OuterTrim().IsValid());
-    assert(face.HoleTrims().empty());
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_FALSE(face.OuterTrim().IsValid());
+    ASSERT_TRUE(face.HoleTrims().empty());
 
     const BrepHealing3d healed = Heal(body);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.FaceCount() == 1);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.FaceCount(), 1);
     const auto healedFace = healed.body.ShellAt(0).FaceAt(0);
-    assert(healedFace.OuterTrim().IsValid());
-    assert(healedFace.HoleTrims().size() == 1);
-    assert(healedFace.HoleTrims()[0].IsValid());
-    assert(healedFace.HoleTrims()[0].PointCount() == 4);
+    ASSERT_TRUE(healedFace.OuterTrim().IsValid());
+    ASSERT_EQ(healedFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(healedFace.HoleTrims()[0].IsValid());
+    ASSERT_EQ(healedFace.HoleTrims()[0].PointCount(), 4);
 }
 
 // Demonstrates a deterministic minimal aggressive policy: a recoverable open
@@ -188,16 +187,16 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableSingleFaceShel
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
     const BrepFace face(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerLoop);
     const BrepBody openBody(vertices, edges, {BrepShell({face}, false)});
-    assert(openBody.IsValid());
-    assert(!openBody.ShellAt(0).IsClosed());
+    ASSERT_TRUE(openBody.IsValid());
+    ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
     const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 1);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.FaceCount() == 2);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 1);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 2);
 }
 
 // Demonstrates aggressive policy also closes a recoverable planar multi-face
@@ -243,16 +242,16 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableMultiFaceOpenS
     const BrepFace faceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerA);
     const BrepFace faceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerB);
     const BrepBody openBody(vertices, edges, {BrepShell({faceA, faceB}, false)});
-    assert(openBody.IsValid());
-    assert(!openBody.ShellAt(0).IsClosed());
-    assert(openBody.FaceCount() == 2);
+    ASSERT_TRUE(openBody.IsValid());
+    ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
+    ASSERT_EQ(openBody.FaceCount(), 2);
 
     const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 1);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.FaceCount() == 4);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 1);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 4);
 }
 
 // Demonstrates aggressive policy also supports a planar multi-face open sheet
@@ -297,19 +296,19 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseSharedEdgeOpenSheet)
     const BrepFace faceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerA);
     const BrepFace faceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerB);
     const BrepBody openBody(vertices, edges, {BrepShell({faceA, faceB}, false)});
-    assert(openBody.IsValid());
-    assert(!openBody.ShellAt(0).IsClosed());
+    ASSERT_TRUE(openBody.IsValid());
+    ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
     const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 1);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.FaceCount() == 3);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 1);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 3);
     const auto capFace = healed.body.ShellAt(0).FaceAt(2);
-    assert(capFace.OuterTrim().IsValid());
-    assert(capFace.HoleTrims().empty());
+    ASSERT_TRUE(capFace.OuterTrim().IsValid());
+    ASSERT_TRUE(capFace.HoleTrims().empty());
 }
 
 // Demonstrates the more general standalone aggressive boundary-cap subset:
@@ -363,28 +362,28 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapSharedEdgeHoledShel
     const BrepFace holedFace(std::shared_ptr<Surface>(mismatchedSurface.Clone().release()), outerA, {holeA});
     const BrepFace plainFace(std::shared_ptr<Surface>(mismatchedSurface.Clone().release()), outerB);
     const BrepBody openBody(vertices, edges, {BrepShell({holedFace, plainFace}, false)});
-    assert(openBody.IsValid());
-    assert(!openBody.ShellAt(0).IsClosed());
-    assert(openBody.FaceCount() == 2);
+    ASSERT_TRUE(openBody.IsValid());
+    ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
+    ASSERT_EQ(openBody.FaceCount(), 2);
 
     const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 1);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.FaceCount() == 3);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 1);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 3);
 
     const auto healedHoledFace = healed.body.ShellAt(0).FaceAt(0);
     const auto healedPlainFace = healed.body.ShellAt(0).FaceAt(1);
     const auto capFace = healed.body.ShellAt(0).FaceAt(2);
-    assert(healedHoledFace.OuterTrim().IsValid());
-    assert(healedHoledFace.HoleTrims().size() == 1);
-    assert(healedHoledFace.HoleTrims()[0].IsValid());
-    assert(healedPlainFace.OuterTrim().IsValid());
-    assert(capFace.OuterTrim().IsValid());
-    assert(capFace.HoleTrims().size() == 1);
-    assert(capFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(healedHoledFace.OuterTrim().IsValid());
+    ASSERT_EQ(healedHoledFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(healedHoledFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(healedPlainFace.OuterTrim().IsValid());
+    ASSERT_TRUE(capFace.OuterTrim().IsValid());
+    ASSERT_EQ(capFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(capFace.HoleTrims()[0].IsValid());
 }
 
 // Demonstrates the shared-edge boundary-cap fallback also works when the
@@ -451,24 +450,24 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapSharedEdgeShellInsi
             BrepShell({closedFaceA, closedFaceB}, true),
             BrepShell({faceA, faceB}, false),
         });
-    assert(mixedBody.IsValid());
-    assert(mixedBody.ShellCount() == 2);
-    assert(mixedBody.ShellAt(0).IsClosed());
-    assert(!mixedBody.ShellAt(1).IsClosed());
+    ASSERT_TRUE(mixedBody.IsValid());
+    ASSERT_EQ(mixedBody.ShellCount(), 2);
+    ASSERT_TRUE(mixedBody.ShellAt(0).IsClosed());
+    ASSERT_FALSE(mixedBody.ShellAt(1).IsClosed());
 
     const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 2);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 3);
-    assert(healed.body.FaceCount() == 5);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 2);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 3);
+    ASSERT_EQ(healed.body.FaceCount(), 5);
     const auto capFace = healed.body.ShellAt(1).FaceAt(2);
-    assert(capFace.OuterTrim().IsValid());
-    assert(capFace.HoleTrims().empty());
+    ASSERT_TRUE(capFace.OuterTrim().IsValid());
+    ASSERT_TRUE(capFace.HoleTrims().empty());
 }
 
 // Demonstrates the mixed-body shared-edge boundary-cap subset scales to more
@@ -566,26 +565,26 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapTwoSharedEdgeShells
                 },
                 false),
         });
-    assert(mixedBody.IsValid());
-    assert(mixedBody.ShellCount() == 3);
-    assert(mixedBody.ShellAt(0).IsClosed());
-    assert(!mixedBody.ShellAt(1).IsClosed());
-    assert(!mixedBody.ShellAt(2).IsClosed());
+    ASSERT_TRUE(mixedBody.IsValid());
+    ASSERT_EQ(mixedBody.ShellCount(), 3);
+    ASSERT_TRUE(mixedBody.ShellAt(0).IsClosed());
+    ASSERT_FALSE(mixedBody.ShellAt(1).IsClosed());
+    ASSERT_FALSE(mixedBody.ShellAt(2).IsClosed());
 
     const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 3);
-    assert(healed.body.ShellAt(2).FaceCount() == 3);
-    assert(healed.body.FaceCount() == 8);
-    assert(healed.body.ShellAt(1).FaceAt(2).OuterTrim().IsValid());
-    assert(healed.body.ShellAt(2).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 3);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 3);
+    ASSERT_EQ(healed.body.FaceCount(), 8);
+    ASSERT_TRUE(healed.body.ShellAt(1).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.body.ShellAt(2).FaceAt(2).OuterTrim().IsValid());
 }
 
 // Demonstrates conservative multi-shell arbitration on the aggressive
@@ -677,22 +676,22 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSkipsCompetingSharedBoundaryEdgeE
             BrepShell({competingFaceA0, competingFaceA1}, false),
             BrepShell({competingFaceB0, competingFaceB1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 3);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 3);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 3);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.FaceCount() == 7);
-    assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 3);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.FaceCount(), 7);
+    ASSERT_TRUE(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
 }
 
 // Demonstrates competing-shell arbitration now also recognizes duplicated
@@ -787,22 +786,22 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSkipsGeometricallyCoincidentBound
             BrepShell({coincidentFaceA0, coincidentFaceA1}, false),
             BrepShell({coincidentFaceB0, coincidentFaceB1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 3);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 3);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 3);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.FaceCount() == 7);
-    assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 3);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.FaceCount(), 7);
+    ASSERT_TRUE(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
 }
 
 TEST(Healing3dCapabilityTest, AggressiveHealingSkipsPartiallyOverlappedBoundaryLoopShells)
@@ -873,21 +872,21 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSkipsPartiallyOverlappedBoundaryL
             BrepShell({faceA0, faceA1}, false),
             BrepShell({faceB0, faceB1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 2);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 2);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 2);
-    assert(!healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.FaceCount() == 4);
-    assert(healed.body.ShellAt(0).FaceAt(0).OuterTrim().IsValid());
-    assert(healed.body.ShellAt(1).FaceAt(0).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 2);
+    ASSERT_FALSE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.FaceCount(), 4);
+    ASSERT_TRUE(healed.body.ShellAt(0).FaceAt(0).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.body.ShellAt(1).FaceAt(0).OuterTrim().IsValid());
 }
 
 TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentShellWhileSkippingPartialOverlapPair)
@@ -978,22 +977,22 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentShellWhileSkippi
             BrepShell({faceA0, faceA1}, false),
             BrepShell({faceB0, faceB1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 3);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 3);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 3);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.FaceCount() == 7);
-    assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 3);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.FaceCount(), 7);
+    ASSERT_TRUE(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
 }
 
 TEST(Healing3dCapabilityTest, AggressiveHealingKeepsClosedShellWhileSkippingPartialOverlapPair)
@@ -1079,21 +1078,21 @@ TEST(Healing3dCapabilityTest, AggressiveHealingKeepsClosedShellWhileSkippingPart
             BrepShell({faceA0, faceA1}, false),
             BrepShell({faceB0, faceB1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 3);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 3);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.FaceCount() == 6);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.FaceCount(), 6);
 }
 
 TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentAndVertexTouchShellsWhileSkippingPartialOverlapPair)
@@ -1204,25 +1203,25 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentAndVertexTouchSh
             BrepShell({faceB0, faceB1}, false),
             BrepShell({faceC0, faceC1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 4);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 4);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 4);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(3).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 3);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.ShellAt(3).FaceCount() == 3);
-    assert(healed.body.FaceCount() == 10);
-    assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
-    assert(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 4);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(3).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 3);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(3).FaceCount(), 3);
+    ASSERT_EQ(healed.body.FaceCount(), 10);
+    ASSERT_TRUE(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
 }
 
 // Demonstrates multi-shell arbitration is no longer blocked by a mere
@@ -1294,21 +1293,21 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesVertexTouchingEligibleShare
             BrepShell({shellAFace0, shellAFace1}, false),
             BrepShell({shellBFace0, shellBFace1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 2);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 2);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 2);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 3);
-    assert(healed.body.ShellAt(1).FaceCount() == 3);
-    assert(healed.body.FaceCount() == 6);
-    assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
-    assert(healed.body.ShellAt(1).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 2);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 3);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 3);
+    ASSERT_EQ(healed.body.FaceCount(), 6);
+    ASSERT_TRUE(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.body.ShellAt(1).FaceAt(2).OuterTrim().IsValid());
 }
 
 // Demonstrates the aggressive arbitration rules compose deterministically:
@@ -1399,22 +1398,22 @@ TEST(Healing3dCapabilityTest, AggressiveHealingKeepsCompetingPairOpenButClosesVe
             BrepShell({faceB0, faceB1}, false),
             BrepShell({faceC0, faceC1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 3);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 3);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(!healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 3);
-    assert(healed.body.FaceCount() == 7);
-    assert(healed.body.ShellAt(2).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_FALSE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 3);
+    ASSERT_EQ(healed.body.FaceCount(), 7);
+    ASSERT_TRUE(healed.body.ShellAt(2).FaceAt(2).OuterTrim().IsValid());
 }
 
 // Demonstrates the conservative shared-boundary-edge arbitration still composes
@@ -1526,25 +1525,25 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentAndVertexTouchSh
             BrepShell({faceB0, faceB1}, false),
             BrepShell({faceC0, faceC1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 4);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 4);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 4);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(3).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 3);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.ShellAt(3).FaceCount() == 3);
-    assert(healed.body.FaceCount() == 10);
-    assert(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
-    assert(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 4);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(3).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 3);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(3).FaceCount(), 3);
+    ASSERT_EQ(healed.body.FaceCount(), 10);
+    ASSERT_TRUE(healed.body.ShellAt(0).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
 }
 
 // Demonstrates the same arbitration still composes in a mixed body containing
@@ -1651,24 +1650,24 @@ TEST(Healing3dCapabilityTest, AggressiveHealingKeepsClosedShellAndCompetingPairW
             BrepShell({faceB0, faceB1}, false),
             BrepShell({faceC0, faceC1}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 4);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 4);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 4);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(3).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.ShellAt(3).FaceCount() == 3);
-    assert(healed.body.FaceCount() == 9);
-    assert(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 4);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(3).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(3).FaceCount(), 3);
+    ASSERT_EQ(healed.body.FaceCount(), 9);
+    ASSERT_TRUE(healed.body.ShellAt(3).FaceAt(2).OuterTrim().IsValid());
 }
 
 // Demonstrates aggressive closure also supports a recoverable holed planar
@@ -1713,15 +1712,15 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableHoledOpenShell
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}));
     const BrepFace frontFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerLoop, {holeLoop});
     const BrepBody openBody(vertices, edges, {BrepShell({frontFace}, false)});
-    assert(openBody.IsValid());
-    assert(!openBody.ShellAt(0).IsClosed());
+    ASSERT_TRUE(openBody.IsValid());
+    ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
     const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 1);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.FaceCount() == 2);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 1);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 2);
 }
 
 // Demonstrates aggressive closure composes with conservative trim backfill on
@@ -1766,19 +1765,19 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCompositeHoledOpenShellWithMissin
     // Intentionally omit outer/hole trims to force conservative backfill first.
     const BrepFace frontFace(std::shared_ptr<Surface>(planeSurface.Clone().release()), outerLoop, {holeLoop});
     const BrepBody openBody(vertices, edges, {BrepShell({frontFace}, false)});
-    assert(openBody.IsValid());
-    assert(!openBody.ShellAt(0).IsClosed());
+    ASSERT_TRUE(openBody.IsValid());
+    ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
     const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 1);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.FaceCount() == 2);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 1);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 2);
     const auto firstFace = healed.body.ShellAt(0).FaceAt(0);
-    assert(firstFace.OuterTrim().IsValid());
-    assert(firstFace.HoleTrims().size() == 1);
-    assert(firstFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(firstFace.OuterTrim().IsValid());
+    ASSERT_EQ(firstFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(firstFace.HoleTrims()[0].IsValid());
 }
 
 // Demonstrates aggressive policy can deterministically close multiple
@@ -1828,18 +1827,18 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesMultipleOpenShells)
     const BrepFace faceA(std::shared_ptr<Surface>(planeSurface.Clone().release()), loopA);
     const BrepFace faceB(std::shared_ptr<Surface>(planeSurface.Clone().release()), loopB);
     const BrepBody openBody(vertices, edges, {BrepShell({faceA}, false), BrepShell({faceB}, false)});
-    assert(openBody.IsValid());
-    assert(!openBody.ShellAt(0).IsClosed());
-    assert(!openBody.ShellAt(1).IsClosed());
+    ASSERT_TRUE(openBody.IsValid());
+    ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
+    ASSERT_FALSE(openBody.ShellAt(1).IsClosed());
 
     const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 2);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 2);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
     // Each open single-face shell is mirrored into 2 faces.
-    assert(healed.body.FaceCount() == 4);
+    ASSERT_EQ(healed.body.FaceCount(), 4);
 }
 
 // Demonstrates aggressive policy can close only the recoverable open shell in
@@ -1895,20 +1894,20 @@ TEST(Healing3dCapabilityTest, AggressiveHealingPreservesClosedShellAndClosesOpen
         vertices,
         edges,
         {BrepShell({closedFaceA, closedFaceB}, true), BrepShell({openFace}, false)});
-    assert(mixedBody.IsValid());
-    assert(mixedBody.ShellCount() == 2);
-    assert(mixedBody.ShellAt(0).IsClosed());
-    assert(!mixedBody.ShellAt(1).IsClosed());
-    assert(mixedBody.FaceCount() == 3);
+    ASSERT_TRUE(mixedBody.IsValid());
+    ASSERT_EQ(mixedBody.ShellCount(), 2);
+    ASSERT_TRUE(mixedBody.ShellAt(0).IsClosed());
+    ASSERT_FALSE(mixedBody.ShellAt(1).IsClosed());
+    ASSERT_EQ(mixedBody.FaceCount(), 3);
 
     const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 2);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 2);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
     // Closed shell keeps 2 faces, open shell is mirrored from 1 to 2 faces.
-    assert(healed.body.FaceCount() == 4);
+    ASSERT_EQ(healed.body.FaceCount(), 4);
 }
 
 // Demonstrates aggressive policy can partially repair a mixed open-shell set:
@@ -1961,19 +1960,19 @@ TEST(Healing3dCapabilityTest, AggressiveHealingPartiallyRepairsMixedOpenShells)
     const BrepFace planarFace(std::shared_ptr<Surface>(planarSurface.Clone().release()), planarLoop);
     const BrepFace nonPlanarFace(std::shared_ptr<Surface>(nonPlanarSupport.Clone().release()), nonPlanarLoop);
     const BrepBody mixedOpenBody(vertices, edges, {BrepShell({planarFace}, false), BrepShell({nonPlanarFace}, false)});
-    assert(mixedOpenBody.IsValid());
-    assert(!mixedOpenBody.ShellAt(0).IsClosed());
-    assert(!mixedOpenBody.ShellAt(1).IsClosed());
-    assert(mixedOpenBody.FaceCount() == 2);
+    ASSERT_TRUE(mixedOpenBody.IsValid());
+    ASSERT_FALSE(mixedOpenBody.ShellAt(0).IsClosed());
+    ASSERT_FALSE(mixedOpenBody.ShellAt(1).IsClosed());
+    ASSERT_EQ(mixedOpenBody.FaceCount(), 2);
 
     const BrepHealing3d healed = Heal(mixedOpenBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 2);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(!healed.body.ShellAt(1).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 2);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(1).IsClosed());
     // Shell 0 is mirrored (1->2 faces), shell 1 remains single-face open.
-    assert(healed.body.FaceCount() == 3);
+    ASSERT_EQ(healed.body.FaceCount(), 3);
 }
 
 TEST(Healing3dCapabilityTest, AggressiveHealingRejectsNonPlanarSharedEdgeShellForBoundaryCap)
@@ -2017,19 +2016,19 @@ TEST(Healing3dCapabilityTest, AggressiveHealingRejectsNonPlanarSharedEdgeShellFo
     const BrepFace firstFace(std::shared_ptr<Surface>(firstSurface.Clone().release()), firstLoop);
     const BrepFace secondFace(std::shared_ptr<Surface>(secondSurface.Clone().release()), secondLoop);
     const BrepBody body(vertices, edges, {BrepShell({firstFace, secondFace}, false)});
-    assert(body.IsValid());
-    assert(body.ShellCount() == 1);
-    assert(!body.ShellAt(0).IsClosed());
-    assert(body.ShellAt(0).FaceCount() == 2);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 1);
+    ASSERT_FALSE(body.ShellAt(0).IsClosed());
+    ASSERT_EQ(body.ShellAt(0).FaceCount(), 2);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 1);
-    assert(!healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.FaceCount() == 2);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 1);
+    ASSERT_FALSE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.FaceCount(), 2);
 }
 
 // Demonstrates deterministic mixed-shell behavior on three shells: preserve
@@ -2104,22 +2103,22 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellMixedDeterministicBehav
             BrepShell({eligibleFace}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 3);
-    assert(body.ShellAt(0).IsClosed());
-    assert(!body.ShellAt(1).IsClosed());
-    assert(!body.ShellAt(2).IsClosed());
-    assert(body.FaceCount() == 4);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 3);
+    ASSERT_TRUE(body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(body.ShellAt(2).IsClosed());
+    ASSERT_EQ(body.FaceCount(), 4);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
     // Closed shell keeps 2 faces, eligible open shell becomes 2 faces, ineligible remains 1.
-    assert(healed.body.FaceCount() == 5);
+    ASSERT_EQ(healed.body.FaceCount(), 5);
 }
 
 // Demonstrates mixed three-shell behavior remains deterministic even when the
@@ -2195,18 +2194,18 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellMixedWithEligibleTrimBa
             BrepShell({eligibleFace}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.FaceCount() == 5);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 5);
     const auto eligibleFrontFace = healed.body.ShellAt(1).FaceAt(0);
-    assert(eligibleFrontFace.OuterTrim().IsValid());
+    ASSERT_TRUE(eligibleFrontFace.OuterTrim().IsValid());
 }
 
 // Demonstrates deterministic mixed-shell behavior when the eligible shell is
@@ -2289,18 +2288,18 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellWithEligibleMultiFaceOp
             BrepShell({eligibleFaceA, eligibleFaceB}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
     // Closed shell stays 2 faces; eligible shell mirrors 2->4; ineligible stays 1.
-    assert(healed.body.FaceCount() == 7);
+    ASSERT_EQ(healed.body.FaceCount(), 7);
 }
 
 // Demonstrates three-shell mixed behavior with eligible holed shell where
@@ -2385,21 +2384,21 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellWithEligibleHoledShellA
             BrepShell({eligibleHoledFace}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
     // Closed shell stays 2 faces; eligible holed shell mirrors 1->2; ineligible stays 1.
-    assert(healed.body.FaceCount() == 5);
+    ASSERT_EQ(healed.body.FaceCount(), 5);
     const auto eligibleHealedFace = healed.body.ShellAt(1).FaceAt(0);
-    assert(eligibleHealedFace.OuterTrim().IsValid());
-    assert(eligibleHealedFace.HoleTrims().size() == 1);
-    assert(eligibleHealedFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(eligibleHealedFace.OuterTrim().IsValid());
+    ASSERT_EQ(eligibleHealedFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(eligibleHealedFace.HoleTrims()[0].IsValid());
 }
 
 // Demonstrates three-shell mixed behavior where eligible shell is multi-face
@@ -2495,21 +2494,21 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceHoledM
             BrepShell({eligibleFaceA, eligibleFaceB}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
     // closed:2, eligible multi-face:2->4, ineligible:1 => total 7.
-    assert(healed.body.FaceCount() == 7);
+    ASSERT_EQ(healed.body.FaceCount(), 7);
     const auto eligibleHealedFace = healed.body.ShellAt(1).FaceAt(0);
-    assert(eligibleHealedFace.OuterTrim().IsValid());
-    assert(eligibleHealedFace.HoleTrims().size() == 1);
-    assert(eligibleHealedFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(eligibleHealedFace.OuterTrim().IsValid());
+    ASSERT_EQ(eligibleHealedFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(eligibleHealedFace.HoleTrims()[0].IsValid());
 }
 
 // Demonstrates deterministic composition when eligible multi-face shell has
@@ -2606,22 +2605,22 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceBothTr
             BrepShell({eligibleFaceA, eligibleFaceB}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.FaceCount() == 7);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 7);
     const auto holedHealedFace = healed.body.ShellAt(1).FaceAt(0);
     const auto plainHealedFace = healed.body.ShellAt(1).FaceAt(1);
-    assert(holedHealedFace.OuterTrim().IsValid());
-    assert(holedHealedFace.HoleTrims().size() == 1);
-    assert(holedHealedFace.HoleTrims()[0].IsValid());
-    assert(plainHealedFace.OuterTrim().IsValid());
+    ASSERT_TRUE(holedHealedFace.OuterTrim().IsValid());
+    ASSERT_EQ(holedHealedFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(holedHealedFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(plainHealedFace.OuterTrim().IsValid());
 }
 
 // Demonstrates composition under support-plane mismatch: eligible multi-face
@@ -2720,20 +2719,20 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceHoledS
             BrepShell({eligibleFaceA, eligibleFaceB}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.FaceCount() == 7);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.FaceCount(), 7);
     const auto eligibleHealedFace = healed.body.ShellAt(1).FaceAt(0);
-    assert(eligibleHealedFace.OuterTrim().IsValid());
-    assert(eligibleHealedFace.HoleTrims().size() == 1);
-    assert(eligibleHealedFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(eligibleHealedFace.OuterTrim().IsValid());
+    ASSERT_EQ(eligibleHealedFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(eligibleHealedFace.HoleTrims()[0].IsValid());
 }
 
 // Demonstrates support-plane-mismatch eligible shell can be closed while an
@@ -2817,20 +2816,20 @@ TEST(Healing3dCapabilityTest, AggressiveHealingMixedSupportMismatchWithIneligibl
             BrepShell({eligibleFace}, false),
             BrepShell({ineligibleFaceA, ineligibleFaceB}, false),
         });
-    assert(body.IsValid());
-    assert(body.FaceCount() == 5);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.FaceCount(), 5);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
     // closed:2, eligible:1->2, ineligible:2 unchanged.
-    assert(healed.body.FaceCount() == 6);
+    ASSERT_EQ(healed.body.FaceCount(), 6);
     const auto eligibleHealedFace = healed.body.ShellAt(1).FaceAt(0);
-    assert(eligibleHealedFace.OuterTrim().IsValid());
+    ASSERT_TRUE(eligibleHealedFace.OuterTrim().IsValid());
 }
 
 // Demonstrates deterministic mixed behavior is preserved when the eligible
@@ -2915,24 +2914,24 @@ TEST(Healing3dCapabilityTest, AggressiveHealingMixedSupportMismatchWithTrimBackf
             BrepShell({eligibleFace}, false),
             BrepShell({ineligibleFaceA, ineligibleFaceB}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
-    assert(healed.body.FaceCount() == 6);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
+    ASSERT_EQ(healed.body.FaceCount(), 6);
     const auto eligibleHealedFace = healed.body.ShellAt(1).FaceAt(0);
-    assert(eligibleHealedFace.OuterTrim().IsValid());
+    ASSERT_TRUE(eligibleHealedFace.OuterTrim().IsValid());
 }
 
 // Demonstrates deterministic behavior when eligible holed shell has
@@ -3026,24 +3025,24 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSupportMismatchHoledEligibleWithI
             BrepShell({eligibleFace}, false),
             BrepShell({ineligibleFaceA, ineligibleFaceB}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 2);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
     // closed:2, eligible holed:1->2, ineligible multiface:2 unchanged.
-    assert(healed.body.FaceCount() == 6);
+    ASSERT_EQ(healed.body.FaceCount(), 6);
     const auto eligibleHealedFace = healed.body.ShellAt(1).FaceAt(0);
-    assert(eligibleHealedFace.OuterTrim().IsValid());
-    assert(eligibleHealedFace.HoleTrims().size() == 1);
-    assert(eligibleHealedFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(eligibleHealedFace.OuterTrim().IsValid());
+    ASSERT_EQ(eligibleHealedFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(eligibleHealedFace.HoleTrims()[0].IsValid());
 }
 
 // Demonstrates deterministic behavior when support-mismatch eligible
@@ -3150,30 +3149,30 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSupportMismatchEligibleMultiFaceM
             BrepShell({eligibleFaceA, eligibleFaceB}, false),
             BrepShell({ineligibleFaceA, ineligibleFaceB}, false),
         });
-    assert(body.IsValid());
+    ASSERT_TRUE(body.IsValid());
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 3);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(!healed.body.ShellAt(2).IsClosed());
-    assert(healed.body.ShellAt(0).FaceCount() == 2);
-    assert(healed.body.ShellAt(1).FaceCount() == 4);
-    assert(healed.body.ShellAt(2).FaceCount() == 2);
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 3);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_EQ(healed.body.ShellAt(0).FaceCount(), 2);
+    ASSERT_EQ(healed.body.ShellAt(1).FaceCount(), 4);
+    ASSERT_EQ(healed.body.ShellAt(2).FaceCount(), 2);
     // closed:2, eligible multi-face:2->4, ineligible multiface:2 unchanged.
-    assert(healed.body.FaceCount() == 8);
+    ASSERT_EQ(healed.body.FaceCount(), 8);
     const auto eligibleHoledFace = healed.body.ShellAt(1).FaceAt(0);
     const auto eligiblePlainFace = healed.body.ShellAt(1).FaceAt(1);
-    assert(eligibleHoledFace.OuterTrim().IsValid());
-    assert(eligibleHoledFace.HoleTrims().size() == 1);
-    assert(eligibleHoledFace.HoleTrims()[0].IsValid());
-    assert(eligiblePlainFace.OuterTrim().IsValid());
+    ASSERT_TRUE(eligibleHoledFace.OuterTrim().IsValid());
+    ASSERT_EQ(eligibleHoledFace.HoleTrims().size(), 1);
+    ASSERT_TRUE(eligibleHoledFace.HoleTrims()[0].IsValid());
+    ASSERT_TRUE(eligiblePlainFace.OuterTrim().IsValid());
 }
 
 // Demonstrates conservative trim backfill for a BrepFace whose support plane
-// has a non-horizontal (vertically-oriented) normal â€” the y=0 plane with
+// has a non-horizontal (vertically-oriented) normal â€?the y=0 plane with
 // normal (0,1,0). This narrows the NonPlanarTrimmedFaceTopologyRepairRemainsOpen
 // gap to the subset: single axis-non-horizontal planar face with missing trim.
 TEST(Healing3dCapabilityTest, NonHorizontalPlaneBrepFaceWithoutTrimIsHealedWithBackfilledTrim)
@@ -3217,17 +3216,17 @@ TEST(Healing3dCapabilityTest, NonHorizontalPlaneBrepFaceWithoutTrimIsHealedWithB
     const BrepFace face(std::shared_ptr<Surface>(verticalSurface.Clone().release()), outerLoop);
     const BrepBody body(vertices, edges, {BrepShell({face}, false)});
 
-    assert(body.IsValid());
-    assert(!face.OuterTrim().IsValid());
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_FALSE(face.OuterTrim().IsValid());
 
     const BrepHealing3d healed = Heal(body);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.FaceCount() == 1);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.FaceCount(), 1);
     const auto healedFace = healed.body.ShellAt(0).FaceAt(0);
-    assert(healedFace.OuterTrim().IsValid());
-    assert(healedFace.OuterTrim().PointCount() == 4);
+    ASSERT_TRUE(healedFace.OuterTrim().IsValid());
+    ASSERT_EQ(healedFace.OuterTrim().PointCount(), 4);
 }
 
 // Demonstrates conservative trim backfill also holds for a face whose support
@@ -3275,17 +3274,17 @@ TEST(Healing3dCapabilityTest, XNormalPlaneBrepFaceWithoutTrimIsHealedWithBackfil
     const BrepFace face(std::shared_ptr<Surface>(xNormalSurface.Clone().release()), outerLoop);
     const BrepBody body(vertices, edges, {BrepShell({face}, false)});
 
-    assert(body.IsValid());
-    assert(!face.OuterTrim().IsValid());
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_FALSE(face.OuterTrim().IsValid());
 
     const BrepHealing3d healed = Heal(body);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.FaceCount() == 1);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.FaceCount(), 1);
     const auto healedFaceX = healed.body.ShellAt(0).FaceAt(0);
-    assert(healedFaceX.OuterTrim().IsValid());
-    assert(healedFaceX.OuterTrim().PointCount() == 4);
+    ASSERT_TRUE(healedFaceX.OuterTrim().IsValid());
+    ASSERT_EQ(healedFaceX.OuterTrim().PointCount(), 4);
 }
 
 // Demonstrates conservative trim backfill also works on an oblique planar
@@ -3330,21 +3329,21 @@ TEST(Healing3dCapabilityTest, ObliquePlaneBrepFaceWithoutTrimIsHealedWithBackfil
     const BrepFace face(std::shared_ptr<Surface>(obliqueSurface.Clone().release()), outerLoop);
     const BrepBody body(vertices, edges, {BrepShell({face}, false)});
 
-    assert(body.IsValid());
-    assert(!face.OuterTrim().IsValid());
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_FALSE(face.OuterTrim().IsValid());
 
     const BrepHealing3d healed = Heal(body);
-    assert(healed.success);
-    assert(healed.issue == HealingIssue3d::None);
-    assert(healed.body.IsValid());
-    assert(healed.body.FaceCount() == 1);
+    ASSERT_TRUE(healed.success);
+    ASSERT_EQ(healed.issue, HealingIssue3d::None);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.FaceCount(), 1);
     const auto healedFace = healed.body.ShellAt(0).FaceAt(0);
-    assert(healedFace.OuterTrim().IsValid());
-    assert(healedFace.OuterTrim().PointCount() == 4);
+    ASSERT_TRUE(healedFace.OuterTrim().IsValid());
+    ASSERT_EQ(healedFace.OuterTrim().PointCount(), 4);
 }
 
-// Demonstrates aggressive healing handles a four-shell body â€” one closed plus
-// two independent eligible single-face open shells plus one ineligible â€” and
+// Demonstrates aggressive healing handles a four-shell body â€?one closed plus
+// two independent eligible single-face open shells plus one ineligible â€?and
 // closes exactly the two eligible shells, leaving the closed and ineligible
 // shells unchanged. Narrows the AggressiveShellRepairPolicyRemainsOpen gap to
 // the four-shell two-eligible-plus-one-ineligible subset.
@@ -3366,7 +3365,7 @@ TEST(Healing3dCapabilityTest, AggressiveFourShellTwoEligibleOneIneligibleDetermi
         BrepVertex(Point3d{7.0, 0.0, 0.0}),
         BrepVertex(Point3d{7.0, 1.0, 0.0}),
         BrepVertex(Point3d{6.0, 1.0, 0.0}),
-        // Shell 3: ineligible â€” vertex 14 has z-offset (not on z=0 support plane)
+        // Shell 3: ineligible â€?vertex 14 has z-offset (not on z=0 support plane)
         BrepVertex(Point3d{9.0, 0.0, 0.0}),
         BrepVertex(Point3d{10.0, 0.0, 0.0}),
         BrepVertex(Point3d{10.0, 1.0, 0.15}),
@@ -3419,22 +3418,22 @@ TEST(Healing3dCapabilityTest, AggressiveFourShellTwoEligibleOneIneligibleDetermi
             BrepShell({eligibleFace2}, false),
             BrepShell({ineligibleFace}, false),
         });
-    assert(body.IsValid());
-    assert(body.ShellCount() == 4);
-    assert(body.ShellAt(0).IsClosed());
-    assert(!body.ShellAt(1).IsClosed());
-    assert(!body.ShellAt(2).IsClosed());
-    assert(!body.ShellAt(3).IsClosed());
-    assert(body.FaceCount() == 5);
+    ASSERT_TRUE(body.IsValid());
+    ASSERT_EQ(body.ShellCount(), 4);
+    ASSERT_TRUE(body.ShellAt(0).IsClosed());
+    ASSERT_FALSE(body.ShellAt(1).IsClosed());
+    ASSERT_FALSE(body.ShellAt(2).IsClosed());
+    ASSERT_FALSE(body.ShellAt(3).IsClosed());
+    ASSERT_EQ(body.FaceCount(), 5);
 
     const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
-    assert(healed.success);
-    assert(healed.body.IsValid());
-    assert(healed.body.ShellCount() == 4);
-    assert(healed.body.ShellAt(0).IsClosed());
-    assert(healed.body.ShellAt(1).IsClosed());
-    assert(healed.body.ShellAt(2).IsClosed());
-    assert(!healed.body.ShellAt(3).IsClosed());
+    ASSERT_TRUE(healed.success);
+    ASSERT_TRUE(healed.body.IsValid());
+    ASSERT_EQ(healed.body.ShellCount(), 4);
+    ASSERT_TRUE(healed.body.ShellAt(0).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(1).IsClosed());
+    ASSERT_TRUE(healed.body.ShellAt(2).IsClosed());
+    ASSERT_FALSE(healed.body.ShellAt(3).IsClosed());
     // closed:2, eligible1:1->2, eligible2:1->2, ineligible:1 unchanged.
-    assert(healed.body.FaceCount() == 7);
+    ASSERT_EQ(healed.body.FaceCount(), 7);
 }

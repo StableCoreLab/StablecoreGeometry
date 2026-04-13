@@ -1,12 +1,10 @@
 #include <gtest/gtest.h>
-#include <cassert>
 #include <cmath>
 #include <concepts>
 #include <type_traits>
 
 #include "types/ArcSegment2.h"
 #include "types/LineSegment2.h"
-#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::ArcDirection;
@@ -33,28 +31,28 @@ TEST(SegmentTest, CoversCurrentCapabilities)
     const Point2d end(4.0, 6.0);
     const LineSegment2d line(start, end);
 
-    assert(line.Kind() == SegmentKind2::Line);
-    assert(line.IsValid());
+    ASSERT_EQ(line.Kind(), SegmentKind2::Line);
+    ASSERT_TRUE(line.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.StartPoint(), start, 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.EndPoint(), end, 1e-12);
-    assert(std::abs(line.Length() - 5.0) < 1e-12);
+    ASSERT_LT(std::abs(line.Length() - 5.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAt(0.5), Point2d(2.5, 4.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAtLength(2.5), Point2d(2.5, 4.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAtLength(-2.5, false), Point2d(-0.5, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAtLength(-2.5, true), start, 1e-12);
 
     const Segment2d& lineAsBase = line;
-    assert(lineAsBase.Kind() == SegmentKind2::Line);
-    assert(std::abs(lineAsBase.Length() - 5.0) < 1e-12);
+    ASSERT_EQ(lineAsBase.Kind(), SegmentKind2::Line);
+    ASSERT_LT(std::abs(lineAsBase.Length() - 5.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(lineAsBase.PointAt(0.5), Point2d(2.5, 4.0), 1e-12);
 
     const Box2d lineBox = line.Bounds();
-    assert(lineBox.IsValid());
+    ASSERT_TRUE(lineBox.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(lineBox.MinPoint(), Point2d(1.0, 2.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(lineBox.MaxPoint(), Point2d(4.0, 6.0), 1e-12);
 
     const LineSegment2d degenerateLine(start, start);
-    assert(!degenerateLine.IsValid());
+    ASSERT_FALSE(degenerateLine.IsValid());
 
     const ArcSegment2d quarterArc(
         Point2d(0.0, 0.0),
@@ -63,9 +61,9 @@ TEST(SegmentTest, CoversCurrentCapabilities)
         kPi / 2.0,
         ArcDirection::CounterClockwise);
 
-    assert(quarterArc.Kind() == SegmentKind2::Arc);
-    assert(quarterArc.IsValid());
-    assert(std::abs(quarterArc.Length() - (kPi / 2.0)) < 1e-12);
+    ASSERT_EQ(quarterArc.Kind(), SegmentKind2::Arc);
+    ASSERT_TRUE(quarterArc.IsValid());
+    ASSERT_LT(std::abs(quarterArc.Length() - (kPi / 2.0)), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(quarterArc.StartPoint(), Point2d(1.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(quarterArc.EndPoint(), Point2d(0.0, 1.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(
@@ -78,12 +76,12 @@ TEST(SegmentTest, CoversCurrentCapabilities)
         1e-12);
 
     const Box2d arcBox = quarterArc.Bounds();
-    assert(arcBox.IsValid());
+    ASSERT_TRUE(arcBox.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcBox.MinPoint(), Point2d(0.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcBox.MaxPoint(), Point2d(1.0, 1.0), 1e-12);
 
     const Segment2d& arcAsBase = quarterArc;
-    assert(arcAsBase.Kind() == SegmentKind2::Arc);
+    ASSERT_EQ(arcAsBase.Kind(), SegmentKind2::Arc);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcAsBase.PointAt(0.0), Point2d(1.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcAsBase.PointAt(1.0), Point2d(0.0, 1.0), 1e-12);
 
@@ -94,8 +92,8 @@ TEST(SegmentTest, CoversCurrentCapabilities)
         0.0,
         ArcDirection::Clockwise);
 
-    assert(clockwiseArc.IsValid());
-    assert(std::abs(clockwiseArc.Length() - (kPi / 2.0)) < 1e-12);
+    ASSERT_TRUE(clockwiseArc.IsValid());
+    ASSERT_LT(std::abs(clockwiseArc.Length() - (kPi / 2.0)), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(clockwiseArc.StartPoint(), Point2d(0.0, 1.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(clockwiseArc.EndPoint(), Point2d(1.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(
@@ -110,7 +108,7 @@ TEST(SegmentTest, CoversCurrentCapabilities)
         0.0,
         ArcDirection::CounterClockwise);
 
-    assert(!invalidArc.IsValid());
+    ASSERT_FALSE(invalidArc.IsValid());
 }
 
 

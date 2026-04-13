@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
-#include <cassert>
 #include <cmath>
 
 #include "types/Box2.h"
-#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::Box2d;
@@ -14,51 +12,51 @@ using geometry::Point2i;
 TEST(BoxTest, CoversCurrentCapabilities)
 {
     Box2i emptyBox;
-    assert(!emptyBox.IsValid());
+    ASSERT_FALSE(emptyBox.IsValid());
 
     const Box2i invalidBox(Point2i(3, 4), Point2i(1, 2));
-    assert(!invalidBox.IsValid());
+    ASSERT_FALSE(invalidBox.IsValid());
 
     const Box2i pointBox(Point2i(2, 3), Point2i(2, 3));
-    assert(pointBox.IsValid());
-    assert(Box2i::FromMinMax(Point2i(2, 3), Point2i(2, 3)) == pointBox);
-    assert(pointBox.Width() == 0.0);
-    assert(pointBox.Height() == 0.0);
-    assert(pointBox.Area() == 0.0);
+    ASSERT_TRUE(pointBox.IsValid());
+    ASSERT_EQ(Box2i::FromMinMax(Point2i(2, 3), Point2i(2, 3)), pointBox);
+    ASSERT_EQ(pointBox.Width(), 0.0);
+    ASSERT_EQ(pointBox.Height(), 0.0);
+    ASSERT_EQ(pointBox.Area(), 0.0);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(pointBox.Center(), geometry::Point2<double>(2.0, 3.0), 1e-12);
 
     const Box2i boxA(Point2i(1, 2), Point2i(4, 6));
-    assert(boxA.IsValid());
-    assert(boxA.Width() == 3.0);
-    assert(boxA.Height() == 4.0);
-    assert(boxA.Area() == 12.0);
+    ASSERT_TRUE(boxA.IsValid());
+    ASSERT_EQ(boxA.Width(), 3.0);
+    ASSERT_EQ(boxA.Height(), 4.0);
+    ASSERT_EQ(boxA.Area(), 12.0);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(boxA.Center(), geometry::Point2<double>(2.5, 4.0), 1e-12);
 
     Box2i expanded;
     expanded.ExpandToInclude(Point2i(5, 7));
-    assert(expanded.IsValid());
-    assert(expanded.MinPoint() == Point2i(5, 7));
-    assert(expanded.MaxPoint() == Point2i(5, 7));
+    ASSERT_TRUE(expanded.IsValid());
+    ASSERT_EQ(expanded.MinPoint(), Point2i(5, 7));
+    ASSERT_EQ(expanded.MaxPoint(), Point2i(5, 7));
 
     expanded.ExpandToInclude(Point2i(2, 9));
-    assert(expanded.MinPoint() == Point2i(2, 7));
-    assert(expanded.MaxPoint() == Point2i(5, 9));
+    ASSERT_EQ(expanded.MinPoint(), Point2i(2, 7));
+    ASSERT_EQ(expanded.MaxPoint(), Point2i(5, 9));
 
     expanded.ExpandToInclude(Box2i(Point2i(0, 1), Point2i(3, 8)));
-    assert(expanded.MinPoint() == Point2i(0, 1));
-    assert(expanded.MaxPoint() == Point2i(5, 9));
+    ASSERT_EQ(expanded.MinPoint(), Point2i(0, 1));
+    ASSERT_EQ(expanded.MaxPoint(), Point2i(5, 9));
 
     const Box2i beforeIgnored = expanded;
     expanded.ExpandToInclude(Box2i(Point2i(10, 10), Point2i(4, 12)));
-    assert(expanded == beforeIgnored);
+    ASSERT_EQ(expanded, beforeIgnored);
 
     Box2d floatingBox;
     floatingBox.ExpandToInclude(Point2d(1.5, 2.5));
     floatingBox.ExpandToInclude(Point2d(-0.5, 3.0));
-    assert(floatingBox.IsValid());
-    assert(std::abs(floatingBox.Width() - 2.0) < 1e-12);
-    assert(std::abs(floatingBox.Height() - 0.5) < 1e-12);
-    assert(std::abs(floatingBox.Area() - 1.0) < 1e-12);
+    ASSERT_TRUE(floatingBox.IsValid());
+    ASSERT_LT(std::abs(floatingBox.Width() - 2.0), 1e-12);
+    ASSERT_LT(std::abs(floatingBox.Height() - 0.5), 1e-12);
+    ASSERT_LT(std::abs(floatingBox.Area() - 1.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(floatingBox.Center(), Point2d(0.5, 2.75), 1e-12);
     GEOMETRY_TEST_ASSERT_BOX_NEAR(
         floatingBox,
@@ -68,11 +66,10 @@ TEST(BoxTest, CoversCurrentCapabilities)
     const Box2i sameA(Point2i(1, 2), Point2i(3, 4));
     const Box2i sameB(Point2i(1, 2), Point2i(3, 4));
     const Box2i different(Point2i(1, 2), Point2i(3, 5));
-    assert(sameA == sameB);
-    assert(!(sameA != sameB));
-    assert(sameA != different);
+    ASSERT_EQ(sameA, sameB);
+    ASSERT_NE(sameA, sameB);
+    ASSERT_NE(sameA, different);
     GEOMETRY_TEST_ASSERT_BOX_NEAR(sameA, sameB, 0.0);
 }
-
 
 

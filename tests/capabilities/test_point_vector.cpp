@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <cassert>
 #include <concepts>
 #include <cmath>
 
@@ -7,7 +6,6 @@
 #include "types/ArcSegment2.h"
 #include "types/Box2.h"
 #include "types/LineSegment2.h"
-#include "support/GTestCompat.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::ArcDirection;
@@ -73,7 +71,7 @@ TEST(PointVectorTest, CoversCurrentCapabilities)
     static_assert(vectorA / 2 == Vector2i(1, 2));
     static_assert(vectorA.LengthSquared() == 25.0);
     static_assert(vectorA.IsValid());
-    assert(std::abs(vectorA.Length() - 5.0) < 1e-12);
+    ASSERT_LT(std::abs(vectorA.Length() - 5.0), 1e-12);
 
     static_assert(Dot(vectorA, vectorB) == 5);
     static_assert(Cross(vectorA, vectorB) == 10);
@@ -93,48 +91,48 @@ TEST(PointVectorTest, CoversCurrentCapabilities)
 
     Vector2d normalized;
     const bool normalizedOk = TryNormalize(Vector2d(3.0, 4.0), normalized);
-    assert(normalizedOk);
-    assert(std::abs(normalized.x - 0.6) < 1e-12);
-    assert(std::abs(normalized.y - 0.8) < 1e-12);
-    assert(std::abs(normalized.Length() - 1.0) < 1e-12);
+    ASSERT_TRUE(normalizedOk);
+    ASSERT_LT(std::abs(normalized.x - 0.6), 1e-12);
+    ASSERT_LT(std::abs(normalized.y - 0.8), 1e-12);
+    ASSERT_LT(std::abs(normalized.Length() - 1.0), 1e-12);
 
     Vector2d zeroNormalized(7.0, 9.0);
     const bool zeroOk = TryNormalize(Vector2d(1e-12, 0.0), zeroNormalized);
-    assert(!zeroOk);
-    assert(zeroNormalized == Vector2d(7.0, 9.0));
+    ASSERT_FALSE(zeroOk);
+    ASSERT_EQ(zeroNormalized, Vector2d(7.0, 9.0));
 
     Box2i emptyBox;
-    assert(!emptyBox.IsValid());
+    ASSERT_FALSE(emptyBox.IsValid());
 
     emptyBox.ExpandToInclude(Point2i(2, 3));
-    assert(emptyBox.IsValid());
-    assert(emptyBox.MinPoint() == Point2i(2, 3));
-    assert(emptyBox.MaxPoint() == Point2i(2, 3));
-    assert(emptyBox.Width() == 0.0);
-    assert(emptyBox.Height() == 0.0);
+    ASSERT_TRUE(emptyBox.IsValid());
+    ASSERT_EQ(emptyBox.MinPoint(), Point2i(2, 3));
+    ASSERT_EQ(emptyBox.MaxPoint(), Point2i(2, 3));
+    ASSERT_EQ(emptyBox.Width(), 0.0);
+    ASSERT_EQ(emptyBox.Height(), 0.0);
 
     const Box2d boxA(Point2d(1.0, 2.0), Point2d(4.0, 6.0));
-    assert(boxA.IsValid());
-    assert(std::abs(boxA.Width() - 3.0) < 1e-12);
-    assert(std::abs(boxA.Height() - 4.0) < 1e-12);
-    assert(std::abs(boxA.Area() - 12.0) < 1e-12);
+    ASSERT_TRUE(boxA.IsValid());
+    ASSERT_LT(std::abs(boxA.Width() - 3.0), 1e-12);
+    ASSERT_LT(std::abs(boxA.Height() - 4.0), 1e-12);
+    ASSERT_LT(std::abs(boxA.Area() - 12.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(boxA.Center(), Point2d(2.5, 4.0), 1e-12);
 
     const LineSegment2d line(Point2d(1.0, 2.0), Point2d(4.0, 6.0));
-    assert(line.Kind() == SegmentKind2::Line);
-    assert(line.IsValid());
-    assert(std::abs(line.Length() - 5.0) < 1e-12);
+    ASSERT_EQ(line.Kind(), SegmentKind2::Line);
+    ASSERT_TRUE(line.IsValid());
+    ASSERT_LT(std::abs(line.Length() - 5.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAt(0.5), Point2d(2.5, 4.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAtLength(2.5), Point2d(2.5, 4.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(line.PointAtLength(-2.5, true), Point2d(1.0, 2.0), 1e-12);
 
     const Box2d lineBox = line.Bounds();
-    assert(lineBox.IsValid());
+    ASSERT_TRUE(lineBox.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(lineBox.MinPoint(), Point2d(1.0, 2.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(lineBox.MaxPoint(), Point2d(4.0, 6.0), 1e-12);
 
     const Segment2d& lineAsSegment = line;
-    assert(lineAsSegment.Kind() == SegmentKind2::Line);
+    ASSERT_EQ(lineAsSegment.Kind(), SegmentKind2::Line);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(lineAsSegment.PointAt(0.5), Point2d(2.5, 4.0), 1e-12);
 
     const ArcSegment2d arc(
@@ -143,9 +141,9 @@ TEST(PointVectorTest, CoversCurrentCapabilities)
         0.0,
         kPi / 2.0,
         ArcDirection::CounterClockwise);
-    assert(arc.Kind() == SegmentKind2::Arc);
-    assert(arc.IsValid());
-    assert(std::abs(arc.Length() - (kPi / 2.0)) < 1e-12);
+    ASSERT_EQ(arc.Kind(), SegmentKind2::Arc);
+    ASSERT_TRUE(arc.IsValid());
+    ASSERT_LT(std::abs(arc.Length() - (kPi / 2.0)), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arc.StartPoint(), Point2d(1.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arc.EndPoint(), Point2d(0.0, 1.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(
@@ -154,7 +152,7 @@ TEST(PointVectorTest, CoversCurrentCapabilities)
         1e-12);
 
     const Box2d arcBox = arc.Bounds();
-    assert(arcBox.IsValid());
+    ASSERT_TRUE(arcBox.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcBox.MinPoint(), Point2d(0.0, 0.0), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcBox.MaxPoint(), Point2d(1.0, 1.0), 1e-12);
 }
