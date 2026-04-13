@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.16)
 
 project(SCGeometry LANGUAGES CXX)
 
@@ -11,7 +11,7 @@ include(CTest)
 include(FetchContent)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-include(${CMAKE_CURRENT_LIST_DIR}/../cmake/SCUtf8.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/SCUtf8.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/SCTestHelpers.cmake)
 
 option(SCGEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
