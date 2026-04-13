@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "algorithm/Predicate2.h"
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryMetrics.h"
 #include "sdk/GeometryPathOps.h"
 #include "sdk/GeometryRelation.h"
@@ -477,7 +478,7 @@ struct CandidateMetrics2d
     }
 
     std::sort(intervals.begin(), intervals.end(), [](const std::pair<double, double>& left, const std::pair<double, double>& right) {
-        if (std::abs(left.first - right.first) > 1e-12)
+        if (std::abs(left.first - right.first) > geometry::kSearchPolyComparisonEpsilon)
         {
             return left.first < right.first;
         }
@@ -744,11 +745,11 @@ void AccumulateRingMetrics(
 void RankCandidates(std::vector<SearchPolyCandidate2d>& candidates)
 {
     std::stable_sort(candidates.begin(), candidates.end(), [](const SearchPolyCandidate2d& left, const SearchPolyCandidate2d& right) {
-        if (std::abs(left.branchScore - right.branchScore) > 1e-12)
+        if (std::abs(left.branchScore - right.branchScore) > geometry::kSearchPolyComparisonEpsilon)
         {
             return left.branchScore > right.branchScore;
         }
-        if (std::abs(left.absoluteArea - right.absoluteArea) > 1e-12)
+        if (std::abs(left.absoluteArea - right.absoluteArea) > geometry::kSearchPolyComparisonEpsilon)
         {
             return left.absoluteArea > right.absoluteArea;
         }
@@ -799,7 +800,7 @@ void PopulateResultExplanation(
     for (std::size_t index = 1; index < result.candidates.size(); ++index)
     {
         const SearchPolyCandidate2d& candidate = result.candidates[index];
-        if (std::abs(candidate.branchScore - bestCandidate.branchScore) <= 1e-12)
+        if (std::abs(candidate.branchScore - bestCandidate.branchScore) <= geometry::kSearchPolyComparisonEpsilon)
         {
             ++result.ambiguousTopCandidateCount;
             ambiguousTopPenaltyKinds.push_back(candidate.dominantPenaltyKind);

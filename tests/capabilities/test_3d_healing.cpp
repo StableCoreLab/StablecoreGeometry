@@ -3172,7 +3172,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSupportMismatchEligibleMultiFaceM
 }
 
 // Demonstrates conservative trim backfill for a BrepFace whose support plane
-// has a non-horizontal (vertically-oriented) normal â€?the y=0 plane with
+// has a non-horizontal (vertically-oriented) normal éˆ¥?the y=0 plane with
 // normal (0,1,0). This narrows the NonPlanarTrimmedFaceTopologyRepairRemainsOpen
 // gap to the subset: single axis-non-horizontal planar face with missing trim.
 TEST(Healing3dCapabilityTest, NonHorizontalPlaneBrepFaceWithoutTrimIsHealedWithBackfilledTrim)
@@ -3342,8 +3342,8 @@ TEST(Healing3dCapabilityTest, ObliquePlaneBrepFaceWithoutTrimIsHealedWithBackfil
     ASSERT_EQ(healedFace.OuterTrim().PointCount(), 4);
 }
 
-// Demonstrates aggressive healing handles a four-shell body â€?one closed plus
-// two independent eligible single-face open shells plus one ineligible â€?and
+// Demonstrates aggressive healing handles a four-shell body éˆ¥?one closed plus
+// two independent eligible single-face open shells plus one ineligible éˆ¥?and
 // closes exactly the two eligible shells, leaving the closed and ineligible
 // shells unchanged. Narrows the AggressiveShellRepairPolicyRemainsOpen gap to
 // the four-shell two-eligible-plus-one-ineligible subset.
@@ -3365,7 +3365,7 @@ TEST(Healing3dCapabilityTest, AggressiveFourShellTwoEligibleOneIneligibleDetermi
         BrepVertex(Point3d{7.0, 0.0, 0.0}),
         BrepVertex(Point3d{7.0, 1.0, 0.0}),
         BrepVertex(Point3d{6.0, 1.0, 0.0}),
-        // Shell 3: ineligible â€?vertex 14 has z-offset (not on z=0 support plane)
+        // Shell 3: ineligible éˆ¥?vertex 14 has z-offset (not on z=0 support plane)
         BrepVertex(Point3d{9.0, 0.0, 0.0}),
         BrepVertex(Point3d{10.0, 0.0, 0.0}),
         BrepVertex(Point3d{10.0, 1.0, 0.15}),

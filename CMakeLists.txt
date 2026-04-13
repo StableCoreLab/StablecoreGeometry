@@ -74,6 +74,7 @@ endfunction()
 # SCGeometry 库
 # -------------------
 add_library(${SCGEOMETRY_TARGET} SHARED
+    src/common/GeometryEpsilon.cpp
     src/serialize/GeometryText.cpp
     src/sdk/ArcSegment2d.cpp
     src/sdk/Circle2d.cpp

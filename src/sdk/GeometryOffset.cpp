@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "common/Epsilon.h"
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryBoolean.h"
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometryMetrics.h"
@@ -23,7 +24,7 @@ namespace
 [[nodiscard]] Vector2d LeftNormal(const Vector2d& direction)
 {
     const double length = direction.Length();
-    if (length <= geometry::kDefaultEpsilon)
+    if (length <= geometry::kOffsetDefaultEpsilon)
     {
         return Vector2d{};
     }
@@ -33,7 +34,7 @@ namespace
 
 [[nodiscard]] bool IsZeroVector(const Vector2d& vector)
 {
-    return vector.LengthSquared() <= geometry::kDefaultEpsilon * geometry::kDefaultEpsilon;
+    return vector.LengthSquared() <= geometry::kOffsetDefaultEpsilon * geometry::kOffsetDefaultEpsilon;
 }
 
 [[nodiscard]] Point2d IntersectLines(
@@ -44,7 +45,7 @@ namespace
     bool& success)
 {
     const double denom = firstDirection.x * secondDirection.y - firstDirection.y * secondDirection.x;
-    if (std::abs(denom) <= geometry::kDefaultEpsilon)
+    if (std::abs(denom) <= geometry::kOffsetDefaultEpsilon)
     {
         success = false;
         return Point2d{};
@@ -164,7 +165,7 @@ namespace
 
 void AppendOffsetRing(const Polyline2d& ring, MultiPolyline2d& output)
 {
-    const Polyline2d normalized = Normalize(ring, geometry::kDefaultEpsilon);
+    const Polyline2d normalized = Normalize(ring, geometry::kOffsetDefaultEpsilon);
     if (!normalized.IsValid())
     {
         return;
@@ -172,7 +173,7 @@ void AppendOffsetRing(const Polyline2d& ring, MultiPolyline2d& output)
     if (normalized.IsClosed())
     {
         if (normalized.PointCount() < 3 ||
-            std::abs(Polygon2d(normalized).Area()) <= 256.0 * geometry::kDefaultEpsilon * geometry::kDefaultEpsilon)
+            std::abs(Polygon2d(normalized).Area()) <= 256.0 * geometry::kOffsetDefaultEpsilon * geometry::kOffsetDefaultEpsilon)
         {
             return;
         }
@@ -267,7 +268,7 @@ void AppendRecoveredOffsetRing(
         return rebuilt;
     }
 
-    return BuildMultiPolygonByLines(rings, std::max(eps, 1e-8));
+    return BuildMultiPolygonByLines(rings, std::max(eps, geometry::kOffsetRebuildFallbackEpsilon));
 }
 
 [[nodiscard]] Point2d PrimaryReferencePoint(const Polygon2d& polygon, double eps)
@@ -632,7 +633,7 @@ ArcSegment2d Offset(const ArcSegment2d& segment, double distance)
     const double adjustedRadius =
         segment.Direction() == ArcDirection::CounterClockwise ? segment.radius - distance
                                                               : segment.radius + distance;
-    if (!(adjustedRadius > geometry::kDefaultEpsilon))
+    if (!(adjustedRadius > geometry::kOffsetDefaultEpsilon))
     {
         return ArcSegment2d{};
     }
@@ -660,7 +661,7 @@ Polyline2d Offset(const Polyline2d& polyline, double distance, OffsetOptions2d o
 
 Polygon2d Offset(const Polygon2d& polygon, double distance, OffsetOptions2d options)
 {
-    Polygon2d source = NormalizePolygonByLines(polygon, geometry::kDefaultEpsilon);
+    Polygon2d source = NormalizePolygonByLines(polygon, geometry::kOffsetDefaultEpsilon);
     if (!source.IsValid())
     {
         source = polygon;
@@ -684,7 +685,7 @@ Polygon2d Offset(const Polygon2d& polygon, double distance, OffsetOptions2d opti
         AppendRecoveredOffsetRing(hole, RingDistance(hole, distance, true), options, offsetRings);
     }
 
-    const MultiPolygon2d rebuilt = BuildOffsetPolygons(offsetRings, geometry::kDefaultEpsilon);
+    const MultiPolygon2d rebuilt = BuildOffsetPolygons(offsetRings, geometry::kOffsetDefaultEpsilon);
     if (rebuilt.IsEmpty())
     {
         const Polyline2d offsetOuter = Offset(outerRing, RingDistance(outerRing, distance, false), options);
@@ -714,8 +715,8 @@ Polygon2d Offset(const Polygon2d& polygon, double distance, OffsetOptions2d opti
         return {};
     }
 
-    const Polygon2d selected = SelectBestOffsetPolygon(source, rebuilt, distance, geometry::kDefaultEpsilon);
-    return RecoverOffsetSemanticFlip(source, selected, distance, geometry::kDefaultEpsilon);
+    const Polygon2d selected = SelectBestOffsetPolygon(source, rebuilt, distance, geometry::kOffsetDefaultEpsilon);
+    return RecoverOffsetSemanticFlip(source, selected, distance, geometry::kOffsetDefaultEpsilon);
 }
 
 MultiPolygon2d OffsetToMultiPolygon(const Polygon2d& polygon, double distance, OffsetOptions2d options)
@@ -748,7 +749,7 @@ MultiPolygon2d Offset(const MultiPolygon2d& polygons, double distance, OffsetOpt
     MultiPolygon2d normalizedSources;
     for (std::size_t i = 0; i < polygons.Count(); ++i)
     {
-        Polygon2d source = NormalizePolygonByLines(polygons[i], geometry::kDefaultEpsilon);
+        Polygon2d source = NormalizePolygonByLines(polygons[i], geometry::kOffsetDefaultEpsilon);
         if (!source.IsValid())
         {
             source = polygons[i];
@@ -773,7 +774,7 @@ MultiPolygon2d Offset(const MultiPolygon2d& polygons, double distance, OffsetOpt
         }
     }
 
-    const MultiPolygon2d rebuilt = BuildOffsetPolygons(offsetRings, geometry::kDefaultEpsilon);
-    return RecoverMultiPolygonSemanticFlip(normalizedSources, rebuilt, distance, geometry::kDefaultEpsilon);
+    const MultiPolygon2d rebuilt = BuildOffsetPolygons(offsetRings, geometry::kOffsetDefaultEpsilon);
+    return RecoverMultiPolygonSemanticFlip(normalizedSources, rebuilt, distance, geometry::kOffsetDefaultEpsilon);
 }
 } // namespace geometry::sdk

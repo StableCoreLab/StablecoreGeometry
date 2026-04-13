@@ -10,6 +10,7 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryIntersection.h"
 #include "sdk/GeometryPathOps.h"
 #include "sdk/GeometryRelation.h"
@@ -116,7 +117,7 @@ struct AxisAlignedBox
         box.maxY = std::max(box.maxY, point.y);
     }
 
-    const double tol = std::max(1e-12, 0.05 * eps);
+    const double tol = std::max(geometry::kBooleanComparisonEpsilon, 0.05 * eps);
     for (std::size_t i = 0; i < outer.PointCount(); ++i)
     {
         const Point2d current = outer.PointAt(i);
@@ -247,7 +248,7 @@ struct AxisAlignedBox
         return fallback;
     }
 
-    const Polyline2d normalizedOuter = Normalize(subject.OuterRing(), std::max(eps, 1e-8));
+    const Polyline2d normalizedOuter = Normalize(subject.OuterRing(), std::max(eps, geometry::kBooleanRebuildFallbackEpsilon));
     if (!normalizedOuter.IsValid() || normalizedOuter.PointCount() < 3)
     {
         return fallback;
@@ -262,7 +263,7 @@ struct AxisAlignedBox
     }
 
     std::vector<Point2d> clipped = ClipPointsToAxisAlignedBox(subjectPoints, box, eps);
-    clipped = SimplifyRingVertices(std::move(clipped), std::max(eps, 1e-8));
+    clipped = SimplifyRingVertices(std::move(clipped), std::max(eps, geometry::kBooleanRebuildFallbackEpsilon));
     if (clipped.size() < 3)
     {
         return fallback;
@@ -279,7 +280,7 @@ struct AxisAlignedBox
     {
         MultiPolyline2d boundaries;
         boundaries.Add(clippedPolygon.OuterRing());
-        const MultiPolygon2d rebuilt = BuildMultiPolygonByLines(boundaries, std::max(eps, 1e-8));
+        const MultiPolygon2d rebuilt = BuildMultiPolygonByLines(boundaries, std::max(eps, geometry::kBooleanRebuildFallbackEpsilon));
         Polygon2d best;
         double bestArea = 0.0;
         for (std::size_t i = 0; i < rebuilt.Count(); ++i)
@@ -346,7 +347,7 @@ struct AxisAlignedBox
         return {};
     }
 
-    const double areaTol = std::max(1e-10, 64.0 * eps * eps);
+    const double areaTol = std::max(geometry::kBooleanAreaEpsilon, 64.0 * eps * eps);
     auto addStrip = [&](double minX, double minY, double maxX, double maxY) {
         if (maxX - minX <= eps || maxY - minY <= eps)
         {
@@ -469,7 +470,7 @@ void AppendPolygons(const MultiPolygon2d& source, MultiPolygon2d& destination)
         outerPoints.push_back(outer.PointAt(i));
     }
 
-    const double simplifyEps = std::max(1e-12, 8.0 * eps);
+    const double simplifyEps = std::max(geometry::kBooleanComparisonEpsilon, 8.0 * eps);
     std::vector<Point2d> simplifiedOuter = SimplifyRingVertices(std::move(outerPoints), simplifyEps);
     if (simplifiedOuter.size() >= 3)
     {
@@ -507,12 +508,12 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     const double length = segment.Length();
     if (length <= eps)
     {
-        return 1e-12;
+        return geometry::kBooleanComparisonEpsilon;
     }
 
     // Convert world-space tolerance into param-space tolerance so that
     // near-degenerate intersection clusters collapse consistently.
-    return std::min(1e-4, std::max(1e-12, 8.0 * eps / length));
+    return std::min(1e-4, std::max(geometry::kBooleanComparisonEpsilon, 8.0 * eps / length));
 }
 
 [[nodiscard]] std::vector<double> CompactSortedParameters(std::vector<double> parameters, double parameterTol)
@@ -687,7 +688,7 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     (void)segments;
     // Only remove clearly negligible fragments. Using a larger threshold can
     // break ring connectivity when near-duplicate vertices encode valid edges.
-    return std::max(1e-12, 0.25 * eps);
+    return std::max(geometry::kBooleanComparisonEpsilon, 0.25 * eps);
 }
 
 [[nodiscard]] double ComputeVertexMergeTolerance(const std::vector<RawSegment>& segments, double eps)
@@ -707,7 +708,7 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
         return eps;
     }
 
-    const double floorTol = std::max(1e-12, eps * 1e-3);
+    const double floorTol = std::max(geometry::kBooleanComparisonEpsilon, eps * 1e-3);
     return std::max(floorTol, std::min(eps, 0.25 * minLength));
 }
 
@@ -1921,7 +1922,7 @@ MultiPolygon2d Union(const Polygon2d& first, const Polygon2d& second, double eps
     }
     const double expectedArea = TotalArea(overlap) + TotalArea(firstOnly) + TotalArea(secondOnly);
     const double actualArea = TotalArea(result);
-    const double areaTol = std::max(1e-10, 64.0 * eps * eps);
+    const double areaTol = std::max(geometry::kBooleanAreaEpsilon, 64.0 * eps * eps);
 
     if (expectedArea > areaTol && actualArea + areaTol < expectedArea)
     {
@@ -1931,7 +1932,7 @@ MultiPolygon2d Union(const Polygon2d& first, const Polygon2d& second, double eps
         AppendMultiPolygonBoundaries(secondOnly, boundaries);
         if (!boundaries.IsEmpty())
         {
-            MultiPolygon2d rebuilt = BuildMultiPolygonByLines(boundaries, std::max(eps, 1e-8));
+            MultiPolygon2d rebuilt = BuildMultiPolygonByLines(boundaries, std::max(eps, geometry::kBooleanRebuildFallbackEpsilon));
             if (!rebuilt.IsEmpty() && TotalArea(rebuilt) + areaTol >= expectedArea)
             {
                 result = std::move(rebuilt);
@@ -1968,6 +1969,5 @@ MultiPolygon2d Difference(const Polygon2d& first, const Polygon2d& second, doubl
     return result;
 }
 } // namespace geometry::sdk
-
 
 

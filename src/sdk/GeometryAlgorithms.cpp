@@ -5,6 +5,7 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
+#include "common/GeometryEpsilon.h"
 
 namespace geometry::sdk
 {
@@ -63,8 +64,8 @@ SegmentProjection2d ProjectPointToSegment(
         parameter,
         DistanceSquared(point, projectedPoint),
         clampToSegment ||
-            (rawParameter >= -geometry::kDefaultEpsilon &&
-             rawParameter <= 1.0 + geometry::kDefaultEpsilon)};
+            (rawParameter >= -geometry::kAlgorithmsDefaultEpsilon &&
+             rawParameter <= 1.0 + geometry::kAlgorithmsDefaultEpsilon)};
 }
 
 bool Contains(const Box2d& box, const Point2d& point, double eps)
@@ -96,4 +97,3 @@ bool Intersects(const Box2d& lhs, const Box2d& rhs, double eps)
              right.MaxPoint().y < left.MinPoint().y - eps);
 }
 } // namespace geometry::sdk
-

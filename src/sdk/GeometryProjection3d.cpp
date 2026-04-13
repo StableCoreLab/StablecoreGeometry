@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryRelation.h"
 #include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
@@ -194,7 +195,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     {
         const std::size_t j = (i + 1) % pointCount;
         const LineProjection3d projected =
-            ProjectPointToSegment3d(point, trim.PointAt(i), trim.PointAt(j), geometry::kDefaultEpsilon);
+            ProjectPointToSegment3d(point, trim.PointAt(i), trim.PointAt(j), geometry::kProjectionDefaultEpsilon);
         if (!best.success || projected.distanceSquared < best.distanceSquared)
         {
             const Point2d uv0 = trim.UvPointAt(i);

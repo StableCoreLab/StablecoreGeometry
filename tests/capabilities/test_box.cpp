@@ -67,9 +67,7 @@ TEST(BoxTest, CoversCurrentCapabilities)
     const Box2i sameB(Point2i(1, 2), Point2i(3, 4));
     const Box2i different(Point2i(1, 2), Point2i(3, 5));
     ASSERT_EQ(sameA, sameB);
-    ASSERT_NE(sameA, sameB);
     ASSERT_NE(sameA, different);
     GEOMETRY_TEST_ASSERT_BOX_NEAR(sameA, sameB, 0.0);
 }
-
 

@@ -5,6 +5,7 @@
 #include <numbers>
 
 #include "common/Epsilon.h"
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryMetrics.h"
 
 namespace geometry::sdk
@@ -72,7 +73,7 @@ SegmentProjection2d ProjectPointToLineSegment(
         projectedPoint,
         parameter,
             DistanceSquared(point, projectedPoint),
-        rawParameter >= -geometry::kDefaultEpsilon && rawParameter <= 1.0 + geometry::kDefaultEpsilon};
+        rawParameter >= -geometry::kProjectionDefaultEpsilon && rawParameter <= 1.0 + geometry::kProjectionDefaultEpsilon};
 }
 
 SegmentProjection2d ProjectPointToArcSegment(
@@ -95,7 +96,7 @@ SegmentProjection2d ProjectPointToArcSegment(
         projectedPoint,
         parameter,
         DistanceSquared(point, projectedPoint),
-        rawParameter >= -geometry::kDefaultEpsilon && rawParameter <= 1.0 + geometry::kDefaultEpsilon};
+        rawParameter >= -geometry::kProjectionDefaultEpsilon && rawParameter <= 1.0 + geometry::kProjectionDefaultEpsilon};
 }
 
 SegmentProjection2d ProjectPointToSegment(
@@ -123,7 +124,7 @@ SegmentProjection2d ProjectPointToSegment(
 double ParameterAtLength(const LineSegment2d& segment, double length, bool clampToSegment)
 {
     const double totalLength = segment.Length();
-    if (totalLength <= geometry::kDefaultEpsilon)
+    if (totalLength <= geometry::kProjectionDefaultEpsilon)
     {
         return 0.0;
     }
@@ -138,7 +139,7 @@ double ParameterAtLength(const LineSegment2d& segment, double length, bool clamp
 double ParameterAtLength(const ArcSegment2d& segment, double length, bool clampToSegment)
 {
     const double totalLength = segment.Length();
-    if (totalLength <= geometry::kDefaultEpsilon)
+    if (totalLength <= geometry::kProjectionDefaultEpsilon)
     {
         return 0.0;
     }
@@ -154,7 +155,7 @@ Vector2d TangentAt(const LineSegment2d& segment, double)
 {
     const Vector2d direction = segment.endPoint - segment.startPoint;
     const double length = direction.Length();
-    if (length <= geometry::kDefaultEpsilon)
+    if (length <= geometry::kProjectionDefaultEpsilon)
     {
         return Vector2d{};
     }
@@ -166,7 +167,7 @@ Vector2d TangentAt(const ArcSegment2d& segment, double parameter)
     const Point2d point = segment.PointAt(parameter);
     Vector2d radial = point - segment.center;
     const double radialLength = radial.Length();
-    if (radialLength <= geometry::kDefaultEpsilon)
+    if (radialLength <= geometry::kProjectionDefaultEpsilon)
     {
         return Vector2d{};
     }

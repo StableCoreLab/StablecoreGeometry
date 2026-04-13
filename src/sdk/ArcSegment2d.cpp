@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "common/Epsilon.h"
+#include "common/GeometryEpsilon.h"
 
 namespace geometry::sdk
 {
@@ -42,8 +43,8 @@ bool ArcSegment2d::IsValid() const
            std::isfinite(startAngle) &&
            std::isfinite(sweepAngle) &&
            radius > 0.0 &&
-           std::abs(sweepAngle) > geometry::kDefaultEpsilon &&
-           std::abs(sweepAngle) <= 2.0 * std::numbers::pi_v<double> + geometry::kDefaultEpsilon;
+           std::abs(sweepAngle) > geometry::kArcSegmentDefaultEpsilon &&
+           std::abs(sweepAngle) <= 2.0 * std::numbers::pi_v<double> + geometry::kArcSegmentDefaultEpsilon;
 }
 
 ArcDirection ArcSegment2d::Direction() const
@@ -175,11 +176,11 @@ bool ArcSegment2d::IsAngleOnArc(double candidateAngle) const
     if (sweepAngle >= 0.0)
     {
         const double delta = NormalizeAngle(candidateAngle - startAngle);
-        return delta <= sweepAngle + geometry::kDefaultEpsilon;
+        return delta <= sweepAngle + geometry::kArcSegmentDefaultEpsilon;
     }
 
     const double delta = NormalizeAngle(startAngle - candidateAngle);
-    return delta <= (-sweepAngle) + geometry::kDefaultEpsilon;
+    return delta <= (-sweepAngle) + geometry::kArcSegmentDefaultEpsilon;
 }
 
 Point2d ArcSegment2d::PointAtAngle(double angle) const

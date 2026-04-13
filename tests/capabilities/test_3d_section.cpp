@@ -953,7 +953,7 @@ TEST(Section3dCapabilityTest, ThreeCoplanarFacesInLStripMergeIntoSinglePolygon)
     ASSERT_EQ(section.polygons.size(), 1);
     ASSERT_EQ(section.contours.size(), 1);
     ASSERT_TRUE(section.contours[0].closed);
-    // Rectangle 3�? �?4 corners
+    // Rectangle 3è„? éˆ?4 corners
     ASSERT_EQ(section.contours[0].points.size(), 4);
 
     const auto topology = BuildSectionTopology(section);
@@ -2933,7 +2933,7 @@ TEST(Section3dCapabilityTest, BrepDetachedPlusTwoEdgeAttachedContoursRemainSepar
 
 // Demonstrates that a mid-plane cut through a unit cube (whose 4 intersected
 // faces are mutually non-coplanar) stitches into exactly one closed contour
-// with exactly 4 corner points �?proving that segment stitching across
+// with exactly 4 corner points éˆ?proving that segment stitching across
 // non-coplanar face pairs is deterministic for convex closed bodies.
 // This narrows the NonPlanarDominantSectionGraphRemainsOpen gap to the
 // specific subset: convex-body oblique-face-to-face stitching.
@@ -2959,7 +2959,7 @@ TEST(Section3dCapabilityTest, UnitCubeMidPlaneSectionYieldsFourSegmentClosedCont
     ASSERT_EQ(section.segments.size(), 4);
 
     ASSERT_EQ(ClassifySectionContent(section), SectionContentKind3d::Area);
-    // Area of the 1�? rectangle in the xz plane.
+    // Area of the 1è„? rectangle in the xz plane.
     ASSERT_EQ(section.polygons.size(), 1);
     ASSERT_LT(std::abs(section.polygons[0].Area() - 1.0), 1e-12);
 
@@ -3051,14 +3051,14 @@ TEST(Section3dCapabilityTest, ObliquePrismSectionYieldsDeterministicContourLengt
     ASSERT_TRUE(section.success);
     ASSERT_TRUE(section.IsValid());
 
-    // Horizontal mid-section of a triangular prism = triangle �?closed contour
+    // Horizontal mid-section of a triangular prism = triangle éˆ?closed contour
     ASSERT_FALSE(section.contours.empty());
     ASSERT_TRUE(section.contours[0].closed);
     ASSERT_EQ(section.segments.size(), 3);
 
     // Perimeter of the cross-section triangle should equal side-length sum.
     // Equilateral triangle of side 1: perimeter = 3.0 (approximately, since
-    // c0 uses 0.866 �?sqrt(3)/2).
+    // c0 uses 0.866 éˆ?sqrt(3)/2).
     double totalLength = 0.0;
     const auto& pts = section.contours[0].points;
     for (std::size_t i = 0; i < pts.size(); ++i)
@@ -3068,7 +3068,7 @@ TEST(Section3dCapabilityTest, ObliquePrismSectionYieldsDeterministicContourLengt
         const double dx = p1.x - p0.x, dy = p1.y - p0.y, dz = p1.z - p0.z;
         totalLength += std::sqrt(dx * dx + dy * dy + dz * dz);
     }
-    // Perimeter �?3.0 (equilateral triangle side=1)
+    // Perimeter éˆ?3.0 (equilateral triangle side=1)
     ASSERT_GT(totalLength, 2.5);
     ASSERT_LT(totalLength, 3.5);
     ASSERT_EQ(ClassifySectionContent(section), SectionContentKind3d::Area);
@@ -3134,7 +3134,7 @@ TEST(Section3dCapabilityTest, BrepObliquePrismSectionYieldsDeterministicContourL
 }
 
 // Demonstrates that cutting the unit cube with a plane perpendicular to the
-// x-axis (x=0.5) produces a deterministic 1�? square cross-section with
+// x-axis (x=0.5) produces a deterministic 1è„? square cross-section with
 // known perimeter (4.0) and area (1.0). Extends rebar-length coverage to
 // a third axis direction, complementing the y-axis mid-plane and the
 // triangular-prism tests already present.
@@ -3161,7 +3161,7 @@ TEST(Section3dCapabilityTest, UnitCubeXAxisSectionYieldsDeterministicRebarPerime
     ASSERT_TRUE(section.contours[0].closed);
     ASSERT_EQ(section.contours[0].points.size(), 4);
 
-    // Perimeter of the 1�? square cross-section in the yz-plane = 4.0.
+    // Perimeter of the 1è„? square cross-section in the yz-plane = 4.0.
     double totalLength = 0.0;
     const auto& pts = section.contours[0].points;
     for (std::size_t i = 0; i < pts.size(); ++i)
@@ -3236,14 +3236,14 @@ TEST(Section3dCapabilityTest, BrepUnitCubeXAxisSectionYieldsDeterministicRebarPe
     ASSERT_EQ(components.components.size(), 1);
 }
 
-// Demonstrates that cutting a 2�?�? rectangular prism (box) at its z mid-plane
-// (z=0.5) yields a deterministic 2�? square cross-section with perimeter 8.0
+// Demonstrates that cutting a 2è„?è„? rectangular prism (box) at its z mid-plane
+// (z=0.5) yields a deterministic 2è„? square cross-section with perimeter 8.0
 // and area 4.0. Validates that the rebar-line perimeter assertion scales to
-// non-square cross-sections, extending 蹇呴�?6 rebar coverage beyond unit
+// non-square cross-sections, extending è¹‡å‘´æ¸?6 rebar coverage beyond unit
 // triangular-prism and unit-cube subsets.
 TEST(Section3dCapabilityTest, RectangularPrismMidSectionYieldsDeterministicRebarPerimeter)
 {
-    // 2�?�? rectangular box: x in [0,2], y in [0,2], z in [0,1].
+    // 2è„?è„? rectangular box: x in [0,2], y in [0,2], z in [0,1].
     const PolyhedronBody prism({
         PolyhedronFace3d(
             Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, -1.0}),
@@ -3279,7 +3279,7 @@ TEST(Section3dCapabilityTest, RectangularPrismMidSectionYieldsDeterministicRebar
     ASSERT_EQ(prism.FaceCount(), 6);
 
     // z=0.5 mid-plane cuts all four side faces (front/back/left/right), yielding
-    // a 2�? square cross-section; bottom and top remain parallel and uncut.
+    // a 2è„? square cross-section; bottom and top remain parallel and uncut.
     const Plane cut = Plane::FromPointAndNormal(
         Point3d{1.0, 1.0, 0.5},
         Vector3d{0.0, 0.0, 1.0});
@@ -3292,7 +3292,7 @@ TEST(Section3dCapabilityTest, RectangularPrismMidSectionYieldsDeterministicRebar
     ASSERT_EQ(section.contours[0].points.size(), 4);
     ASSERT_EQ(section.segments.size(), 4);
 
-    // Perimeter of 2�? square cross-section = 8.0.
+    // Perimeter of 2è„? square cross-section = 8.0.
     double totalLength = 0.0;
     const auto& pts = section.contours[0].points;
     for (std::size_t i = 0; i < pts.size(); ++i)
@@ -3399,8 +3399,8 @@ TEST(Section3dCapabilityTest, BrepRectangularPrismMidSectionYieldsDeterministicR
 }
 
 // Demonstrates rectangular-prism deterministic perimeter subset covers an
-// orthogonal axis on the Polyhedron path: x=1 mid-cut yields a 2�? rectangle
-// (y鈭圼0,2], z鈭圼0,1]) with stable segments/perimeter/area.
+// orthogonal axis on the Polyhedron path: x=1 mid-cut yields a 2è„? rectangle
+// (yéˆ­åœ¼0,2], zéˆ­åœ¼0,1]) with stable segments/perimeter/area.
 TEST(Section3dCapabilityTest, RectangularPrismXAxisSectionYieldsDeterministicRebarPerimeter)
 {
     const PolyhedronBody prism({
@@ -3437,8 +3437,8 @@ TEST(Section3dCapabilityTest, RectangularPrismXAxisSectionYieldsDeterministicReb
     ASSERT_TRUE(prism.IsValid());
     ASSERT_EQ(prism.FaceCount(), 6);
 
-    // x=1 cuts front(y=0)/back(y=2)/bottom(z=0)/top(z=1) �?4 faces, leaving
-    // the two x-normal caps parallel and uncut �?2�? rectangle in the yz-plane.
+    // x=1 cuts front(y=0)/back(y=2)/bottom(z=0)/top(z=1) éˆ?4 faces, leaving
+    // the two x-normal caps parallel and uncut éˆ?2è„? rectangle in the yz-plane.
     const Plane cut = Plane::FromPointAndNormal(
         Point3d{1.0, 1.0, 0.5},
         Vector3d{1.0, 0.0, 0.0});
@@ -3451,7 +3451,7 @@ TEST(Section3dCapabilityTest, RectangularPrismXAxisSectionYieldsDeterministicReb
     ASSERT_EQ(section.contours[0].points.size(), 4);
     ASSERT_EQ(section.segments.size(), 4);
 
-    // Perimeter of 2�? rectangle = 6.0.
+    // Perimeter of 2è„? rectangle = 6.0.
     double totalLength = 0.0;
     const auto& pts = section.contours[0].points;
     for (std::size_t i = 0; i < pts.size(); ++i)
@@ -3559,8 +3559,8 @@ TEST(Section3dCapabilityTest, BrepRectangularPrismXAxisSectionYieldsDeterministi
 }
 
 // Demonstrates rectangular-prism deterministic perimeter subset covers the
-// y-axis on the Polyhedron path: y=1 mid-cut yields a 2�? rectangle
-// (x鈭圼0,2], z鈭圼0,1]) with stable segments/perimeter/area.
+// y-axis on the Polyhedron path: y=1 mid-cut yields a 2è„? rectangle
+// (xéˆ­åœ¼0,2], zéˆ­åœ¼0,1]) with stable segments/perimeter/area.
 TEST(Section3dCapabilityTest, RectangularPrismYAxisSectionYieldsDeterministicRebarPerimeter)
 {
     const PolyhedronBody prism({
@@ -3597,7 +3597,7 @@ TEST(Section3dCapabilityTest, RectangularPrismYAxisSectionYieldsDeterministicReb
     ASSERT_TRUE(prism.IsValid());
     ASSERT_EQ(prism.FaceCount(), 6);
 
-    // y=1 cuts left(x=0)/right(x=2)/bottom(z=0)/top(z=1) �?2�? rectangle in xz.
+    // y=1 cuts left(x=0)/right(x=2)/bottom(z=0)/top(z=1) éˆ?2è„? rectangle in xz.
     const Plane cut2 = Plane::FromPointAndNormal(
         Point3d{1.0, 1.0, 0.5},
         Vector3d{0.0, 1.0, 0.0});
@@ -3715,8 +3715,8 @@ TEST(Section3dCapabilityTest, BrepRectangularPrismYAxisSectionYieldsDeterministi
     ASSERT_EQ(components3.components.size(), 1);
 }
 
-// Demonstrates that cutting a unit cube (x,y,z �?[0,1]) at z=0.5 (horizontal
-// mid-plane) yields a deterministic 1�? square cross-section with perimeter 4.0
+// Demonstrates that cutting a unit cube (x,y,z éˆ?[0,1]) at z=0.5 (horizontal
+// mid-plane) yields a deterministic 1è„? square cross-section with perimeter 4.0
 // and area 1.0, extending the rebar-line coverage to the z-axis direction on
 // the PolyhedronBody path.
 TEST(Section3dCapabilityTest, UnitCubeZAxisSectionYieldsDeterministicRebarPerimeter)
@@ -3741,7 +3741,7 @@ TEST(Section3dCapabilityTest, UnitCubeZAxisSectionYieldsDeterministicRebarPerime
     ASSERT_TRUE(section.contours[0].closed);
     ASSERT_EQ(section.contours[0].points.size(), 4);
 
-    // Perimeter of the 1�? square cross-section in the xy-plane = 4.0.
+    // Perimeter of the 1è„? square cross-section in the xy-plane = 4.0.
     double totalLength = 0.0;
     const auto& pts = section.contours[0].points;
     for (std::size_t i = 0; i < pts.size(); ++i)

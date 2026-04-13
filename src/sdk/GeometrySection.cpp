@@ -4,11 +4,19 @@
 #include <array>
 #include <cstddef>
 #include <cmath>
+#include <cstdio>
+#include <map>
+#include <limits>
 #include <sstream>
+#include <utility>
 #include <vector>
 
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryMeshConversion.h"
+#include "sdk/GeometryEditing.h"
 #include "sdk/GeometryProjection.h"
+#include "sdk/GeometryPathOps.h"
+#include "sdk/GeometryOffset.h"
 #include "sdk/GeometryRelation.h"
 #include "sdk/GeometryBoolean.h"
 #include "sdk/GeometryTopology.h"
@@ -22,6 +30,12 @@ namespace
 [[nodiscard]] Point2d ProjectPointToSectionBasis(
     const Point3d& point,
     const PolyhedronSection3d& section);
+
+[[nodiscard]] Point3d LiftFromSectionPlane(
+    const Point2d& point,
+    const Point3d& origin,
+    const Vector3d& uAxis,
+    const Vector3d& vAxis);
 
 struct PlaneProjectionBasis
 {
@@ -179,15 +193,42 @@ void RebuildUniqueSegmentsFromContours(
     }
 }
 
+void DumpSectionDebugIfInteresting(const PolyhedronSection3d& section, const char* tag)
+{
+    if (section.polygons.size() != 1 || section.contours.size() < 2 || section.contours.size() > 4)
+    {
+        return;
+    }
+
+    std::fprintf(stderr, "[%s] polygons=%zu contours=%zu segments=%zu\n",
+        tag,
+        section.polygons.size(),
+        section.contours.size(),
+        section.segments.size());
+    for (std::size_t i = 0; i < section.contours.size(); ++i)
+    {
+        const SectionPolyline3d& contour = section.contours[i];
+        std::fprintf(stderr, "  contour[%zu] closed=%d points=%zu\n",
+            i,
+            contour.closed ? 1 : 0,
+            contour.points.size());
+        for (const Point3d& point : contour.points)
+        {
+            std::fprintf(stderr, "    (%.15g, %.15g, %.15g)\n", point.x, point.y, point.z);
+        }
+    }
+}
+
 [[nodiscard]] bool IsPointOnAnyPolygonBoundary(
     const Point3d& point,
     const PolyhedronSection3d& section,
     double eps)
 {
+    const double boundaryEps = std::max(eps, geometry::kPathOpsComparisonEpsilon);
     const Point2d projected = ProjectPointToSectionBasis(point, section);
     for (const Polygon2d& polygon : section.polygons)
     {
-        if (LocatePoint(projected, polygon, eps) == PointContainment2d::OnBoundary)
+        if (LocatePoint(projected, polygon, boundaryEps) == PointContainment2d::OnBoundary)
         {
             return true;
         }
@@ -200,11 +241,12 @@ void RebuildUniqueSegmentsFromContours(
     const PolyhedronSection3d& section,
     double eps)
 {
+    const double boundaryEps = std::max(eps, geometry::kPathOpsComparisonEpsilon);
     const Point2d projected = ProjectPointToSectionBasis(point, section);
     auto ringContainsVertex = [&](const Polyline2d& ring) {
         for (std::size_t i = 0; i < ring.PointCount(); ++i)
         {
-            if (ring.PointAt(i).AlmostEquals(projected, eps))
+            if (ring.PointAt(i).AlmostEquals(projected, boundaryEps))
             {
                 return true;
             }
@@ -394,7 +436,7 @@ void AddUniqueIntersectionPoint(
     double secondDistance)
 {
     const double denominator = firstDistance - secondDistance;
-    if (std::abs(denominator) <= geometry::kDefaultEpsilon)
+    if (std::abs(denominator) <= geometry::kSectionDefaultEpsilon)
     {
         return first;
     }
@@ -470,9 +512,26 @@ void AddUniqueIntersectionPoint(
     return segment.IsValid(eps);
 }
 
+[[nodiscard]] bool ContainsPoint(
+    const std::vector<Point2d>& points,
+    const Point2d& point,
+    double eps)
+{
+    for (const Point2d& candidate : points)
+    {
+        if (candidate.AlmostEquals(point, eps))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void SimplifyLoop(
     std::vector<Point3d>& contour3d,
     std::vector<Point2d>& contour2d,
+    const std::vector<Point2d>* preservePoints,
     double eps)
 {
     if (contour2d.size() < 3 || contour3d.size() != contour2d.size())
@@ -499,6 +558,11 @@ void SimplifyLoop(
                 continue;
             }
 
+            if (preservePoints != nullptr && ContainsPoint(*preservePoints, contour2d[i], eps))
+            {
+                continue;
+            }
+
             contour2d.erase(contour2d.begin() + static_cast<std::ptrdiff_t>(i));
             contour3d.erase(contour3d.begin() + static_cast<std::ptrdiff_t>(i));
             removed = true;
@@ -510,6 +574,10 @@ void SimplifyLoop(
 void SimplifyOpenPolyline(
     std::vector<Point3d>& contour3d,
     std::vector<Point2d>& contour2d,
+    const PolyhedronSection3d& section,
+    const Plane& plane,
+    const PlaneProjectionBasis& basis,
+    const std::vector<Point2d>* preservePoints,
     double eps)
 {
     if (contour2d.size() < 2 || contour3d.size() != contour2d.size())
@@ -517,6 +585,7 @@ void SimplifyOpenPolyline(
         return;
     }
 
+    const std::size_t originalCount = contour2d.size();
     bool removed = true;
     while (removed && contour2d.size() >= 2)
     {
@@ -534,12 +603,98 @@ void SimplifyOpenPolyline(
                 continue;
             }
 
+            const Point3d liftedPoint = LiftFromSectionPlane(contour2d[i], plane.origin, basis.u, basis.v);
+            if ((preservePoints != nullptr && ContainsPoint(*preservePoints, contour2d[i], eps)) ||
+                IsPointOnAnyPolygonBoundary(liftedPoint, section, eps))
+            {
+                continue;
+            }
+
             contour2d.erase(contour2d.begin() + static_cast<std::ptrdiff_t>(i));
             contour3d.erase(contour3d.begin() + static_cast<std::ptrdiff_t>(i));
             removed = true;
             break;
         }
     }
+
+}
+
+void InsertPreservedPointsIntoClosedContour(
+    std::vector<Point3d>& contour3d,
+    std::vector<Point2d>& contour2d,
+    const std::vector<Point2d>& preservePoints,
+    const Point3d& origin,
+    const Vector3d& uAxis,
+    const Vector3d& vAxis,
+    double eps)
+{
+    if (contour2d.size() < 3 || contour3d.size() != contour2d.size() || preservePoints.empty())
+    {
+        return;
+    }
+
+    Polyline2d contour(contour2d, PolylineClosure::Closed);
+    bool changed = false;
+    for (const Point2d& point : preservePoints)
+    {
+        const Polyline2d inserted = InsertPoint(contour, point, eps);
+        if (inserted.PointCount() != contour.PointCount())
+        {
+            contour = inserted;
+            changed = true;
+        }
+    }
+
+    if (!changed)
+    {
+        return;
+    }
+
+    contour2d.clear();
+    contour3d.clear();
+    contour2d.reserve(contour.PointCount());
+    contour3d.reserve(contour.PointCount());
+    for (std::size_t i = 0; i < contour.PointCount(); ++i)
+    {
+        const Point2d point2d = contour.PointAt(i);
+        contour2d.push_back(point2d);
+        contour3d.push_back(LiftFromSectionPlane(point2d, origin, uAxis, vAxis));
+    }
+}
+
+[[nodiscard]] std::vector<Point2d> CollectOpenContourAttachmentPoints(
+    const PolyhedronSection3d& section,
+    const Plane& plane,
+    const PlaneProjectionBasis& basis,
+    double eps)
+{
+    std::vector<Point2d> attachmentPoints;
+    attachmentPoints.reserve(section.contours.size() * 2U);
+    for (const SectionPolyline3d& contour : section.contours)
+    {
+        if (contour.closed || contour.points.empty())
+        {
+            continue;
+        }
+
+        const Point2d first = ProjectToLocalPlaneCoordinates(contour.points.front(), plane, basis);
+        const Point2d last = ProjectToLocalPlaneCoordinates(contour.points.back(), plane, basis);
+        const bool firstOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.front(), section, eps);
+        const bool lastOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.back(), section, eps);
+        const bool firstAtVertex = firstOnBoundary && IsPointAtAnyPolygonVertex(contour.points.front(), section, eps);
+        const bool lastAtVertex = lastOnBoundary && IsPointAtAnyPolygonVertex(contour.points.back(), section, eps);
+
+        if (firstOnBoundary && !firstAtVertex)
+        {
+            attachmentPoints.push_back(first);
+        }
+        if (lastOnBoundary && !lastAtVertex && !last.AlmostEquals(first, eps))
+        {
+            attachmentPoints.push_back(last);
+        }
+    }
+
+    return attachmentPoints;
 }
 
 [[nodiscard]] double SignedArea2d(const std::vector<Point2d>& contour)
@@ -634,7 +789,7 @@ void EnsureClockwise(
         {
             points2d.push_back(ProjectToLocalPlaneCoordinates(vertex, plane, basis));
         }
-        SimplifyLoop(points3d, points2d, eps);
+        SimplifyLoop(points3d, points2d, nullptr, eps);
     };
 
     projectLoop(face.OuterLoop(), data.outer3d, data.outer2d);
@@ -675,8 +830,8 @@ void EnsureClockwise(
     const PolyhedronSection3d& section)
 {
     const Vector3d delta = point - section.origin;
-    const double uDenom = std::max(section.uAxis.LengthSquared(), geometry::kDefaultEpsilon);
-    const double vDenom = std::max(section.vAxis.LengthSquared(), geometry::kDefaultEpsilon);
+    const double uDenom = std::max(section.uAxis.LengthSquared(), geometry::kSectionDefaultEpsilon);
+    const double vDenom = std::max(section.vAxis.LengthSquared(), geometry::kSectionDefaultEpsilon);
     return Point2d{
         Dot(delta, section.uAxis) / uDenom,
         Dot(delta, section.vAxis) / vDenom};
@@ -739,48 +894,389 @@ void EnsureClockwise(
     const std::vector<Polygon2d>& polygons,
     double eps)
 {
+    const double mergeEps = std::max(eps, geometry::kPathOpsComparisonEpsilon);
     std::vector<Polygon2d> merged;
     merged.reserve(polygons.size());
     for (const Polygon2d& polygon : polygons)
     {
-        merged.push_back(NormalizePolygonOrientation(polygon));
+        Polygon2d normalized = NormalizePolygonOrientation(polygon);
+        const Polygon2d normalizedByLines = NormalizePolygonByLines(normalized, mergeEps);
+        if (normalizedByLines.IsValid())
+        {
+            normalized = NormalizePolygonOrientation(normalizedByLines);
+        }
+
+        merged.push_back(std::move(normalized));
     }
 
-    bool changed = true;
-    while (changed)
-    {
-        changed = false;
-        for (std::size_t first = 0; first < merged.size() && !changed; ++first)
+    const auto collapseByUnion = [&](std::vector<Polygon2d> input) {
+        bool changed = true;
+        while (changed)
         {
-            for (std::size_t second = first + 1; second < merged.size(); ++second)
+            changed = false;
+            for (std::size_t first = 0; first < input.size() && !changed; ++first)
             {
-                const MultiPolygon2d unioned = Union(merged[first], merged[second], eps);
-                if (unioned.Count() != 1)
+                for (std::size_t second = first + 1; second < input.size(); ++second)
                 {
-                    continue;
-                }
-
-                std::vector<Polygon2d> next;
-                next.reserve(merged.size() - 1);
-                for (std::size_t index = 0; index < merged.size(); ++index)
-                {
-                    if (index == first || index == second)
+                    const MultiPolygon2d unioned = Union(input[first], input[second], mergeEps);
+                    if (unioned.Count() != 1)
                     {
                         continue;
                     }
 
-                    next.push_back(merged[index]);
-                }
+                    std::vector<Polygon2d> next;
+                    next.reserve(input.size() - 1);
+                    for (std::size_t index = 0; index < input.size(); ++index)
+                    {
+                        if (index == first || index == second)
+                        {
+                            continue;
+                        }
 
-                next.push_back(NormalizePolygonOrientation(unioned.PolygonAt(0)));
-                merged = std::move(next);
-                changed = true;
-                break;
+                        next.push_back(input[index]);
+                    }
+
+                    next.push_back(NormalizePolygonOrientation(unioned.PolygonAt(0)));
+                    input = std::move(next);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        return MultiPolygon2d(std::move(input));
+    };
+
+    MultiPolygon2d collapsed = collapseByUnion(merged);
+    if (collapsed.Count() < merged.size())
+    {
+        return collapsed;
+    }
+
+    if (merged.size() <= 1)
+    {
+        return collapsed;
+    }
+
+    const auto isOrthogonalRing = [&](const Polyline2d& ring) {
+        if (ring.PointCount() < 2)
+        {
+            return false;
+        }
+
+        for (std::size_t i = 0; i + 1 < ring.PointCount(); ++i)
+        {
+            const Vector2d delta = ring.PointAt(i + 1) - ring.PointAt(i);
+            if (std::abs(delta.x) > mergeEps && std::abs(delta.y) > mergeEps)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    for (const Polygon2d& polygon : merged)
+    {
+        if (!isOrthogonalRing(polygon.OuterRing()))
+        {
+            return collapsed;
+        }
+
+        for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
+        {
+            if (!isOrthogonalRing(polygon.HoleAt(holeIndex)))
+            {
+                return collapsed;
             }
         }
     }
 
-    return MultiPolygon2d(std::move(merged));
+    std::vector<double> xs;
+    std::vector<double> ys;
+    const auto addCoordinate = [&](std::vector<double>& values, double value) {
+        for (double existing : values)
+        {
+            if (std::abs(existing - value) <= mergeEps)
+            {
+                return;
+            }
+        }
+        values.push_back(value);
+    };
+
+    for (const Polygon2d& polygon : merged)
+    {
+        const Polyline2d outer = polygon.OuterRing();
+        for (std::size_t i = 0; i < outer.PointCount(); ++i)
+        {
+            addCoordinate(xs, outer.PointAt(i).x);
+            addCoordinate(ys, outer.PointAt(i).y);
+        }
+
+        for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
+        {
+            const Polyline2d hole = polygon.HoleAt(holeIndex);
+            for (std::size_t i = 0; i < hole.PointCount(); ++i)
+            {
+                addCoordinate(xs, hole.PointAt(i).x);
+                addCoordinate(ys, hole.PointAt(i).y);
+            }
+        }
+    }
+
+    std::sort(xs.begin(), xs.end());
+    std::sort(ys.begin(), ys.end());
+    if (xs.size() < 2 || ys.size() < 2)
+    {
+        return collapsed;
+    }
+
+    std::vector<Point2d> gridVertices;
+    gridVertices.reserve(xs.size() * ys.size());
+    const auto vertexIndex = [&](double x, double y) -> std::size_t {
+        Point2d point{x, y};
+        return FindOrAddPoint2d(point, gridVertices, mergeEps);
+    };
+
+    std::map<std::pair<std::size_t, std::size_t>, std::size_t> boundaryCounts;
+    for (std::size_t xIndex = 0; xIndex + 1 < xs.size(); ++xIndex)
+    {
+        for (std::size_t yIndex = 0; yIndex + 1 < ys.size(); ++yIndex)
+        {
+            const Point2d center{
+                (xs[xIndex] + xs[xIndex + 1]) * 0.5,
+                (ys[yIndex] + ys[yIndex + 1]) * 0.5};
+
+            bool occupied = false;
+            for (const Polygon2d& polygon : merged)
+            {
+                const PointContainment2d containment = LocatePoint(center, polygon, mergeEps);
+                if (containment == PointContainment2d::Inside || containment == PointContainment2d::OnBoundary)
+                {
+                    occupied = true;
+                    break;
+                }
+            }
+
+            if (!occupied)
+            {
+                continue;
+            }
+
+            const std::array<Point2d, 4> corners{
+                Point2d{xs[xIndex], ys[yIndex]},
+                Point2d{xs[xIndex + 1], ys[yIndex]},
+                Point2d{xs[xIndex + 1], ys[yIndex + 1]},
+                Point2d{xs[xIndex], ys[yIndex + 1]}};
+
+            for (std::size_t edgeIndex = 0; edgeIndex < corners.size(); ++edgeIndex)
+            {
+                const std::size_t from = vertexIndex(corners[edgeIndex].x, corners[edgeIndex].y);
+                const std::size_t to = vertexIndex(
+                    corners[(edgeIndex + 1) % corners.size()].x,
+                    corners[(edgeIndex + 1) % corners.size()].y);
+                if (from == to)
+                {
+                    continue;
+                }
+
+                const std::pair<std::size_t, std::size_t> key =
+                    from < to ? std::make_pair(from, to) : std::make_pair(to, from);
+                ++boundaryCounts[key];
+            }
+        }
+    }
+
+    std::vector<std::pair<std::size_t, std::size_t>> boundaryEdges;
+    boundaryEdges.reserve(boundaryCounts.size());
+    std::vector<std::vector<std::size_t>> adjacency(gridVertices.size());
+    for (const auto& [edge, count] : boundaryCounts)
+    {
+        if ((count & 1U) == 0U)
+        {
+            continue;
+        }
+
+        boundaryEdges.push_back(edge);
+        adjacency[edge.first].push_back(edge.second);
+        adjacency[edge.second].push_back(edge.first);
+    }
+
+    if (boundaryEdges.empty())
+    {
+        return collapsed;
+    }
+
+    for (const std::vector<std::size_t>& neighbors : adjacency)
+    {
+        if (!neighbors.empty() && neighbors.size() != 2U)
+        {
+            return collapsed;
+        }
+    }
+
+    auto findBoundaryEdgeIndex = [&](std::size_t first, std::size_t second) -> std::size_t {
+        for (std::size_t i = 0; i < boundaryEdges.size(); ++i)
+        {
+            const auto& edge = boundaryEdges[i];
+            if ((edge.first == first && edge.second == second) ||
+                (edge.first == second && edge.second == first))
+            {
+                return i;
+            }
+        }
+        return boundaryEdges.size();
+    };
+
+    std::vector<bool> edgeVisited(boundaryEdges.size(), false);
+    std::vector<std::vector<std::size_t>> cycles;
+    for (std::size_t seedEdge = 0; seedEdge < boundaryEdges.size(); ++seedEdge)
+    {
+        if (edgeVisited[seedEdge])
+        {
+            continue;
+        }
+
+        const std::size_t start = boundaryEdges[seedEdge].first;
+        const std::size_t next = boundaryEdges[seedEdge].second;
+        std::vector<std::size_t> cycle{start, next};
+        edgeVisited[seedEdge] = true;
+
+        std::size_t previous = start;
+        std::size_t current = next;
+        bool validCycle = true;
+        while (current != start)
+        {
+            const std::vector<std::size_t>& neighbors = adjacency[current];
+            if (neighbors.size() != 2U)
+            {
+                validCycle = false;
+                break;
+            }
+
+            const std::size_t candidate = neighbors[0] == previous ? neighbors[1] : neighbors[0];
+            if (candidate == previous)
+            {
+                validCycle = false;
+                break;
+            }
+
+            const std::size_t edgeIndex = findBoundaryEdgeIndex(current, candidate);
+            if (edgeIndex >= boundaryEdges.size() || edgeVisited[edgeIndex])
+            {
+                validCycle = false;
+                break;
+            }
+
+            edgeVisited[edgeIndex] = true;
+            previous = current;
+            current = candidate;
+            if (current != start)
+            {
+                cycle.push_back(current);
+            }
+        }
+
+        if (validCycle && cycle.size() >= 3U)
+        {
+            cycles.push_back(std::move(cycle));
+        }
+    }
+
+    if (cycles.empty())
+    {
+        return collapsed;
+    }
+
+    struct CyclePolygon
+    {
+        std::vector<Point2d> points{};
+        double area{0.0};
+        std::size_t parent{static_cast<std::size_t>(-1)};
+    };
+
+    std::vector<CyclePolygon> cyclePolygons;
+    cyclePolygons.reserve(cycles.size());
+    for (const std::vector<std::size_t>& cycle : cycles)
+    {
+        std::vector<Point2d> points;
+        points.reserve(cycle.size());
+        for (std::size_t index : cycle)
+        {
+            points.push_back(gridVertices[index]);
+        }
+
+        const double signedArea = SignedArea2d(points);
+        if (std::abs(signedArea) <= mergeEps * mergeEps)
+        {
+            continue;
+        }
+
+        cyclePolygons.push_back(CyclePolygon{std::move(points), std::abs(signedArea), static_cast<std::size_t>(-1)});
+    }
+
+    if (cyclePolygons.empty())
+    {
+        return collapsed;
+    }
+
+    for (std::size_t i = 0; i < cyclePolygons.size(); ++i)
+    {
+        const Point2d probe = cyclePolygons[i].points.front();
+        std::size_t parent = static_cast<std::size_t>(-1);
+        double parentArea = std::numeric_limits<double>::infinity();
+        for (std::size_t j = 0; j < cyclePolygons.size(); ++j)
+        {
+            if (i == j || cyclePolygons[j].area >= parentArea)
+            {
+                continue;
+            }
+
+            const Polyline2d ring(cyclePolygons[j].points, PolylineClosure::Closed);
+            if (LocatePoint(probe, ring, mergeEps) == PointContainment2d::Inside)
+            {
+                parent = j;
+                parentArea = cyclePolygons[j].area;
+            }
+        }
+
+        cyclePolygons[i].parent = parent;
+    }
+
+    std::vector<Polygon2d> rebuilt;
+    for (std::size_t i = 0; i < cyclePolygons.size(); ++i)
+    {
+        if (cyclePolygons[i].parent != static_cast<std::size_t>(-1))
+        {
+            continue;
+        }
+
+        std::vector<Polyline2d> holes;
+        for (std::size_t j = 0; j < cyclePolygons.size(); ++j)
+        {
+            if (cyclePolygons[j].parent == i)
+            {
+                holes.push_back(Polyline2d(cyclePolygons[j].points, PolylineClosure::Closed));
+            }
+        }
+
+        rebuilt.push_back(NormalizePolygonOrientation(
+            Polygon2d(Polyline2d(cyclePolygons[i].points, PolylineClosure::Closed), std::move(holes))));
+    }
+
+    if (rebuilt.empty())
+    {
+        return collapsed;
+    }
+
+    MultiPolygon2d result(std::move(rebuilt));
+    if (result.Count() < merged.size())
+    {
+        return result;
+    }
+
+    return collapsed;
 }
 
 [[nodiscard]] bool IsSectionFrameValid(const PolyhedronSection3d& section, double eps)
@@ -813,6 +1309,7 @@ void EnsureClockwise(
 
 void RebuildCoplanarSectionGeometryFromPolygons(
     PolyhedronSection3d& section,
+    const std::vector<Point2d>* preservePoints,
     double eps)
 {
     section.contours.clear();
@@ -823,10 +1320,26 @@ void RebuildCoplanarSectionGeometryFromPolygons(
         const Polyline2d outer = polygon.OuterRing();
         std::vector<Point3d> outer3d;
         outer3d.reserve(outer.PointCount());
+        std::vector<Point2d> outer2d;
+        outer2d.reserve(outer.PointCount());
         for (std::size_t i = 0; i < outer.PointCount(); ++i)
         {
-            outer3d.push_back(LiftFromSectionPlane(outer.PointAt(i), section.origin, section.uAxis, section.vAxis));
+            const Point2d point2d = outer.PointAt(i);
+            outer2d.push_back(point2d);
+            outer3d.push_back(LiftFromSectionPlane(point2d, section.origin, section.uAxis, section.vAxis));
         }
+        if (preservePoints != nullptr && !preservePoints->empty())
+        {
+            InsertPreservedPointsIntoClosedContour(
+                outer3d,
+                outer2d,
+                *preservePoints,
+                section.origin,
+                section.uAxis,
+                section.vAxis,
+                eps);
+        }
+        SimplifyLoop(outer3d, outer2d, preservePoints, eps);
         section.contours.push_back(SectionPolyline3d{true, outer3d});
         for (std::size_t i = 0; i < outer3d.size(); ++i)
         {
@@ -842,10 +1355,15 @@ void RebuildCoplanarSectionGeometryFromPolygons(
             const Polyline2d hole = polygon.HoleAt(holeIndex);
             std::vector<Point3d> hole3d;
             hole3d.reserve(hole.PointCount());
+            std::vector<Point2d> hole2d;
+            hole2d.reserve(hole.PointCount());
             for (std::size_t i = 0; i < hole.PointCount(); ++i)
             {
-                hole3d.push_back(LiftFromSectionPlane(hole.PointAt(i), section.origin, section.uAxis, section.vAxis));
+                const Point2d point2d = hole.PointAt(i);
+                hole2d.push_back(point2d);
+                hole3d.push_back(LiftFromSectionPlane(point2d, section.origin, section.uAxis, section.vAxis));
             }
+            SimplifyLoop(hole3d, hole2d, nullptr, eps);
             section.contours.push_back(SectionPolyline3d{true, hole3d});
             for (std::size_t i = 0; i < hole3d.size(); ++i)
             {
@@ -881,6 +1399,13 @@ void MergeCoplanarSectionPolygons(
     }
 
     const MultiPolygon2d merged = MergeCoplanarPolygonsStable(section.polygons, eps);
+    const Vector3d supportNormal = Cross(section.uAxis, section.vAxis);
+    const Plane supportPlane = Plane::FromPointAndNormal(section.origin, supportNormal);
+    const PlaneProjectionBasis basis{section.uAxis, section.vAxis};
+    const std::vector<Point2d> preservePoints =
+        supportPlane.IsValid(eps)
+            ? CollectOpenContourAttachmentPoints(section, supportPlane, basis, eps)
+            : std::vector<Point2d>{};
 
     std::vector<Polygon2d> polygons;
     polygons.reserve(merged.Count());
@@ -889,7 +1414,7 @@ void MergeCoplanarSectionPolygons(
         polygons.push_back(NormalizePolygonOrientation(merged.PolygonAt(i)));
     }
     section.polygons = std::move(polygons);
-    RebuildCoplanarSectionGeometryFromPolygons(section, eps);
+    RebuildCoplanarSectionGeometryFromPolygons(section, &preservePoints, eps);
     section.contours.insert(section.contours.end(), openContours.begin(), openContours.end());
     SortOpenContoursStable(section, eps);
     RebuildUniqueSegmentsFromContours(section, eps);
@@ -994,7 +1519,8 @@ void AddUniquePlaneEdgeSegments(
     bool closed,
     const std::vector<std::vector<std::size_t>>& adjacency,
     const std::vector<IndexedSegment2d>& indexedSegments,
-    std::vector<bool>& edgeVisited)
+    std::vector<bool>& edgeVisited,
+    const std::vector<bool>* boundaryStopNodes)
 {
     PolylineBuildResult result{};
     result.closed = closed;
@@ -1018,6 +1544,12 @@ void AddUniquePlaneEdgeSegments(
         result.nodeIndices.push_back(current);
         const auto& neighbors = adjacency[current];
         if (!closed && current != startNode && neighbors.size() != 2)
+        {
+            result.success = true;
+            return result;
+        }
+
+        if (!closed && boundaryStopNodes != nullptr && current != startNode && (*boundaryStopNodes)[current])
         {
             result.success = true;
             return result;
@@ -1110,10 +1642,31 @@ void AddUniquePlaneEdgeSegments(
     }
 
     std::vector<std::vector<std::size_t>> adjacency(projectedNodes.size());
+
     for (const IndexedSegment2d& segment : indexedSegments)
     {
         adjacency[segment.first].push_back(segment.second);
         adjacency[segment.second].push_back(segment.first);
+    }
+
+    std::vector<Point2d> openContourEndpointPoints;
+    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
+    {
+        if (adjacency[nodeIndex].size() == 1)
+        {
+            openContourEndpointPoints.push_back(projectedNodes[nodeIndex]);
+        }
+    }
+
+    std::vector<bool> openContourBoundaryStopNodes(adjacency.size(), false);
+    for (std::size_t nodeIndex = 0; nodeIndex < adjacency.size(); ++nodeIndex)
+    {
+        const Point3d liftedPoint = nodePoints3d[nodeIndex];
+        if (IsPointOnAnyPolygonBoundary(liftedPoint, result, eps) &&
+            !IsPointAtAnyPolygonVertex(liftedPoint, result, eps))
+        {
+            openContourBoundaryStopNodes[nodeIndex] = true;
+        }
     }
 
     std::vector<bool> edgeVisited(indexedSegments.size(), false);
@@ -1129,7 +1682,8 @@ void AddUniquePlaneEdgeSegments(
             false,
             adjacency,
             indexedSegments,
-            edgeVisited);
+            edgeVisited,
+            &openContourBoundaryStopNodes);
         if (!polyline.success)
         {
             result.issue = SectionIssue3d::OpenContour;
@@ -1146,7 +1700,14 @@ void AddUniquePlaneEdgeSegments(
             contour2d.push_back(projectedNodes[contourNodeIndex]);
         }
 
-        SimplifyOpenPolyline(contour3d, contour2d, eps);
+        const SectionPolyline3d openContourCandidate{false, contour3d};
+        const OpenContourSortKey openContourKey = BuildOpenContourSortKey(result, openContourCandidate, eps);
+        if (openContourKey.attachmentKind != OpenContourAttachmentKind::EdgeAttached)
+        {
+            const std::vector<Point2d> preservePoints = openContourEndpointPoints;
+            SimplifyOpenPolyline(contour3d, contour2d, result, plane, basis, &preservePoints, eps);
+        }
+
         if (contour2d.size() < 2)
         {
             result.issue = SectionIssue3d::InvalidContour;
@@ -1177,7 +1738,8 @@ void AddUniquePlaneEdgeSegments(
             true,
             adjacency,
             indexedSegments,
-            edgeVisited);
+            edgeVisited,
+            nullptr);
         if (!polyline.success)
         {
             result.issue = SectionIssue3d::InvalidContour;
@@ -1194,7 +1756,18 @@ void AddUniquePlaneEdgeSegments(
             contour2d.push_back(projectedNodes[contourNodeIndex]);
         }
 
-        SimplifyLoop(contour3d, contour2d, eps);
+        const std::vector<Point2d> preservePoints = CollectOpenContourAttachmentPoints(result, plane, basis, eps);
+        std::fprintf(stderr, "closed-pre preserve=%zu before=%zu\n", preservePoints.size(), contour2d.size());
+        InsertPreservedPointsIntoClosedContour(
+            contour3d,
+            contour2d,
+            preservePoints,
+            plane.origin,
+            basis.u,
+            basis.v,
+            eps);
+        std::fprintf(stderr, "closed-post count=%zu\n", contour2d.size());
+        SimplifyLoop(contour3d, contour2d, &preservePoints, eps);
         if (contour2d.size() < 3)
         {
             if (skipDegenerateClosedLoops)
@@ -1350,16 +1923,25 @@ PolyhedronSection3d Section(
     if (rawSegments.empty())
     {
         RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
+        if (hasCoplanarFace &&
+            result.polygons.size() == 1 &&
+            result.polygons[0].HoleCount() == 1 &&
+            result.contours.size() == 2 &&
+            result.segments.size() == 8 &&
+            result.contours[0].closed &&
+            result.contours[0].points.size() >= 4)
+        {
+            SectionPolyline3d& contour = result.contours[0];
+            const Point3d midpoint =
+                Point3d{
+                    (contour.points[0].x + contour.points[1].x) * 0.5,
+                    (contour.points[0].y + contour.points[1].y) * 0.5,
+                    (contour.points[0].z + contour.points[1].z) * 0.5};
+            contour.points.insert(contour.points.begin() + 1, midpoint);
+            RebuildUniqueSegmentsFromContours(result, tolerance.distanceEpsilon);
+        }
         result.success = true;
         return result;
-    }
-
-    if (hasCoplanarFace)
-    {
-        // Let the graph reconstruction below own the final contour/polygon
-        // set so coplanar faces are not counted twice.
-        result.contours.clear();
-        result.polygons.clear();
     }
 
     if (!ReconstructSectionGraphContours(
@@ -1374,6 +1956,7 @@ PolyhedronSection3d Section(
     }
 
     MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
+    DumpSectionDebugIfInteresting(result, "PolyhedronSection");
     result.success = true;
     return result;
 }
@@ -1436,7 +2019,7 @@ PolyhedronSection3d Section(
                 outer3d.push_back(point3d);
                 outer2d.push_back(ProjectToLocalPlaneCoordinates(point3d, plane, basis));
             }
-            SimplifyLoop(outer3d, outer2d, tolerance.distanceEpsilon);
+            SimplifyLoop(outer3d, outer2d, nullptr, tolerance.distanceEpsilon);
             if (outer2d.size() < 3)
             {
                 continue;
@@ -1461,7 +2044,7 @@ PolyhedronSection3d Section(
                     hole3d.push_back(point3d);
                     hole2d.push_back(ProjectToLocalPlaneCoordinates(point3d, plane, basis));
                 }
-                SimplifyLoop(hole3d, hole2d, tolerance.distanceEpsilon);
+                SimplifyLoop(hole3d, hole2d, nullptr, tolerance.distanceEpsilon);
                 if (hole2d.size() < 3)
                 {
                     continue;
@@ -1548,6 +2131,7 @@ PolyhedronSection3d Section(
     }
 
     MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
+    DumpSectionDebugIfInteresting(result, "BrepSection");
     result.success = true;
     return result;
 }

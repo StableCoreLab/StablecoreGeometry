@@ -222,7 +222,7 @@ PolyhedronBody BuildDeformedUnitCubeBody()
     const Point3d v6{1.0, 1.0,  1.0};
     const Point3d v7{0.0, 1.0,  1.0};
 
-    // Support planes are the original axis-aligned planes of the unit cube ¡ª
+    // Support planes are the original axis-aligned planes of the unit cube â€”
     // intentionally wrong for the three faces that contain v0.
     const Plane bottom{Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, -1.0}};
     const Plane top   {Point3d{0.0, 0.0, 1.0}, Vector3d{0.0, 0.0,  1.0}};
@@ -1202,7 +1202,7 @@ PolyhedronBody BuildTinyScaleClosedTetrahedronBody()
     const Point3d v3{0.5 * s,  0.289 * s,  0.816 * s};
 
     // Deliberately flat support plane (z=2e-6, normal +z) while actual face
-    // normals vary ¡ª the per-face refit must compute the correct orientation.
+    // normals vary â€” the per-face refit must compute the correct orientation.
     const Plane mismatchedPlane =
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 2e-6}, Vector3d{0.0, 0.0, 1.0});
 
@@ -1221,7 +1221,7 @@ PolyhedronBody BuildTinyScaleTriangularFaceChainBody()
     //   T1/T2 share edge b-c; T2/T3 share edge c-d (traversed reversed).
     // Key property: every shared vertex is one of the 3 defining vertices of
     // EVERY triangle that contains it, so after per-face refit its distance to
-    // that face's refit-plane is exactly 0 ¡ª no projection occurs and the
+    // that face's refit-plane is exactly 0 â€” no projection occurs and the
     // original 3D position is preserved unchanged. FindOrAddBrepVertex therefore
     // merges all shared vertices exactly, giving VertexCount=5, EdgeCount=7.
     const double s = 1e-5;
@@ -1247,10 +1247,10 @@ PolyhedronBody BuildTinyScaleTriangularFanBody()
     //   T0=(apex,v0,v1), T1=(apex,v1,v2), T2=(apex,v2,v3), T3=(apex,v3,v0)
     // Each radial edge (apex-vk) is shared by exactly two triangles, the four
     // outer edges (vk-v(k+1 mod 4)) are each used once.
-    // Key: apex is one of the 3 defining vertices of all 4 triangles ¡ú after
-    // per-face refit its distance to each refit-plane is exactly 0 ¡ú apex is
-    // never projected ¡ú it is preserved at its original position in all faces
-    // ¡ú FindOrAddBrepVertex merges it exactly once.
+    // Key: apex is one of the 3 defining vertices of all 4 triangles â†’ after
+    // per-face refit its distance to each refit-plane is exactly 0 â†’ apex is
+    // never projected â†’ it is preserved at its original position in all faces
+    // â†’ FindOrAddBrepVertex merges it exactly once.
     // Expected: VertexCount=5, EdgeCount=8 (4 radial + 4 outer).
     const double s = 1e-5;
     const Point3d apex{0.0,  0.0,  s};
@@ -1900,7 +1900,7 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedPrismAllVerticesWithDualDuplic
 }
 PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody()
 {
-    // Tiny-scale 2¡Á1¡Á1 rectangular box (pure-quad closed shell) where all 8
+    // Tiny-scale 2Ã—1Ã—1 rectangular box (pure-quad closed shell) where all 8
     // logical shared vertices have near-equal variants across their 3 incident
     // faces. All faces use a single mismatched support plane. Tests that
     // representative-average vertex placement works for a pure-quad closed-shell
@@ -1909,42 +1909,42 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody()
     const double s = 1e-5;
     const double w = 2.0 * s; // width in x-direction (twice the other dimensions)
 
-    // v0 ¡Ö (0,0,0): bottom + front + left
+    // v0 â‰ˆ (0,0,0): bottom + front + left
     const Point3d v0a{1.0e-7, 0.0, 0.0};
     const Point3d v0b{-1.0e-7, 0.0, 0.0};
     const Point3d v0c{0.0, 0.0, 0.0};
 
-    // v1 ¡Ö (w,0,0): bottom + front + right
+    // v1 â‰ˆ (w,0,0): bottom + front + right
     const Point3d v1a{w + 2.0e-7, 0.0, 0.0};
     const Point3d v1b{w - 1.0e-7, 0.0, 0.0};
     const Point3d v1c{w + 1.0e-7, 0.0, 0.0};
 
-    // v2 ¡Ö (w,s,0): bottom + back + right
+    // v2 â‰ˆ (w,s,0): bottom + back + right
     const Point3d v2a{w + 1.0e-7, s, 0.0};
     const Point3d v2b{w, s + 1.0e-7, 0.0};
     const Point3d v2c{w, s, 0.0};
 
-    // v3 ¡Ö (0,s,0): bottom + back + left
+    // v3 â‰ˆ (0,s,0): bottom + back + left
     const Point3d v3a{0.0, s + 2.0e-7, 0.0};
     const Point3d v3b{0.0, s, 0.0};
     const Point3d v3c{-1.0e-7, s, 0.0};
 
-    // v4 ¡Ö (0,0,s): top + front + left
+    // v4 â‰ˆ (0,0,s): top + front + left
     const Point3d v4a{0.0, 0.0, s};
     const Point3d v4b{1.0e-7, 0.0, s};
     const Point3d v4c{0.0, 0.0, s + 1.0e-7};
 
-    // v5 ¡Ö (w,0,s): top + front + right
+    // v5 â‰ˆ (w,0,s): top + front + right
     const Point3d v5a{w + 1.0e-7, 0.0, s};
     const Point3d v5b{w, 0.0, s - 1.0e-7};
     const Point3d v5c{w, 0.0, s};
 
-    // v6 ¡Ö (w,s,s): top + back + right
+    // v6 â‰ˆ (w,s,s): top + back + right
     const Point3d v6a{w, s, s + 1.0e-7};
     const Point3d v6b{w + 1.0e-7, s, s};
     const Point3d v6c{w, s + 1.0e-7, s};
 
-    // v7 ¡Ö (0,s,s): top + back + left
+    // v7 â‰ˆ (0,s,s): top + back + left
     const Point3d v7a{0.0, s, s};
     const Point3d v7b{-1.0e-7, s, s};
     const Point3d v7c{0.0, s, s + 1.0e-7};
@@ -1953,17 +1953,17 @@ PolyhedronBody BuildSupportMismatchNearEqualClosedCuboidAllVerticesBody()
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 3e-6}, Vector3d{0.0, 0.0, 1.0});
 
     return PolyhedronBody({
-        // Bottom (z¡Ö0, normal -z): v0, v3, v2, v1
+        // Bottom (zâ‰ˆ0, normal -z): v0, v3, v2, v1
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0a, v3a, v2a, v1a})),
-        // Top (z¡Ös, normal +z): v4, v5, v6, v7
+        // Top (zâ‰ˆs, normal +z): v4, v5, v6, v7
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v4a, v5a, v6a, v7a})),
-        // Front (y¡Ö0, normal -y): v0, v1, v5, v4
+        // Front (yâ‰ˆ0, normal -y): v0, v1, v5, v4
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0b, v1b, v5b, v4b})),
-        // Back (y¡Ös, normal +y): v3, v7, v6, v2
+        // Back (yâ‰ˆs, normal +y): v3, v7, v6, v2
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v3b, v7b, v6b, v2b})),
-        // Left (x¡Ö0, normal -x): v0, v4, v7, v3
+        // Left (xâ‰ˆ0, normal -x): v0, v4, v7, v3
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v0c, v4c, v7c, v3c})),
-        // Right (x¡Öw, normal +x): v1, v2, v6, v5
+        // Right (xâ‰ˆw, normal +x): v1, v2, v6, v5
         PolyhedronFace3d(mismatched, PolyhedronLoop3d({v1c, v2c, v6c, v5c}))});
 }
 
@@ -2268,7 +2268,7 @@ void AssertClosedCuboidAllVerticesRepresentativeTargets(const BrepBody& body)
 
 // Demonstrates that a closed PolyhedronBody (unit cube, 6 quad faces) converts
 // to a TriangleMesh with the correct triangle count and total surface area.
-// High-fidelity feature-preserving conversion and non-planar polyhedron¡úBrep
+// High-fidelity feature-preserving conversion and non-planar polyhedronâ†’Brep
 // repair remain open gaps.
 TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToTriangleMesh)
 {
@@ -2280,9 +2280,9 @@ TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToTriangleMesh)
     ASSERT_TRUE(result.success);
     ASSERT_EQ(result.issue, MeshConversionIssue3d::None);
     ASSERT_TRUE(result.mesh.IsValid());
-    // Each of the 6 quad faces is split into 2 triangles ¡ú 12 total
+    // Each of the 6 quad faces is split into 2 triangles â†’ 12 total
     ASSERT_EQ(result.mesh.TriangleCount(), 12);
-    // Total surface area of a unit cube = 6 ¡Á (1¡Á1) = 6.0
+    // Total surface area of a unit cube = 6 Ã— (1Ã—1) = 6.0
     ASSERT_LT(std::abs(result.mesh.SurfaceArea() - 6.0), 1e-10);
 }
 
@@ -2315,7 +2315,10 @@ TEST(Conversion3dCapabilityTest, NearEqualSharedEdgeVerticesUseRepresentativeAve
     ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    ASSERT_TRUE(result.success);
+    if (!result.success)
+    {
+        FAIL() << "issue=" << static_cast<int>(result.issue);
+    }
     ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
     ASSERT_TRUE(result.body.IsValid());
     ASSERT_EQ(result.body.FaceCount(), 2);
@@ -2352,7 +2355,10 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualSharedEdgeRepairsWithRe
     ASSERT_EQ(body.FaceCount(), 2);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    ASSERT_TRUE(result.success);
+    if (!result.success)
+    {
+        FAIL() << "issue=" << static_cast<int>(result.issue);
+    }
     ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
     ASSERT_TRUE(result.body.IsValid());
     ASSERT_EQ(result.body.FaceCount(), 2);
@@ -2390,7 +2396,10 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualApexFanRepairsWithRepre
     ASSERT_EQ(body.FaceCount(), 4);
 
     const PolyhedronBrepBodyConversion3d result = ConvertToBrepBody(body);
-    ASSERT_TRUE(result.success);
+    if (!result.success)
+    {
+        FAIL() << "issue=" << static_cast<int>(result.issue);
+    }
     ASSERT_EQ(result.issue, BrepConversionIssue3d::None);
     ASSERT_TRUE(result.body.IsValid());
     ASSERT_EQ(result.body.FaceCount(), 4);
@@ -4009,7 +4018,7 @@ TEST(Conversion3dCapabilityTest, TinyScaleClosedTetrahedronConvertsToBrepBodyWit
 // mismatched support planes), independent per-face refit achieves provably
 // correct shared-edge vertex consistency.  Each shared vertex is one of the
 // 3 defining points of every triangle that contains it, so its distance to
-// that face's refit-plane is exactly 0 ¡ª no projection divergence.  The
+// that face's refit-plane is exactly 0 â€” no projection divergence.  The
 // result is VertexCount=5 and EdgeCount=7 (2 shared edges properly reused).
 TEST(Conversion3dCapabilityTest, TinyScaleTriangularFaceChainRepairsToBrepBodyWithSharedEdgeConsistency)
 {
@@ -4031,9 +4040,9 @@ TEST(Conversion3dCapabilityTest, TinyScaleTriangularFaceChainRepairsToBrepBodyWi
 // Demonstrates that four triangular faces sharing a common apex vertex (square
 // pyramid cap without base), all with mismatched support planes, produce a
 // BrepBody with exactly VertexCount=5 and EdgeCount=8. The shared apex is a
-// defining vertex of all four triangles ¡ú distance 0 from each refit-plane ¡ú
-// never projected ¡ú exact merge.  Four radial edges are each used twice;
-// four outer edges are each used once ¡ª the open boundary is deterministic.
+// defining vertex of all four triangles â†’ distance 0 from each refit-plane â†’
+// never projected â†’ exact merge.  Four radial edges are each used twice;
+// four outer edges are each used once â€” the open boundary is deterministic.
 TEST(Conversion3dCapabilityTest, TinyScaleTriangularFanRepairsToBrepBodyWithSharedApex)
 {
     const PolyhedronBody body = BuildTinyScaleTriangularFanBody();
@@ -4767,7 +4776,3 @@ TEST(Conversion3dCapabilityTest, SupportMismatchNearEqualClosedCuboidTripleVerti
     ASSERT_EQ(sharedV1Count, 1);
     ASSERT_EQ(sharedV6Count, 1);
 }
-
-
-
-

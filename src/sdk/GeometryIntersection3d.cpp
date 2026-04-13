@@ -5,6 +5,7 @@
 #include <cmath>
 #include <set>
 
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryRelation.h"
 #include "sdk/LineCurve3d.h"
@@ -784,7 +785,7 @@ LineBrepBodyIntersection3d Intersect(
             }
 
             const long long bucket = static_cast<long long>(
-                std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, geometry::kDefaultEpsilon)));
+                std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, geometry::kIntersectionDefaultEpsilon)));
             if (!dedup.emplace(bucket, faceIndex).second)
             {
                 continue;
@@ -877,7 +878,7 @@ LinePolyhedronBodyIntersection3d Intersect(
         }
 
         const long long bucket = static_cast<long long>(
-            std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, geometry::kDefaultEpsilon)));
+            std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, geometry::kIntersectionDefaultEpsilon)));
         if (!dedup.emplace(bucket, faceIndex).second)
         {
             continue;
@@ -940,7 +941,7 @@ LineTriangleMeshIntersection3d Intersect(
         }
 
         const long long bucket = static_cast<long long>(
-            std::llround(planeHit.parameter / std::max(tolerance.parameterEpsilon, geometry::kDefaultEpsilon)));
+            std::llround(planeHit.parameter / std::max(tolerance.parameterEpsilon, geometry::kIntersectionDefaultEpsilon)));
         if (!dedup.emplace(bucket, triangleIndex).second)
         {
             continue;

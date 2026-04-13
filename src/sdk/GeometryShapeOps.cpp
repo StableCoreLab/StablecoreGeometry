@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "common/Epsilon.h"
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryAlgorithms.h"
 
 namespace geometry::sdk
@@ -33,7 +34,7 @@ namespace
 [[nodiscard]] Point2d RingCentroid(const Polyline2d& ring)
 {
     const double signedArea = SignedArea(ring);
-    if (std::abs(signedArea) <= geometry::kDefaultEpsilon)
+    if (std::abs(signedArea) <= geometry::kShapeOpsDefaultEpsilon)
     {
         return Point2d{};
     }
@@ -73,7 +74,7 @@ double Perimeter(const Polygon2d& polygon)
 RingOrientation2d Orientation(const Polyline2d& ring)
 {
     const double signedArea = SignedArea(ring);
-    if (std::abs(signedArea) <= geometry::kDefaultEpsilon)
+    if (std::abs(signedArea) <= geometry::kShapeOpsDefaultEpsilon)
     {
         return RingOrientation2d::Unknown;
     }
@@ -100,7 +101,7 @@ Point2d Centroid(const Polygon2d& polygon)
 
     const Polyline2d outer = polygon.OuterRing();
     const double outerArea = SignedArea(outer);
-    if (std::abs(outerArea) <= geometry::kDefaultEpsilon)
+    if (std::abs(outerArea) <= geometry::kShapeOpsDefaultEpsilon)
     {
         return Point2d{};
     }
@@ -120,7 +121,7 @@ Point2d Centroid(const Polygon2d& polygon)
         totalSignedArea += holeArea;
     }
 
-    if (std::abs(totalSignedArea) <= geometry::kDefaultEpsilon)
+    if (std::abs(totalSignedArea) <= geometry::kShapeOpsDefaultEpsilon)
     {
         return Point2d{};
     }

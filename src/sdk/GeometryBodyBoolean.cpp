@@ -5,6 +5,7 @@
 #include <cmath>
 #include <utility>
 
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryBrepConversion.h"
 #include "sdk/PlaneSurface.h"
 
@@ -18,7 +19,7 @@ namespace
     {
         return options.tolerance.distanceEpsilon;
     }
-    return geometry::kDefaultEpsilon;
+    return geometry::kBodyBooleanDefaultEpsilon;
 }
 
 [[nodiscard]] BodyBooleanResult3d MakeInvalidInputResult()
@@ -77,7 +78,7 @@ namespace
             return BoundsLexicographicallyLess(
                 first.Bounds(),
                 second.Bounds(),
-                geometry::kDefaultEpsilon);
+                geometry::kBodyBooleanDefaultEpsilon);
         });
     result.bodies = std::move(bodies);
     result.message = message;

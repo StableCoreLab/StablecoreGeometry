@@ -95,7 +95,7 @@ TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFaceBrepWithValidOuterLoop)
     const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
-    // plane: x + z = 0.5 �?oblique cut yielding a quadrilateral section
+    // plane: x + z = 0.5 â€?oblique cut yielding a quadrilateral section
     const Plane slantedCut = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{1.0, 0.0, 1.0});
@@ -114,7 +114,7 @@ TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFaceBrepWithValidOuterLoop)
     const BrepShell firstShell = rebuilt.body.ShellAt(0);
     const BrepFace firstFace = firstShell.FaceAt(0);
     ASSERT_TRUE(firstFace.OuterLoop().IsValid());
-    // The slanted plane cuts 4 faces of the cube �?quadrilateral section �?4 coedges
+    // The slanted plane cuts 4 faces of the cube â†?quadrilateral section â†?4 coedges
     ASSERT_EQ(firstFace.OuterLoop().CoedgeCount(), 4);
 }
 

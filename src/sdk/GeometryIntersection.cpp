@@ -10,6 +10,7 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
+#include "common/GeometryEpsilon.h"
 
 namespace geometry::sdk
 {
@@ -100,7 +101,7 @@ struct ArcProjectionCandidate
 
 [[nodiscard]] double ArcParameterAtAngle(const ArcSegment2d& arc, double angle)
 {
-    if (AlmostEqual(arc.sweepAngle, 0.0, geometry::kDefaultEpsilon))
+    if (AlmostEqual(arc.sweepAngle, 0.0, geometry::kIntersectionDefaultEpsilon))
     {
         return 0.0;
     }
@@ -120,7 +121,7 @@ struct ArcProjectionCandidate
 {
     const Vector2d segmentVector = segment.endPoint - segment.startPoint;
     const double segmentLengthSquared = segmentVector.LengthSquared();
-    if (segmentLengthSquared <= geometry::kDefaultEpsilon * geometry::kDefaultEpsilon)
+    if (segmentLengthSquared <= geometry::kIntersectionDefaultEpsilon * geometry::kIntersectionDefaultEpsilon)
     {
         return SegmentProjection2d{
             segment.startPoint,
@@ -141,8 +142,8 @@ struct ArcProjectionCandidate
         parameter,
         DistanceSquaredPoints(point, projectedPoint),
         clampToSegment ||
-            (rawParameter >= -geometry::kDefaultEpsilon &&
-             rawParameter <= 1.0 + geometry::kDefaultEpsilon)};
+            (rawParameter >= -geometry::kIntersectionDefaultEpsilon &&
+             rawParameter <= 1.0 + geometry::kIntersectionDefaultEpsilon)};
 }
 
 [[nodiscard]] ArcProjectionCandidate ProjectPointToArcSegmentLocal(
@@ -218,7 +219,7 @@ void UpdateClosest(
     double secondParameter)
 {
     const double distanceSquared = DistanceSquaredPoints(firstPoint, secondPoint);
-    if (!hasBest || distanceSquared + geometry::kDefaultEpsilon < best.distanceSquared)
+    if (!hasBest || distanceSquared + geometry::kIntersectionDefaultEpsilon < best.distanceSquared)
     {
         best = MakeClosestPoints(firstPoint, secondPoint, firstParameter, secondParameter, distanceSquared);
         hasBest = true;
@@ -557,7 +558,7 @@ void AddIntersectionPoint(
     const LineSegment2d& first,
     const LineSegment2d& second)
 {
-    const SegmentIntersection2d intersection = IntersectLineLineInternal(first, second, geometry::kDefaultEpsilon);
+    const SegmentIntersection2d intersection = IntersectLineLineInternal(first, second, geometry::kIntersectionDefaultEpsilon);
     if (intersection.HasIntersection())
     {
         const IntersectionPoint2d& point = intersection.points[0];
@@ -591,7 +592,7 @@ void AddIntersectionPoint(
     const LineSegment2d& line,
     const ArcSegment2d& arc)
 {
-    const SegmentIntersection2d intersection = IntersectLineArcInternal(line, arc, geometry::kDefaultEpsilon);
+    const SegmentIntersection2d intersection = IntersectLineArcInternal(line, arc, geometry::kIntersectionDefaultEpsilon);
     if (intersection.HasIntersection())
     {
         const IntersectionPoint2d& point = intersection.points[0];
@@ -608,7 +609,7 @@ void AddIntersectionPoint(
 
     const auto updateFromLineEndpoint = [&](const Point2d& endpoint, double parameterOnLine)
     {
-        const ArcProjectionCandidate projected = ProjectPointToArcSegmentLocal(endpoint, arc, geometry::kDefaultEpsilon);
+        const ArcProjectionCandidate projected = ProjectPointToArcSegmentLocal(endpoint, arc, geometry::kIntersectionDefaultEpsilon);
         UpdateClosest(best, hasBest, endpoint, projected.point, parameterOnLine, projected.parameter);
     };
 
@@ -626,10 +627,10 @@ void AddIntersectionPoint(
 
     const SegmentProjection2d centerProjection = ProjectPointToLineSegmentLocal(arc.center, line, true);
     const Vector2d fromCenter = centerProjection.point - arc.center;
-    if (fromCenter.LengthSquared() > geometry::kDefaultEpsilon * geometry::kDefaultEpsilon)
+    if (fromCenter.LengthSquared() > geometry::kIntersectionDefaultEpsilon * geometry::kIntersectionDefaultEpsilon)
     {
         const double angle = std::atan2(fromCenter.y, fromCenter.x);
-        if (IsAngleOnArc(arc, angle, geometry::kDefaultEpsilon))
+        if (IsAngleOnArc(arc, angle, geometry::kIntersectionDefaultEpsilon))
         {
             const Point2d arcPoint = PointAtAngle(arc, angle);
             UpdateClosest(
@@ -649,7 +650,7 @@ void AddIntersectionPoint(
     const ArcSegment2d& first,
     const ArcSegment2d& second)
 {
-    const SegmentIntersection2d intersection = IntersectArcArcInternal(first, second, geometry::kDefaultEpsilon);
+    const SegmentIntersection2d intersection = IntersectArcArcInternal(first, second, geometry::kIntersectionDefaultEpsilon);
     if (intersection.HasIntersection())
     {
         const IntersectionPoint2d& point = intersection.points[0];
@@ -666,7 +667,7 @@ void AddIntersectionPoint(
 
     const auto updateFromFirstEndpoint = [&](const Point2d& endpoint, double parameterOnFirst)
     {
-        const ArcProjectionCandidate projected = ProjectPointToArcSegmentLocal(endpoint, second, geometry::kDefaultEpsilon);
+        const ArcProjectionCandidate projected = ProjectPointToArcSegmentLocal(endpoint, second, geometry::kIntersectionDefaultEpsilon);
         UpdateClosest(
             best,
             hasBest,
@@ -678,7 +679,7 @@ void AddIntersectionPoint(
 
     const auto updateFromSecondEndpoint = [&](const Point2d& endpoint, double parameterOnSecond)
     {
-        const ArcProjectionCandidate projected = ProjectPointToArcSegmentLocal(endpoint, first, geometry::kDefaultEpsilon);
+        const ArcProjectionCandidate projected = ProjectPointToArcSegmentLocal(endpoint, first, geometry::kIntersectionDefaultEpsilon);
         UpdateClosest(
             best,
             hasBest,
@@ -695,7 +696,7 @@ void AddIntersectionPoint(
 
     const Vector2d centerDelta = second.center - first.center;
     const double centerDistanceSquared = Dot(centerDelta, centerDelta);
-    if (centerDistanceSquared > geometry::kDefaultEpsilon * geometry::kDefaultEpsilon)
+    if (centerDistanceSquared > geometry::kIntersectionDefaultEpsilon * geometry::kIntersectionDefaultEpsilon)
     {
         const double centerDistance = std::sqrt(centerDistanceSquared);
         const Vector2d unit = centerDelta / centerDistance;
@@ -707,8 +708,8 @@ void AddIntersectionPoint(
             second.center.y - second.radius * unit.y);
         const double firstAngle = std::atan2(firstCandidate.y - first.center.y, firstCandidate.x - first.center.x);
         const double secondAngle = std::atan2(secondCandidate.y - second.center.y, secondCandidate.x - second.center.x);
-        if (IsAngleOnArc(first, firstAngle, geometry::kDefaultEpsilon) &&
-            IsAngleOnArc(second, secondAngle, geometry::kDefaultEpsilon))
+        if (IsAngleOnArc(first, firstAngle, geometry::kIntersectionDefaultEpsilon) &&
+            IsAngleOnArc(second, secondAngle, geometry::kIntersectionDefaultEpsilon))
         {
             UpdateClosest(
                 best,
@@ -980,7 +981,7 @@ ClosestPoints2d ClosestPoints(
     const LineSegment2d& first,
     const ArcSegment2d& second)
 {
-    return ClosestPointsLineArcInternal(first, second, geometry::kDefaultEpsilon);
+    return ClosestPointsLineArcInternal(first, second, geometry::kIntersectionDefaultEpsilon);
 }
 
 ClosestPoints2d ClosestPoints(

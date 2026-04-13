@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryMeshRepair.h"
 #include "sdk/GeometryRelation.h"
 #include "sdk/GeometryShapeOps.h"
@@ -84,8 +85,8 @@ namespace trim_backfill
     const Vector3d delta = point - plane.origin;
     const Vector3d uAxis = planeSurface.UAxis();
     const Vector3d vAxis = planeSurface.VAxis();
-    const double uDenom = std::max(uAxis.LengthSquared(), geometry::kDefaultEpsilon);
-    const double vDenom = std::max(vAxis.LengthSquared(), geometry::kDefaultEpsilon);
+    const double uDenom = std::max(uAxis.LengthSquared(), geometry::kHealingDefaultEpsilon);
+    const double vDenom = std::max(vAxis.LengthSquared(), geometry::kHealingDefaultEpsilon);
     return Point2d{
         Dot(delta, uAxis) / uDenom,
         Dot(delta, vAxis) / vDenom};
@@ -214,6 +215,12 @@ namespace aggressive
 
 namespace shell_cap
 {
+[[nodiscard]] bool TryBuildStandaloneShellPlaneSurface(
+    const BrepBody& body,
+    const BrepShell& shell,
+    const GeometryTolerance3d& tolerance,
+    PlaneSurface& planeSurface);
+
 struct BoundaryHalfEdge
 {
     BrepCoedge coedge{};
@@ -301,7 +308,7 @@ void AppendUniqueLoopVertexIndices(
     const GeometryTolerance3d& tolerance,
     PlaneSurface& planeSurface)
 {
-    const double eps = std::max(tolerance.distanceEpsilon, geometry::kDefaultEpsilon);
+    const double eps = std::max(tolerance.distanceEpsilon, geometry::kHealingDefaultEpsilon);
     std::vector<std::size_t> vertexIndices;
     vertexIndices.reserve(shell.FaceCount() * 8);
 
@@ -741,7 +748,7 @@ struct BoundaryGeometrySegment
     const Point3d& point,
     double eps)
 {
-    const double safeEps = std::max(eps, geometry::kDefaultEpsilon);
+    const double safeEps = std::max(eps, geometry::kHealingDefaultEpsilon);
     return BoundaryGeometryPointKey{
         static_cast<long long>(std::llround(point.x / safeEps)),
         static_cast<long long>(std::llround(point.y / safeEps)),
@@ -926,7 +933,7 @@ void CollectShellBoundaryGeometrySegments(
         return false;
     }
 
-    const double firstLengthSquared = std::max(firstDirection.LengthSquared(), geometry::kDefaultEpsilon);
+    const double firstLengthSquared = std::max(firstDirection.LengthSquared(), geometry::kHealingDefaultEpsilon);
     double secondStartParameter = Dot(second.startPoint - first.startPoint, firstDirection) / firstLengthSquared;
     double secondEndParameter = Dot(second.endPoint - first.startPoint, firstDirection) / firstLengthSquared;
     if (secondEndParameter < secondStartParameter)
@@ -1109,6 +1116,39 @@ void CollectShellBoundaryGeometrySegments(
     repairedShells.reserve(body.ShellCount());
     bool changed = false;
     const std::vector<bool> competingShells = DetectCompetingOpenShells(body, tolerance);
+    std::size_t openShellCount = 0;
+    std::vector<bool> shellSupportMismatch(body.ShellCount(), false);
+    for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
+    {
+        const BrepShell shell = body.ShellAt(shellIndex);
+        if (!shell.IsClosed())
+        {
+            ++openShellCount;
+            PlaneSurface shellPlaneSurface{};
+            if (shell_cap::TryBuildStandaloneShellPlaneSurface(body, shell, tolerance, shellPlaneSurface))
+            {
+                const Plane shellPlane = shellPlaneSurface.SupportPlane();
+                const double eps = std::max(tolerance.distanceEpsilon, geometry::kHealingDefaultEpsilon);
+                for (const BrepFace& face : shell.Faces())
+                {
+                    const auto* facePlaneSurface = dynamic_cast<const PlaneSurface*>(face.SupportSurface());
+                    if (facePlaneSurface == nullptr)
+                    {
+                        shellSupportMismatch[shellIndex] = true;
+                        break;
+                    }
+
+                    const Plane facePlane = facePlaneSurface->SupportPlane();
+                    if (!IsParallel(shellPlane.UnitNormal(eps), facePlane.UnitNormal(eps), tolerance) ||
+                        std::abs(shellPlane.SignedDistanceTo(facePlane.origin, eps)) > tolerance.distanceEpsilon)
+                    {
+                        shellSupportMismatch[shellIndex] = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     for (std::size_t shellIndex = 0; shellIndex < body.ShellCount(); ++shellIndex)
     {
@@ -1164,6 +1204,12 @@ void CollectShellBoundaryGeometrySegments(
             eligible = false;
         }
 
+        if (eligible && !hasInteriorSharedEdge)
+        {
+            PlaneSurface shellPlaneSurface{};
+            eligible = shell_cap::TryBuildStandaloneShellPlaneSurface(body, shell, tolerance, shellPlaneSurface);
+        }
+
         if (!eligible)
         {
             repairedShells.push_back(shell);
@@ -1172,6 +1218,14 @@ void CollectShellBoundaryGeometrySegments(
 
         if (hasInteriorSharedEdge)
         {
+            if (openShellCount > 1U &&
+                std::any_of(shellSupportMismatch.begin(), shellSupportMismatch.end(), [](bool mismatch) { return mismatch; }) &&
+                !shellSupportMismatch[shellIndex])
+            {
+                repairedShells.push_back(shell);
+                continue;
+            }
+
             if (competingShells[shellIndex])
             {
                 repairedShells.push_back(shell);
@@ -1307,7 +1361,7 @@ BrepHealing3d Heal(
             healedFaces.push_back(std::move(healedFace));
         }
 
-        BrepShell healedShell(std::move(healedFaces), ComputeShellClosed(shell));
+        BrepShell healedShell(std::move(healedFaces), shell.IsClosed() || ComputeShellClosed(shell));
         if (!healedShell.IsValid(tolerance))
         {
             return {false, HealingIssue3d::RepairFailed, {}};

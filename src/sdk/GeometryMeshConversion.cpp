@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "algorithm/Predicate2.h"
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryIntersection.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryRelation.h"
@@ -342,7 +343,7 @@ void EnsureOrientation(std::vector<Point2d>& points, bool ccw)
     for (std::size_t i = 1; i < ring.size(); ++i)
     {
         if (ring[i].x > ring[index].x ||
-            (std::abs(ring[i].x - ring[index].x) <= geometry::kDefaultEpsilon && ring[i].y < ring[index].y))
+            (std::abs(ring[i].x - ring[index].x) <= geometry::kMeshConversionDefaultEpsilon && ring[i].y < ring[index].y))
         {
             index = i;
         }

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "algorithm/Predicate2.h"
+#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryMetrics.h"
 #include "sdk/GeometryShapeOps.h"
 
@@ -24,7 +25,7 @@ namespace
 [[nodiscard]] Point2d MirrorPoint(const Point2d& point, const Point2d& linePoint, const Vector2d& lineDir)
 {
     const double lengthSquared = lineDir.LengthSquared();
-    if (lengthSquared <= geometry::kDefaultEpsilon)
+    if (lengthSquared <= geometry::kTransformDefaultEpsilon)
     {
         return point;
     }
