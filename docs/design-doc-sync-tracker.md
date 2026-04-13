@@ -4,6 +4,8 @@
 
 这份文档用于跟踪历史 2D 设计文档与当前代码 / API 状态之间的同步修复工作。
 
+当前的总览入口已经收敛为 `docs/library-design.md`；`point-vector-design.md`、`segment-design.md`、`polyline-design.md`、`polygon-design.md`、`sdk-design.md`、`export-design.md`、`curve3d-surface-design.md`、`geometry-3d-*.md` 等专题页现在都只保留为历史入口。
+
 ## 2026-04-05 文档同步
 
 - 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。

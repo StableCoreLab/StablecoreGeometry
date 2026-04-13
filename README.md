@@ -1,20 +1,19 @@
 # stablecore-geometry
 
-A lightweight C++ geometry library for engineering computation.
+A C++ geometry library for engineering computation.
 
 ## Goals
 
 - Build reusable geometry components for engineering software
-- Provide stable and testable 2D geometry algorithms
-- Support future quantity-takeoff and structural calculation products
+- Provide stable and testable 2D and 3D geometry services
+- Support current section, healing, boolean, conversion, validation, and search workflows
 
 ## Current Scope
 
-- Basic 2D geometric types
-- Distance and projection
-- Segment intersection
-- Bounding box utilities
-- Tolerance-based geometric predicates
+- 2D value types and geometry services
+- 3D value types, curves, surfaces, BRep, and polyhedron support
+- Section, healing, boolean, projection, relation, measurement, validation, and mesh conversion services
+- Text serialization helpers and search/index helpers
 
 ## SDK Entry
 
@@ -24,13 +23,16 @@ For external consumers, prefer the umbrella header:
 #include "sdk/Geometry.h"
 ```
 
-The first SDK surface is intentionally narrow:
+`sdk/Geometry.h` is the stable umbrella entry point. It pulls in `GeometryApi`, `GeometryEpsilon`, `GeometrySearchPoly`, `GeometryBodyBoolean`, and the main 2D / 3D SDK headers.
 
-- `geometry::sdk::GeoPoint2d`
-- `geometry::sdk::GeoVector2d`
-- `geometry::sdk::GeoBox2d`
-- point-to-point distance and point-to-segment projection helpers
-- box containment and box intersection helpers
+Common aliases available through `geometry::sdk::GeometryTypes` include:
+
+- `Point2d`, `Vector2d`, `Box2d`
+- `Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`
+- `Line3d`, `Ray3d`, `LineSegment3d`, `Triangle3d`
+- `Transform3d`, `Matrix3d`, `Plane`
+
+If you only need a narrow area, include the specific header directly instead of the umbrella.
 
 ## Design Principles
 
@@ -38,6 +40,9 @@ The first SDK surface is intentionally narrow:
 - Clear data structures
 - Explicit tolerance handling
 - Test-first for core algorithms
+
+For deeper architecture notes, see [`docs/library-design.md`](docs/library-design.md).
+For code follow-up items, see [`docs/todolist.md`](docs/todolist.md).
 
 ## Build
 
@@ -48,10 +53,10 @@ Quick options:
 1. Generate the solution with the helper script:
 
 ```bat
-generate_vs_solution.bat
+GenerateGeometryVS2022.bat
 ```
 
-This generates into `../Build/GeometryVs2022` relative to the repository root and produces `SCGeometry.sln`.
+This generates into `../Build/GeometryVs2022` relative to the repository root and opens `SCGeometry.sln`.
 
 2. Or use the checked-in CMake preset:
 
@@ -69,10 +74,10 @@ The library installs into a release-friendly layout that separates configuration
 
 ### Release Layout
 
-- `Bin/Release/x64` for DLLs and executables
-- `Bin/RelWithDebInfo/x64` for DLLs and executables with debug info
-- `Lib/Release/x64` for import libraries and static archives
-- `Lib/RelWithDebInfo/x64` for import libraries and static archives with debug info
+- `bin/Release/x64` for DLLs and executables
+- `bin/RelWithDebInfo/x64` for DLLs and executables with debug info
+- `lib/Release/x64` for import libraries and static archives
+- `lib/RelWithDebInfo/x64` for import libraries and static archives with debug info
 - `include` for public headers
 - `lib/cmake/SCGeometry` for CMake package files
 

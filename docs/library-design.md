@@ -1,279 +1,200 @@
-﻿# StableCore Geometry 总体设计
+# StableCore Geometry 总体设计
 
 ## 1. 目标定位
 
-这个仓库不是通用数学库，也不是偏学术实验性质的计算几何集合，而是面向工程软件的几何算法基础库。
+StableCore Geometry 是面向工程计算的 C++ 几何库，不是通用数学教材式库，也不是只做单点算法实验的仓库。当前代码已经形成了清晰的 2D 核心、3D 服务、BRep / polyhedron、mesh、section、healing、boolean、validation 和 search 子系统。
 
-它的目标应当是：
+这个仓库的目标是：
 
 - 面向工程场景，而不是面向竞赛题
-- 先解决稳定、可测、可维护，再追求算法花哨度
-- 先把 2D 基础打牢，再扩展 3D
-- 让几何类型、几何谓词、几何运算之间职责清楚
+- 先保证稳定、可测、可维护，再追求算法覆盖度
+- 让类型层、算法层、服务层职责清楚
+- 用统一容差和统一 diagnostics 约束跨模块行为
 
-它最终要支撑的不是零散的“点线面计算”，而是一整套工程几何处理流程，例如：
+## 2. 当前代码结构
 
-- 构件轮廓表达
-- 线段、折线、区域关系判断
-- 投影、裁剪、求交、测距
-- 面积、长度、周长、中心点等基础度量
-- 为后续图形清洗、轮廓拼接、算量规则计算提供稳定底座
-
-## 2. 设计原则
-
-### 2.1 先做工程几何内核，不追求一开始大而全
-
-第一阶段先保证以下基础能力稳定：
-
-- 点与向量
-- 线段
-- 包围盒
-- 容差比较
-- 投影
-- 距离
-- 相交
-
-这些是几乎所有后续算法的共同底座。
-
-### 2.2 类型层与算法层分离
-
-类型负责表达数据，算法负责表达行为。
-
-不建议一开始就把大量算法塞进类型成员函数中。原因很直接：
-
-- 类型会变重
-- 接口边界会混乱
-- 测试粒度不清晰
-- 后续扩到 `Point2<T>`、`Point3<T>` 会更难演进
-
-建议：
-
-- `types` 只放几何对象与少量天然成立的小函数
-- `algorithm` 放距离、投影、相交、面积、包含等算法
-- `common` 放容差与基础数值工具
-
-### 2.3 容差是全库基础设施
-
-工程几何不是理想数学。只要涉及：
-
-- 共线
-- 平行
-- 点在线段上
-- 相交
-- 闭合
-
-就一定会遇到浮点误差问题。
-
-因此容差不能散落成大量局部 `if` 判断，而应是全库统一规则。
-
-结论：
-
-- 不允许在算法里散落 `1e-6`、`1e-9`
-- 所有几何判定都必须走统一容差接口
-- 文档里要明确区分“拓扑相等”和“数值近似相等”
-
-### 2.4 复杂算法返回结构体结果
-
-例如线段求交时，调用方通常不只关心“是否相交”，还关心：
-
-- 是否平行
-- 是否共线
-- 是否唯一交点
-- 交点位置
-- 参数位置是否落在端点上
-
-因此复杂算法不应只返回 `bool`，而应返回结构化结果对象。
-
-### 2.5 API 命名要表达工程语义
-
-命名不要图省事。
-
-例如：
-
-- `ProjectPointToSegment` 优于 `Project`
-- `IsPointOnSegment` 优于 `Contains`
-- `SegmentIntersectionResult` 优于 `Result`
-
-库规模变大后，命名是否自解释，会直接决定维护成本。
-
-## 3. 库的职责边界
-
-几何库应只负责“几何层”，不要一开始混入业务层。
-
-应该负责：
-
-- 基础几何对象
-- 基础几何关系判定
-- 基础几何运算
-- 稳定、可复用的结果表达
-
-不应该负责：
-
-- 工程构件业务语义
-- 楼层、墙、梁、板等业务对象
-- 算量规则解释
-- 文件解析
-- 图形界面
-
-## 4. 推荐分层
-
-建议沿用当前仓库已形成的目录思路：
+当前仓库主结构如下：
 
 ```text
 include/
   common/
   types/
-  algorithm/
+  sdk/
+  serialize/
+  export/
 
 src/
+  common/
+  sdk/
+  serialize/
+
 tests/
-docs/
+  capabilities/
+  gaps/
 ```
 
-### 4.1 总体设计文档与专项设计文档
+## 3. 公开入口
 
-总体设计文档负责定义全局目标、分层与演进边界。
+### 3.1 统一 umbrella
 
-专项设计文档负责给出可直接落地实现的细化规则。目前包括：
+对外优先使用：
 
-- `point-vector-design.md`
-- `segment-design.md`
-- `archive/box-design.md`
-- `polyline-design.md`
-- `polygon-design.md`
-- `sdk-design.md`
-- `export-design.md`
+```cpp
+#include "sdk/Geometry.h"
+```
 
-执行规则：
+`Geometry.h` 是当前稳定 umbrella 入口，它聚合了 `GeometryApi`、`GeometryEpsilon`、`GeometrySearchPoly`、`GeometryBodyBoolean` 以及当前主要的 2D / 3D SDK 头文件。
 
-- 总体设计文档给出全局边界
-- 专项设计文档给出落地规则
-- 若两者冲突，应先回到总体设计统一修订，再同步专项文档
+### 3.2 值类型与 SDK 类型层
 
-### 4.2 `common`
+当前公开值类型和类型别名主要分布在：
 
-作用：
+- `include/types/*`
+- `include/sdk/GeometryTypes.h`
 
-- 容差配置
-- 基础比较函数
-- 标量数学辅助
+典型类型包括：
 
-建议包含：
+- 2D: `Point2d`, `Vector2d`, `Box2d`, `Segment2d`, `LineSegment2d`, `ArcSegment2d`, `Polyline2d`, `Polygon2d`
+- 3D: `Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`, `Line3d`, `Ray3d`, `LineSegment3d`, `Triangle3d`, `Transform3d`, `Matrix3d`, `Plane`
+- 2D / 3D 结果与辅助类型：`SegmentProjection2d`, `GeometryTolerance3d`, `GeometryContext3d`, 各类 projection / intersection / validation / conversion / section / boolean 结果结构体
 
-- `Epsilon`
-- `NumericCompare`
-- `MathUtils`
+## 4. 设计原则
 
-### 4.3 `types`
+### 4.1 类型层与服务层分离
 
-作用：
+类型层负责表达几何数据与少量天然属性，服务层负责复杂算法、拓扑推导、恢复和诊断。
 
-- 定义点、向量、线段、包围盒等基础对象
+典型边界是：
 
-建议逐步包含：
+- `Point2<T>`、`Vector2<T>`、`Box2<T>`、`Polyline2<T>`、`Polygon2<T>`、`Segment2<T>` 负责数据与基础不变量
+- `GeometryMeasure`、`GeometryProjection`、`GeometryIntersection`、`GeometryRelation`、`GeometrySection`、`GeometryHealing`、`GeometryBodyBoolean`、`GeometrySearchPoly` 负责算法与流程
 
-- `Point2<T>`
-- `Vector2<T>`
-- `Segment2<T>`
-- `Box2<T>`
-- `Polyline2<T>`
-- `Polygon2<T>`
+### 4.2 容差是基础设施
 
-这一层重点是表达数据与维持不变量。
+工程几何必须统一处理浮点误差、共线、闭合、投影、相交和退化情况。
 
-### 4.4 `algorithm`
+当前代码已经将容差集中到：
 
-作用：
+- `include/common/GeometryEpsilon.h`
+- `include/sdk/GeometryTypes.h` 中的 `GeometryTolerance3d` / `GeometryContext3d`
 
-- 对基础几何对象执行运算与判定
+原则上不应在算法里散落固定魔法数。
 
-建议按模块拆分，而不是把所有算法堆进一个头文件：
+### 4.3 复杂结果使用结构体
 
-- `Predicate2d`
-- `Distance2d`
-- `Project2d`
-- `Intersect2d`
-- `Measure2d`
+对于投影、求交、section、boolean、search 这类算法，调用方通常需要的不只是 `bool`，还包括：
 
-后续再扩展：
+- 结果类型
+- 诊断信息
+- 参数位置
+- 退化状态
+- 选择依据
 
-- `Polyline2d`
-- `Polygon2d`
-- `Clip2d`
-- `Topology2d`
+所以当前设计倾向于返回结构化结果，而不是只返回单一标志位。
 
-## 5. 类型系统设计
+### 4.4 命名保持短名风格
 
-### 5.1 `Point2<T>` 与 `Vector2<T>`
+当前代码沿用短名 API 风格，例如：
 
-建议使用模板统一 `Point2d`、`Vector2d`、`Point2i`、`Vector2i`。
+- `PointAt`
+- `Bounds`
+- `Length`
+- `Area`
+- `Validate`
+- `ConvertTo...`
+- `Rebuild...`
 
-基础形式：
+公开 API 不再回到 `GetXxx` 风格。
 
-- `Point2<T>`
-- `Vector2<T>`
+## 5. 2D 核心模块
 
-别名：
+当前 2D 核心围绕以下能力组织：
 
-- `Point2d`
-- `Point2i`
-- `Vector2d`
-- `Vector2i`
+- 基础类型：`Point2`, `Vector2`, `Segment2`, `LineSegment2`, `ArcSegment2`, `Box2`, `Polyline2`, `Polygon2`
+- SDK 包装：`Segment2d`, `LineSegment2d`, `ArcSegment2d`, `Polyline2d`, `Polygon2d`, `MultiPolyline2d`, `MultiPolygon2d`, `Rectangle2d`, `Circle2d`, `Ellipse2d`
+- 算法服务：`GeometryAlgorithms`, `GeometryAxisOps`, `GeometryBoolean`, `GeometryMeasure`, `GeometryOffset`, `GeometryPathOps`, `GeometryProjection`, `GeometryRelation`, `GeometrySampling`, `GeometryTopology`, `GeometryValidation`, `GeometrySearchPoly`, `GeometrySegmentSearch`, `GeometryBoxTree`, `GeometryKDTree`
+- 结果与辅助：`GeometryResults`, `GeometryTypes`, `GeometryEpsilon`
 
-这样做的好处：
+这部分已经不只是“点线面基础类型”，而是带有完整工程流程的 2D 服务层。
 
-- 避免重复定义结构
-- 便于后续扩展到 `Point3<T>`、`Vector3<T>`
-- `double` 与 `int` 场景可以共享统一语义
+## 6. 3D 核心模块
 
-但要注意：
+当前 3D 侧已经形成了稳定的值类型、参数对象、拓扑对象和服务层。
 
-- 算法层的核心计算仍应以 `double` 为主
-- 整数类型更适合作为输入表达，不适合直接承担复杂计算
+### 6.1 值类型和参数对象
 
-### 5.2 `Segment2<T>`
+主要包括：
 
-建议从一开始就考虑模板化，而不是只定义 `Segment2d`。
+- 值类型：`Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`, `Line3d`, `Ray3d`, `LineSegment3d`, `Triangle3d`, `Matrix3d`, `Transform3d`, `Plane`
+- 参数对象：`Curve3d`, `LineCurve3d`, `NurbsCurve3d`, `Surface`, `PlaneSurface`, `RuledSurface`, `OffsetSurface`, `NurbsSurface`, `CurveOnSurface`
 
-形式上建议：
+### 6.2 拓扑和实体
 
-- `Segment2<T>`
-- `LineSegment2<T>`
-- `ArcSegment2<T>`
+主要包括：
 
-其中：
+- `BrepVertex`
+- `BrepEdge`
+- `BrepCoedge`
+- `BrepLoop`
+- `BrepFace`
+- `BrepShell`
+- `BrepBody`
+- `PolyhedronLoop3d`
+- `PolyhedronFace3d`
+- `PolyhedronBody`
+- `TriangleMesh`
 
-- `Segment2<T>` 作为统一边段抽象
-- `LineSegment2<T>`、`ArcSegment2<T>` 负责具体类型语义
+### 6.3 3D 服务层
 
-### 5.3 `Box2<T>`
+当前 3D 服务层已覆盖：
 
-`Box2<T>` 应保持轻量、透明。
+- `GeometryProjection` / `GeometryProjection3d`
+- `GeometryIntersection` / `GeometryIntersection3d`
+- `GeometryMeasure`
+- `GeometryRelation` / `GeometryRelation3d`
+- `GeometrySection`
+- `GeometryHealing`
+- `GeometryBodyBoolean`
+- `GeometryBrepConversion`
+- `GeometryBrepEditing`
+- `GeometryMeshConversion`
+- `GeometryMeshOps`
+- `GeometryMeshRepair`
+- `GeometryTessellation`
+- `GeometryTransform`
+- `GeometryValidation`
 
-建议提供：
+## 7. 目录与职责边界
 
-- `MinPoint()`
-- `MaxPoint()`
-- `Bounds()`
-- `IsValid()`
-- `Expand(...)`
+### 7.1 `common`
 
-不要在 `Box2<T>` 中提前塞入复杂空间查询逻辑。
+放容差和基础数值常量。
 
-## 6. 演进路线
+### 7.2 `types`
 
-建议分三步推进：
+放透明值类型和基础几何语义类型。
 
-1. 稳定 2D 基础值类型、谓词、投影、求交、测距能力。
-2. 补齐 polyline / polygon / topology / boolean / offset 等工程流程能力。
-3. 在 2D 规则稳定后，再把命名、容差、分层经验迁移到 3D。
+### 7.3 `sdk`
 
-## 7. 当前执行结论
+放面向产品侧的公开头文件和服务接口。
 
-当前仓库后续应坚持以下约束：
+### 7.4 `serialize`
 
-- 公开 API 保持短名风格，不回到 `GetXxx`
-- 成员方法与自由函数边界明确
-- 容差统一管理
-- 复杂算法返回结构体结果
-- 先统一设计，再扩展能力
+放文本序列化和反序列化支持。
+
+### 7.5 `src`
+
+放对应实现。
+
+### 7.6 `tests`
+
+`tests/capabilities` 放已成立能力，`tests/gaps` 放仍未收敛的已知差距。
+
+## 8. 当前边界结论
+
+- 公共 API 继续使用稳定短名
+- 类型层和服务层保持分离
+- 容差和 diagnostics 统一管理
+- 复杂算法优先返回结构化结果
+- 2D 和 3D 可以共享设计原则，但不强行共享同一套数据层实现
+- 当前更细的历史设计已合并到本总览页，避免多个设计稿继续分叉
