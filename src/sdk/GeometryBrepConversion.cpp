@@ -42,6 +42,31 @@ struct NonPlanarRepairPassResult
     std::unordered_map<std::size_t, Point3d> representativeTargetPoints;
 };
 
+void DumpBrepConversionDebugIfInteresting(
+    const PolyhedronBody& sourceBody,
+    const std::vector<BrepVertex>& vertices,
+    const std::vector<BrepEdge>& edges)
+{
+    if (!(sourceBody.FaceCount() == 3 || sourceBody.FaceCount() == 5))
+    {
+        return;
+    }
+
+    if (!(vertices.size() == 12 || vertices.size() == 13 || vertices.size() == 6 || vertices.size() == 8))
+    {
+        return;
+    }
+
+    std::cerr << "DumpBrepConversionDebugIfInteresting: faceCount=" << sourceBody.FaceCount()
+              << " vertexCount=" << vertices.size()
+              << " edgeCount=" << edges.size() << std::endl;
+    for (std::size_t i = 0; i < vertices.size(); ++i)
+    {
+        const Point3d point = vertices[i].Point();
+        std::cerr << "  v" << i << " = (" << point.x << ", " << point.y << ", " << point.z << ")" << std::endl;
+    }
+}
+
 [[nodiscard]] bool BuildFaceWithRefitSupportPlane(
     const PolyhedronFace3d& face,
     PolyhedronFace3d& repairedFace,
@@ -315,6 +340,12 @@ template <typename FaceAccessor>
         }
 
         PolyhedronFace3d snappedInput(face.SupportPlane(), std::move(outer), std::move(holes));
+        if (snappedInput.IsValid(eps))
+        {
+            faces[faceIndex] = std::move(snappedInput);
+            continue;
+        }
+
         PolyhedronFace3d snappedFace{};
         const std::vector<bool> emptyPreferredOuterVertices;
         if (!BuildFaceWithRefitSupportPlane(
@@ -640,7 +671,16 @@ template <typename FaceAccessor>
                         if (representativePointIt != representativeTargetPoints->end() &&
                             !vertices[found->second].Point().AlmostEquals(representativePointIt->second, vertexDedupEps))
                         {
-                            vertices[found->second] = BrepVertex(representativePointIt->second);
+                            Point3d representativePoint = representativePointIt->second;
+                            if (representativeTargetPlane != nullptr)
+                            {
+                                const Vector3d unitNormal = representativeTargetPlane->UnitNormal(eps);
+                                const double signedDistance =
+                                    representativeTargetPlane->SignedDistanceTo(representativePoint, eps);
+                                representativePoint = representativePoint - unitNormal * signedDistance;
+                            }
+
+                            vertices[found->second] = BrepVertex(representativePoint);
                         }
                     }
 
@@ -1059,6 +1099,7 @@ void BuildSharedOuterVertexPreferenceMask(
 
     if (preferHoleDominatedPlane)
     {
+        std::cerr << "BuildFaceWithRefitSupportPlane: hole-dominated enter faceHoleCount=" << holes.size() << std::endl;
         bool seededHolePlane = false;
         for (const PolyhedronLoop3d& hole : holes)
         {
@@ -1094,9 +1135,80 @@ void BuildSharedOuterVertexPreferenceMask(
                         bestPreferredCount = 0;
                         bestPreferredNormalLength = seedNormal.Length();
                         seededHolePlane = true;
+                        std::cerr << "BuildFaceWithRefitSupportPlane: hole-dominated seeded" << std::endl;
                     }
                 }
             }
+        }
+
+        if (foundSupport)
+        {
+            const Vector3d refitNormal = normal.Normalized(supportEps);
+            if (!refitNormal.IsValid())
+            {
+                std::cerr << "BuildFaceWithRefitSupportPlane: normalized normal invalid" << std::endl;
+                return false;
+            }
+
+            const Plane refitPlane = Plane::FromPointAndNormal(p0, refitNormal);
+            std::cerr << "BuildFaceWithRefitSupportPlane: normalLen=" << refitPlane.normal.Length()
+                      << " outer0Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(0), eps)
+                      << " outer1Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(1), eps)
+                      << " outer2Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(2), eps)
+                      << std::endl;
+
+            if (holes.empty())
+            {
+                repairedFace = PolyhedronFace3d(refitPlane, outer, holes);
+            }
+            else
+            {
+                auto projectLoopToPlane = [&](const PolyhedronLoop3d& loop) {
+                    std::vector<Point3d> projected;
+                    projected.reserve(loop.VertexCount());
+                    const Vector3d unitNormal = refitPlane.UnitNormal(eps);
+                    for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+                    {
+                        const Point3d point = loop.VertexAt(i);
+                        const double signedDistance = refitPlane.SignedDistanceTo(point, eps);
+                        projected.push_back(point - unitNormal * signedDistance);
+                    }
+                    return PolyhedronLoop3d(std::move(projected));
+                };
+
+                PolyhedronLoop3d projectedOuter = projectLoopToPlane(outer);
+                std::vector<PolyhedronLoop3d> projectedHoles;
+                projectedHoles.reserve(holes.size());
+                for (const PolyhedronLoop3d& hole : holes)
+                {
+                    projectedHoles.push_back(projectLoopToPlane(hole));
+                }
+                repairedFace = PolyhedronFace3d(refitPlane, std::move(projectedOuter), std::move(projectedHoles));
+                if (!repairedFace.IsValid(faceValidityEps))
+                {
+                    std::vector<Point3d> reversedOuterVertices = repairedFace.OuterLoop().Vertices();
+                    std::reverse(reversedOuterVertices.begin(), reversedOuterVertices.end());
+                    std::vector<PolyhedronLoop3d> reversedProjectedHoles;
+                    reversedProjectedHoles.reserve(repairedFace.HoleCount());
+                    for (std::size_t holeIndex = 0; holeIndex < repairedFace.HoleCount(); ++holeIndex)
+                    {
+                        std::vector<Point3d> reversedHoleVertices = repairedFace.HoleAt(holeIndex).Vertices();
+                        std::reverse(reversedHoleVertices.begin(), reversedHoleVertices.end());
+                        reversedProjectedHoles.emplace_back(std::move(reversedHoleVertices));
+                    }
+                    repairedFace = PolyhedronFace3d(
+                        refitPlane,
+                        PolyhedronLoop3d(std::move(reversedOuterVertices)),
+                        std::move(reversedProjectedHoles));
+                }
+            }
+
+            if (repairedRepresentativeIds != nullptr)
+            {
+                repairedRepresentativeIds->outer = std::move(normalizedOuterRepresentativeIds);
+                repairedRepresentativeIds->holes = std::move(normalizedHoleRepresentativeIds);
+            }
+            return true;
         }
     }
 
@@ -1660,6 +1772,19 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
     if (requiresRepair)
     {
         sourceBody = repairResult.body;
+        if (sourceBody.FaceCount() == 3)
+        {
+            for (std::size_t faceIndex = 0; faceIndex < sourceBody.FaceCount(); ++faceIndex)
+            {
+                const PolyhedronFace3d face = sourceBody.FaceAt(faceIndex);
+                const Plane plane = face.SupportPlane();
+                std::cerr << "ConvertToBrepBody: repaired face=" << faceIndex
+                          << " planeZ=" << plane.origin.z
+                          << " v0z=" << face.OuterLoop().VertexAt(0).z
+                          << " v1z=" << face.OuterLoop().VertexAt(1).z
+                          << std::endl;
+            }
+        }
     }
 
     auto computeBodyScale = [&sourceBody]() {
@@ -1709,54 +1834,158 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         return true;
     }();
 
-    const double vertexDedupEps = repairQuadHolelessBody
-        ? std::max(geometry::kBrepVertexDedupEpsilon, computeBodyScale() * 0.1)
-        : geometry::kBrepVertexDedupEpsilon;
-    const double validationEps = ComputeBodyValidationEpsilon(sourceBody, eps);
-
-    const std::vector<FaceLoopRepresentativeIds>* representativeIds =
-        requiresRepair ? &repairResult.representativeIds : &sourceRepresentativeIds;
     std::unordered_map<std::size_t, Point3d> representativeTargetPoints;
-    bool hasRepresentativeTargetPoints = false;
-    hasRepresentativeTargetPoints =
-        ExecuteRepresentativeTargetAggregationPass(originalBody, sourceRepresentativeIds, representativeTargetPoints);
-
-    if (requiresRepair && !repairResult.representativeTargetPoints.empty())
+    bool hasRepresentativeTargetPoints =
+        ExecuteRepresentativeTargetAggregationPass(
+            originalBody,
+            sourceRepresentativeIds,
+            representativeTargetPoints);
+    if (sourceBody.FaceCount() == 3)
     {
-        std::unordered_set<std::size_t> holeDrivenRepresentativeIds;
-        if (!repairResult.body.IsEmpty())
-        {
-            for (std::size_t faceIndex = 0; faceIndex < repairResult.body.FaceCount(); ++faceIndex)
+        std::cerr << "ConvertToBrepBody: sourceTargets=" << hasRepresentativeTargetPoints
+                  << " targetCount=" << representativeTargetPoints.size() << std::endl;
+    }
+    if (requiresRepair && !repairResult.representativeIds.empty() && repairResult.body.FaceCount() == originalBody.FaceCount())
+    {
+        std::vector<Point3d> projectedClusterRepresentatives;
+        std::vector<RepresentativePointAccumulator> projectedClusterAccumulators;
+        std::unordered_map<std::size_t, std::size_t> repairIdToProjectedCluster;
+
+        auto accumulateProjectedLoop = [&](const PolyhedronLoop3d& loop,
+                                           const std::vector<std::size_t>& loopIds,
+                                           const Plane& supportPlane) {
+            if (loop.VertexCount() != loopIds.size())
             {
-                if (faceIndex >= repairResult.representativeIds.size())
+                return false;
+            }
+
+            bool hasPrevious = false;
+            Point3d previousPoint{};
+            std::size_t previousId = 0;
+            for (std::size_t i = 0; i < loop.VertexCount(); ++i)
+            {
+                Point3d point = loop.VertexAt(i);
+                const std::size_t representativeId = loopIds[i];
+                if (hasPrevious && representativeId == previousId && point.AlmostEquals(previousPoint, eps))
                 {
                     continue;
                 }
 
-                if (repairResult.body.FaceAt(faceIndex).HoleCount() == 0)
+                const Vector3d unitNormal = supportPlane.UnitNormal(eps);
+                const double signedDistance = supportPlane.SignedDistanceTo(point, eps);
+                point = point - unitNormal * signedDistance;
+
+                const std::size_t clusterIndex = FindOrAddRepresentativePoint(
+                    point,
+                    projectedClusterRepresentatives,
+                    geometry::kRepresentativeGroupingEpsilon);
+                if (clusterIndex >= projectedClusterAccumulators.size())
                 {
-                    continue;
+                    projectedClusterAccumulators.resize(clusterIndex + 1);
                 }
 
-                const FaceLoopRepresentativeIds& ids = repairResult.representativeIds[faceIndex];
-                holeDrivenRepresentativeIds.insert(ids.outer.begin(), ids.outer.end());
-                for (const auto& holeIds : ids.holes)
-                {
-                    holeDrivenRepresentativeIds.insert(holeIds.begin(), holeIds.end());
-                }
+                auto& accumulator = projectedClusterAccumulators[clusterIndex];
+                accumulator.sum = accumulator.sum + (point - Point3d{});
+                ++accumulator.count;
+                repairIdToProjectedCluster[representativeId] = clusterIndex;
+
+                hasPrevious = true;
+                previousPoint = point;
+                previousId = representativeId;
+            }
+            return true;
+        };
+
+        for (std::size_t faceIndex = 0; faceIndex < originalBody.FaceCount(); ++faceIndex)
+        {
+            const PolyhedronFace3d originalFace = originalBody.FaceAt(faceIndex);
+            const PolyhedronFace3d repairedFace = repairResult.body.FaceAt(faceIndex);
+            const Plane supportPlane = repairedFace.SupportPlane();
+            const FaceLoopRepresentativeIds& ids = repairResult.representativeIds[faceIndex];
+
+            (void)accumulateProjectedLoop(originalFace.OuterLoop(), ids.outer, supportPlane);
+            for (std::size_t holeIndex = 0; holeIndex < originalFace.HoleCount() && holeIndex < ids.holes.size(); ++holeIndex)
+            {
+                (void)accumulateProjectedLoop(originalFace.HoleAt(holeIndex), ids.holes[holeIndex], supportPlane);
             }
         }
 
-        for (const auto& [representativeId, targetPoint] : repairResult.representativeTargetPoints)
+        for (const auto& [representativeId, clusterIndex] : repairIdToProjectedCluster)
         {
-            if (holeDrivenRepresentativeIds.find(representativeId) == holeDrivenRepresentativeIds.end())
+            if (clusterIndex >= projectedClusterAccumulators.size())
             {
                 continue;
             }
 
-            representativeTargetPoints[representativeId] = targetPoint;
+            const RepresentativePointAccumulator& accumulator = projectedClusterAccumulators[clusterIndex];
+            if (accumulator.count == 0)
+            {
+                continue;
+            }
+
+            const Vector3d average = accumulator.sum / static_cast<double>(accumulator.count);
+            representativeTargetPoints.try_emplace(representativeId, Point3d{average.x, average.y, average.z});
         }
     }
+
+    if (requiresRepair && !repairResult.representativeIds.empty() && !sourceRepresentativeIds.empty())
+    {
+        const std::size_t faceCount = std::min(sourceRepresentativeIds.size(), repairResult.representativeIds.size());
+        for (std::size_t faceIndex = 0; faceIndex < faceCount; ++faceIndex)
+        {
+            const auto& sourceFaceIds = sourceRepresentativeIds[faceIndex];
+            const auto& repairFaceIds = repairResult.representativeIds[faceIndex];
+
+            if (sourceFaceIds.outer.size() == repairFaceIds.outer.size())
+            {
+                for (std::size_t vertexIndex = 0; vertexIndex < sourceFaceIds.outer.size(); ++vertexIndex)
+                {
+                    const std::size_t sourceId = sourceFaceIds.outer[vertexIndex];
+                    const std::size_t repairId = repairFaceIds.outer[vertexIndex];
+                    const auto sourceTargetIt = representativeTargetPoints.find(sourceId);
+                    if (sourceTargetIt != representativeTargetPoints.end())
+                    {
+                        representativeTargetPoints.try_emplace(repairId, sourceTargetIt->second);
+                    }
+                }
+            }
+
+            const std::size_t holeCount = std::min(sourceFaceIds.holes.size(), repairFaceIds.holes.size());
+            for (std::size_t holeIndex = 0; holeIndex < holeCount; ++holeIndex)
+            {
+                const auto& sourceHoleIds = sourceFaceIds.holes[holeIndex];
+                const auto& repairHoleIds = repairFaceIds.holes[holeIndex];
+                if (sourceHoleIds.size() != repairHoleIds.size())
+                {
+                    continue;
+                }
+
+                for (std::size_t vertexIndex = 0; vertexIndex < sourceHoleIds.size(); ++vertexIndex)
+                {
+                    const std::size_t sourceId = sourceHoleIds[vertexIndex];
+                    const std::size_t repairId = repairHoleIds[vertexIndex];
+                    const auto sourceTargetIt = representativeTargetPoints.find(sourceId);
+                    if (sourceTargetIt != representativeTargetPoints.end())
+                    {
+                        representativeTargetPoints.try_emplace(repairId, sourceTargetIt->second);
+                    }
+                }
+            }
+        }
+    }
+
+    if (requiresRepair && !repairResult.representativeTargetPoints.empty())
+    {
+        for (const auto& [representativeId, targetPoint] : repairResult.representativeTargetPoints)
+        {
+            representativeTargetPoints.try_emplace(representativeId, targetPoint);
+        }
+    }
+
+    const double vertexDedupEps = repairQuadHolelessBody
+        ? std::max(geometry::kBrepVertexDedupEpsilon, computeBodyScale() * 0.1)
+        : geometry::kBrepVertexDedupEpsilon;
+    const double validationEps = ComputeBodyValidationEpsilon(sourceBody, eps);
 
     std::vector<BrepVertex> vertices;
     std::vector<BrepEdge> edges;
@@ -1792,24 +2021,71 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         }
 
         const std::vector<std::size_t>* outerRepresentativeIds = nullptr;
-        if (faceIndex < representativeIds->size())
+        if (faceIndex < repairResult.representativeIds.size())
         {
-            const auto& candidateOuterIds = (*representativeIds)[faceIndex].outer;
+            const auto& candidateOuterIds = repairResult.representativeIds[faceIndex].outer;
             if (candidateOuterIds.size() == sourceFace.OuterLoop().VertexCount())
             {
                 outerRepresentativeIds = &candidateOuterIds;
             }
         }
+        if (outerRepresentativeIds == nullptr && faceIndex < sourceRepresentativeIds.size())
+        {
+            const auto& candidateOuterIds = sourceRepresentativeIds[faceIndex].outer;
+            if (candidateOuterIds.size() == sourceFace.OuterLoop().VertexCount())
+            {
+                outerRepresentativeIds = &candidateOuterIds;
+            }
+        }
+        if (sourceBody.FaceCount() == 3)
+        {
+            std::cerr << "ConvertToBrepBody: face=" << faceIndex
+                      << " outerIds=" << (outerRepresentativeIds != nullptr ? outerRepresentativeIds->size() : 0)
+                      << " outerVerts=" << sourceFace.OuterLoop().VertexCount() << std::endl;
+            if (outerRepresentativeIds != nullptr)
+            {
+                std::cerr << "  outer ids:";
+                for (const std::size_t id : *outerRepresentativeIds)
+                {
+                    std::cerr << ' ' << id;
+                }
+                std::cerr << std::endl;
+            }
+        }
 
         std::vector<const std::vector<std::size_t>*> holeRepresentativeIds;
         holeRepresentativeIds.resize(sourceFace.HoleCount(), nullptr);
-        if (faceIndex < representativeIds->size())
+        if (faceIndex < repairResult.representativeIds.size())
         {
             for (std::size_t holeIndex = 0; holeIndex < sourceFace.HoleCount(); ++holeIndex)
             {
-                if (holeIndex < (*representativeIds)[faceIndex].holes.size())
+                if (holeRepresentativeIds[holeIndex] != nullptr)
                 {
-                    const auto& candidateHoleIds = (*representativeIds)[faceIndex].holes[holeIndex];
+                    continue;
+                }
+
+                if (holeIndex < repairResult.representativeIds[faceIndex].holes.size())
+                {
+                    const auto& candidateHoleIds = repairResult.representativeIds[faceIndex].holes[holeIndex];
+                    if (candidateHoleIds.size() == sourceFace.HoleAt(holeIndex).VertexCount())
+                    {
+                        holeRepresentativeIds[holeIndex] = &candidateHoleIds;
+                    }
+                }
+            }
+        }
+        if (faceIndex < sourceRepresentativeIds.size())
+        {
+            for (std::size_t holeIndex = 0; holeIndex < sourceFace.HoleCount(); ++holeIndex)
+            {
+                if (holeRepresentativeIds[holeIndex] != nullptr)
+                {
+                    continue;
+                }
+
+                if (holeIndex < sourceRepresentativeIds[faceIndex].holes.size())
+                {
+                    const auto& candidateHoleIds = sourceRepresentativeIds[faceIndex].holes[holeIndex];
                     if (candidateHoleIds.size() == sourceFace.HoleAt(holeIndex).VertexCount())
                     {
                         holeRepresentativeIds[holeIndex] = &candidateHoleIds;
@@ -1826,6 +2102,7 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             Intervald{-1.0, 1.0},
             validationEps);
         auto surface = std::make_shared<PlaneSurface>(planeSurface);
+        const Plane supportPlane = planeSurface.SupportPlane();
 
         BrepLoop outerLoop;
         std::vector<Point2d> outerUv;
@@ -1837,7 +2114,7 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                 outerUv,
                 outerRepresentativeIds,
                 hasRepresentativeTargetPoints ? &representativeTargetPoints : nullptr,
-                nullptr,
+                hasRepresentativeTargetPoints ? &supportPlane : nullptr,
                 &representativeToVertexIndex,
                 vertexDedupEps,
                 eps))
@@ -1907,7 +2184,7 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                     holeUv,
                     holeRepresentativeIdsForFace,
                     hasRepresentativeTargetPoints ? &representativeTargetPoints : nullptr,
-                    nullptr,
+                    hasRepresentativeTargetPoints ? &supportPlane : nullptr,
                     &representativeToVertexIndex,
                     vertexDedupEps,
                     eps))
@@ -2027,9 +2304,14 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             return true;
         };
 
-        const bool shellClosed =
-            ComputeSharedShellClosed(sourceBody, *representativeIds) ||
+        bool shellClosed =
+            ComputeSharedShellClosed(sourceBody, sourceRepresentativeIds) ||
             hasClosedSharedTopologySignature();
+        if (!shellClosed && requiresRepair && !repairResult.representativeIds.empty())
+        {
+            shellClosed = ComputeSharedShellClosed(sourceBody, repairResult.representativeIds);
+        }
+        DumpBrepConversionDebugIfInteresting(sourceBody, vertices, edges);
         BrepBody brepBody(std::move(vertices), std::move(edges), {BrepShell(std::move(faces), shellClosed)});
         for (std::size_t shellIndex = 0; shellIndex < brepBody.ShellCount(); ++shellIndex)
         {

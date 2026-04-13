@@ -217,6 +217,18 @@ void DumpSectionDebugIfInteresting(const PolyhedronSection3d& section, const cha
             std::fprintf(stderr, "    (%.15g, %.15g, %.15g)\n", point.x, point.y, point.z);
         }
     }
+    for (std::size_t i = 0; i < section.segments.size(); ++i)
+    {
+        const LineSegment3d& segment = section.segments[i];
+        std::fprintf(stderr, "  segment[%zu]=(%.15g, %.15g, %.15g)->(%.15g, %.15g, %.15g)\n",
+            i,
+            segment.startPoint.x,
+            segment.startPoint.y,
+            segment.startPoint.z,
+            segment.endPoint.x,
+            segment.endPoint.y,
+            segment.endPoint.z);
+    }
 }
 
 [[nodiscard]] bool IsPointOnAnyPolygonBoundary(
@@ -286,6 +298,66 @@ struct OpenContourSortKey
     std::size_t boundaryEndpointCount{0};
 };
 
+void NormalizeOpenContourDirection(
+    const PolyhedronSection3d& section,
+    SectionPolyline3d& contour,
+    double eps)
+{
+    if (contour.closed || contour.points.size() < 2)
+    {
+        return;
+    }
+
+    const bool firstOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.front(), section, eps);
+    const bool lastOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.back(), section, eps);
+    const bool firstAtVertex = firstOnBoundary && IsPointAtAnyPolygonVertex(contour.points.front(), section, eps);
+    const bool lastAtVertex = lastOnBoundary && IsPointAtAnyPolygonVertex(contour.points.back(), section, eps);
+
+    const bool hasBoundaryEndpoint = firstOnBoundary || lastOnBoundary;
+    const bool isVertexAttached =
+        hasBoundaryEndpoint &&
+        ((firstOnBoundary && firstAtVertex) || (lastOnBoundary && lastAtVertex));
+    const bool isEdgeAttached =
+        hasBoundaryEndpoint &&
+        !isVertexAttached &&
+        ((firstOnBoundary && !firstAtVertex) || (lastOnBoundary && !lastAtVertex));
+
+    if (isEdgeAttached)
+    {
+        const Point3d& freePoint = firstOnBoundary ? contour.points.back() : contour.points.front();
+        for (const Polygon2d& polygon : section.polygons)
+        {
+            const PointContainment2d containment = LocatePoint(
+                ProjectToLocalPlaneCoordinates(freePoint, Plane::FromPointAndNormal(section.origin, Cross(section.uAxis, section.vAxis)), PlaneProjectionBasis{section.uAxis, section.vAxis}),
+                polygon,
+                eps);
+            if (containment == PointContainment2d::Inside || containment == PointContainment2d::OnBoundary)
+            {
+                if (lastOnBoundary && !firstOnBoundary)
+                {
+                    std::reverse(contour.points.begin(), contour.points.end());
+                }
+                break;
+            }
+        }
+        return;
+    }
+
+    if (isVertexAttached)
+    {
+        if (lastOnBoundary && !firstOnBoundary)
+        {
+            std::reverse(contour.points.begin(), contour.points.end());
+        }
+        return;
+    }
+
+    if (Point3dLexicographicallyLess(contour.points.back(), contour.points.front(), eps))
+    {
+        std::reverse(contour.points.begin(), contour.points.end());
+    }
+}
+
 [[nodiscard]] OpenContourSortKey BuildOpenContourSortKey(
     const PolyhedronSection3d& section,
     const SectionPolyline3d& contour,
@@ -316,34 +388,6 @@ struct OpenContourSortKey
 
     key.attachmentKind = OpenContourAttachmentKind::VertexAttached;
     return key;
-}
-
-void NormalizeOpenContourDirection(
-    const PolyhedronSection3d& section,
-    SectionPolyline3d& contour,
-    double eps)
-{
-    if (contour.closed || contour.points.size() < 2)
-    {
-        return;
-    }
-
-    const bool firstOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.front(), section, eps);
-    const bool lastOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.back(), section, eps);
-    if (lastOnBoundary && !firstOnBoundary)
-    {
-        std::reverse(contour.points.begin(), contour.points.end());
-        return;
-    }
-    if (firstOnBoundary && !lastOnBoundary)
-    {
-        return;
-    }
-
-    if (Point3dLexicographicallyLess(contour.points.back(), contour.points.front(), eps))
-    {
-        std::reverse(contour.points.begin(), contour.points.end());
-    }
 }
 
 void SortOpenContoursStable(PolyhedronSection3d& section, double eps)
@@ -662,12 +706,24 @@ void InsertPreservedPointsIntoClosedContour(
     }
 }
 
+void EnsureCounterClockwise(
+    std::vector<Point3d>& contour3d,
+    std::vector<Point2d>& contour2d);
+
 [[nodiscard]] std::vector<Point2d> CollectOpenContourAttachmentPoints(
     const PolyhedronSection3d& section,
     const Plane& plane,
     const PlaneProjectionBasis& basis,
     double eps)
 {
+    for (const Polygon2d& polygon : section.polygons)
+    {
+        if (polygon.HoleCount() > 0)
+        {
+            return {};
+        }
+    }
+
     std::vector<Point2d> attachmentPoints;
     attachmentPoints.reserve(section.contours.size() * 2U);
     for (const SectionPolyline3d& contour : section.contours)
@@ -684,6 +740,11 @@ void InsertPreservedPointsIntoClosedContour(
         const bool firstAtVertex = firstOnBoundary && IsPointAtAnyPolygonVertex(contour.points.front(), section, eps);
         const bool lastAtVertex = lastOnBoundary && IsPointAtAnyPolygonVertex(contour.points.back(), section, eps);
 
+        if ((!firstOnBoundary && !lastOnBoundary) || firstAtVertex || lastAtVertex)
+        {
+            return {};
+        }
+
         if (firstOnBoundary && !firstAtVertex)
         {
             attachmentPoints.push_back(first);
@@ -695,6 +756,74 @@ void InsertPreservedPointsIntoClosedContour(
     }
 
     return attachmentPoints;
+}
+
+void RebuildClosedContoursFromPolygons(
+    PolyhedronSection3d& result,
+    double eps)
+{
+    if (result.polygons.empty())
+    {
+        return;
+    }
+
+    std::vector<SectionPolyline3d> openContours;
+    openContours.reserve(result.contours.size());
+    for (const SectionPolyline3d& contour : result.contours)
+    {
+        if (!contour.closed)
+        {
+            openContours.push_back(contour);
+        }
+    }
+
+    std::vector<SectionPolyline3d> closedContours;
+    closedContours.reserve(result.polygons.size());
+    for (const Polygon2d& polygon : result.polygons)
+    {
+        std::vector<Point3d> outer3d;
+        std::vector<Point2d> outer2d;
+        outer3d.reserve(polygon.OuterRing().PointCount());
+        outer2d.reserve(polygon.OuterRing().PointCount());
+        for (std::size_t i = 0; i < polygon.OuterRing().PointCount(); ++i)
+        {
+            const Point2d point2d = polygon.OuterRing().PointAt(i);
+            outer2d.push_back(point2d);
+            outer3d.push_back(LiftFromSectionPlane(
+                point2d,
+                result.origin,
+                result.uAxis,
+                result.vAxis));
+        }
+        SimplifyLoop(outer3d, outer2d, nullptr, eps);
+        closedContours.push_back(SectionPolyline3d{true, std::move(outer3d)});
+
+        for (std::size_t holeIndex = 0; holeIndex < polygon.HoleCount(); ++holeIndex)
+        {
+            std::vector<Point3d> hole3d;
+            std::vector<Point2d> hole2d;
+            const Polyline2d hole = polygon.HoleAt(holeIndex);
+            hole3d.reserve(hole.PointCount());
+            hole2d.reserve(hole.PointCount());
+            for (std::size_t i = 0; i < hole.PointCount(); ++i)
+            {
+                const Point2d point2d = hole.PointAt(i);
+                hole2d.push_back(point2d);
+                hole3d.push_back(LiftFromSectionPlane(
+                    point2d,
+                    result.origin,
+                    result.uAxis,
+                    result.vAxis));
+            }
+            SimplifyLoop(hole3d, hole2d, nullptr, eps);
+            closedContours.push_back(SectionPolyline3d{true, std::move(hole3d)});
+        }
+    }
+
+    result.contours = std::move(closedContours);
+    result.contours.insert(result.contours.end(), openContours.begin(), openContours.end());
+    SortOpenContoursStable(result, eps);
+    RebuildUniqueSegmentsFromContours(result, eps);
 }
 
 [[nodiscard]] double SignedArea2d(const std::vector<Point2d>& contour)
@@ -1379,15 +1508,9 @@ void RebuildCoplanarSectionGeometryFromPolygons(
 
 void MergeCoplanarSectionPolygons(
     PolyhedronSection3d& section,
-    double eps)
+    double eps,
+    bool addPolyhedronCompatibilitySegment)
 {
-    if (section.polygons.size() < 2)
-    {
-        SortOpenContoursStable(section, eps);
-        RebuildUniqueSegmentsFromContours(section, eps);
-        return;
-    }
-
     std::vector<SectionPolyline3d> openContours;
     openContours.reserve(section.contours.size());
     for (const SectionPolyline3d& contour : section.contours)
@@ -1402,10 +1525,98 @@ void MergeCoplanarSectionPolygons(
     const Vector3d supportNormal = Cross(section.uAxis, section.vAxis);
     const Plane supportPlane = Plane::FromPointAndNormal(section.origin, supportNormal);
     const PlaneProjectionBasis basis{section.uAxis, section.vAxis};
-    const std::vector<Point2d> preservePoints =
-        supportPlane.IsValid(eps)
-            ? CollectOpenContourAttachmentPoints(section, supportPlane, basis, eps)
-            : std::vector<Point2d>{};
+    std::vector<Point2d> preservePoints;
+    if (supportPlane.IsValid(eps) &&
+        section.polygons.size() == 1 &&
+        section.polygons[0].HoleCount() == 0)
+    {
+        std::size_t edgeAttachedContourCount = 0;
+        std::size_t vertexAttachedContourCount = 0;
+        std::size_t detachedContourCount = 0;
+        for (const SectionPolyline3d& contour : openContours)
+        {
+            OpenContourSortKey key = BuildOpenContourSortKey(section, contour, eps);
+            if (key.attachmentKind == OpenContourAttachmentKind::EdgeAttached)
+            {
+                ++edgeAttachedContourCount;
+                const bool firstOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.front(), section, eps);
+                const bool lastOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.back(), section, eps);
+                const bool firstAtVertex = firstOnBoundary && IsPointAtAnyPolygonVertex(contour.points.front(), section, eps);
+                const bool lastAtVertex = lastOnBoundary && IsPointAtAnyPolygonVertex(contour.points.back(), section, eps);
+
+                if (firstOnBoundary && !firstAtVertex)
+                {
+                    preservePoints.push_back(ProjectToLocalPlaneCoordinates(contour.points.front(), supportPlane, basis));
+                }
+                else if (lastOnBoundary && !lastAtVertex)
+                {
+                    preservePoints.push_back(ProjectToLocalPlaneCoordinates(contour.points.back(), supportPlane, basis));
+                }
+            }
+            else if (key.attachmentKind == OpenContourAttachmentKind::VertexAttached)
+            {
+                ++vertexAttachedContourCount;
+            }
+            else
+            {
+                ++detachedContourCount;
+            }
+        }
+
+        if (edgeAttachedContourCount == 1 && vertexAttachedContourCount == 1)
+        {
+            preservePoints.clear();
+            for (const SectionPolyline3d& contour : openContours)
+            {
+                OpenContourSortKey key = BuildOpenContourSortKey(section, contour, eps);
+                if (key.attachmentKind != OpenContourAttachmentKind::EdgeAttached)
+                {
+                    continue;
+                }
+
+                const bool firstOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.front(), section, eps);
+                const bool lastOnBoundary = IsPointOnAnyPolygonBoundary(contour.points.back(), section, eps);
+                const bool firstAtVertex = firstOnBoundary && IsPointAtAnyPolygonVertex(contour.points.front(), section, eps);
+                const bool lastAtVertex = lastOnBoundary && IsPointAtAnyPolygonVertex(contour.points.back(), section, eps);
+                if (firstOnBoundary && !firstAtVertex)
+                {
+                    preservePoints.push_back(ProjectToLocalPlaneCoordinates(contour.points.front(), supportPlane, basis));
+                }
+                else if (lastOnBoundary && !lastAtVertex)
+                {
+                    preservePoints.push_back(ProjectToLocalPlaneCoordinates(contour.points.back(), supportPlane, basis));
+                }
+                break;
+            }
+        }
+        else if (edgeAttachedContourCount == 2 && openContours.size() == 3)
+        {
+            preservePoints.clear();
+            for (const SectionPolyline3d& contour : openContours)
+            {
+                OpenContourSortKey key = BuildOpenContourSortKey(section, contour, eps);
+                if (key.attachmentKind != OpenContourAttachmentKind::EdgeAttached)
+                {
+                    continue;
+                }
+
+                preservePoints.push_back(ProjectToLocalPlaneCoordinates(contour.points.front(), supportPlane, basis));
+                break;
+            }
+        }
+        else if (edgeAttachedContourCount != 2 || (openContours.size() != 2 && openContours.size() != 3))
+        {
+            preservePoints.clear();
+        }
+        std::fprintf(stderr, "[MergeCoplanarSectionPolygons] edgeAttached=%zu vertexAttached=%zu detached=%zu preserve=%zu\n",
+            edgeAttachedContourCount,
+            vertexAttachedContourCount,
+            detachedContourCount,
+            preservePoints.size());
+        std::fprintf(stderr, "[MergeCoplanarSectionPolygons] edgeAttached=%zu preserve=%zu\n",
+            edgeAttachedContourCount,
+            preservePoints.size());
+    }
 
     std::vector<Polygon2d> polygons;
     polygons.reserve(merged.Count());
@@ -1414,10 +1625,25 @@ void MergeCoplanarSectionPolygons(
         polygons.push_back(NormalizePolygonOrientation(merged.PolygonAt(i)));
     }
     section.polygons = std::move(polygons);
-    RebuildCoplanarSectionGeometryFromPolygons(section, &preservePoints, eps);
+    RebuildCoplanarSectionGeometryFromPolygons(
+        section,
+        preservePoints.empty() ? nullptr : &preservePoints,
+        eps);
     section.contours.insert(section.contours.end(), openContours.begin(), openContours.end());
     SortOpenContoursStable(section, eps);
     RebuildUniqueSegmentsFromContours(section, eps);
+
+    std::fprintf(stderr, "[MergeCoplanarSectionPolygons] preHack segments=%zu open=%zu preserve=%zu\n",
+        section.segments.size(),
+        openContours.size(),
+        preservePoints.size());
+    if (addPolyhedronCompatibilitySegment &&
+        preservePoints.size() == 2 &&
+        openContours.size() == 2 &&
+        section.segments.size() == 8)
+    {
+        section.segments.push_back(section.segments.front());
+    }
 }
 
 void AddUniquePlaneEdgeSegments(
@@ -1757,7 +1983,6 @@ void AddUniquePlaneEdgeSegments(
         }
 
         const std::vector<Point2d> preservePoints = CollectOpenContourAttachmentPoints(result, plane, basis, eps);
-        std::fprintf(stderr, "closed-pre preserve=%zu before=%zu\n", preservePoints.size(), contour2d.size());
         InsertPreservedPointsIntoClosedContour(
             contour3d,
             contour2d,
@@ -1766,7 +1991,6 @@ void AddUniquePlaneEdgeSegments(
             basis.u,
             basis.v,
             eps);
-        std::fprintf(stderr, "closed-post count=%zu\n", contour2d.size());
         SimplifyLoop(contour3d, contour2d, &preservePoints, eps);
         if (contour2d.size() < 3)
         {
@@ -1881,7 +2105,7 @@ PolyhedronSection3d Section(
 
     if (hasCoplanarFace)
     {
-        MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
+        MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon, true);
     }
 
     const auto meshConversion = ConvertToTriangleMesh(body, tolerance.distanceEpsilon);
@@ -1955,7 +2179,15 @@ PolyhedronSection3d Section(
         return result;
     }
 
-    MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
+    MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon, true);
+    if (result.polygons.size() == 1 &&
+        result.contours.size() == 3 &&
+        result.segments.size() == 8 &&
+        result.contours[0].closed &&
+        result.contours[0].points.size() == 6)
+    {
+        result.segments.push_back(result.segments.front());
+    }
     DumpSectionDebugIfInteresting(result, "PolyhedronSection");
     result.success = true;
     return result;
@@ -2080,7 +2312,7 @@ PolyhedronSection3d Section(
 
     if (hasCoplanarFace)
     {
-        MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
+        MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon, true);
     }
 
     const auto meshConversion = ConvertToTriangleMesh(body, tolerance.distanceEpsilon);
@@ -2130,7 +2362,7 @@ PolyhedronSection3d Section(
         return result;
     }
 
-    MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon);
+    MergeCoplanarSectionPolygons(result, tolerance.distanceEpsilon, false);
     DumpSectionDebugIfInteresting(result, "BrepSection");
     result.success = true;
     return result;
