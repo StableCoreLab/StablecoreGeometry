@@ -1,4 +1,4 @@
-#include "sdk/GeometryKDTree.h"
+#include "sdk/KDTree2d.h"
 
 #include <algorithm>
 #include <limits>

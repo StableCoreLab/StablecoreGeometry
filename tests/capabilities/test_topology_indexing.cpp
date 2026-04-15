@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-#include "sdk/GeometryBoxTree.h"
-#include "sdk/GeometryKDTree.h"
-#include "sdk/GeometrySegmentSearch.h"
+#include "sdk/BoxTree2d.h"
+#include "sdk/KDTree2d.h"
+#include "sdk/SegmentSearch2d.h"
 #include "sdk/GeometryTopology.h"
 #include "support/GeometryTestSupport.h"
 

@@ -17,7 +17,7 @@
 | polygon relation tree / contains hierarchy | `GGLPolyRelation.pas` | `GeometryRelation.h` + `GeometryTopology.h` | 可用子集 |
 | 带重建 polygon 回收的 offset | `GGLOffsetFunc2d.pas` | `GeometryOffset.h` | 可用子集 |
 | 2D boolean | GGJ + Geo2DLib 产品使用 | `GeometryBoolean.h` | 可用子集 |
-| segment search / box-tree 加速 | Geo2DLib | `GeometrySegmentSearch.h` + `GeometryBoxTree.h` | 可用子集 |
+| segment search / box-tree 加速 | Geo2DLib | `SegmentSearch2d.h` + `BoxTree2d.h` | 可用子集 |
 | section / projected contour rebuild | `GGJSumpCommon.pas`, `GGL3DCommon.pas` | `GeometrySection.h` | 可用子集 |
 | polyhedron / brep conversion | GGJ conversion 和 rebuild 路径 | `GeometryBrepConversion.h` | 可用子集，但仍有 open repair gap |
 | brep healing / trim 回填 | GGJ healing 路径 | `GeometryHealing.h` | 可用子集，但仍有 open aggressive-policy gap |
@@ -51,4 +51,3 @@
 - 继续把 `GeometrySearchPoly` 从当前 branch-scored + candidate fake-edge diagnostic 子集，推进到更丰富的 fake-edge explanation 和 Delphi 级 ambiguous recovery
 - 继续把 `GeometryBodyBoolean` 从 identical/disjoint + axis-aligned single-box overlap / face-touching union 子集，推进到 non-box overlap、touching intersection/difference、shell-policy 和 healing-integrated cases
 - 只有当对应 capability 测试转绿时，才继续缩小 gap 测试
-

@@ -1,4 +1,4 @@
-#include "sdk/GeometryBoxTree.h"
+#include "sdk/BoxTree2d.h"
 
 #include <algorithm>
 #include <memory>
