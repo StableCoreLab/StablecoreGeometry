@@ -244,13 +244,23 @@ std::string BoxTree2d::DebugString() const
     return stream.str();
 }
 
-const std::vector<BoxTreeEntry2d>& BoxTree2d::Data() const
+const std::vector<BoxTreeEntry2d>& BoxTree2d::Entries() const
 {
     return entries_;
 }
 
-std::vector<BoxTreeEntry2d>& BoxTree2d::Data()
+std::vector<BoxTreeEntry2d>& BoxTree2d::Entries()
 {
     return entries_;
+}
+
+const std::vector<BoxTreeEntry2d>& BoxTree2d::Data() const
+{
+    return Entries();
+}
+
+std::vector<BoxTreeEntry2d>& BoxTree2d::Data()
+{
+    return Entries();
 }
 } // namespace geometry::sdk

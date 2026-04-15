@@ -15,7 +15,7 @@ public:
     double radius{0.0};
 
     Circle2d() = default;
-    Circle2d(const Point2d& centerValue, double radiusValue);
+    Circle2d(const Point2d& center, double radius);
 
     [[nodiscard]] bool IsValid() const;
     [[nodiscard]] double Area() const;

@@ -16,11 +16,11 @@ public:
     Point2d endPoint{};
 
     LineSegment2d() = default;
-    LineSegment2d(const Point2d& startPointValue, const Point2d& endPointValue);
+    LineSegment2d(const Point2d& startPoint, const Point2d& endPoint);
 
     [[nodiscard]] static LineSegment2d FromEndpoints(
-        const Point2d& startPointValue,
-        const Point2d& endPointValue);
+        const Point2d& startPoint,
+        const Point2d& endPoint);
 
     [[nodiscard]] SegmentKind2 Kind() const override;
     [[nodiscard]] bool IsValid() const override;

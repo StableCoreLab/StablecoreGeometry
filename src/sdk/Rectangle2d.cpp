@@ -19,8 +19,8 @@ namespace
 }
 } // namespace
 
-Rectangle2d::Rectangle2d(const Point2d& centerValue, double widthValue, double heightValue, double angleValue)
-    : center(centerValue), width(widthValue), height(heightValue), angleRadians(angleValue)
+Rectangle2d::Rectangle2d(const Point2d& center, double width, double height, double angleRadians)
+    : center(center), width(width), height(height), angleRadians(angleRadians)
 {
 }
 

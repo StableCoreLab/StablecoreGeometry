@@ -30,12 +30,12 @@ TriangleMesh Tessellate(const PlaneSurface& surface, std::size_t uSegments, std:
     for (std::size_t v = 0; v <= vSegments; ++v)
     {
         const double vRatio = static_cast<double>(v) / static_cast<double>(vSegments);
-        const double vValue = vRange.min + vRange.Length() * vRatio;
+        const double vParameter = vRange.min + vRange.Length() * vRatio;
         for (std::size_t u = 0; u <= uSegments; ++u)
         {
             const double uRatio = static_cast<double>(u) / static_cast<double>(uSegments);
-            const double uValue = uRange.min + uRange.Length() * uRatio;
-            vertices.push_back(surface.PointAt(uValue, vValue));
+            const double uParameter = uRange.min + uRange.Length() * uRatio;
+            vertices.push_back(surface.PointAt(uParameter, vParameter));
         }
     }
 

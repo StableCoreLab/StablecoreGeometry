@@ -122,15 +122,23 @@ std::string MultiPolygon2d::DebugString() const
     return stream.str();
 }
 
-const std::vector<Polygon2d>& MultiPolygon2d::Data() const
+const std::vector<Polygon2d>& MultiPolygon2d::Polygons() const
 {
     return polygons_;
+}
+
+std::vector<Polygon2d>& MultiPolygon2d::Polygons()
+{
+    return polygons_;
+}
+
+const std::vector<Polygon2d>& MultiPolygon2d::Data() const
+{
+    return Polygons();
 }
 
 std::vector<Polygon2d>& MultiPolygon2d::Data()
 {
-    return polygons_;
+    return Polygons();
 }
 } // namespace geometry::sdk
-
-

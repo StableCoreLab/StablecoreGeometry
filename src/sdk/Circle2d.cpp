@@ -9,8 +9,8 @@
 
 namespace geometry::sdk
 {
-Circle2d::Circle2d(const Point2d& centerValue, double radiusValue)
-    : center(centerValue), radius(radiusValue)
+Circle2d::Circle2d(const Point2d& center, double radius)
+    : center(center), radius(radius)
 {
 }
 

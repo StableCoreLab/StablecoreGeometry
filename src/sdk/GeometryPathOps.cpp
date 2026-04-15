@@ -61,7 +61,7 @@ struct VertexGraph2d
 
 [[nodiscard]] std::vector<Point2d> SimplifyRingVertices(std::vector<Point2d> points, double eps);
 
-[[nodiscard]] double SideValue(const Point2d& point, const LineSegment2d& line)
+[[nodiscard]] double SignedSide(const Point2d& point, const LineSegment2d& line)
 {
     return Cross(line.endPoint - line.startPoint, point - line.startPoint);
 }
@@ -153,10 +153,10 @@ struct VertexGraph2d
     }
 
     Point2d prev = input.back();
-    double prevSide = SideValue(prev, cutter);
+    double prevSide = SignedSide(prev, cutter);
     for (const Point2d& current : input)
     {
-        const double currentSide = SideValue(current, cutter);
+        const double currentSide = SignedSide(current, cutter);
         const bool prevInside = keepLeft ? prevSide >= -geometry::kPathOpsDefaultEpsilon : prevSide <= geometry::kPathOpsDefaultEpsilon;
         const bool currentInside =
             keepLeft ? currentSide >= -geometry::kPathOpsDefaultEpsilon : currentSide <= geometry::kPathOpsDefaultEpsilon;

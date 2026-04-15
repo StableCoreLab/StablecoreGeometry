@@ -42,7 +42,9 @@ If you only need a narrow area, include the specific header directly instead of 
 - Test-first for core algorithms
 
 For deeper architecture notes, see [`docs/library-design.md`](docs/library-design.md).
-For code follow-up items, see [`docs/todolist.md`](docs/todolist.md).
+For stable public naming rules, see [`docs/public-api-naming.md`](docs/public-api-naming.md).
+For the current symbol audit, see [`docs/public-api-naming-audit.md`](docs/public-api-naming-audit.md).
+For code follow-up items, see [`docs/rename-followup-todo.md`](docs/rename-followup-todo.md).
 
 ## Build
 

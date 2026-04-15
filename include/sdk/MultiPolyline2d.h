@@ -35,6 +35,8 @@ public:
     [[nodiscard]] Box2d Bounds() const;
     [[nodiscard]] std::string DebugString() const;
 
+    [[nodiscard]] const std::vector<Polyline2d>& Polylines() const;
+    [[nodiscard]] std::vector<Polyline2d>& Polylines();
     [[nodiscard]] const std::vector<Polyline2d>& Data() const;
     [[nodiscard]] std::vector<Polyline2d>& Data();
 
@@ -42,4 +44,3 @@ private:
     std::vector<Polyline2d> polylines_{};
 };
 } // namespace geometry::sdk
-

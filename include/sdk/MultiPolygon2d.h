@@ -36,6 +36,8 @@ public:
     [[nodiscard]] Box2d Bounds() const;
     [[nodiscard]] std::string DebugString() const;
 
+    [[nodiscard]] const std::vector<Polygon2d>& Polygons() const;
+    [[nodiscard]] std::vector<Polygon2d>& Polygons();
     [[nodiscard]] const std::vector<Polygon2d>& Data() const;
     [[nodiscard]] std::vector<Polygon2d>& Data();
 
@@ -43,4 +45,3 @@ private:
     std::vector<Polygon2d> polygons_{};
 };
 } // namespace geometry::sdk
-

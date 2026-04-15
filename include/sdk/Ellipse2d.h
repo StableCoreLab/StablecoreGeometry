@@ -18,15 +18,15 @@ public:
 
     Ellipse2d() = default;
     Ellipse2d(
-        const Point2d& centerValue,
-        double majorRadiusValue,
-        double minorRadiusValue,
-        double angleValue = 0.0);
+        const Point2d& center,
+        double majorRadius,
+        double minorRadius,
+        double angleRadians = 0.0);
 
     [[nodiscard]] bool IsValid() const;
     [[nodiscard]] double Area() const;
     [[nodiscard]] double Perimeter() const;
-    [[nodiscard]] Point2d PointAtAngle(double angleRadiansValue) const;
+    [[nodiscard]] Point2d PointAtAngle(double angleRadians) const;
     [[nodiscard]] Box2d Bounds(std::size_t segmentCount = 128) const;
     [[nodiscard]] Polygon2d ToPolygon(std::size_t segmentCount = 128) const;
     [[nodiscard]] std::string DebugString() const;

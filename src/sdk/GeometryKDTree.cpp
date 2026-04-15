@@ -267,13 +267,23 @@ std::string KDTree2d::DebugString() const
     return stream.str();
 }
 
-const std::vector<KDTreeEntry2d>& KDTree2d::Data() const
+const std::vector<KDTreeEntry2d>& KDTree2d::Entries() const
 {
     return entries_;
 }
 
-std::vector<KDTreeEntry2d>& KDTree2d::Data()
+std::vector<KDTreeEntry2d>& KDTree2d::Entries()
 {
     return entries_;
+}
+
+const std::vector<KDTreeEntry2d>& KDTree2d::Data() const
+{
+    return Entries();
+}
+
+std::vector<KDTreeEntry2d>& KDTree2d::Data()
+{
+    return Entries();
 }
 } // namespace geometry::sdk

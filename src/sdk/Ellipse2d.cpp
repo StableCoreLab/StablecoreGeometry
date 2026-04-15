@@ -10,14 +10,14 @@
 namespace geometry::sdk
 {
 Ellipse2d::Ellipse2d(
-    const Point2d& centerValue,
-    double majorRadiusValue,
-    double minorRadiusValue,
-    double angleValue)
-    : center(centerValue),
-      majorRadius(majorRadiusValue),
-      minorRadius(minorRadiusValue),
-      angleRadians(angleValue)
+    const Point2d& center,
+    double majorRadius,
+    double minorRadius,
+    double angleRadians)
+    : center(center),
+      majorRadius(majorRadius),
+      minorRadius(minorRadius),
+      angleRadians(angleRadians)
 {
 }
 
@@ -43,10 +43,10 @@ double Ellipse2d::Perimeter() const
            (1.0 + (3.0 * h) / (10.0 + std::sqrt(4.0 - 3.0 * h)));
 }
 
-Point2d Ellipse2d::PointAtAngle(double angleRadiansValue) const
+Point2d Ellipse2d::PointAtAngle(double angleRadians) const
 {
-    const double x = majorRadius * std::cos(angleRadiansValue);
-    const double y = minorRadius * std::sin(angleRadiansValue);
+    const double x = majorRadius * std::cos(angleRadians);
+    const double y = minorRadius * std::sin(angleRadians);
     const double c = std::cos(angleRadians);
     const double s = std::sin(angleRadians);
     return Point2d{center.x + x * c - y * s, center.y + x * s + y * c};
@@ -58,9 +58,7 @@ Box2d Ellipse2d::Bounds(std::size_t segmentCount) const
     {
         return {};
     }
-    Box2d box;
-    const Polygon2d polygon = ToPolygon(segmentCount);
-    return polygon.Bounds();
+    return ToPolygon(segmentCount).Bounds();
 }
 
 Polygon2d Ellipse2d::ToPolygon(std::size_t segmentCount) const

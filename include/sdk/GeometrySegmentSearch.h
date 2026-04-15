@@ -65,6 +65,8 @@ public:
     [[nodiscard]] std::optional<SegmentSearchHit2d> Nearest(const Point2d& point) const;
     [[nodiscard]] std::string DebugString() const;
 
+    [[nodiscard]] const std::vector<SegmentSearchEntry2d>& Entries() const;
+    [[nodiscard]] std::vector<SegmentSearchEntry2d>& Entries();
     [[nodiscard]] const std::vector<SegmentSearchEntry2d>& Data() const;
     [[nodiscard]] std::vector<SegmentSearchEntry2d>& Data();
 

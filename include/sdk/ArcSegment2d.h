@@ -22,16 +22,16 @@ public:
 
     ArcSegment2d() = default;
     ArcSegment2d(
-        const Point2d& centerValue,
-        double radiusValue,
-        double startAngleValue,
-        double sweepAngleValue);
+        const Point2d& center,
+        double radius,
+        double startAngle,
+        double sweepAngle);
 
     [[nodiscard]] static ArcSegment2d FromCenterRadiusStartSweep(
-        const Point2d& centerValue,
-        double radiusValue,
-        double startAngleValue,
-        double sweepAngleValue);
+        const Point2d& center,
+        double radius,
+        double startAngle,
+        double sweepAngle);
 
     [[nodiscard]] SegmentKind2 Kind() const override;
     [[nodiscard]] bool IsValid() const override;

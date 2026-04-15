@@ -5,16 +5,16 @@
 
 namespace geometry::sdk
 {
-LineSegment2d::LineSegment2d(const Point2d& startPointValue, const Point2d& endPointValue)
-    : startPoint(startPointValue), endPoint(endPointValue)
+LineSegment2d::LineSegment2d(const Point2d& startPoint, const Point2d& endPoint)
+    : startPoint(startPoint), endPoint(endPoint)
 {
 }
 
 LineSegment2d LineSegment2d::FromEndpoints(
-    const Point2d& startPointValue,
-    const Point2d& endPointValue)
+    const Point2d& startPoint,
+    const Point2d& endPoint)
 {
-    return LineSegment2d(startPointValue, endPointValue);
+    return LineSegment2d(startPoint, endPoint);
 }
 
 SegmentKind2 LineSegment2d::Kind() const

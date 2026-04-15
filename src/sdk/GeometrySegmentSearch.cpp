@@ -146,6 +146,8 @@ std::string SegmentSearch2d::DebugString() const
     return stream.str();
 }
 
-const std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() const { return entries_; }
-std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() { return entries_; }
+const std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Entries() const { return entries_; }
+std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Entries() { return entries_; }
+const std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() const { return Entries(); }
+std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() { return Entries(); }
 } // namespace geometry::sdk

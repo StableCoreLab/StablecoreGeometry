@@ -47,6 +47,8 @@ public:
     [[nodiscard]] std::vector<std::size_t> QueryContaining(const Point2d& point, double eps = 1e-9) const;
     [[nodiscard]] std::string DebugString() const;
 
+    [[nodiscard]] const std::vector<BoxTreeEntry2d>& Entries() const;
+    [[nodiscard]] std::vector<BoxTreeEntry2d>& Entries();
     [[nodiscard]] const std::vector<BoxTreeEntry2d>& Data() const;
     [[nodiscard]] std::vector<BoxTreeEntry2d>& Data();
 

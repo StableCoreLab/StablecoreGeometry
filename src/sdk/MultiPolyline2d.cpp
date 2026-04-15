@@ -111,15 +111,24 @@ std::string MultiPolyline2d::DebugString() const
     return stream.str();
 }
 
-const std::vector<Polyline2d>& MultiPolyline2d::Data() const
+const std::vector<Polyline2d>& MultiPolyline2d::Polylines() const
 {
     return polylines_;
+}
+
+std::vector<Polyline2d>& MultiPolyline2d::Polylines()
+{
+    return polylines_;
+}
+
+const std::vector<Polyline2d>& MultiPolyline2d::Data() const
+{
+    return Polylines();
 }
 
 std::vector<Polyline2d>& MultiPolyline2d::Data()
 {
-    return polylines_;
+    return Polylines();
 }
 } // namespace geometry::sdk
-
 

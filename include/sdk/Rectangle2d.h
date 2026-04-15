@@ -18,7 +18,7 @@ public:
     double angleRadians{0.0};
 
     Rectangle2d() = default;
-    Rectangle2d(const Point2d& centerValue, double widthValue, double heightValue, double angleValue = 0.0);
+    Rectangle2d(const Point2d& center, double width, double height, double angleRadians = 0.0);
 
     [[nodiscard]] bool IsValid() const;
     [[nodiscard]] double Area() const;

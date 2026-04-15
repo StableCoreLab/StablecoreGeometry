@@ -11,24 +11,24 @@
 namespace geometry::sdk
 {
 ArcSegment2d::ArcSegment2d(
-    const Point2d& centerValue,
-    double radiusValue,
-    double startAngleValue,
-    double sweepAngleValue)
-    : center(centerValue),
-      radius(radiusValue),
-      startAngle(startAngleValue),
-      sweepAngle(sweepAngleValue)
+    const Point2d& center,
+    double radius,
+    double startAngle,
+    double sweepAngle)
+    : center(center),
+      radius(radius),
+      startAngle(startAngle),
+      sweepAngle(sweepAngle)
 {
 }
 
 ArcSegment2d ArcSegment2d::FromCenterRadiusStartSweep(
-    const Point2d& centerValue,
-    double radiusValue,
-    double startAngleValue,
-    double sweepAngleValue)
+    const Point2d& center,
+    double radius,
+    double startAngle,
+    double sweepAngle)
 {
-    return ArcSegment2d(centerValue, radiusValue, startAngleValue, sweepAngleValue);
+    return ArcSegment2d(center, radius, startAngle, sweepAngle);
 }
 
 SegmentKind2 ArcSegment2d::Kind() const
