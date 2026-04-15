@@ -56,5 +56,4 @@ private:
     std::vector<BoxTreeEntry2d> entries_{};
 };
 
-using GeometryBoxTree2d = BoxTree2d;
 } // namespace geometry::sdk

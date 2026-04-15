@@ -63,5 +63,4 @@ private:
     std::vector<KDTreeEntry2d> entries_{};
 };
 
-using GeometryKDTree2d = KDTree2d;
 } // namespace geometry::sdk

@@ -32,7 +32,6 @@
 
 | Symbol group | Recommendation | Reason |
 | --- | --- | --- |
-| `GeometryBoxTree2d`, `GeometryKDTree2d`, `GeometrySegmentSearch2d` | 兼容别名 | 旧名保留给下游迁移期使用，新 canonical 名字是 `BoxTree2d` / `KDTree2d` / `SegmentSearch2d`。 |
 | `Brep*` 和 `Polyhedron*` 系列 | 保留 | 领域前缀有实际价值，且下游已经习惯。 |
 | `*3d` 结果和辅助结构体 | 保留 | 后缀能够明确表达维度信息。 |
 | `Options` / `Result` / `Issue` 后缀类型 | 保留 | 这种风格与当前 SDK 一致，也便于扫描。 |

@@ -75,5 +75,4 @@ private:
     std::vector<SegmentSearchEntry2d> entries_{};
 };
 
-using GeometrySegmentSearch2d = SegmentSearch2d;
 } // namespace geometry::sdk
