@@ -12,13 +12,13 @@
 
 ## P1：公共 API 面
 
-- `GeometrySearchPoly`
-  - 保持 `include/sdk/GeometrySearchPoly.h` 作为稳定入口。
+- `SearchPoly`
+  - 保持 `include/sdk/SearchPoly.h` 作为稳定入口。
   - 维持当前子集：invalid-input contract、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、result/diagnostics consistency、auto-flag gating、smallest-containing lookup。
   - 下一轮 follow-up 提示：在不破坏 result consistency 的前提下，继续加深 richer fake-edge explanation 和 ambiguous recovery。
 
-- `GeometryBodyBoolean`
-  - 保持 `include/sdk/GeometryBodyBoolean.h` 稳定。
+- `BodyBoolean`
+  - 保持 `include/sdk/BodyBoolean.h` 稳定。
   - 维持当前子集：invalid-input contract、identical/disjoint closed-body capability、axis-aligned single-box overlap、face-touching union。
   - 下一轮 follow-up 提示：谨慎加深 overlap 语义，同时把 touching intersection/difference 和 shell-policy 继续保留在 gap 状态。
 
@@ -28,7 +28,7 @@
 
 ## P2：内部算法拆层
 
-- `GeometryBrepConversion`
+- `BrepConversion`
   - 继续保持当前 non-planar repair 的拆分：
     - support-plane scoring
     - representative target aggregation
@@ -36,11 +36,11 @@
     - topology reconciliation
   - follow-up 提示：只有在当前 representative-average 覆盖仍稳定时，才增加新的 repair 子集。
 
-- `GeometryHealing`
+- `Healing`
   - 保持 conservative trim-backfill、shell-cap fallback 和 aggressive closure 的当前拆分。
   - follow-up 提示：只有当新的 shell repair 子集能在 capability 矩阵里清楚描述时，才继续扩展。
 
-- `GeometrySection`
+- `Section`
   - 保持当前 contour 处理拆分稳定。
   - follow-up 提示：继续往更一般的 mixed coplanar / non-planar arbitration 方向推进，但不要把 gap 边界冲掉。
 
@@ -58,7 +58,7 @@
 
 ## Follow-up 提示模板
 
-- “继续把 `GeometrySearchPoly` 从当前 branch-scored + fake-edge diagnostic 子集推进到更丰富解释和 ambiguous recovery。”
-- “继续把 `GeometryBodyBoolean` 从 identical/disjoint + axis-aligned single-box overlap / face-touching union 推进到更丰富 overlap，同时保持 gap contract 稳定。”
-- “保持 `GeometrySection` / `GeometryHealing` 的拆层清晰，并在同一轮同步 capability/gap inventory。”
+- “继续把 `SearchPoly` 从当前 branch-scored + fake-edge diagnostic 子集推进到更丰富解释和 ambiguous recovery。”
+- “继续把 `BodyBoolean` 从 identical/disjoint + axis-aligned single-box overlap / face-touching union 推进到更丰富 overlap，同时保持 gap contract 稳定。”
+- “保持 `Section` / `Healing` 的拆层清晰，并在同一轮同步 capability/gap inventory。”
 

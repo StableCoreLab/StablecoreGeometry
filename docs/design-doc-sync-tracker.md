@@ -1,4 +1,4 @@
-﻿# 设计文档同步跟踪
+# 设计文档同步跟踪
 
 ## 目的
 
@@ -8,43 +8,43 @@
 
 ## 2026-04-05 文档同步
 
-- 本轮继续推进 `GeometrySection` / `GeometryHealing` / `GeometryBodyBoolean`，并同步交接与覆盖文档。
-- 已进一步把 `GeometrySection` 的 merged polygon-with-hole 语义从 detached open contour 子集推进到 single edge-attached / single vertex-attached outer-boundary open-contour 子集，并保持 Polyhedron / Brep 路径一致。
-- 已进一步把 `GeometryBodyBoolean` 的 `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap` 与 `RotatedBoxIntersectionRemainsUnsupported` 转正为 explicit-unsupported capability tests，明确 UnsupportedOperation 也是稳定 contract。
-- 已把剩余 `GeometrySection` gap 从 single boundary-attached outer-boundary spur 收敛到更具体的 `MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration`，并把 `GeometryBodyBoolean` 剩余 gap 收敛到 shell-policy option 尚未接管语义。
-- 已进一步把 `GeometrySection` 的三条具体 gap 场景转正为 capability tests：`VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`、`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`、`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`。
-- 已进一步把 `GeometryHealing` 的 partial-overlap shared-boundary-loop arbitration 子集推进到 mixed closed-shell + partial-overlap pair，以及 independent + vertex-touch + partial-overlap pair 两个 capability 子集。
-- 已进一步把 `GeometrySearchPoly` ambiguous recovery gap 细化到“tied-top candidates dominant synthetic source 不同且当前缺少 candidate-identity 级解释”的可复现场景，避免下轮重新抽象。
+- 本轮继续推进 `Section` / `Healing` / `BodyBoolean`，并同步交接与覆盖文档。
+- 已进一步把 `Section` 的 merged polygon-with-hole 语义从 detached open contour 子集推进到 single edge-attached / single vertex-attached outer-boundary open-contour 子集，并保持 Polyhedron / Brep 路径一致。
+- 已进一步把 `BodyBoolean` 的 `FaceTouchingLShapeUnionRemainsUnsupportedWithExplicitGap` 与 `RotatedBoxIntersectionRemainsUnsupported` 转正为 explicit-unsupported capability tests，明确 UnsupportedOperation 也是稳定 contract。
+- 已把剩余 `Section` gap 从 single boundary-attached outer-boundary spur 收敛到更具体的 `MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration`，并把 `BodyBoolean` 剩余 gap 收敛到 shell-policy option 尚未接管语义。
+- 已进一步把 `Section` 的三条具体 gap 场景转正为 capability tests：`VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline`、`NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate`、`LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon`。
+- 已进一步把 `Healing` 的 partial-overlap shared-boundary-loop arbitration 子集推进到 mixed closed-shell + partial-overlap pair，以及 independent + vertex-touch + partial-overlap pair 两个 capability 子集。
+- 已进一步把 `SearchPoly` ambiguous recovery gap 细化到“tied-top candidates dominant synthetic source 不同且当前缺少 candidate-identity 级解释”的可复现场景，避免下轮重新抽象。
 - 已同步新增的 `AI Execution Spec` 到现有执行文档，明确 closed capability unit、P1+P2/P3 breadth、capability/edge-case/gap tests mandatory、capability-vs-gap discipline 与 diagnostics consistency 约束。
 - 已进一步把后续执行口径收紧为：每轮至少 3 项能力提升，其中至少 2 项来自 P1，并优先把 gap tests 推进为 capability tests。
-- 已进一步同步 `GeometrySection` 的 vertex-attached mixed-content 子集，并同步 `GeometrySearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。
-- 已进一步同步 `GeometrySection` 的 edge-attached mixed-content 子集，并补记 `SearchPolygonContainingPoint(...)` 路径也会保留 synthetic explanation。
-- 已进一步同步 `GeometrySection` 的 edge-adjacent / strip-adjacent mixed coplanar/non-planar merge 子集、strip-adjacent merged-area + edge-attached / vertex-attached open mixed-content 子集，以及 `GeometryHealing` 的 conservative competing-shell arbitration 子集。
-- 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + detached open mixed-content 子集、`GeometryHealing` 的 competing-pair-plus-vertex-touch arbitration 子集，以及 `GeometryBodyBoolean` 的 contained-body intersection / union 子集。
-- 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 子集、`GeometryHealing` 的 independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集，以及 `GeometryBodyBoolean` 的 disjoint empty intersection 子集。
-- 已进一步同步 `GeometrySection` 的 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子集、`GeometryHealing` 的 mixed closed-shell + competing-pair + vertex-touch shell arbitration 子集，以及 `GeometryBodyBoolean` 的 disjoint ordered-multi-body union 子集。
-- 已进一步同步 `GeometrySection` 的 detached-left + edge-attached stable ordering 子集、`GeometryHealing` 的 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集，以及 `GeometryBodyBoolean` 的 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集。
-- 已进一步把四条具体化 gap 转正为 capability tests：`GeometrySection` 的 detached + dual edge-attached mixed-content 子集、`GeometrySection` 的 Polyhedron dual-disjoint-non-planar-loop 子集、`GeometryHealing` 的 non-planar shared-edge shell reject 子集，以及 `GeometrySearchPoly` 的 clean-winner-vs-synthetic-runner-up causal explanation 子集。
+- 已进一步同步 `Section` 的 vertex-attached mixed-content 子集，并同步 `SearchPoly` gap 文案到 edge-level synthetic explanation 已覆盖的状态。
+- 已进一步同步 `Section` 的 edge-attached mixed-content 子集，并补记 `SearchPolygonContainingPoint(...)` 路径也会保留 synthetic explanation。
+- 已进一步同步 `Section` 的 edge-adjacent / strip-adjacent mixed coplanar/non-planar merge 子集、strip-adjacent merged-area + edge-attached / vertex-attached open mixed-content 子集，以及 `Healing` 的 conservative competing-shell arbitration 子集。
+- 已进一步同步 `Section` 的 strip-adjacent merged-area + detached open mixed-content 子集、`Healing` 的 competing-pair-plus-vertex-touch arbitration 子集，以及 `BodyBoolean` 的 contained-body intersection / union 子集。
+- 已进一步同步 `Section` 的 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 子集、`Healing` 的 independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集，以及 `BodyBoolean` 的 disjoint empty intersection 子集。
+- 已进一步同步 `Section` 的 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子集、`Healing` 的 mixed closed-shell + competing-pair + vertex-touch shell arbitration 子集，以及 `BodyBoolean` 的 disjoint ordered-multi-body union 子集。
+- 已进一步同步 `Section` 的 detached-left + edge-attached stable ordering 子集、`Healing` 的 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集，以及 `BodyBoolean` 的 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集。
+- 已进一步把四条具体化 gap 转正为 capability tests：`Section` 的 detached + dual edge-attached mixed-content 子集、`Section` 的 Polyhedron dual-disjoint-non-planar-loop 子集、`Healing` 的 non-planar shared-edge shell reject 子集，以及 `SearchPoly` 的 clean-winner-vs-synthetic-runner-up causal explanation 子集。
 - 已将当前 remaining gaps 从抽象方向改写为更具体的场景 / 候选测试用例，并同步到 `docs/next-task-prompt.md`，减少后续轮次继续做“抽象盘点”的成本。
 - 已同步这些具体化 gap 名称到 `tests/gaps/test_3d_section_gaps.cpp`、`tests/gaps/test_3d_healing_gaps.cpp`、`tests/gaps/test_3d_body_boolean_gaps.cpp`、`tests/gaps/test_searchpoly_gaps.cpp`，保证文档与测试名一致。
-- 已进一步同步 `GeometrySection` 的 dual edge-attached mixed-content 子集，以及 `GeometrySearchPoly` 的 ambiguous-top summary explanation。
-- 已进一步同步 `GeometrySection` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `GeometrySearchPoly` 的 ambiguous-top count explanation。
-- 已进一步同步 `GeometrySection` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `GeometrySearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。
+- 已进一步同步 `Section` 的 dual edge-attached mixed-content 子集，以及 `SearchPoly` 的 ambiguous-top summary explanation。
+- 已进一步同步 `Section` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `SearchPoly` 的 ambiguous-top count explanation。
+- 已进一步同步 `Section` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `SearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。
 - 已把当前收敛能力与 open gap 重新对齐到：
-  - `GeometrySection`
-  - `GeometryHealing`
-  - `GeometrySearchPoly`
-  - `GeometryBodyBoolean`
+  - `Section`
+  - `Healing`
+  - `SearchPoly`
+  - `BodyBoolean`
 - 已保持 `docs/session-handoff.md`、`docs/next-task-prompt.md`、`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md` 四份文档的状态一致性。
 - 已新增并同步三条代表性 capability：
   - detached mixed area + open contour 的 section mixed-content 子集（Polyhedron / Brep）
   - mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap 子集
   - face-touching external difference 的 body boolean 子集
-- 已新增并同步 `GeometrySearchPoly` 的 deterministic top-candidate / runner-up explanation 子集，以及 candidate-level causality explanation 子集，补充产品侧可直接消费的 best-candidate 摘要字段
-- 已进一步同步 `GeometrySearchPoly` 的 dominant synthetic-edge-kind explanation，补齐 best / runner-up 与 candidate-level 的 synthetic-cause 摘要
-- 已进一步同步 `GeometrySearchPoly` 的 edge-level synthetic-edge-source explanation，补齐逐边 source-cause 映射
-- 已进一步同步 `GeometrySearchPoly` 的 edge-level line-network touch mapping，补齐 synthetic edge 与 dangling / branch 触达关系
-- 已进一步同步 `GeometrySearchPoly` 的 edge-level vertex identity mapping，补齐 synthetic edge 对应的稳定 line-network vertex index
+- 已新增并同步 `SearchPoly` 的 deterministic top-candidate / runner-up explanation 子集，以及 candidate-level causality explanation 子集，补充产品侧可直接消费的 best-candidate 摘要字段
+- 已进一步同步 `SearchPoly` 的 dominant synthetic-edge-kind explanation，补齐 best / runner-up 与 candidate-level 的 synthetic-cause 摘要
+- 已进一步同步 `SearchPoly` 的 edge-level synthetic-edge-source explanation，补齐逐边 source-cause 映射
+- 已进一步同步 `SearchPoly` 的 edge-level line-network touch mapping，补齐 synthetic edge 与 dangling / branch 触达关系
+- 已进一步同步 `SearchPoly` 的 edge-level vertex identity mapping，补齐 synthetic edge 对应的稳定 line-network vertex index
 
 ## 状态说明
 
@@ -111,7 +111,7 @@
 - status: `done`
 - notes:
   - 新增 Delphi 实际能力到 C++ SDK 目标接口总表
-  - 固定“接口先行 + 测试先行”的快补策略，并标记 `GeometrySearchPoly` / `GeometryBodyBoolean` 为第一批快补入口
+  - 固定“接口先行 + 测试先行”的快补策略，并标记 `SearchPoly` / `BodyBoolean` 为第一批快补入口
 
 ### `docs/delphi-test-fasttrack-matrix.md`
 
@@ -132,9 +132,9 @@
 - status: `done`
 - notes:
   - 已重写为 fast-track 稳定 API 推进版提示词
-  - 已在后续批次中把 `GeometrySearchPoly` 第二批 SDK 深化与 `GeometryBodyBoolean` capability 排进主线
-  - 已进一步同步 `GeometrySearchPoly` 到 branch scoring + candidate-level fake-edge diagnostics 子集，并把下一轮重点收敛到 richer fake-edge explanation 与 ambiguous recovery
-  - 已进一步同步 `GeometryHealing` 当前内部边界：conservative trim-backfill、aggressive mirror-style closure，以及 standalone shared-edge boundary-cap fallback
+  - 已在后续批次中把 `SearchPoly` 第二批 SDK 深化与 `BodyBoolean` capability 排进主线
+  - 已进一步同步 `SearchPoly` 到 branch scoring + candidate-level fake-edge diagnostics 子集，并把下一轮重点收敛到 richer fake-edge explanation 与 ambiguous recovery
+  - 已进一步同步 `Healing` 当前内部边界：conservative trim-backfill、aggressive mirror-style closure，以及 standalone shared-edge boundary-cap fallback
 
 ### `tests/capabilities/test_searchpoly_sdk.cpp` / `tests/gaps/test_searchpoly_gaps.cpp`
 
@@ -149,14 +149,14 @@
 
 - status: `done`
 - notes:
-  - 已同步 `GeometrySearchPoly` 从 second batch candidate ranking / repair diagnostics 推进到 branch scoring + candidate-level fake-edge diagnostics
+  - 已同步 `SearchPoly` 从 second batch candidate ranking / repair diagnostics 推进到 branch scoring + candidate-level fake-edge diagnostics
   - 已把矩阵状态更新为 third batch landed，并将下一轮 SearchPoly 重点收敛到 richer fake-edge explanation 与 ambiguous recovery
 
 ### `docs/delphi-interface-fasttrack.md` / `docs/delphi-test-fasttrack-matrix.md`
 
 - status: `done`
 - notes:
-  - 已同步 `GeometryBodyBoolean` 从纯接口预留推进到第一批 deterministic closed-body capability
+  - 已同步 `BodyBoolean` 从纯接口预留推进到第一批 deterministic closed-body capability
   - 已进一步同步到 axis-aligned single-box overlap capability，并把矩阵状态更新为 first overlap subset landed
   - 已把下一轮重点更新为 body boolean richer overlap 子集与 SearchPoly richer fake-edge explanation / ambiguous recovery
 
@@ -167,17 +167,17 @@
   - 新增剩余任务按 AI 模型能力 / 推理强度分类文档
   - 固定 A/B/C 三档任务分派口径，供后续多模型并行分工使用
 
-## 2026-04-04 GeometryBodyBoolean touching-union 同步
+## 2026-04-04 BodyBoolean touching-union 同步
 
-- 已将 `GeometryBodyBoolean` 的 capability 边界再向前推进一小步：face-touching axis-aligned box union 现在也有了稳定的 capability 定义。
+- 已将 `BodyBoolean` 的 capability 边界再向前推进一小步：face-touching axis-aligned box union 现在也有了稳定的 capability 定义。
 - 已明确 touching intersection / difference 仍保持 gap，不把 lower-dimensional touching 结果误抬成 3D body capability。
 - 已把这次边界调整同步到 `docs/test-capability-coverage.md`、`docs/delphi-test-fasttrack-matrix.md`、`docs/session-handoff.md` 与 `docs/next-task-prompt.md`。
 
-### `src/sdk/GeometryHealing.cpp`
+### `src/sdk/Healing.cpp`
 
 - status: `done`
 - notes:
-  - 已将 `GeometryHealing.cpp` 的内部结构拆成 `trim_backfill` / `shell_cap` / `aggressive` 三个 helper/pass 区块，降低后续继续扩展时的上下文负担
+  - 已将 `Healing.cpp` 的内部结构拆成 `trim_backfill` / `shell_cap` / `aggressive` 三个 helper/pass 区块，降低后续继续扩展时的上下文负担
   - `trim_backfill` 负责 face trim 回填，`shell_cap` 负责 standalone shell boundary cap 组装，`aggressive` 负责保守 healing 之后的 topology-changing closure
   - 未改变 public SDK 入口，也未调整已收敛 capability 的 contract 边界
 
@@ -185,13 +185,13 @@
 
 - status: `done`
 - notes:
-  - 已将 `Geometry.h` 明确为稳定 umbrella header，只聚合 `GeometryApi` / `GeometrySearchPoly` / `GeometryBodyBoolean`
+  - 已将 `Geometry.h` 明确为稳定 umbrella header，只聚合 `GeometryApi` / `SearchPoly` / `BodyBoolean`
   - 已新增 umbrella contract test，确保产品侧仅依赖 `include/sdk` 时仍可直接使用稳定 SDK 入口
   - 本轮属于命名、收口、暴露面一致性整理，不改变 public SDK contract
 
-## 2026-04-05 GeometrySection / GeometryHealing / GeometryBodyBoolean 同步
+## 2026-04-05 Section / Healing / BodyBoolean 同步
 
-- `GeometrySection`
+- `Section`
   - 已新增 detached mixed area + open contour 子集，并同步到 capability / gap 文案
   - mixed open-curve / area gap 现收敛为更一般 adjacency arbitration，而不是否定已存在的 detached coexistence 子集
   - 已新增 edge-adjacent mixed coplanar + non-planar merge 子集：final section polygon merge 现会保留 open contours，并把 representative edge-adjacent mixed area 稳定收敛为单 polygon
@@ -205,7 +205,7 @@
   - 已进一步新增 merged polygon-with-hole + detached open contour 子集：在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
   - 已进一步新增 detached-left + edge-attached stable ordering 子集：open contour 稳定排序不再只依赖词典序，boundary-attached contour 会优先于 detached contour 输出
   - 已将 raw segment -> contour/polygon graph reconstruction 收口到共享 helper，降低 Polyhedron / Brep 两条路径后续继续推进时的分叉风险
-- `GeometryHealing`
+- `Healing`
   - 已将 shared-edge boundary-cap fallback 从单-shell body 推进到 mixed body 内的 eligible shell 子集
   - 已进一步把 deterministic boundary-cap 子集推进到“同一 body 内多个彼此独立 eligible shared-edge shells 并存”的场景
   - 已进一步把 competing-shell arbitration 推进到 partial-overlap shared-boundary-loop 子集：共线且区间重叠的 boundary spans 也会保守保持 open
@@ -213,7 +213,7 @@
   - 已将 conservative competing-shell arbitration 从 shared-vertex 级别收紧到 shared-boundary-edge 级别：共享 boundary edge 的 competing shells 保守保持 open，而仅 vertex-touch 的 eligible shells 可继续独立闭壳
   - 已进一步把 competing-shell arbitration 推进到 duplicated-topology geometrically coincident shared-boundary-loop 子集：即使 topology 独立，只要几何边界重合，也会保守保持 open
   - 已同步说明“更一般 multi-shell shared-boundary-loop / shared-edge arbitration 仍为 gap”，避免把更宽语义误记为已收敛
-- `GeometryBodyBoolean`
+- `BodyBoolean`
   - 已新增 face-touching external difference 子集，并把 touching intersection 与 richer overlap 继续保留为 gap
   - 已进一步新增 face-touching empty intersection 子集，并为 `BodyBooleanResult3d` 增加 `producedEmptyResult`
   - 已进一步把 axis-aligned touching empty intersection 从 face-touching 推进到 edge-touching / vertex-touching 子集
@@ -223,9 +223,9 @@
   - 已进一步新增 explicit unsupported contract 子集：face-touching L-shape non-box union 与 rotated-box positive-volume intersection 在 Polyhedron / Brep 路径都稳定返回 `UnsupportedOperation`
   - 已同步 `tests/capabilities/test_3d_body_boolean_sdk.cpp` 与 `tests/gaps/test_3d_body_boolean_gaps.cpp` 的边界说明
 
-## 2026-04-05 GeometrySearchPoly explanation 同步
+## 2026-04-05 SearchPoly explanation 同步
 
-- `GeometrySearchPoly`
+- `SearchPoly`
   - 已为 `SearchPolyResult2d` 新增 deterministic top-candidate explanation 字段，减少产品侧自行扫描 candidates 的负担
   - 已进一步新增 runner-up explanation 字段，使产品侧可直接判断 top candidate 是否因 synthetic / branch penalty runner-up 而胜出
   - 已进一步新增 `bestCandidateSyntheticEdgeSource`、`runnerUpSyntheticEdgeSource` 与 `ambiguousTopSyntheticEdgeSource`，让产品侧可直接读取 top / runner-up / tied-top 的 dominant fake-edge source 摘要
@@ -363,7 +363,7 @@
   - 已进一步深化 aggressive healing 实现分层：对 standalone coplanar shared-edge shell 新增 boundary-cap fallback，避免 interior shared-edge 在 mirror-style closure 下把 edge-use 从 2 推高到 4
   - 已新增 representative capability：support-plane mismatch + missing trims + holed shared-edge shell 可先经 conservative trim-backfill，再由 aggressive boundary-cap 补单一 holed cap face 完成闭壳
 - 2026-04-03：
-  - 已在 `src/sdk/GeometrySection.cpp` 落地 contour 驱动的 deterministic segment 后处理：输出段由 contour 重建并执行无向去重、短毛刺过滤（长度<=eps），减少 mesh-slice 原始段顺序/重复对统计的影响
+  - 已在 `src/sdk/Section.cpp` 落地 contour 驱动的 deterministic segment 后处理：输出段由 contour 重建并执行无向去重、短毛刺过滤（长度<=eps），减少 mesh-slice 原始段顺序/重复对统计的影响
   - 已扩展 `tests/capabilities/test_3d_section.cpp`：`ObliquePrismSectionYieldsDeterministicContourLength` 新增 `section.segments.size()==3` 断言，固化钢筋线根数稳定子集
   - 已补齐 `Section(BrepBody, Plane)` 的 coplanar merge 路径：三面共面 horizontal strip 经 Polyhedron->Brep 后截切可稳定合并为单 polygon（area=3.0）
   - 已扩展 conversion capability：support-mismatch near-equal closed-cuboid all-vertices 场景叠加一面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛 closed-shell 拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）
@@ -463,12 +463,12 @@
   - 已将 collinear-leading fallback 叠加到 hole-dominated shared-chain representative-average 子集：`SupportMismatchNearEqualSharedChainHoleDominatedFullCompositionRepairsWithRepresentativeAverageTarget` 验证 middle holed face 的外环前导共线点不会破坏左右 shared-edge 的 deterministic average target。
   - 新子场景确认在 collinear-leading + duplicate-hole 组合下，`x=2` / `x=6` 两条共享边的平均落点与 `z≈0` 平面回投仍可同时成立，并把拓扑计数推进到 `13 / 15`。
 - 2026-04-04（continuation-81）：
-  - 已将 `GeometryBrepConversion.cpp` 的 non-planar repair 主流程拆为 `support-plane scoring`、`representative target aggregation`、`cross-face snapping`、`topology reconciliation` 四个 pass helper，并让 repair 结果直接保留 topology-reconciled representative targets，供后续 Brep 拓扑回建复用。
+  - 已将 `BrepConversion.cpp` 的 non-planar repair 主流程拆为 `support-plane scoring`、`representative target aggregation`、`cross-face snapping`、`topology reconciliation` 四个 pass helper，并让 repair 结果直接保留 topology-reconciled representative targets，供后续 Brep 拓扑回建复用。
   - 已把 closed-cuboid all-vertices representative 子集从“仅 closed-shell 计数”提升为显式落点断言：`SupportMismatchNearEqualClosedCuboidAllVerticesRepairsWithRepresentativeAverageTarget` 及其 single/dual duplicate-loop 变体现在都要求 8 个共享顶点命中 deterministic representative-average 目标点。
   - 已同步收敛 conversion gap 文案，移除 closed-cuboid all-vertices / single-duplicate / dual-duplicate 这组三个 representative-average open subset。
-## 2026-04-04 GeometrySection 高阶 section 语义同步
+## 2026-04-04 Section 高阶 section 语义同步
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - coplanar polygon merge 由顺序二元 `Union(...)` 提升为稳定累积式 pairwise merge，当前可覆盖四片以上 frame-with-hole 级共面 fragment merge；
   - `Section(...)` 在存在 coplanar face 时不再提前返回，允许 coplanar area 与后续 non-planar sliced contours 共存；
   - `PolyhedronBody` 路径继续保留 plane-edge segment 回收，但不再把 coplanar polygon 边界重新作为 non-planar graph 输入，避免 mixed section 下重复 contour 重建。

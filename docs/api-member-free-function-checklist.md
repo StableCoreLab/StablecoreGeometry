@@ -44,8 +44,8 @@
 
 ## 当前后续指引
 
-- 保持 `GeometrySearchPoly` 和 `GeometryBodyBoolean` 走稳定 SDK 路线，放在 `include/sdk` 里。
-- 保持 `GeometrySection`、`GeometryHealing` 和 `GeometryBrepConversion` 作为内部实现空间，并维持清晰的 pass 边界。
+- 保持 `SearchPoly` 和 `BodyBoolean` 走稳定 SDK 路线，放在 `include/sdk` 里。
+- 保持 `Section`、`Healing` 和 `BrepConversion` 作为内部实现空间，并维持清晰的 pass 边界。
 - 新增 surface area 时，继续保持产品侧 `Options / Result / Issue` 风格一致。
 - 如果某个 helper 成了产品依赖，就先经过 fast-track 矩阵再考虑公开。
 

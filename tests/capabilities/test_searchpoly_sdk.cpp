@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "sdk/GeometrySearchPoly.h"
+#include "sdk/SearchPoly.h"
 
 using geometry::sdk::MultiPolyline2d;
 using geometry::sdk::Point2d;

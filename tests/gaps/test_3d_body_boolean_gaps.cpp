@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "sdk/GeometryBodyBoolean.h"
+#include "sdk/BodyBoolean.h"
 #include "sdk/PolyhedronBody.h"
 
 using geometry::sdk::BodyBooleanIssue3d;

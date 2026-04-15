@@ -1,4 +1,4 @@
-﻿# 会话交接
+# 会话交接
 
 ## 当前上下文
 
@@ -85,7 +85,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-partial-overlap-batch34）
 
-- 已更新 `src/sdk/GeometryHealing.cpp`：
+- 已更新 `src/sdk/Healing.cpp`：
   - aggressive competing-shell arbitration 不再只识别“整条 boundary edge / geometry edge 完全重合”；
   - 现在会进一步保守识别共线且区间重叠的 partial-overlap boundary spans；
   - 结果是 partial-overlap competing shells 会保持 open，不会误走 boundary-cap 闭壳。
@@ -149,15 +149,15 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-touching-arbitration-batch32）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - mixed section 的 open contour 稳定排序不再只看词典序；
   - 当前 boundary-attached open contours 会优先于 detached open contours 排序，并继续保持 edge-attached 优先于 vertex-attached 的稳定子规则；
   - public SDK 入口保持不变，更一般 mixed open-curve / area edge-adjacency arbitration 仍保留为 gap。
-- 已更新 `src/sdk/GeometryHealing.cpp`：
+- 已更新 `src/sdk/Healing.cpp`：
   - aggressive competing-shell arbitration 不再只看共享 topology edge；
   - duplicated-topology 但几何上重合的 shared-boundary-loop / boundary-edge shells 现在也会被保守识别为 competing shells，并保持 open；
   - 仍未推进到更一般 partial-overlap boundary-loop / richer multi-shell arbitration。
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 新增 axis-aligned edge/vertex-touching ordered multi-body union 子集；
   - 新增 axis-aligned edge/vertex-touching external difference 子集；
   - lower-dimensional touching 不再一律落回 `UnsupportedOperation`，但 non-box overlap / non-axis-aligned richer touching 仍为 gap。
@@ -188,7 +188,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-contained-union-batch28）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 新增 axis-aligned contained-body intersection / union 子集；
   - 当一个 closed box 完整包含另一个 closed box 时，`IntersectBodies(...)` 现在稳定返回 inner body，`UnionBodies(...)` 稳定返回 outer body；
   - public SDK contract 保持不变，non-axis-aligned / richer touching / non-box overlap 仍保留为 gap。
@@ -218,7 +218,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-disjoint-intersection-batch29）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 新增 deterministic disjoint-body empty intersection 子集；
   - 当两个 closed bodies 明确 disjoint 时，`IntersectBodies(...)` 现在稳定返回 empty result，而不是继续落到 `UnsupportedOperation`。
 - 已扩展 capability tests：
@@ -246,7 +246,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-ordered-union-batch30）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 新增 deterministic disjoint multi-body union ordering 子集；
   - disjoint `UnionBodies(...)` 现在会按 body bounds 的稳定词典序返回 `bodies`，避免结果顺序依赖输入顺序。
 - 已扩展 capability tests：
@@ -274,7 +274,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-closed-mix-batch31）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - disjoint `UnionBodies(...)` 的 multi-body result 现在按 body bounds 稳定排序；
   - 这条 contract 对 Polyhedron / Brep 路径统一生效，避免结果顺序依赖输入顺序。
 - 已扩展 capability tests：
@@ -302,11 +302,11 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-searchpoly-source-summary-batch24）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - mixed-content section 的 open contour 方向归一化不再只看词典序；
   - 当 open contour 仅一端接触现有 polygon 边界时，会稳定按“boundary-attached endpoint -> outward spur”方向输出；
   - 当前 detached + vertex-attached + edge-attached triple-open 子集在 Polyhedron / Brep 路径都可稳定保留为 `1 polygon + 3 open contours`，且 attached contours 方向固定。
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
   - 为 `SearchPolyCandidate2d` 新增 `dominantSyntheticEdgeSource`；
   - 为 `SearchPolyResult2d` 新增：
@@ -337,7 +337,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch25）
 
-- 已更新 `src/sdk/GeometryHealing.cpp`：
+- 已更新 `src/sdk/Healing.cpp`：
   - aggressive multi-shell competing 检测不再把“仅共享单个顶点”的 eligible shells 一律视为冲突；
   - 当前 competing-shell arbitration 已收紧为 shared-boundary-edge 级别：共享 boundary edge 的 open shells 继续保守保持 open，而仅 vertex-touch 的 eligible shared-edge shells 可独立 boundary-cap 闭壳；
   - public SDK contract 保持不变，更一般 shared-boundary-loop / richer multi-shell arbitration 仍保留为 gap。
@@ -364,10 +364,10 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-bodyboolean-contained-batch26）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - 将 raw segment -> contour/polygon graph reconstruction 收口到共享 helper，保持 Polyhedron / Brep 两条 section 路径的 open-first arbitration 一致；
   - 当前 mixed coplanar/non-planar strip merge 已可与 edge-attached open contour 组合：strip-adjacent area 扩展后，open contour 仍可稳定保留为 `Mixed`。
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 新增 axis-aligned contained difference-empty 子集；
   - 当 `second` 完整包含 `first` 时，`DifferenceBodies(first, second)` 现在稳定返回 deterministic empty result，而不是继续落到 `UnsupportedOperation`。
 - 已扩展 capability tests：
@@ -393,10 +393,10 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-bodyboolean-identical-batch27）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - Polyhedron 路径的 graph reconstruction 现在在存在 coplanar merged-area 背景时，也会跳过 graph 中退化 closed loop，与 Brep 路径保持一致；
   - 当前 strip-adjacent merged-area mixed-content 子集已从 edge-attached 进一步扩到 vertex-attached open contour，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`。
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 为 closed-body difference 增加 explicit identical-difference-empty contract；
   - 当前 identical closed bodies 不再只依赖 contained difference 兜底，而是稳定返回 deterministic empty result。
 - 已扩展 capability tests：
@@ -422,11 +422,11 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-arbitration-batch21）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - 将 final section 输出阶段也接入 stable polygon merge；
   - merge 现会保留已抽取的 open contours，不再只适用于纯 closed-area 结果；
   - 当前 edge-adjacent mixed coplanar + non-planar area 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon。
-- 已更新 `src/sdk/GeometryHealing.cpp`：
+- 已更新 `src/sdk/Healing.cpp`：
   - 为 aggressive boundary-cap 增加保守 multi-shell arbitration；
   - 当多个 open shells 共享顶点时，shared-edge boundary-cap 不再对这些 competing shells 继续闭壳；
   - 独立 eligible shell 仍可按既有 deterministic boundary-cap 子策略闭合。
@@ -453,11 +453,11 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-searchpoly-ambiguity-batch22）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - 为 mixed-content section 结果补充 open contour 稳定化；
   - open contours 现在会做端点方向归一化并按几何位置稳定排序；
   - 当前 dual edge-attached open contours 子集在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`，且 contour 顺序/方向固定。
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 ambiguous-top explanation；
   - 为 `SearchPolyResult2d` 新增：
     - `ambiguousTopPenaltyKind`
@@ -486,11 +486,11 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-searchpoly-ambiguity-batch23）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - 继续收紧 mixed-content section 的 open contour 稳定化；
   - open contours 现在按完整 polyline 序列做字典序排序，而不只看起终点；
   - 当前 mixed vertex-attached + edge-attached dual-open 子集在 Polyhedron / Brep 路径都可稳定保留为 `Mixed`，且多条 open contours 顺序固定。
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 ambiguous-top explanation；
   - 为 `SearchPolyResult2d` 新增：
     - `ambiguousTopCandidateCountWithSyntheticEdges`
@@ -518,11 +518,11 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-healing-bodyboolean-batch6）
 
-- 已更新 `src/sdk/GeometryHealing.cpp`：
+- 已更新 `src/sdk/Healing.cpp`：
   - 将 aggressive shared-edge boundary-cap fallback 从“仅单-shell body”放宽到“mixed body 中的单个 eligible shell 也可独立闭合”；
   - 当前 closed shell 可保持不变，而同体内 coplanar shared-edge open shell 可单独补 cap 完成闭壳；
   - 更一般 multi-shell shared-edge arbitration 仍未收敛，当前只推进 deterministic per-shell 子集。
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 新增 face-touching external difference 子集；
   - 当两个 axis-aligned closed boxes 仅共享完整面、且 second 不侵入 first 体积时，`DifferenceBodies(first, second)` 现在稳定返回原始 `first`；
   - touching intersection、非 box touching 与更一般 shell-policy / healing integration 仍继续保持 gap。
@@ -555,7 +555,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-dominant-synthetic-kind-batch15）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
   - 为 `SearchPolyCandidate2d` 新增 `dominantSyntheticEdgeKind`；
   - 为 `SearchPolyResult2d` 新增：
@@ -570,7 +570,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-edge-source-mapping-batch16）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
   - 新增 `SearchPolySyntheticEdgeSource2d`；
   - 为 `SearchPolyCandidate2d` 新增 `inferredSyntheticEdgeSources`，当前可逐边稳定区分：
@@ -587,7 +587,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-edge-network-touch-mapping-batch17）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
   - 为 `SearchPolyCandidate2d` 新增逐边输入线网触达字段：
     - `inferredSyntheticEdgeStartDegrees`
@@ -603,7 +603,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-edge-vertex-identity-batch18）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge causal explanation；
   - 为 `SearchPolyCandidate2d` 新增：
     - `inferredSyntheticEdgeStartVertexIndices`
@@ -617,7 +617,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-vertex-attached-open-batch19）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - 在不改 public SDK 的前提下，继续推进 mixed open-curve / area adjacency arbitration；
   - 对 representative open-spur 子集放宽图遍历：open contour 现在允许在非起点以 degree!=2 的节点终止；
   - section graph 现在会先抽取 open contours，再对剩余未访问边执行 non-manifold 检查；
@@ -636,7 +636,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-section-edge-attached-open-batch20）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：
+- 已更新 `src/sdk/Section.cpp`：
   - 保持 open-first arbitration 不变，并补充实现注释，明确当前 representative mixed-content 语义是“先抽 open spur，再对剩余闭环执行 non-manifold 检查”；
   - 该口径现在同样覆盖 edge-attached spur 子集。
 - 已扩展 capability tests：
@@ -655,7 +655,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-explanation-batch7）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 在保持稳定 SDK 入口不变的前提下，为 `SearchPolyResult2d` 补充一组 deterministic top-candidate explanation 字段：
     - `bestCandidateScoreMargin`
     - `bestCandidateSyntheticPerimeter`
@@ -677,7 +677,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-runnerup-explanation-batch8）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在不改稳定 SDK 入口的前提下补强 `SearchPolyResult2d` explanation；
   - 新增 runner-up explanation 字段：
     - `runnerUpSyntheticPerimeter`
@@ -699,7 +699,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-candidate-causality-batch9）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 candidate-level causal explanation；
   - 为 `SearchPolyCandidate2d` 新增：
     - `dominantPenaltyKind`
@@ -734,7 +734,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-synthetic-edge-list-batch11）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 fake-edge explanation；
   - 为 `SearchPolyCandidate2d` 新增 `inferredSyntheticEdges`，稳定暴露 candidate 上哪些 boundary edges 被判定为 synthetic；
   - 当前产品侧不仅可读取 synthetic edge 数量/总长度，还可直接消费具体 synthetic edge 几何。
@@ -751,7 +751,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-bodyboolean-touching-intersection-batch12）
 
-- 已更新 `include/sdk/GeometryBodyBoolean.h` + `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `include/sdk/BodyBoolean.h` + `src/sdk/BodyBoolean.cpp`：
   - 为 `BodyBooleanResult3d` 新增 `producedEmptyResult`，稳定表达“结果为空但操作成功”；
   - 新增 axis-aligned face-touching boxes 的 empty-intersection 子集；
   - 当前当两个 closed boxes 仅共享完整面时，`IntersectBodies(...)` 会稳定返回 success + empty result，而不再继续落到 `UnsupportedOperation`。
@@ -771,7 +771,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-bodyboolean-edge-vertex-touching-batch13）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
+- 已更新 `src/sdk/BodyBoolean.cpp`：
   - 将 axis-aligned touching intersection 的 empty-result contract 从“仅 face-touching”推广到“任意 non-volume touching”；
   - 当前 face-touching / edge-touching / vertex-touching 的 axis-aligned closed boxes 都会稳定返回 success + empty result。
 - 已扩展 capability tests：`tests/capabilities/test_3d_body_boolean_sdk.cpp`
@@ -791,7 +791,7 @@
 
 ## 本轮新增（2026-04-05，fasttrack-searchpoly-synthetic-edge-kind-batch14）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 继续在保持稳定 SDK 入口不变的前提下补强 synthetic-edge explanation；
   - 新增 `SearchPolySyntheticEdgeKind2d`；
   - 为 `SearchPolyCandidate2d` 新增 `inferredSyntheticEdgeKinds`，当前可稳定区分：
@@ -815,26 +815,26 @@
 
 - 本轮仅同步交接与路线文档，不修改算法实现，也不改 SDK 暴露面。
 - 当前已收敛能力保持不变：
-  - `GeometrySection`：coplanar merge、mixed coplanar + non-planar coexistence、deterministic contour 后处理
-  - `GeometryHealing`：conservative trim-backfill、aggressive shell boundary-cap fallback
-  - `GeometrySearchPoly`：diagnostics、candidate ranking、branch scoring、fake-edge diagnostics、smallest-containing 选择
-  - `GeometryBodyBoolean`：identical / disjoint closed-body、axis-aligned single-box overlap、face-touching union
+  - `Section`：coplanar merge、mixed coplanar + non-planar coexistence、deterministic contour 后处理
+  - `Healing`：conservative trim-backfill、aggressive shell boundary-cap fallback
+  - `SearchPoly`：diagnostics、candidate ranking、branch scoring、fake-edge diagnostics、smallest-containing 选择
+  - `BodyBoolean`：identical / disjoint closed-body、axis-aligned single-box overlap、face-touching union
 - 当前 open gap 仍保持不变：
-  - `GeometrySection` 的更一般 non-manifold stitching / mixed open-curve arbitration / 更高阶 non-planar dominant stitching
-  - `GeometryHealing` 的更一般 multi-shell shared-edge arbitration / non-planar shell repair / mesh-body joint healing
-  - `GeometrySearchPoly` 的 richer fake-edge explanation / ambiguous recovery / full smart-search parity
-  - `GeometryBodyBoolean` 的 touching intersection / difference / 更一般 overlap / shell-policy / healing integration
+  - `Section` 的更一般 non-manifold stitching / mixed open-curve arbitration / 更高阶 non-planar dominant stitching
+  - `Healing` 的更一般 multi-shell shared-edge arbitration / non-planar shell repair / mesh-body joint healing
+  - `SearchPoly` 的 richer fake-edge explanation / ambiguous recovery / full smart-search parity
+  - `BodyBoolean` 的 touching intersection / difference / 更一般 overlap / shell-policy / healing integration
 - 下一轮优先级仍建议维持：
-  - P1 `GeometrySection`
-  - P2 `GeometryHealing`
-  - P3 `GeometrySearchPoly` / `GeometryBodyBoolean`
+  - P1 `Section`
+  - P2 `Healing`
+  - P3 `SearchPoly` / `BodyBoolean`
   - P4 SDK 风格收口与 `include/sdk` 暴露面整理
 
 ## 本轮新增（2026-04-04，fasttrack-sdk-umbrella-surface-batch5）
 
 - 已更新 `include/sdk/Geometry.h`：
   - 补充稳定 umbrella header 说明，明确它只负责聚合稳定 `include/sdk` 入口；
-  - 保持 `GeometryApi` + `GeometrySearchPoly` + `GeometryBodyBoolean` 的产品侧收口方式不变，只做说明性整理。
+  - 保持 `GeometryApi` + `SearchPoly` + `BodyBoolean` 的产品侧收口方式不变，只做说明性整理。
 - 已新增 `tests/capabilities/test_sdk_umbrella.cpp`：
   - 用仅包含 `sdk/Geometry.h` 的测试文件验证 umbrella header 可直接暴露 `SearchPolygons(...)`、`IntersectBodies(...)`、`UnionBodies(...)`、`DifferenceBodies(...)` 等稳定入口；
   - 同时验证 `InvalidInput` / success 路径结果对象在 umbrella 入口下可正常使用。
@@ -846,7 +846,7 @@
 
 ## 本轮新增（2026-04-04，fasttrack-healing-internal-pass-split）
 
-- 已更新 `src/sdk/GeometryHealing.cpp`：
+- 已更新 `src/sdk/Healing.cpp`：
   - 在不改 public SDK 入口与现有 healing contract 的前提下，把内部逻辑显式拆成 `trim_backfill`、`shell_cap`、`aggressive` 三个 helper/pass 区块；
   - `trim_backfill` 负责 trim 补齐，`shell_cap` 负责 standalone shell 的 boundary cap 组装，`aggressive` 负责保守 healing 之后的 topology-changing closure；
   - 没有重写策略，没有扩大 capability 边界，行为保持不漂移。
@@ -874,8 +874,8 @@
 
 ## 本轮新增（2026-04-04，fasttrack-bodyboolean-touching-union-batch3）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
-  - 在保持 `include/sdk/GeometryBodyBoolean.h` public contract 不变的前提下，将 `GeometryBodyBoolean` 再向前推进一小步，新增 face-touching axis-aligned box union 子集；
+- 已更新 `src/sdk/BodyBoolean.cpp`：
+  - 在保持 `include/sdk/BodyBoolean.h` public contract 不变的前提下，将 `BodyBoolean` 再向前推进一小步，新增 face-touching axis-aligned box union 子集；
   - 当前仍只承诺可稳定收敛为单一 closed box 的 union 场景，`IntersectBodies(...)` / `DifferenceBodies(...)` 对 touching 情形继续保留为 `UnsupportedOperation`；
   - 未改变既有 identical / disjoint / axis-aligned overlap 的总策略，L 形、多壳与 healing 依赖仍未引入。
 - 已扩展 capability tests：`tests/capabilities/test_3d_body_boolean_sdk.cpp`
@@ -894,7 +894,7 @@
 
 ## 本轮新增（2026-04-04，fasttrack-section-higher-order-batch1）
 
-- 已更新 `src/sdk/GeometrySection.cpp`，在不改 public SDK 入口的前提下继续推进 `GeometrySection` 的高阶 section 语义：
+- 已更新 `src/sdk/Section.cpp`，在不改 public SDK 入口的前提下继续推进 `Section` 的高阶 section 语义：
   - 将 coplanar polygon merge 从顺序二元 `Union(...)` 提升为“保留不相交分量、反复合并可合并对”的稳定累积策略；
   - 当前可稳定覆盖四片以上共面 fragment 的 frame-with-hole 级归并子集，而不再只停留在相邻 strip/chain；
   - 去掉“只要出现 coplanar face 就提前返回”的内部短路，允许 coplanar area 与后续 non-planar sliced contours 在同一 section 结果中共存；
@@ -916,7 +916,7 @@
 
 ## 本轮新增（2026-04-04，fasttrack-healing-aggressive-shell-batch2）
 
-- 已更新 `src/sdk/GeometryHealing.cpp`，在不改 public SDK 入口的前提下继续深化 `GeometryHealing` 的 aggressive shell policy：
+- 已更新 `src/sdk/Healing.cpp`，在不改 public SDK 入口的前提下继续深化 `Healing` 的 aggressive shell policy：
   - 保留现有 conservative trim-backfill 作为前置修复层；
   - 保留无 interior shared-edge 的 mirror-style aggressive closure；
   - 新增 standalone coplanar shared-edge shell 的 boundary-cap fallback，避免 shared interior edge 在整壳镜像下把 edge-use 从 `2` 推高到 `4`；
@@ -937,8 +937,8 @@
 
 ## 本轮新增（2026-04-04，fasttrack-searchpoly-batch3）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
-  - 在保持稳定 SDK 入口仍位于 `include/sdk/GeometrySearchPoly.h` 的前提下，继续深化 `GeometrySearchPoly`；
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
+  - 在保持稳定 SDK 入口仍位于 `include/sdk/SearchPoly.h` 的前提下，继续深化 `SearchPoly`；
   - 为 `SearchPolyCandidate2d` 新增显式 candidate-level 诊断字段：
     - `branchScore`
     - `inferredSyntheticPerimeter`
@@ -965,8 +965,8 @@
 
 ## 本轮新增（2026-04-04，fasttrack-bodyboolean-batch2）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
-  - 在保持 `include/sdk/GeometryBodyBoolean.h` public contract 不变的前提下，将 `GeometryBodyBoolean` 从 identical/disjoint closed-body 子集进一步推进到 axis-aligned single-box overlap 子集；
+- 已更新 `src/sdk/BodyBoolean.cpp`：
+  - 在保持 `include/sdk/BodyBoolean.h` public contract 不变的前提下，将 `BodyBoolean` 从 identical/disjoint closed-body 子集进一步推进到 axis-aligned single-box overlap 子集；
   - 当前已新增：
     - `IntersectBodies(...)`：axis-aligned closed boxes 的正体积 overlap box
     - `UnionBodies(...)`：axis-aligned closed boxes 中 union 结果仍为单一 closed box 的 overlap/containment 子集
@@ -990,15 +990,15 @@
 ## 本轮新增（2026-04-04，fasttrack-followup-planning）
 
 - 已重写 `docs/next-task-prompt.md`，把下一轮工作明确收敛到三条主线：
-  - 深化 `GeometrySearchPoly`
-  - 推进 `GeometryBodyBoolean` 第一批 capability
+  - 深化 `SearchPoly`
+  - 推进 `BodyBoolean` 第一批 capability
   - 持续完成“稳定 API”所需重构
 - 已更新 `docs/rename-followup-todo.md`，把需要逐步重构/迁移到稳定 API 面的事项正式列出，供后续会话按批次消化。
 - 当前对外 API 稳定化的核心方向已经明确：
   - 产品侧只依赖 `include/sdk`
-  - `GeometrySearchPoly` 取代 ad hoc `BuildMultiPolygonByLines(...)` 调用
-  - `GeometryBodyBoolean` 保持稳定 public contract，内部再分批补算法
-  - `GeometryBrepConversion / GeometryHealing / GeometrySection` 的复杂 repair 流程继续拆成内部清晰 pass，而不是把不稳定 helper 暴露成产品依赖点
+  - `SearchPoly` 取代 ad hoc `BuildMultiPolygonByLines(...)` 调用
+  - `BodyBoolean` 保持稳定 public contract，内部再分批补算法
+  - `BrepConversion / Healing / Section` 的复杂 repair 流程继续拆成内部清晰 pass，而不是把不稳定 helper 暴露成产品依赖点
 - 本轮仍未编译、未跑构建；只同步了下轮安排与 API 稳定化重构清单。
 
 ## 本轮新增（2026-04-04，member-wrapper-cleanup）
@@ -1012,7 +1012,7 @@
 
 ## 本轮新增（2026-04-04，fasttrack-searchpoly-batch2）
 
-- 已更新 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已更新 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 为 `SearchPolygons(...)` 增加 `SearchPolyDiagnostics2d`，固定输入 polyline/segment 数、unique vertex 数、dangling endpoint 数、branch vertex 数与 inferred synthetic-edge 数；
   - 为 `SearchPolyCandidate2d` 增加稳定 `rank`；
   - `SearchPolygons(...)` 现会按 area/hole-count/ring-size 做稳定 candidate ranking；
@@ -1028,12 +1028,12 @@
   - `docs/delphi-test-fasttrack-matrix.md`
   - `docs/test-capability-coverage.md`
   - `docs/design-doc-sync-tracker.md`
-- 当前下一轮优先级已更清晰地转向 `GeometryBodyBoolean` 第一批 deterministic capability。
+- 当前下一轮优先级已更清晰地转向 `BodyBoolean` 第一批 deterministic capability。
 
 ## 本轮新增（2026-04-04，fasttrack-bodyboolean-batch1）
 
-- 已更新 `src/sdk/GeometryBodyBoolean.cpp`：
-  - 将 `GeometryBodyBoolean` 从纯 contract stub 推进到第一批 deterministic closed-body 子集；
+- 已更新 `src/sdk/BodyBoolean.cpp`：
+  - 将 `BodyBoolean` 从纯 contract stub 推进到第一批 deterministic closed-body 子集；
   - 当前已覆盖：
     - identical closed-body `IntersectBodies(...)`
     - identical closed-body `UnionBodies(...)`
@@ -1050,7 +1050,7 @@
   - `docs/delphi-interface-fasttrack.md`
   - `docs/delphi-test-fasttrack-matrix.md`
   - `docs/test-capability-coverage.md`
-- 当前下一轮可继续把 `GeometryBodyBoolean` 往 overlap 子集推进，或者切回 `GeometrySearchPoly` 的 branch scoring / fake-edge explanation。
+- 当前下一轮可继续把 `BodyBoolean` 往 overlap 子集推进，或者切回 `SearchPoly` 的 branch scoring / fake-edge explanation。
 
 ## 本轮新增（2026-04-04，ai-task-routing-doc）
 
@@ -1058,23 +1058,23 @@
   - A：前沿模型 + 高推理，负责算法策略与高风险几何主线
   - B：中档编码模型 + 中高推理，负责有明确方向的实现与测试扩张
   - C：轻量模型 + 低中推理，负责文档、矩阵、交接同步
-- 已把 `GeometryBrepConversion` non-planar repair、`GeometryBodyBoolean` overlap 子集、`GeometrySearchPoly` smart-search 深化、`GeometryHealing`/`GeometrySection` 拆层分别归类，方便直接按 AI 档位分派。
+- 已把 `BrepConversion` non-planar repair、`BodyBoolean` overlap 子集、`SearchPoly` smart-search 深化、`Healing`/`Section` 拆层分别归类，方便直接按 AI 档位分派。
 - 已在 `docs/rename-followup-todo.md` 中增加对 `docs/ai-task-routing.md` 的引用，作为后续分工入口。
 
 ## 本轮新增（2026-04-04，fasttrack-interface-tests）
 
 - 已新增 Delphi 快补总表：`docs/delphi-interface-fasttrack.md`，把 Delphi 实际使用能力映射到 C++ 目标 SDK 面，并把“接口先行 + 测试先行”固定成当前主策略。
 - 已新增测试快补矩阵：`docs/delphi-test-fasttrack-matrix.md`，把每个 Delphi-facing SDK 面需要的 contract / capability / gap 测试固定下来，并把“已承诺测试矩阵全绿”定义为当前批次算法库完成标准。
-- 已新增 `include/sdk/GeometrySearchPoly.h` + `src/sdk/GeometrySearchPoly.cpp`：
+- 已新增 `include/sdk/SearchPoly.h` + `src/sdk/SearchPoly.cpp`：
   - 对 `BuildMultiPolygonByLines(...)` 做 Delphi `SearchPoly` 风格 SDK 封装；
   - 提供 `SearchPolygons(...)` 与 `SearchPolygonContainingPoint(...)`；
   - 第一批只固定 SDK 入口、结果结构和代表性闭环子集，不宣称已达到 Delphi 级 branch scoring / fake-edge diagnostics 深度。
-- 已新增 `include/sdk/GeometryBodyBoolean.h` + `src/sdk/GeometryBodyBoolean.cpp`：
+- 已新增 `include/sdk/BodyBoolean.h` + `src/sdk/BodyBoolean.cpp`：
   - 预留 Delphi `GGL` 风格 3D body boolean SDK 面（`IntersectBodies / UnionBodies / DifferenceBodies`，同时覆盖 `BrepBody` 与 `PolyhedronBody` 输入）；
   - 当前实现仅固定 contract：空输入返回 `InvalidInput`，非空输入保留 `UnsupportedOperation`，使产品可先对稳定接口开发。
 - 已新增 capability tests：
-  - `tests/capabilities/test_searchpoly_sdk.cpp`：覆盖 `GeometrySearchPoly` 的 empty-input contract、代表性闭环子集与点选 containing candidate 子集。
-  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`：覆盖 `GeometryBodyBoolean` 的 invalid-input contract。
+  - `tests/capabilities/test_searchpoly_sdk.cpp`：覆盖 `SearchPoly` 的 empty-input contract、代表性闭环子集与点选 containing candidate 子集。
+  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`：覆盖 `BodyBoolean` 的 invalid-input contract。
 - 已新增 gap test：
   - `tests/gaps/test_3d_body_boolean_gaps.cpp`：明确 Delphi 级 body/shell boolean 语义仍为 open gap。
 - 已同步构建挂接：
@@ -1084,13 +1084,13 @@
 
 ## 本轮新增（2026-04-03，continuation-50）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：为 `Section(PolyhedronBody, Plane)` 与 `Section(BrepBody, Plane)` 增加 contour 驱动的 deterministic segment 后处理，统一从 contour 重建输出段并执行无向去重与短毛刺过滤（长度<=eps）。
+- 已更新 `src/sdk/Section.cpp`：为 `Section(PolyhedronBody, Plane)` 与 `Section(BrepBody, Plane)` 增加 contour 驱动的 deterministic segment 后处理，统一从 contour 重建输出段并执行无向去重与短毛刺过滤（长度<=eps）。
 - 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 中 `ObliquePrismSectionYieldsDeterministicContourLength` 新增 `section.segments.size()==3` 断言，固定三棱柱截面的根数稳定性。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
 ## 本轮新增（2026-04-03，continuation-51）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：`Section(BrepBody, Plane)` 的 coplanar 分支接入 `MergeCoplanarSectionPolygons(...)`，显式执行多面共面片段合并，避免 Brep 路径下潜在碎片化输出。
+- 已更新 `src/sdk/Section.cpp`：`Section(BrepBody, Plane)` 的 coplanar 分支接入 `MergeCoplanarSectionPolygons(...)`，显式执行多面共面片段合并，避免 Brep 路径下潜在碎片化输出。
 - 已扩展 section capability：`tests/capabilities/test_3d_section.cpp` 新增 `BrepThreeCoplanarFacesInStripMergeIntoSinglePolygon`，验证三面共面 strip 在 Brep 路径稳定合并为单 polygon（area=3.0，segments=4）。
 - 已同步更新：`tests/gaps/test_3d_section_gaps.cpp`、`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
@@ -1230,7 +1230,7 @@
 
 ## 本轮新增（2026-04-02，continuation-29）
 
-- 已更新 `src/sdk/GeometryBrepConversion.cpp`：`ConvertToBrepBody(...)` 在 representative-id 驱动复用时新增全局目标点聚合（跨 face 平均）并用于共享 `BrepVertex` 首次落点，不再默认采用首个面点。
+- 已更新 `src/sdk/BrepConversion.cpp`：`ConvertToBrepBody(...)` 在 representative-id 驱动复用时新增全局目标点聚合（跨 face 平均）并用于共享 `BrepVertex` 首次落点，不再默认采用首个面点。
 - 已新增 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `NearEqualSharedEdgeVerticesUseRepresentativeAverageTarget`，验证 near-equal shared-edge（<eps 扰动）场景下共享拓扑保持稳定（2 faces -> VertexCount=6 / EdgeCount=7），且共享顶点位置符合 representative 平均目标。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
@@ -1242,13 +1242,13 @@
 
 ## 本轮新增（2026-04-02，continuation-31）
 
-- 已更新 `src/sdk/GeometryBrepConversion.cpp`：`ConvertToBrepBody(...)` 在 representative-target 全局聚合失败时自动回退到 representative-id 复用路径，不再直接返回 `InvalidBody`。
+- 已更新 `src/sdk/BrepConversion.cpp`：`ConvertToBrepBody(...)` 在 representative-target 全局聚合失败时自动回退到 representative-id 复用路径，不再直接返回 `InvalidBody`。
 - 本轮目标为 conversion 稳健性硬化（failure-to-fallback），不改变现有 capability 断言集合。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
 ## 本轮新增（2026-04-02，continuation-32）
 
-- 已更新 `src/sdk/GeometryBrepConversion.cpp`：`TryRepairPolyhedronBodyForBrepConversion(...)` 中 repair 后 representative snapping 由单轮提升为最多两轮小步迭代，每轮均要求 `snappedBody.IsValid(eps)` 才落盘。
+- 已更新 `src/sdk/BrepConversion.cpp`：`TryRepairPolyhedronBodyForBrepConversion(...)` 中 repair 后 representative snapping 由单轮提升为最多两轮小步迭代，每轮均要求 `snappedBody.IsValid(eps)` 才落盘。
 - 本轮目标为 conversion 跨面联合修复稳定性增强（iterative snapping hardening）。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
@@ -1360,7 +1360,7 @@
 
 - 已新增 conversion capability：`ConvertToBrepBody(...)` 在 tiny-scale non-planar outer loop 输入下可通过 scale-aware 法向回退稳定完成 refit 修复（`tests/capabilities/test_3d_conversion.cpp`）。
 - 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 中 non-planar repair gap 文案，纳入 tiny-loop normal fallback 子集。
-- 已更新：`src/sdk/GeometryBrepConversion.cpp`、`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
+- 已更新：`src/sdk/BrepConversion.cpp`、`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
 ## 本轮新增（2026-04-02，continuation-3）
 
@@ -1520,35 +1520,35 @@
 
 ## 本轮新增（2026-04-02，stage-1）
 
-- 已更新 `src/sdk/GeometryBrepConversion.cpp`：`ConvertToBrepBody(...)` 现在在 shared-edge 邻接链修复后可全局复用共享顶点/边，而不是按 face 重复建拓扑。
+- 已更新 `src/sdk/BrepConversion.cpp`：`ConvertToBrepBody(...)` 现在在 shared-edge 邻接链修复后可全局复用共享顶点/边，而不是按 face 重复建拓扑。
 - 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 现在验证 tiny-scale shared-edge chain 修复后得到全局一致的 `VertexCount()==8` 与 `EdgeCount()==10`。
 - 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，纳入 shared-edge chain global vertex/edge consistency 子集。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
 ## 本轮新增（2026-04-02，stage-2）
 
-- 已更新 `src/sdk/GeometryHealing.cpp`：Aggressive shell closure 现在允许 planar multi-face shell 中存在 shared-edge 邻接，不再要求所有边都只被单面使用。
+- 已更新 `src/sdk/Healing.cpp`：Aggressive shell closure 现在允许 planar multi-face shell 中存在 shared-edge 邻接，不再要求所有边都只被单面使用。
 - 已新增 healing capability：`tests/capabilities/test_3d_healing.cpp` 现在验证 shared-edge open-sheet 在 Aggressive 策略下可确定性闭壳。
 - 已同步收敛 `tests/gaps/test_3d_healing_gaps.cpp` 文案，纳入 shared-edge open-sheet 子集。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
 ## 本轮新增（2026-04-02，stage-3）
 
-- 已更新 `src/sdk/GeometrySection.cpp`：coplanar face section 结果现在会对相邻 polygon fragments 执行 2D union，并重建合并后的 contours / segments。
+- 已更新 `src/sdk/Section.cpp`：coplanar face section 结果现在会对相邻 polygon fragments 执行 2D union，并重建合并后的 contours / segments。
 - 已新增 section capability：`tests/capabilities/test_3d_section.cpp` 现在验证相邻 coplanar faces 经 `Section(...)` 后可合并为单 polygon。
 - 已同步收敛 `tests/gaps/test_3d_section_gaps.cpp` 文案，将 face-merge gap 缩小到更高阶歧义 coplanar fragments。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
 ## 本轮新增（2026-04-02，stage-4）
 
-- 已更新 `include/sdk/GeometryBrepEditing.h` 与 `src/sdk/GeometryBrepEditing.cpp`：新增 `ReplaceOuterLoop(...)` / `ReplaceFace(...)` / `ReplaceShell(...)`，补齐最小 loop->face->shell->body ownership-consistent editing workflow。
+- 已更新 `include/sdk/BrepEditing.h` 与 `src/sdk/BrepEditing.cpp`：新增 `ReplaceOuterLoop(...)` / `ReplaceFace(...)` / `ReplaceShell(...)`，补齐最小 loop->face->shell->body ownership-consistent editing workflow。
 - 已新增 brep capability：`tests/capabilities/test_3d_brep.cpp` 现在验证 loop 编辑可通过 replacement workflow 稳定传播回有效 `BrepBody`。
 - 已同步收敛 `tests/gaps/test_3d_brep_gaps.cpp` 文案，将 ownership gap 缩小到更高阶关联拓扑级编辑语义。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
 
 ## 本轮新增（2026-04-02，continuation-after-stage-4）
 
-- 已更新 `src/sdk/GeometryMeshConversion.cpp`：`ConvertToTriangleMesh(const BrepBody&)` 现在在 face 聚合时可全局复用相同 3D 顶点，不再简单按 face 追加全部顶点。
+- 已更新 `src/sdk/MeshConversion.cpp`：`ConvertToTriangleMesh(const BrepBody&)` 现在在 face 聚合时可全局复用相同 3D 顶点，不再简单按 face 追加全部顶点。
 - 已新增 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 现在验证 planar shared-edge 相邻面转换到 mesh 后可保持 `VertexCount()==6` 的共享顶点子集。
 - 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，纳入 shared-edge vertex-reuse 子集。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
@@ -1664,7 +1664,7 @@
 
 ## 本轮新增（2026-04-02，continuation-shared-vertex-aware-refit）
 
-- 已在 `src/sdk/GeometryBrepConversion.cpp` 实现 shared-vertex-aware refit 启发式：在 `TryRepairPolyhedronBodyForBrepConversion(...)` 中先统计 outer loop 跨面共享顶点，再在 `BuildFaceWithRefitSupportPlane(...)` 中优先选择包含更多 shared vertices 的三点组估计 support-plane。
+- 已在 `src/sdk/BrepConversion.cpp` 实现 shared-vertex-aware refit 启发式：在 `TryRepairPolyhedronBodyForBrepConversion(...)` 中先统计 outer loop 跨面共享顶点，再在 `BuildFaceWithRefitSupportPlane(...)` 中优先选择包含更多 shared vertices 的三点组估计 support-plane。
 - 目标是减少 per-face 独立 refit 下 shared-edge 顶点的跨面投影偏差；该策略对 triangular-face chain/fan/tetrahedron 子样例保持兼容。
 - 仍未完全闭合：quad-face chain 仍可能存在 residual mismatch，下一步需引入跨面顶点 snapping 或联合约束重投影。
 
@@ -1684,7 +1684,7 @@
 - 已进一步补齐 shared-chain 其余组合子场景的确定性拓扑计数断言：`TinyScaleSharedEdgeChainWithDuplicateLoopRepairsToBrepBody`（8/10）、`TinyScaleSharedChainMixedContentCollinearLeadingRepairsToBrepBody`（13/15）、`TinyScaleSharedChainSupportMismatchAndCollinearRepairsToBrepBody`（13/15）、`TinyScaleSharedChainFullCompositionRepairsToBrepBody`（13/15）、`TinyScaleSharedChainDualDuplicateFullCompositionRepairsToBrepBody`（13/15）。
 - 已补齐 tiny-scale 基础子场景的确定性拓扑计数断言：`TinyScaleNonPlanarMultiFaceStillRepairsToBrepBody`（8/8）、`TinyScaleNonPlanarMixedContentStillRepairsToBrepBody`（12/12）、`TinyScaleNonPlanarSharedEdgeFacesStillRepairToBrepBody`（6/7）、`TinyScaleNonPlanarSharedEdgeChainMixedContentRepairsToBrepBody`（12/14）。
 - 已补齐早期 repair 子场景的确定性拓扑计数断言：`SkewedCubePolyhedronBodyConvertsToBrepBody`、`SupportPlaneMismatchedCubeCanBeRepairedToBrepBody`、`MildlyNonPlanarCubeFaceCanBeRepairedToBrepBody`、`MildlyNonPlanarHoleLoopCanBeRepairedToBrepBody`、`CollinearLeadingLoopStillRepairsToBrepBody`、`DuplicateVertexLoopStillRepairsToBrepBody`、`DuplicateVertexHoleLoopStillRepairsToBrepBody`、`CompositeRepairStressFaceStillConvertsToBrepBody`、`TinyScaleNonPlanarFaceStillRepairsToBrepBody`、`TinyScaleNonPlanarHoledFaceStillRepairsToBrepBody`。
-- 已开始 topology-changing non-planar repair 的跨面联合修复预备：`GeometryBrepConversion.cpp` 新增 representative-id global snapping pass（repair 后跨面聚合 representative 点，再按各 face support plane 回投影），当前作为保守启发式增益步骤接入。
+- 已开始 topology-changing non-planar repair 的跨面联合修复预备：`BrepConversion.cpp` 新增 representative-id global snapping pass（repair 后跨面聚合 representative 点，再按各 face support plane 回投影），当前作为保守启发式增益步骤接入。
 ## 当前关注优先级
 
 1. **3D robust non-planar repair**：从 closed-shell tetrahedron 子类走向共享边一致性约束驱动的 support-plane/refit 决策
@@ -1802,7 +1802,7 @@
 
 如果新问题暴露 2D 缺口，直接查看：
 
-- `src/sdk/GeometryBoolean.cpp` / `src/sdk/GeometryOffset.cpp` / `src/sdk/GeometryTopology.cpp`
+- `src/sdk/Boolean.cpp` / `src/sdk/Offset.cpp` / `src/sdk/Topology.cpp`
 - `tests/capabilities/test_relation_boolean.cpp` / `test_offset.cpp` / `test_topology_indexing.cpp`
 
 ## 手工验证工作流
@@ -1860,35 +1860,35 @@
 
 - Phase A 基础值类型已在 `include/types/` 落盘
 - 已有 3D 基础服务：
-  - `src/sdk/GeometryProjection3d.cpp`
-  - `src/sdk/GeometryIntersection3d.cpp`
-  - `src/sdk/GeometryRelation3d.cpp`
+  - `src/sdk/Projection3d.cpp`
+  - `src/sdk/Intersection3d.cpp`
+  - `src/sdk/Relation3d.cpp`
 - Phase B 参数对象核心已补上最小 SDK 面：
   - `include/sdk/Curve3d.h`
   - `include/sdk/Surface.h`
   - `include/sdk/LineCurve3d.h`
   - `include/sdk/PlaneSurface.h`
-  - `GeometryProjection` 已加入 `PolyhedronFace3d -> Polygon2d` 的局部平面投影入口
+  - `Projection` 已加入 `PolyhedronFace3d -> Polygon2d` 的局部平面投影入口
 - `trianglemesh-core` 已起步：
   - `include/sdk/TriangleMesh.h`
-  - `GeometryValidation` 已加入 `TriangleMesh` 的最小 validation 结果
-  - `GeometryTessellation` 已加入 `PlaneSurface -> TriangleMesh` 的最小网格化入口
-  - `GeometryMeshConversion` 已加入平面 `PolyhedronFace3d / PolyhedronBody -> TriangleMesh` 的最小转换入口
+  - `Validation` 已加入 `TriangleMesh` 的最小 validation 结果
+  - `Tessellation` 已加入 `PlaneSurface -> TriangleMesh` 的最小网格化入口
+  - `MeshConversion` 已加入平面 `PolyhedronFace3d / PolyhedronBody -> TriangleMesh` 的最小转换入口
   - 带孔平面 face 现已通过 projected 2D polygon bridge + hole-bridging triangulation 进入 mesh conversion
-  - `GeometryMeshOps` 已加入 triangle normal / vertex normal / triangle adjacency 查询
-  - `GeometryMeshOps` 已加入 boundary edge 提取与 closed-mesh 判断
-  - `GeometryMeshOps` 已加入 boundary loop 提取
-  - `GeometryMeshOps` 已加入 connected components / non-manifold edge 查询
-  - `GeometryMeshOps` 已加入 orientation consistency 与 shell 分组查询
-  - `GeometryMeshRepair` 已加入流形 triangle mesh 的最小 consistent-orientation repair
-  - `GeometryMeshRepair` 已加入 single planar boundary loop 的最小 closing repair
-  - `GeometryMeshRepair` 已加入 multi planar boundary loops 的最小批量 closing repair
+  - `MeshOps` 已加入 triangle normal / vertex normal / triangle adjacency 查询
+  - `MeshOps` 已加入 boundary edge 提取与 closed-mesh 判断
+  - `MeshOps` 已加入 boundary loop 提取
+  - `MeshOps` 已加入 connected components / non-manifold edge 查询
+  - `MeshOps` 已加入 orientation consistency 与 shell 分组查询
+  - `MeshRepair` 已加入流形 triangle mesh 的最小 consistent-orientation repair
+  - `MeshRepair` 已加入 single planar boundary loop 的最小 closing repair
+  - `MeshRepair` 已加入 multi planar boundary loops 的最小批量 closing repair
 - `polyhedron-core` 已起步：
   - `include/sdk/PolyhedronLoop3d.h`
   - `include/sdk/PolyhedronFace3d.h`
   - `include/sdk/PolyhedronBody.h`
-  - `GeometryValidation` 已加入 `PolyhedronBody` 的最小 validation 结果
-  - `GeometrySection` 已加入 `Plane x PolyhedronBody -> projected 2D polygon` 的最小截面入口
+  - `Validation` 已加入 `PolyhedronBody` 的最小 validation 结果
+  - `Section` 已加入 `Plane x PolyhedronBody -> projected 2D polygon` 的最小截面入口
 - `include/sdk/GeometryTypes.h` 新增：
   - `CurveEval3d`
   - `SurfaceEval3d`
@@ -1938,65 +1938,65 @@
 - `PolyhedronBody` 已接上平面 face / body 到 `TriangleMesh` 的最小 conversion 路径
 - `PolyhedronFace3d` 已接上局部平面 `Polygon2d` 投影入口，开始进入 projected 2D polygon workflow
 - `PolyhedronBody` 已接上 `Plane x PolyhedronBody` 的最小 section 路径，当前支持横切 plane-dominant body、与平面 face 共面的截面回收、以及 edge-only 零面积截面的开链返回
-- `GeometrySection` 已接上最小 face rebuild 入口，可将闭合 section polygons 回建为 `PolyhedronFace3d`
-- `GeometrySection` 已接上最小 BRep face/body rebuild 入口，可将 plane-dominant section 结果直接回建为 `BrepFace` / `BrepBody`
-- `GeometrySection` 已接上多 root `BrepBody` set rebuild，可将分离的 area section 直接拆成多个 `BrepBody`
+- `Section` 已接上最小 face rebuild 入口，可将闭合 section polygons 回建为 `PolyhedronFace3d`
+- `Section` 已接上最小 BRep face/body rebuild 入口，可将 plane-dominant section 结果直接回建为 `BrepFace` / `BrepBody`
+- `Section` 已接上多 root `BrepBody` set rebuild，可将分离的 area section 直接拆成多个 `BrepBody`
 - `tests/capabilities/test_3d_brep.cpp` 已新增双立方体截面多组件重建用例，验证 `RebuildSectionBrepBodies(...)` 返回 2 个独立 body
 - `tests/capabilities/test_3d_brep.cpp` 已新增最小 coedge-loop 编辑链路用例：`InsertCoedge(...) -> FlipCoedgeDirection(...) -> RemoveCoedge(...)`
-- `GeometrySection` 已接上最小 face merge 语义，可将嵌套 section polygons 合并成带孔 `PolyhedronFace3d`
-- `GeometrySection` 的 face rebuild 结果已保留 polygon-to-face 映射，可追溯 outer / hole 来源
-- `GeometrySection` 已接上最小 body rebuild 入口，可将 merged section faces 直接组织为 `PolyhedronBody`
-- `GeometrySection` 已接上多 root body-set rebuild 入口，可将分离的 area section 拆成多个 `PolyhedronBody`
-- `GeometrySection` 已接上最小 topology 入口，可显式给出 section polygons 的 parent / child / depth 关系
-- `GeometrySection` 已接上最小 component 入口，可按 root 将 section polygons / rebuilt faces 分组
-- `GeometrySection` 已接上最小 mesh conversion 入口，可直接将闭合 section 结果转成 `TriangleMesh`
-- `GeometrySection` 的 body-set / mesh-set 结果已保留 root polygon 映射，便于上层回溯 component 来源
-- `GeometrySection` 已接上最小内容分类入口，可区分 `Empty / Curve / Area / Mixed`
-- `GeometryValidation` 已接上 `PolyhedronSection3d` 的最小 validation 结果
+- `Section` 已接上最小 face merge 语义，可将嵌套 section polygons 合并成带孔 `PolyhedronFace3d`
+- `Section` 的 face rebuild 结果已保留 polygon-to-face 映射，可追溯 outer / hole 来源
+- `Section` 已接上最小 body rebuild 入口，可将 merged section faces 直接组织为 `PolyhedronBody`
+- `Section` 已接上多 root body-set rebuild 入口，可将分离的 area section 拆成多个 `PolyhedronBody`
+- `Section` 已接上最小 topology 入口，可显式给出 section polygons 的 parent / child / depth 关系
+- `Section` 已接上最小 component 入口，可按 root 将 section polygons / rebuilt faces 分组
+- `Section` 已接上最小 mesh conversion 入口，可直接将闭合 section 结果转成 `TriangleMesh`
+- `Section` 的 body-set / mesh-set 结果已保留 root polygon 映射，便于上层回溯 component 来源
+- `Section` 已接上最小内容分类入口，可区分 `Empty / Curve / Area / Mixed`
+- `Validation` 已接上 `PolyhedronSection3d` 的最小 validation 结果
 - 3D 参数对象已扩到 `NurbsCurve3d`、`NurbsSurface`、`RuledSurface`、`OffsetSurface`，并具备最小可消费的 `PointAt / Evaluate / Bounds / Clone` 能力
 - `CurveOnSurface` 已具备最小支持曲面映射能力，可返回 UV 点、映射 3D 点与 bounds
-- `GeometryProjection` 已接上通用 `ProjectPointToSurface(...)`，当前对 `PlaneSurface` 走解析投影，对一般 `Surface` 走采样 + 局部细化
-- `GeometryProjection` 已接上 `ProjectPointToBrepFace(...)`，当前优先走支撑曲面投影 + trim containment，落到 trim 外时保守回退到 trim polyline 边界最近点
-- `GeometryProjection` 已接上 `ProjectPointToBrepBody(...)`，当前按 face 聚合最短投影，返回命中的 `faceIndex`
-- `GeometryProjection` 已接上 `ProjectPointToBrepEdge(...)`，当前对 `LineCurve3d` 走解析投影，对一般 `Curve3d` 走采样 + 局部细化
-- `GeometryProjection` 已接上 `ProjectPointToBrepVertex(...)`
-- `GeometryProjection` 已接上通用 `ProjectPointToCurve(...)`，当前对 `LineCurve3d` 走解析投影，对一般 `Curve3d` 走采样 + 局部细化
-- `GeometryProjection` 已接上 `ProjectPointToCurveOnSurface(...)`，当前按 3D polyline segment 做最近点投影，并回写 UV
-- `GeometryProjection` 已接上 `ProjectPointToTriangleMesh(...)`，当前逐 triangle 做最近点投影
-- `GeometryProjection` 已接上 `ProjectPointToPolyhedronFace(...)` / `ProjectPointToPolyhedronBody(...)`，当前优先走支撑平面投影 + projected 2D polygon containment，落到面外时保守回退到边界最近点
-- `GeometryRelation3d` 已接上 `LocatePoint(point, PolyhedronFace3d, ...)` 与 `LocatePoint(point, BrepFace, ...)`
-- `GeometryRelation3d` 已接上 `LocatePoint(point, PolyhedronBody, ...)`
-- `GeometryRelation3d` 已接上 `LocatePoint(point, TriangleMesh, ...)`
-- `GeometryRelation3d` 已接上 `LocatePoint(point, BrepBody, ...)`
-- `GeometryRelation3d` 已接上 `LocatePoint(point, Curve3d, ...)` 与 `LocatePoint(point, CurveOnSurface, ...)`
-- `GeometryMeasure` 已接上 `Distance(point, surface)` / `DistanceSquared(point, surface)`，可直接消费 `PlaneSurface` 与当前最小 `NurbsSurface`
-- `GeometryMeasure` 已接上 `Distance(point, Curve3d)` / `DistanceSquared(point, Curve3d)`
-- `GeometryMeasure` 已接上 `Distance(point, CurveOnSurface)` / `DistanceSquared(point, CurveOnSurface)`
-- `GeometryMeasure` 已接上 `Distance(point, TriangleMesh)` / `DistanceSquared(point, TriangleMesh)`
-- `GeometryMeasure` 已接上 `Distance(point, PolyhedronFace)` / `DistanceSquared(point, PolyhedronFace)`
-- `GeometryMeasure` 已接上 `Distance(point, PolyhedronBody)` / `DistanceSquared(point, PolyhedronBody)`
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, PolyhedronFace, ...)` / `Intersect(Line3d, PolyhedronBody, ...)`，当前走支撑平面求交 + projected 2D polygon containment
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, Curve3d, ...)`，当前对 `LineCurve3d` 走解析求交，对一般 `Curve3d` 走保守采样
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, CurveOnSurface, ...)`，当前按 3D polyline segment 做逐段求交
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, TriangleMesh, ...)`，当前逐 triangle 做 plane hit + triangle containment
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, BrepVertex, ...)`
-- `GeometryIntersection3d` 已接上 `Intersect(Plane, Curve3d, ...)`，当前对 `LineCurve3d` 走解析求交，对一般 `Curve3d` 走采样符号变号定位
-- `GeometryIntersection3d` 已接上 `Intersect(Plane, CurveOnSurface, ...)`，当前按 3D polyline segment 做逐段平面穿越检测，并回写 UV
-- `GeometryIntersection3d` 已接上 `Intersect(Plane, BrepVertex, ...)`
-- `GeometryIntersection3d` 已接上 `Intersect(Plane, BrepEdge, ...)`，当前复用 `plane -> curve` 路径
-- `GeometryMeasure` 已接上 `Distance(point, BrepFace)` / `DistanceSquared(point, BrepFace)`，可直接消费 planar / trimmed non-planar `BrepFace`
-- `GeometryMeasure` 已接上 `Distance(point, BrepVertex)` / `DistanceSquared(point, BrepVertex)`
-- `GeometryMeasure` 已接上 `Distance(point, BrepBody)` / `DistanceSquared(point, BrepBody)`，当前复用 `ProjectPointToBrepBody(...)`
-- `GeometryMeasure` 已接上 `Distance(point, BrepEdge)` / `DistanceSquared(point, BrepEdge)`
-- `GeometryMeasure` 已接上 `Bounds(PolyhedronFace3d)` / `Bounds(BrepVertex)` / `Bounds(BrepEdge)` / `Bounds(BrepFace)`
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, BrepFace, ...)` 与 `Intersect(Line3d, BrepBody, ...)`，当前复用 `line -> surface` 再走 trim containment / 多 face 聚合
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, BrepEdge, ...)`，当前对 `LineCurve3d` 走解析求交，对一般 `Curve3d` 走保守采样
+- `Projection` 已接上通用 `ProjectPointToSurface(...)`，当前对 `PlaneSurface` 走解析投影，对一般 `Surface` 走采样 + 局部细化
+- `Projection` 已接上 `ProjectPointToBrepFace(...)`，当前优先走支撑曲面投影 + trim containment，落到 trim 外时保守回退到 trim polyline 边界最近点
+- `Projection` 已接上 `ProjectPointToBrepBody(...)`，当前按 face 聚合最短投影，返回命中的 `faceIndex`
+- `Projection` 已接上 `ProjectPointToBrepEdge(...)`，当前对 `LineCurve3d` 走解析投影，对一般 `Curve3d` 走采样 + 局部细化
+- `Projection` 已接上 `ProjectPointToBrepVertex(...)`
+- `Projection` 已接上通用 `ProjectPointToCurve(...)`，当前对 `LineCurve3d` 走解析投影，对一般 `Curve3d` 走采样 + 局部细化
+- `Projection` 已接上 `ProjectPointToCurveOnSurface(...)`，当前按 3D polyline segment 做最近点投影，并回写 UV
+- `Projection` 已接上 `ProjectPointToTriangleMesh(...)`，当前逐 triangle 做最近点投影
+- `Projection` 已接上 `ProjectPointToPolyhedronFace(...)` / `ProjectPointToPolyhedronBody(...)`，当前优先走支撑平面投影 + projected 2D polygon containment，落到面外时保守回退到边界最近点
+- `Relation3d` 已接上 `LocatePoint(point, PolyhedronFace3d, ...)` 与 `LocatePoint(point, BrepFace, ...)`
+- `Relation3d` 已接上 `LocatePoint(point, PolyhedronBody, ...)`
+- `Relation3d` 已接上 `LocatePoint(point, TriangleMesh, ...)`
+- `Relation3d` 已接上 `LocatePoint(point, BrepBody, ...)`
+- `Relation3d` 已接上 `LocatePoint(point, Curve3d, ...)` 与 `LocatePoint(point, CurveOnSurface, ...)`
+- `Measure` 已接上 `Distance(point, surface)` / `DistanceSquared(point, surface)`，可直接消费 `PlaneSurface` 与当前最小 `NurbsSurface`
+- `Measure` 已接上 `Distance(point, Curve3d)` / `DistanceSquared(point, Curve3d)`
+- `Measure` 已接上 `Distance(point, CurveOnSurface)` / `DistanceSquared(point, CurveOnSurface)`
+- `Measure` 已接上 `Distance(point, TriangleMesh)` / `DistanceSquared(point, TriangleMesh)`
+- `Measure` 已接上 `Distance(point, PolyhedronFace)` / `DistanceSquared(point, PolyhedronFace)`
+- `Measure` 已接上 `Distance(point, PolyhedronBody)` / `DistanceSquared(point, PolyhedronBody)`
+- `Intersection3d` 已接上 `Intersect(Line3d, PolyhedronFace, ...)` / `Intersect(Line3d, PolyhedronBody, ...)`，当前走支撑平面求交 + projected 2D polygon containment
+- `Intersection3d` 已接上 `Intersect(Line3d, Curve3d, ...)`，当前对 `LineCurve3d` 走解析求交，对一般 `Curve3d` 走保守采样
+- `Intersection3d` 已接上 `Intersect(Line3d, CurveOnSurface, ...)`，当前按 3D polyline segment 做逐段求交
+- `Intersection3d` 已接上 `Intersect(Line3d, TriangleMesh, ...)`，当前逐 triangle 做 plane hit + triangle containment
+- `Intersection3d` 已接上 `Intersect(Line3d, BrepVertex, ...)`
+- `Intersection3d` 已接上 `Intersect(Plane, Curve3d, ...)`，当前对 `LineCurve3d` 走解析求交，对一般 `Curve3d` 走采样符号变号定位
+- `Intersection3d` 已接上 `Intersect(Plane, CurveOnSurface, ...)`，当前按 3D polyline segment 做逐段平面穿越检测，并回写 UV
+- `Intersection3d` 已接上 `Intersect(Plane, BrepVertex, ...)`
+- `Intersection3d` 已接上 `Intersect(Plane, BrepEdge, ...)`，当前复用 `plane -> curve` 路径
+- `Measure` 已接上 `Distance(point, BrepFace)` / `DistanceSquared(point, BrepFace)`，可直接消费 planar / trimmed non-planar `BrepFace`
+- `Measure` 已接上 `Distance(point, BrepVertex)` / `DistanceSquared(point, BrepVertex)`
+- `Measure` 已接上 `Distance(point, BrepBody)` / `DistanceSquared(point, BrepBody)`，当前复用 `ProjectPointToBrepBody(...)`
+- `Measure` 已接上 `Distance(point, BrepEdge)` / `DistanceSquared(point, BrepEdge)`
+- `Measure` 已接上 `Bounds(PolyhedronFace3d)` / `Bounds(BrepVertex)` / `Bounds(BrepEdge)` / `Bounds(BrepFace)`
+- `Intersection3d` 已接上 `Intersect(Line3d, BrepFace, ...)` 与 `Intersect(Line3d, BrepBody, ...)`，当前复用 `line -> surface` 再走 trim containment / 多 face 聚合
+- `Intersection3d` 已接上 `Intersect(Line3d, BrepEdge, ...)`，当前对 `LineCurve3d` 走解析求交，对一般 `Curve3d` 走保守采样
 - `Validate(BrepBody, ...)` 已补最小 edge-use adjacency 校验：当前会拒绝 0 次引用或超过 2 次引用的 edge
-- `GeometryIntersection3d` 已接上 `Intersect(Line3d, Surface, ...)`，当前对 `PlaneSurface` 走解析求交，对一般 `Surface` 走保守采样 + 局部细化
+- `Intersection3d` 已接上 `Intersect(Line3d, Surface, ...)`，当前对 `PlaneSurface` 走解析求交，对一般 `Surface` 走保守采样 + 局部细化
 - `BrepVertex`、`BrepEdge`、`BrepCoedge`、`BrepLoop`、`BrepFace`、`BrepShell`、`BrepBody` 已不再只是名字 skeleton，已具备最小 topology ownership、bounds、validation 与 conservative healing 入口
-- `GeometryBrepConversion` 已新增 `ConvertToBrepBody(PolyhedronBody, ...)` 最小 conversion 入口（plane-surface + line-edge 主导）
-- `GeometryBrepEditing` 已新增最小 loop 编辑入口：`InsertCoedge(...)` / `RemoveCoedge(...)` / `FlipCoedgeDirection(...)`
-- 3D 服务层公开函数名已补齐并落了最小实现：`GeometryMeasure` / `GeometryHealing` / `Validate(BrepBody, ...)`
+- `BrepConversion` 已新增 `ConvertToBrepBody(PolyhedronBody, ...)` 最小 conversion 入口（plane-surface + line-edge 主导）
+- `BrepEditing` 已新增最小 loop 编辑入口：`InsertCoedge(...)` / `RemoveCoedge(...)` / `FlipCoedgeDirection(...)`
+- 3D 服务层公开函数名已补齐并落了最小实现：`Measure` / `Healing` / `Validate(BrepBody, ...)`
 - `BrepBody` 已接上受限 `TriangleMesh` conversion，当前支持 plane-surface + line-edge 主导的平面 BRep face
 - `tests/capabilities/test_3d_healing.cpp` 已新增 `Heal(BrepBody)` 缺失 trim 回填 capability
 - `tests/capabilities/test_3d_section.cpp` 已新增 non-axis-aligned multi-face 截面的稳定 contour count capability
@@ -2015,14 +2015,14 @@
 - `tests/capabilities/test_3d_conversion.cpp` 已扩展 planar multi-face `BrepBody -> TriangleMesh` 的面积保持子场景
 - `tests/capabilities/test_3d_conversion.cpp` 已扩展 planar holed+multi-face `BrepBody -> TriangleMesh` 的面积保持子场景
 - `BrepFace` 已接上基于 trim/UV triangulation 的最小 `TriangleMesh` conversion
-- `GeometryMeasure::Area(BrepFace)` 已改为消费 `BrepFace -> TriangleMesh`，因此不再局限于平面 trim 面积
-- 已新增 `GeometryBrepConversion`，支持 `BrepFace -> PolyhedronFace3d` 与 `BrepBody -> PolyhedronBody` 的平面 trim 回建桥
+- `Measure::Area(BrepFace)` 已改为消费 `BrepFace -> TriangleMesh`，因此不再局限于平面 trim 面积
+- 已新增 `BrepConversion`，支持 `BrepFace -> PolyhedronFace3d` 与 `BrepBody -> PolyhedronBody` 的平面 trim 回建桥
 - `ConvertToPolyhedronBody(BrepBody, ...)` 已带 topology fallback：对 trim 缺失但 plane-surface + line-edge 的 planar body，仍可直接回建 `PolyhedronBody`
 - `BrepBody` 已接上最小 `Section(BrepBody, Plane, ...)`，支持 coplanar planar face 回收与一般 mesh-slice 路径
-- `GeometryMeasure` 已扩到 `CurveOnSurface` / `BrepFace` / `BrepBody`
+- `Measure` 已扩到 `CurveOnSurface` / `BrepFace` / `BrepBody`
 - `Heal(BrepBody, ...)` 已可为 plane-surface + line-edge 主导的 planar face 自动回填缺失 trim/preimage，并保守重建 shell closed 标记
 - 带孔 `PolyhedronFace3d` 已可经由 projected 2D polygon 工作流转成 `TriangleMesh`
-- 当前 `GeometrySection` 仍是保守入口：最小 body rebuild 已补上，但 richer section topology 与更复杂 merge 语义仍未补
+- 当前 `Section` 仍是保守入口：最小 body rebuild 已补上，但 richer section topology 与更复杂 merge 语义仍未补
 - `BrepBody` 已具备最小对象层 / validation / conservative healing / mesh conversion / section / capability 覆盖，但仍只覆盖 plane-surface + line-edge 主导场景，尚未进入实质 BRep 算法
 
 ## 推荐的下一个 3D 动作（第二阶段）
@@ -2078,7 +2078,7 @@
 
 ## 本轮新增（2026-04-03，continuation-75）
 
-- 已推进 `src/sdk/GeometryBrepConversion.cpp` 的 non-planar repair 算法：`BuildFaceWithRefitSupportPlane(...)` 不再只依据 outer loop 三点选 support plane，而是对 outer + hole 全 loop 顶点枚举候选平面，并按全局 signed-distance 误差优先、shared outer 顶点偏好次之的启发式进行 refit 选面。
+- 已推进 `src/sdk/BrepConversion.cpp` 的 non-planar repair 算法：`BuildFaceWithRefitSupportPlane(...)` 不再只依据 outer loop 三点选 support plane，而是对 outer + hole 全 loop 顶点枚举候选平面，并按全局 signed-distance 误差优先、shared outer 顶点偏好次之的启发式进行 refit 选面。
 - 已扩展 conversion capability：`tests/capabilities/test_3d_conversion.cpp` 新增 `HoleDominatedNonPlanarHoledFaceRepairsToPlanarBrepBody`，验证当 outer loop 本身更偏离而 hole loop 主导更低误差平面时，`ConvertToBrepBody(...)` 仍可稳定回收到 planar holed face（FaceCount=1 / VertexCount=8 / EdgeCount=8，且全部顶点 z≈0）。
 - 已同步更新 `tests/gaps/test_3d_conversion_gaps.cpp`，将 holed-face all-loop support-plane scoring 子集纳入当前已覆盖边界说明。
 - 已更新：`docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。
@@ -2115,6 +2115,6 @@
 
 ## 本轮新增（2026-04-04，continuation-81）
 
-- 已重构 `src/sdk/GeometryBrepConversion.cpp` 的 non-planar repair 主路径，在不改 `ConvertToBrepBody(...)` 对外入口的前提下，将内部流程显式拆为 `support-plane scoring`、`representative target aggregation`、`cross-face snapping`、`topology reconciliation` 四个 pass helper，并让 repair 结果直接携带 reconciled representative targets 供后续拓扑回建复用。
+- 已重构 `src/sdk/BrepConversion.cpp` 的 non-planar repair 主路径，在不改 `ConvertToBrepBody(...)` 对外入口的前提下，将内部流程显式拆为 `support-plane scoring`、`representative target aggregation`、`cross-face snapping`、`topology reconciliation` 四个 pass helper，并让 repair 结果直接携带 reconciled representative targets 供后续拓扑回建复用。
 - 已转正 closed-cuboid all-vertices representative 子集：`tests/capabilities/test_3d_conversion.cpp` 将 `SupportMismatchNearEqualClosedCuboidAllVerticesRepairsWithRepresentativeAverageTarget`、`SupportMismatchNearEqualClosedCuboidAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget`、`SupportMismatchNearEqualClosedCuboidAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget` 统一升级为显式 representative-average 落点断言，不再只验证 closed-shell 拓扑计数。
 - 已同步收敛 `tests/gaps/test_3d_conversion_gaps.cpp` 文案，移除 closed-cuboid all-vertices / single-duplicate / dual-duplicate 这组三个 representative-average open subset；并已更新 `docs/test-capability-coverage.md`、`docs/design-doc-sync-tracker.md`、`docs/next-task-prompt.md`。

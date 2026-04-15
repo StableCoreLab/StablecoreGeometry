@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "export/GeometryExport.h"
-#include "sdk/GeometryIntersection.h"
-#include "sdk/GeometryMetrics.h"
-#include "sdk/GeometryProjection.h"
+#include "sdk/Intersection.h"
+#include "sdk/Metrics.h"
+#include "sdk/Projection.h"
 
 namespace geometry::sdk
 {

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <utility>
 
-#include "sdk/GeometryShapeOps.h"
+#include "sdk/ShapeOps.h"
 
 namespace geometry::sdk
 {

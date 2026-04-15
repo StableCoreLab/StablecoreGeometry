@@ -3,9 +3,9 @@
 #include <memory>
 #include <vector>
 
-#include "sdk/GeometryOffset.h"
-#include "sdk/GeometryRelation.h"
-#include "sdk/GeometryShapeOps.h"
+#include "sdk/Offset.h"
+#include "sdk/Relation.h"
+#include "sdk/ShapeOps.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::ArcSegment2d;

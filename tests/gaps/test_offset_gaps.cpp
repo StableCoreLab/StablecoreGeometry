@@ -1,6 +1,6 @@
-﻿#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
-#include "sdk/GeometryOffset.h"
+#include "sdk/Offset.h"
 
 using geometry::sdk::Point2d;
 using geometry::sdk::Polygon2d;

@@ -13,16 +13,16 @@
 
 | Delphi 能力族 | Delphi 依据 | C++ 目标面 | 当前状态 |
 | --- | --- | --- | --- |
-| `SearchPoly` / fake-edge / auto-close / branch cleanup | `GGLSearchPolyFunc2d.pas` | `GeometrySearchPoly.h` | 已落 branch-scored 子集 |
-| polygon relation tree / contains hierarchy | `GGLPolyRelation.pas` | `GeometryRelation.h` + `GeometryTopology.h` | 可用子集 |
-| 带重建 polygon 回收的 offset | `GGLOffsetFunc2d.pas` | `GeometryOffset.h` | 可用子集 |
-| 2D boolean | GGJ + Geo2DLib 产品使用 | `GeometryBoolean.h` | 可用子集 |
+| `SearchPoly` / fake-edge / auto-close / branch cleanup | `GGLSearchPolyFunc2d.pas` | `SearchPoly.h` | 已落 branch-scored 子集 |
+| polygon relation tree / contains hierarchy | `GGLPolyRelation.pas` | `Relation.h` + `Topology.h` | 可用子集 |
+| 带重建 polygon 回收的 offset | `GGLOffsetFunc2d.pas` | `Offset.h` | 可用子集 |
+| 2D boolean | GGJ + Geo2DLib 产品使用 | `Boolean.h` | 可用子集 |
 | segment search / box-tree 加速 | Geo2DLib | `SegmentSearch2d.h` + `BoxTree2d.h` | 可用子集 |
-| section / projected contour rebuild | `GGJSumpCommon.pas`, `GGL3DCommon.pas` | `GeometrySection.h` | 可用子集 |
-| polyhedron / brep conversion | GGJ conversion 和 rebuild 路径 | `GeometryBrepConversion.h` | 可用子集，但仍有 open repair gap |
-| brep healing / trim 回填 | GGJ healing 路径 | `GeometryHealing.h` | 可用子集，但仍有 open aggressive-policy gap |
-| body / shell boolean | `GGL.pas` | `GeometryBodyBoolean.h` | 已落第一批 overlap + touching-union 子集 |
-| brep 到 mesh / mesh 到 body 支撑链 | GGJ export + conversion 使用 | `GeometryMeshConversion.h`, `GeometryMeshRepair.h`, `GeometryMeshOps.h` | 可用子集，但仍有 fidelity gap |
+| section / projected contour rebuild | `GGJSumpCommon.pas`, `GGL3DCommon.pas` | `Section.h` | 可用子集 |
+| polyhedron / brep conversion | GGJ conversion 和 rebuild 路径 | `BrepConversion.h` | 可用子集，但仍有 open repair gap |
+| brep healing / trim 回填 | GGJ healing 路径 | `Healing.h` | 可用子集，但仍有 open aggressive-policy gap |
+| body / shell boolean | `GGL.pas` | `BodyBoolean.h` | 已落第一批 overlap + touching-union 子集 |
+| brep 到 mesh / mesh 到 body 支撑链 | GGJ export + conversion 使用 | `MeshConversion.h`, `MeshRepair.h`, `MeshOps.h` | 可用子集，但仍有 fidelity gap |
 
 ## 快通道规则
 
@@ -35,10 +35,10 @@
 
 ## 第一批快通道
 
-- `GeometrySearchPoly.h`
+- `SearchPoly.h`
   - 把 Delphi 风格的 polygon search 正式化为一级 SDK 入口，而不是继续让产品侧临时调用 `BuildMultiPolygonByLines(...)`
   - 当前稳定子集覆盖 invalid-input contract、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、result/diagnostics consistency、auto-flag gating，以及 smallest-containing candidate lookup
-- `GeometryBodyBoolean.h`
+- `BodyBoolean.h`
   - 预留 Delphi 风格的 body/shell boolean SDK 名称，方便产品现在就对接稳定 API
   - 当前稳定子集覆盖 invalid-input contract、identical/disjoint closed-body 子集、axis-aligned single-box overlap 子集（结果仍保持一个 closed box），以及 face-touching union 子集
 - 配套测试
@@ -48,6 +48,6 @@
 
 ## 下一批
 
-- 继续把 `GeometrySearchPoly` 从当前 branch-scored + candidate fake-edge diagnostic 子集，推进到更丰富的 fake-edge explanation 和 Delphi 级 ambiguous recovery
-- 继续把 `GeometryBodyBoolean` 从 identical/disjoint + axis-aligned single-box overlap / face-touching union 子集，推进到 non-box overlap、touching intersection/difference、shell-policy 和 healing-integrated cases
+- 继续把 `SearchPoly` 从当前 branch-scored + candidate fake-edge diagnostic 子集，推进到更丰富的 fake-edge explanation 和 Delphi 级 ambiguous recovery
+- 继续把 `BodyBoolean` 从 identical/disjoint + axis-aligned single-box overlap / face-touching union 子集，推进到 non-box overlap、touching intersection/difference、shell-policy 和 healing-integrated cases
 - 只有当对应 capability 测试转绿时，才继续缩小 gap 测试

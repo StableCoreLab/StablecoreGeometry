@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "algorithm/Predicate2.h"
-#include "sdk/GeometryMetrics.h"
+#include "sdk/Metrics.h"
 
 namespace geometry::sdk
 {

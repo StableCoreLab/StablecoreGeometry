@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "sdk/GeometryBoolean.h"
-#include "sdk/GeometryRelation.h"
-#include "sdk/GeometryShapeOps.h"
-#include "sdk/GeometryValidation.h"
+#include "sdk/Boolean.h"
+#include "sdk/Relation.h"
+#include "sdk/ShapeOps.h"
+#include "sdk/Validation.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::LineSegment2d;

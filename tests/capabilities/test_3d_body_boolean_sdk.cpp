@@ -3,8 +3,8 @@
 #include <cmath>
 #include <vector>
 
-#include "sdk/GeometryBodyBoolean.h"
-#include "sdk/GeometryBrepConversion.h"
+#include "sdk/BodyBoolean.h"
+#include "sdk/BrepConversion.h"
 #include "support/Fixtures3d.h"
 
 using geometry::sdk::BodyBooleanIssue3d;

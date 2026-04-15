@@ -16,13 +16,13 @@
 | --- | --- | --- | --- |
 | umbrella 入口 | `Geometry.h` | 稳定 | 保持为唯一面向产品的 umbrella 头文件。 |
 | SDK 聚合 | `GeometryApi.h` | 稳定 | 供不想使用 umbrella 的使用者直接聚合。 |
-| 共享类型 | `GeometryTypes.h`, `GeometryResults.h`, `GeometryValidation.h` | 稳定 | 结果类型和辅助类型已经符合公开表面的风格。 |
+| 共享类型 | `GeometryTypes.h`, `Results.h`, `Validation.h` | 稳定 | 结果类型和辅助类型已经符合公开表面的风格。 |
 | 2D 值类型 | `Point2d`, `Vector2d`, `Box2d`, `Segment2d`, `LineSegment2d`, `ArcSegment2d`, `Polyline2d`, `Polygon2d`, `Rectangle2d` | 稳定 | 简短、清晰、并且已经一致。 |
 | 3D 值类型 | `Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`, `Line3d`, `Ray3d`, `Triangle3d`, `Transform3d`, `Matrix3d`, `Plane` | 稳定 | 3D 类型层的命名已经统一。 |
 | 核心查询 | `IsValid`, `IsEmpty`, `IsClosed`, `IsPeriodic`, `HasIntersection`, `HasNeighbor`, `HasSelfIntersection`, `Contains`, `Intersects` | 稳定 | 这是布尔行为的首选动词形式。 |
 | 几何内在查询 | `PointAt`, `Bounds`, `Length`, `Area`, `VertexCount`, `VertexAt`, `StartPoint`, `EndPoint`, `OuterRing`, `HoleCount`, `HoleAt` | 稳定 | 这些已经是规范查询名。 |
 | 算法入口 | `Project`, `Convert`, `Heal`, `Section`, `Validate`, `Measure`, `Search` 系列 | 稳定 | 模块名本身已经像操作族，而不是 helper。 |
-| 布尔 / 截面 / 修复 / 搜索模块 | `GeometryBodyBoolean`, `GeometrySection`, `GeometryHealing`, `GeometrySearchPoly` | 稳定 | 这些已经是既定的外部模块名，这一轮不应改名。 |
+| 布尔 / 截面 / 修复 / 搜索模块 | `BodyBoolean`, `Section`, `Healing`, `SearchPoly` | 稳定 | 这些已经是既定的外部模块名，这一轮不应改名。 |
 | 空间索引模块 | `BoxTree2d`, `KDTree2d`, `SegmentSearch2d` | 稳定 | 旧的 `Geometry*` 名字保留为兼容别名。 |
 | Brep / polyhedron 系列 | `BrepBody`, `BrepFace`, `BrepShell`, `BrepLoop`, `BrepEdge`, `BrepVertex`, `PolyhedronBody`, `PolyhedronFace3d`, `PolyhedronLoop3d` | 稳定 | 这类领域前缀属于外部契约的一部分，应当保留。 |
 

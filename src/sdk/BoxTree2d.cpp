@@ -5,7 +5,7 @@
 #include <sstream>
 #include <utility>
 
-#include "sdk/GeometryMetrics.h"
+#include "sdk/Metrics.h"
 
 namespace geometry::sdk
 {

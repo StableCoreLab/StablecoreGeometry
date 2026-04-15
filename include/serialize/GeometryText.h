@@ -5,7 +5,7 @@
 
 #include "export/GeometryExport.h"
 #include "sdk/ArcSegment2d.h"
-#include "sdk/GeometryAlgorithms.h"
+#include "sdk/Algorithms.h"
 #include "sdk/Polygon2d.h"
 #include "sdk/Polyline2d.h"
 #include "sdk/GeometryTypes.h"

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "sdk/GeometryBoolean.h"
-#include "sdk/GeometryShapeOps.h"
+#include "sdk/Boolean.h"
+#include "sdk/ShapeOps.h"
 
 using geometry::sdk::Point2d;
 using geometry::sdk::Polygon2d;

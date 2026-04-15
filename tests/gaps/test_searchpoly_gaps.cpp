@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "sdk/GeometrySearchPoly.h"
+#include "sdk/SearchPoly.h"
 
 TEST(SearchPolyGapTest, DelphiGradeAmbiguousBranchScoringRemainsOpen)
 {
-    GTEST_SKIP() << "Known 2D gap: GeometrySearchPoly now exposes stable SDK entry points, "
+    GTEST_SKIP() << "Known 2D gap: SearchPoly now exposes stable SDK entry points, "
                     "candidate ranking, branch scoring, candidate-level fake-edge diagnostics, "
                     "edge-level synthetic explanation (kind/source/vertex-identity/touch-mapping), "
                     "top-candidate / runner-up / ambiguous-top synthetic-source summary, "

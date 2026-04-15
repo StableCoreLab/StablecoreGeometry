@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
-#include "sdk/GeometryEditing.h"
-#include "sdk/GeometrySampling.h"
-#include "sdk/GeometryTransform.h"
+#include "sdk/Editing.h"
+#include "sdk/Sampling.h"
+#include "sdk/Transform.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::ArcSegment2d;

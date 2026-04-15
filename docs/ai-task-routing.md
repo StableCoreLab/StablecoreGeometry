@@ -34,11 +34,11 @@
 
 适用任务：
 
-- `GeometryBrepConversion` 的 non-planar repair 主算法推进
-- `GeometrySection` 的高阶 section 语义推进
-- `GeometryHealing` 的竞争性 multi-shell arbitration
-- `GeometryBodyBoolean` 的更一般 touching / overlap contract
-- `GeometrySearchPoly` 的 richer fake-edge explanation / ambiguous recovery
+- `BrepConversion` 的 non-planar repair 主算法推进
+- `Section` 的高阶 section 语义推进
+- `Healing` 的竞争性 multi-shell arbitration
+- `BodyBoolean` 的更一般 touching / overlap contract
+- `SearchPoly` 的 richer fake-edge explanation / ambiguous recovery
 
 适合原因：
 
@@ -62,7 +62,7 @@
 适用任务：
 
 - 已知安全子集的 capability 扩展
-- `GeometrySearchPoly` 的 contract / diagnostics / consistency 补强
+- `SearchPoly` 的 contract / diagnostics / consistency 补强
 - 已确定方向模块的内部 pass / helper 拆层
 - SDK 风格统一、接口收口、umbrella header 整理
 
@@ -99,13 +99,13 @@
 
 ### 批次 1：A 类主线
 
-- `GeometrySection`
-- `GeometryHealing`
-- `GeometryBodyBoolean`
+- `Section`
+- `Healing`
+- `BodyBoolean`
 
 ### 批次 2：B 类并行
 
-- `GeometrySearchPoly` 的 contract / diagnostics / explanation 补强
+- `SearchPoly` 的 contract / diagnostics / explanation 补强
 - 已明确方向模块的内部 pass 整理
 - SDK 风格统一与接口收口
 

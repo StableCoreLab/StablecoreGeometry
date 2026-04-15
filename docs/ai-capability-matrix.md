@@ -14,7 +14,7 @@ Last Updated: 2026-04-05
 
 ---
 
-## GeometrySection
+## Section
 
 | Capability | Status | Tests | Notes |
 |----------|--------|------|------|
@@ -30,7 +30,7 @@ Last Updated: 2026-04-05
 
 ---
 
-## GeometryHealing
+## Healing
 
 | Capability | Status | Tests | Notes |
 |----------|--------|------|------|
@@ -44,7 +44,7 @@ Last Updated: 2026-04-05
 
 ---
 
-## GeometrySearchPoly
+## SearchPoly
 
 | Capability | Status | Tests | Notes |
 |----------|--------|------|------|
@@ -58,7 +58,7 @@ Last Updated: 2026-04-05
 
 ---
 
-## GeometryBodyBoolean
+## BodyBoolean
 
 | Capability | Status | Tests | Notes |
 |----------|--------|------|------|

@@ -4,7 +4,7 @@
 #include "sdk/BoxTree2d.h"
 #include "sdk/KDTree2d.h"
 #include "sdk/SegmentSearch2d.h"
-#include "sdk/GeometryTopology.h"
+#include "sdk/Topology.h"
 #include "support/GeometryTestSupport.h"
 
 using geometry::sdk::ArcSegment2d;

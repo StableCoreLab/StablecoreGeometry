@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "export/GeometryExport.h"
-#include "sdk/GeometryMetrics.h"
+#include "sdk/Metrics.h"
 
 namespace geometry::sdk
 {

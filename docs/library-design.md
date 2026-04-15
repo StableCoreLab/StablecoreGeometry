@@ -43,7 +43,7 @@ tests/
 #include "sdk/Geometry.h"
 ```
 
-`Geometry.h` 是当前稳定 umbrella 入口，它聚合了 `GeometryApi`、`GeometryEpsilon`、`GeometrySearchPoly`、`GeometryBodyBoolean` 以及当前主要的 2D / 3D SDK 头文件。
+`Geometry.h` 是当前稳定 umbrella 入口，它聚合了 `GeometryApi`、`GeometryEpsilon`、`SearchPoly`、`BodyBoolean` 以及当前主要的 2D / 3D SDK 头文件。
 
 ### 3.2 值类型与 SDK 类型层
 
@@ -67,7 +67,7 @@ tests/
 典型边界是：
 
 - `Point2<T>`、`Vector2<T>`、`Box2<T>`、`Polyline2<T>`、`Polygon2<T>`、`Segment2<T>` 负责数据与基础不变量
-- `GeometryMeasure`、`GeometryProjection`、`GeometryIntersection`、`GeometryRelation`、`GeometrySection`、`GeometryHealing`、`GeometryBodyBoolean`、`GeometrySearchPoly` 负责算法与流程
+- `Measure`、`Projection`、`Intersection`、`Relation`、`Section`、`Healing`、`BodyBoolean`、`SearchPoly` 负责算法与流程
 
 ### 4.2 容差是基础设施
 
@@ -112,8 +112,8 @@ tests/
 
 - 基础类型：`Point2`, `Vector2`, `Segment2`, `LineSegment2`, `ArcSegment2`, `Box2`, `Polyline2`, `Polygon2`
 - SDK 包装：`Segment2d`, `LineSegment2d`, `ArcSegment2d`, `Polyline2d`, `Polygon2d`, `MultiPolyline2d`, `MultiPolygon2d`, `Rectangle2d`, `Circle2d`, `Ellipse2d`
-- 算法服务：`GeometryAlgorithms`, `GeometryAxisOps`, `GeometryBoolean`, `GeometryMeasure`, `GeometryOffset`, `GeometryPathOps`, `GeometryProjection`, `GeometryRelation`, `GeometrySampling`, `GeometryTopology`, `GeometryValidation`, `GeometrySearchPoly`, `GeometrySegmentSearch`, `GeometryBoxTree`, `GeometryKDTree`
-- 结果与辅助：`GeometryResults`, `GeometryTypes`, `GeometryEpsilon`
+- 算法服务：`Algorithms`, `AxisOps`, `Boolean`, `Measure`, `Offset`, `PathOps`, `Projection`, `Relation`, `Sampling`, `Topology`, `Validation`, `SearchPoly`, `GeometrySegmentSearch`, `GeometryBoxTree`, `GeometryKDTree`
+- 结果与辅助：`Results`, `GeometryTypes`, `GeometryEpsilon`
 
 这部分已经不只是“点线面基础类型”，而是带有完整工程流程的 2D 服务层。
 
@@ -148,21 +148,21 @@ tests/
 
 当前 3D 服务层已覆盖：
 
-- `GeometryProjection` / `GeometryProjection3d`
-- `GeometryIntersection` / `GeometryIntersection3d`
-- `GeometryMeasure`
-- `GeometryRelation` / `GeometryRelation3d`
-- `GeometrySection`
-- `GeometryHealing`
-- `GeometryBodyBoolean`
-- `GeometryBrepConversion`
-- `GeometryBrepEditing`
-- `GeometryMeshConversion`
-- `GeometryMeshOps`
-- `GeometryMeshRepair`
-- `GeometryTessellation`
-- `GeometryTransform`
-- `GeometryValidation`
+- `Projection` / `Projection3d`
+- `Intersection` / `Intersection3d`
+- `Measure`
+- `Relation` / `Relation3d`
+- `Section`
+- `Healing`
+- `BodyBoolean`
+- `BrepConversion`
+- `BrepEditing`
+- `MeshConversion`
+- `MeshOps`
+- `MeshRepair`
+- `Tessellation`
+- `Transform`
+- `Validation`
 
 ## 7. 目录与职责边界
 
