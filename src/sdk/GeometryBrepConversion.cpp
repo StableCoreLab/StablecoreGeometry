@@ -42,31 +42,6 @@ struct NonPlanarRepairPassResult
     std::unordered_map<std::size_t, Point3d> representativeTargetPoints;
 };
 
-void DumpBrepConversionDebugIfInteresting(
-    const PolyhedronBody& sourceBody,
-    const std::vector<BrepVertex>& vertices,
-    const std::vector<BrepEdge>& edges)
-{
-    if (!(sourceBody.FaceCount() == 3 || sourceBody.FaceCount() == 5))
-    {
-        return;
-    }
-
-    if (!(vertices.size() == 12 || vertices.size() == 13 || vertices.size() == 6 || vertices.size() == 8))
-    {
-        return;
-    }
-
-    std::cerr << "DumpBrepConversionDebugIfInteresting: faceCount=" << sourceBody.FaceCount()
-              << " vertexCount=" << vertices.size()
-              << " edgeCount=" << edges.size() << std::endl;
-    for (std::size_t i = 0; i < vertices.size(); ++i)
-    {
-        const Point3d point = vertices[i].Point();
-        std::cerr << "  v" << i << " = (" << point.x << ", " << point.y << ", " << point.z << ")" << std::endl;
-    }
-}
-
 [[nodiscard]] bool BuildFaceWithRefitSupportPlane(
     const PolyhedronFace3d& face,
     PolyhedronFace3d& repairedFace,
@@ -137,6 +112,33 @@ void BuildBodyLoopRepresentativeIds(
     ids.resize(body.FaceCount());
 
     std::vector<Point3d> representativePoints;
+    const Plane referencePlane = body.FaceCount() > 0 ? body.FaceAt(0).SupportPlane() : Plane{};
+    const Vector3d referenceNormal = referencePlane.UnitNormal(eps);
+    bool useCommonSupportPlaneGrouping = body.FaceCount() > 0 && body.FaceCount() <= 3 && referenceNormal.IsValid();
+    if (useCommonSupportPlaneGrouping)
+    {
+        for (std::size_t faceIndex = 1; faceIndex < body.FaceCount(); ++faceIndex)
+        {
+            const Vector3d faceNormal = body.FaceAt(faceIndex).SupportPlane().UnitNormal(eps);
+            if (!faceNormal.IsValid() ||
+                (faceNormal - referenceNormal).Length() > eps)
+            {
+                useCommonSupportPlaneGrouping = false;
+                break;
+            }
+        }
+    }
+
+    auto groupPoint = [&](const Point3d& point) {
+        if (!useCommonSupportPlaneGrouping)
+        {
+            return point;
+        }
+
+        const double signedDistance = referencePlane.SignedDistanceTo(point, eps);
+        return point - referenceNormal * signedDistance;
+    };
+
     for (std::size_t faceIndex = 0; faceIndex < body.FaceCount(); ++faceIndex)
     {
         const PolyhedronFace3d face = body.FaceAt(faceIndex);
@@ -147,7 +149,7 @@ void BuildBodyLoopRepresentativeIds(
         {
             faceIds.outer.push_back(
                 FindOrAddRepresentativePoint(
-                    face.OuterLoop().VertexAt(i),
+                    groupPoint(face.OuterLoop().VertexAt(i)),
                     representativePoints,
                     geometry::kRepresentativeGroupingEpsilon));
         }
@@ -162,7 +164,7 @@ void BuildBodyLoopRepresentativeIds(
             {
                 holeIds.push_back(
                     FindOrAddRepresentativePoint(
-                        hole.VertexAt(i),
+                        groupPoint(hole.VertexAt(i)),
                         representativePoints,
                         geometry::kRepresentativeGroupingEpsilon));
             }
@@ -628,6 +630,7 @@ template <typename FaceAccessor>
     const std::vector<std::size_t>* representativeIds,
     const std::unordered_map<std::size_t, Point3d>* representativeTargetPoints,
     const Plane* representativeTargetPlane,
+    bool useAxisAlignedRepresentativeSnapping,
     std::unordered_map<std::size_t, std::size_t>* representativeToVertexIndex,
     double vertexDedupEps,
     double eps)
@@ -638,6 +641,35 @@ template <typename FaceAccessor>
         {
             return false;
         }
+
+        auto snapToRepresentativePlaneAxis = [&](Point3d point) {
+            if (representativeTargetPlane == nullptr || !useAxisAlignedRepresentativeSnapping)
+            {
+                return point;
+            }
+
+            const Vector3d unitNormal = representativeTargetPlane->UnitNormal(eps);
+            if (!unitNormal.IsValid())
+            {
+                return point;
+            }
+
+            const Vector3d absNormal{std::abs(unitNormal.x), std::abs(unitNormal.y), std::abs(unitNormal.z)};
+            if (absNormal.x >= absNormal.y && absNormal.x >= absNormal.z)
+            {
+                point.x = representativeTargetPlane->origin.x;
+            }
+            else if (absNormal.y >= absNormal.z)
+            {
+                point.y = representativeTargetPlane->origin.y;
+            }
+            else
+            {
+                point.z = representativeTargetPlane->origin.z;
+            }
+
+            return point;
+        };
 
         const std::size_t vertexCount = polyLoop.VertexCount();
         std::vector<std::size_t> loopVertexIndices;
@@ -671,16 +703,7 @@ template <typename FaceAccessor>
                         if (representativePointIt != representativeTargetPoints->end() &&
                             !vertices[found->second].Point().AlmostEquals(representativePointIt->second, vertexDedupEps))
                         {
-                            Point3d representativePoint = representativePointIt->second;
-                            if (representativeTargetPlane != nullptr)
-                            {
-                                const Vector3d unitNormal = representativeTargetPlane->UnitNormal(eps);
-                                const double signedDistance =
-                                    representativeTargetPlane->SignedDistanceTo(representativePoint, eps);
-                                representativePoint = representativePoint - unitNormal * signedDistance;
-                            }
-
-                            vertices[found->second] = BrepVertex(representativePoint);
+                            vertices[found->second] = BrepVertex(snapToRepresentativePlaneAxis(representativePointIt->second));
                         }
                     }
 
@@ -694,14 +717,7 @@ template <typename FaceAccessor>
                         const auto representativePointIt = representativeTargetPoints->find(representativeId);
                         if (representativePointIt != representativeTargetPoints->end())
                         {
-                            representativePoint = representativePointIt->second;
-                            if (representativeTargetPlane != nullptr)
-                            {
-                                const Vector3d unitNormal = representativeTargetPlane->UnitNormal(eps);
-                                const double signedDistance =
-                                    representativeTargetPlane->SignedDistanceTo(representativePoint, eps);
-                                representativePoint = representativePoint - unitNormal * signedDistance;
-                            }
+                            representativePoint = snapToRepresentativePlaneAxis(representativePointIt->second);
                         }
                     }
 
@@ -944,7 +960,6 @@ void BuildSharedOuterVertexPreferenceMask(
     std::vector<std::size_t> outerKeptIndices;
     if (!normalizeLoop(face.OuterLoop(), outer, &outerKeptIndices) || outer.VertexCount() < 3)
     {
-        std::cerr << "BuildFaceWithRefitSupportPlane: outer normalize failed" << std::endl;
         return false;
     }
 
@@ -1099,7 +1114,6 @@ void BuildSharedOuterVertexPreferenceMask(
 
     if (preferHoleDominatedPlane)
     {
-        std::cerr << "BuildFaceWithRefitSupportPlane: hole-dominated enter faceHoleCount=" << holes.size() << std::endl;
         bool seededHolePlane = false;
         for (const PolyhedronLoop3d& hole : holes)
         {
@@ -1135,7 +1149,6 @@ void BuildSharedOuterVertexPreferenceMask(
                         bestPreferredCount = 0;
                         bestPreferredNormalLength = seedNormal.Length();
                         seededHolePlane = true;
-                        std::cerr << "BuildFaceWithRefitSupportPlane: hole-dominated seeded" << std::endl;
                     }
                 }
             }
@@ -1146,16 +1159,10 @@ void BuildSharedOuterVertexPreferenceMask(
             const Vector3d refitNormal = normal.Normalized(supportEps);
             if (!refitNormal.IsValid())
             {
-                std::cerr << "BuildFaceWithRefitSupportPlane: normalized normal invalid" << std::endl;
                 return false;
             }
 
             const Plane refitPlane = Plane::FromPointAndNormal(p0, refitNormal);
-            std::cerr << "BuildFaceWithRefitSupportPlane: normalLen=" << refitPlane.normal.Length()
-                      << " outer0Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(0), eps)
-                      << " outer1Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(1), eps)
-                      << " outer2Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(2), eps)
-                      << std::endl;
 
             if (holes.empty())
             {
@@ -1332,7 +1339,6 @@ void BuildSharedOuterVertexPreferenceMask(
         const double scaleAwareThreshold = maxLoopScaleSquared(outer) * eps;
         if (bestNormalLength <= scaleAwareThreshold)
         {
-            std::cerr << "BuildFaceWithRefitSupportPlane: no support" << std::endl;
             return false;
         }
 
@@ -1343,16 +1349,10 @@ void BuildSharedOuterVertexPreferenceMask(
     const Vector3d refitNormal = normal.Normalized(supportEps);
     if (!refitNormal.IsValid())
     {
-        std::cerr << "BuildFaceWithRefitSupportPlane: normalized normal invalid" << std::endl;
         return false;
     }
 
     const Plane refitPlane = Plane::FromPointAndNormal(p0, refitNormal);
-    std::cerr << "BuildFaceWithRefitSupportPlane: normalLen=" << refitPlane.normal.Length()
-              << " outer0Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(0), eps)
-              << " outer1Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(1), eps)
-              << " outer2Dist=" << refitPlane.SignedDistanceTo(outer.VertexAt(2), eps)
-              << std::endl;
 
     if (holes.empty())
     {
@@ -1366,7 +1366,6 @@ void BuildSharedOuterVertexPreferenceMask(
             }
             return true;
         }
-        std::cerr << "BuildFaceWithRefitSupportPlane: direct face invalid" << std::endl;
 
         std::vector<Point3d> reversedOuterVertices = outer.Vertices();
         std::reverse(reversedOuterVertices.begin(), reversedOuterVertices.end());
@@ -1398,7 +1397,6 @@ void BuildSharedOuterVertexPreferenceMask(
     PolyhedronLoop3d projectedOuter = projectLoopToPlane(outer);
     if (!projectedOuter.IsValid(eps))
     {
-        std::cerr << "BuildFaceWithRefitSupportPlane: projected outer invalid" << std::endl;
         return false;
     }
 
@@ -1409,7 +1407,6 @@ void BuildSharedOuterVertexPreferenceMask(
         PolyhedronLoop3d projectedHole = projectLoopToPlane(hole);
         if (!projectedHole.IsValid(eps))
         {
-            std::cerr << "BuildFaceWithRefitSupportPlane: projected hole invalid" << std::endl;
             return false;
         }
         projectedHoles.push_back(std::move(projectedHole));
@@ -1418,7 +1415,6 @@ void BuildSharedOuterVertexPreferenceMask(
     repairedFace = PolyhedronFace3d(refitPlane, std::move(projectedOuter), std::move(projectedHoles));
     if (!repairedFace.IsValid(faceValidityEps))
     {
-        std::cerr << "BuildFaceWithRefitSupportPlane: projected face invalid" << std::endl;
         std::vector<Point3d> reversedOuterVertices = projectedOuter.Vertices();
         std::reverse(reversedOuterVertices.begin(), reversedOuterVertices.end());
         projectedOuter = PolyhedronLoop3d(std::move(reversedOuterVertices));
@@ -1460,7 +1456,6 @@ void BuildSharedOuterVertexPreferenceMask(
     std::vector<FaceLoopRepresentativeIds>& repairedRepresentativeIds,
     double eps)
 {
-    std::cerr << "ExecuteSupportPlaneScoringPass: enter faceCount=" << body.FaceCount() << std::endl;
     repairedFaces.clear();
     repairedFaces.reserve(body.FaceCount());
     repairedRepresentativeIds.clear();
@@ -1469,7 +1464,6 @@ void BuildSharedOuterVertexPreferenceMask(
 
     for (std::size_t faceIndex = 0; faceIndex < body.FaceCount(); ++faceIndex)
     {
-        std::cerr << "SupportPlaneScoring: face=" << faceIndex << std::endl;
         const std::vector<bool>& preferredOuterVertices =
             faceIndex < facePreferredOuterVertices.size()
                 ? facePreferredOuterVertices[faceIndex]
@@ -1502,7 +1496,6 @@ void BuildSharedOuterVertexPreferenceMask(
                     nullptr,
                     nullptr))
             {
-                std::cerr << "SupportPlaneScoring: build face failed face=" << faceIndex << std::endl;
                 return false;
             }
 
@@ -1580,21 +1573,15 @@ void BuildSharedOuterVertexPreferenceMask(
             repairedRepresentativeIds,
             eps))
     {
-        std::cerr << "TryRepair: support-plane scoring failed" << std::endl;
         return false;
     }
 
-    std::cerr << "TryRepair: scored faces=" << repairedFaces.size()
-              << " reprIds=" << repairedRepresentativeIds.size() << std::endl;
     for (std::size_t faceIndex = 0; faceIndex < repairedFaces.size(); ++faceIndex)
     {
-        std::cerr << "TryRepair: scored face valid=" << repairedFaces[faceIndex].IsValid(eps)
-                  << " face=" << faceIndex << std::endl;
     }
 
     if (repairedRepresentativeIds.empty())
     {
-        std::cerr << "TryRepair: no representative ids" << std::endl;
         repairResult = {};
         repairResult.body = PolyhedronBody(std::move(repairedFaces));
         return repairResult.body.IsValid(eps);
@@ -1608,7 +1595,6 @@ void BuildSharedOuterVertexPreferenceMask(
             repairResult,
             eps))
     {
-        std::cerr << "TryRepair: initial topology reconciliation failed" << std::endl;
         repairResult.body = PolyhedronBody(repairedFaces);
         repairResult.representativeIds = repairedRepresentativeIds;
     }
@@ -1623,7 +1609,6 @@ void BuildSharedOuterVertexPreferenceMask(
                 repairedRepresentativeIds,
                 representativeTargetPoints))
         {
-            std::cerr << "TryRepair: representative aggregation failed" << std::endl;
             break;
         }
 
@@ -1635,7 +1620,6 @@ void BuildSharedOuterVertexPreferenceMask(
                 snappedFaces,
                 eps))
         {
-            std::cerr << "TryRepair: cross-face snapping failed" << std::endl;
             break;
         }
 
@@ -1647,7 +1631,6 @@ void BuildSharedOuterVertexPreferenceMask(
                 snappedResult,
                 eps))
         {
-            std::cerr << "TryRepair: iterative topology reconciliation failed" << std::endl;
             break;
         }
 
@@ -1749,15 +1732,40 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
 {
     try
     {
+    auto hasCommonSupportNormal = [&](const PolyhedronBody& candidateBody) {
+        if (candidateBody.FaceCount() == 0 || candidateBody.FaceCount() > 3)
+        {
+            return false;
+        }
+
+        const Plane referencePlane = candidateBody.FaceAt(0).SupportPlane();
+        const Vector3d referenceNormal = referencePlane.UnitNormal(eps);
+        if (!referenceNormal.IsValid())
+        {
+            return false;
+        }
+
+        for (std::size_t faceIndex = 1; faceIndex < candidateBody.FaceCount(); ++faceIndex)
+        {
+            const Vector3d faceNormal = candidateBody.FaceAt(faceIndex).SupportPlane().UnitNormal(eps);
+            if (!faceNormal.IsValid() || (faceNormal - referenceNormal).Length() > eps)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     std::vector<FaceLoopRepresentativeIds> sourceRepresentativeIds;
     BuildBodyLoopRepresentativeIds(body, sourceRepresentativeIds, eps);
 
     NonPlanarRepairPassResult repairResult;
     const PolyhedronBody originalBody = body;
     PolyhedronBody sourceBody = body;
+    const bool useCommonSupportPlaneGrouping = hasCommonSupportNormal(sourceBody);
+    const Plane commonSupportPlane = sourceBody.FaceCount() > 0 ? sourceBody.FaceAt(0).SupportPlane() : Plane{};
     const bool requiresRepair = !sourceBody.IsValid(eps);
-    std::cerr << "ConvertToBrepBody: valid=" << sourceBody.IsValid(eps)
-              << " requiresRepair=" << requiresRepair << std::endl;
     if (requiresRepair &&
         !TryRepairPolyhedronBodyForBrepConversion(
             body,
@@ -1765,7 +1773,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             repairResult,
             eps))
     {
-        std::cerr << "ConvertToBrepBody: repair failed" << std::endl;
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
     }
 
@@ -1778,11 +1785,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             {
                 const PolyhedronFace3d face = sourceBody.FaceAt(faceIndex);
                 const Plane plane = face.SupportPlane();
-                std::cerr << "ConvertToBrepBody: repaired face=" << faceIndex
-                          << " planeZ=" << plane.origin.z
-                          << " v0z=" << face.OuterLoop().VertexAt(0).z
-                          << " v1z=" << face.OuterLoop().VertexAt(1).z
-                          << std::endl;
             }
         }
     }
@@ -1840,11 +1842,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             originalBody,
             sourceRepresentativeIds,
             representativeTargetPoints);
-    if (sourceBody.FaceCount() == 3)
-    {
-        std::cerr << "ConvertToBrepBody: sourceTargets=" << hasRepresentativeTargetPoints
-                  << " targetCount=" << representativeTargetPoints.size() << std::endl;
-    }
     if (requiresRepair && !repairResult.representativeIds.empty() && repairResult.body.FaceCount() == originalBody.FaceCount())
     {
         std::vector<Point3d> projectedClusterRepresentatives;
@@ -1982,6 +1979,16 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         }
     }
 
+    if (useCommonSupportPlaneGrouping && commonSupportPlane.IsValid(eps))
+    {
+        const Vector3d unitNormal = commonSupportPlane.UnitNormal(eps);
+        for (auto& [representativeId, targetPoint] : representativeTargetPoints)
+        {
+            const double signedDistance = commonSupportPlane.SignedDistanceTo(targetPoint, eps);
+            targetPoint = targetPoint - unitNormal * signedDistance;
+        }
+    }
+
     const double vertexDedupEps = repairQuadHolelessBody
         ? std::max(geometry::kBrepVertexDedupEpsilon, computeBodyScale() * 0.1)
         : geometry::kBrepVertexDedupEpsilon;
@@ -2016,7 +2023,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         const PolyhedronFace3d sourceFace = sourceBody.FaceAt(faceIndex);
         if (!sourceFace.IsValid(validationEps))
         {
-            std::cerr << "ConvertToBrepBody: invalid source face=" << faceIndex << std::endl;
             return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
         }
 
@@ -2037,22 +2043,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                 outerRepresentativeIds = &candidateOuterIds;
             }
         }
-        if (sourceBody.FaceCount() == 3)
-        {
-            std::cerr << "ConvertToBrepBody: face=" << faceIndex
-                      << " outerIds=" << (outerRepresentativeIds != nullptr ? outerRepresentativeIds->size() : 0)
-                      << " outerVerts=" << sourceFace.OuterLoop().VertexCount() << std::endl;
-            if (outerRepresentativeIds != nullptr)
-            {
-                std::cerr << "  outer ids:";
-                for (const std::size_t id : *outerRepresentativeIds)
-                {
-                    std::cerr << ' ' << id;
-                }
-                std::cerr << std::endl;
-            }
-        }
-
         std::vector<const std::vector<std::size_t>*> holeRepresentativeIds;
         holeRepresentativeIds.resize(sourceFace.HoleCount(), nullptr);
         if (faceIndex < repairResult.representativeIds.size())
@@ -2115,11 +2105,11 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                 outerRepresentativeIds,
                 hasRepresentativeTargetPoints ? &representativeTargetPoints : nullptr,
                 hasRepresentativeTargetPoints ? &supportPlane : nullptr,
+                useCommonSupportPlaneGrouping,
                 &representativeToVertexIndex,
                 vertexDedupEps,
                 eps))
         {
-            std::cerr << "ConvertToBrepBody: outer loop append failed face=" << faceIndex << std::endl;
             return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
         }
 
@@ -2128,7 +2118,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             std::vector<Point3d> outerLoopVertices;
             if (!AppendLoopVerticesFromBrepTopology(vertices, edges, outerLoop, outerLoopVertices))
             {
-                std::cerr << "ConvertToBrepBody: outer topology append failed face=" << faceIndex << std::endl;
                 return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
             }
 
@@ -2144,7 +2133,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         
         if (outerUv.size() != face.OuterLoop().VertexCount())
         {
-            std::cerr << "ConvertToBrepBody: outer uv count mismatch face=" << faceIndex << std::endl;
             return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
         }
         
@@ -2185,12 +2173,11 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                     holeRepresentativeIdsForFace,
                     hasRepresentativeTargetPoints ? &representativeTargetPoints : nullptr,
                     hasRepresentativeTargetPoints ? &supportPlane : nullptr,
+                    useCommonSupportPlaneGrouping,
                     &representativeToVertexIndex,
                     vertexDedupEps,
                     eps))
             {
-                std::cerr << "ConvertToBrepBody: hole loop append failed face=" << faceIndex
-                          << " hole=" << holeIndex << std::endl;
                 return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
             }
 
@@ -2199,8 +2186,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                 std::vector<Point3d> holeLoopVertices;
                 if (!AppendLoopVerticesFromBrepTopology(vertices, edges, holeLoop, holeLoopVertices))
                 {
-                    std::cerr << "ConvertToBrepBody: hole topology append failed face=" << faceIndex
-                              << " hole=" << holeIndex << std::endl;
                     return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
                 }
 
@@ -2213,11 +2198,9 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             {
                 return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
             }
-            
+
             if (holeUv.size() != hole.VertexCount())
             {
-                std::cerr << "ConvertToBrepBody: hole uv count mismatch face=" << faceIndex
-                          << " hole=" << holeIndex << std::endl;
                 return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
             }
 
@@ -2240,7 +2223,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
             BrepFace brepFace(surface, outerLoop, std::move(holeLoops), std::move(outerTrim), std::move(holeTrims));
             if (!brepFace.IsValid(GeometryTolerance3d{validationEps, validationEps, validationEps}))
             {
-                std::cerr << "ConvertToBrepBody: brep face invalid face=" << faceIndex << std::endl;
                 if (!requiresRepair)
                 {
                     return {false, BrepConversionIssue3d::InvalidFace, faceIndex, {}};
@@ -2311,21 +2293,9 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         {
             shellClosed = ComputeSharedShellClosed(sourceBody, repairResult.representativeIds);
         }
-        DumpBrepConversionDebugIfInteresting(sourceBody, vertices, edges);
         BrepBody brepBody(std::move(vertices), std::move(edges), {BrepShell(std::move(faces), shellClosed)});
-        for (std::size_t shellIndex = 0; shellIndex < brepBody.ShellCount(); ++shellIndex)
-        {
-            const BrepShell shell = brepBody.ShellAt(shellIndex);
-            for (std::size_t faceIndex = 0; faceIndex < shell.FaceCount(); ++faceIndex)
-            {
-                std::cerr << "FinalBrep: faceValidDefault="
-                          << shell.FaceAt(faceIndex).IsValid()
-                          << " face=" << faceIndex << std::endl;
-            }
-        }
         if (!brepBody.IsValid(GeometryTolerance3d{validationEps, validationEps, validationEps}))
         {
-            std::cerr << "ConvertToBrepBody: final brep invalid" << std::endl;
             return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
         }
 
@@ -2333,13 +2303,11 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
     }
     catch (const std::exception&)
     {
-        std::cerr << "ConvertToBrepBody: exception" << std::endl;
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
     }
     }
     catch (const std::exception&)
     {
-        std::cerr << "ConvertToBrepBody: outer exception" << std::endl;
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
     }
 }
