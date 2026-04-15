@@ -112,15 +112,6 @@ SegmentProjection2d ProjectPointToSegment(
     return ProjectPointToArcSegment(point, static_cast<const ArcSegment2d&>(segment), clampToSegment);
 }
 
-SegmentProjection2d ProjectPointToSegment(
-    const Point2d& point,
-    const Point2d& segmentStart,
-    const Point2d& segmentEnd,
-    bool clampToSegment)
-{
-    return ProjectPointToLineSegment(point, LineSegment2d(segmentStart, segmentEnd), clampToSegment);
-}
-
 double ParameterAtLength(const LineSegment2d& segment, double length, bool clampToSegment)
 {
     const double totalLength = segment.Length();

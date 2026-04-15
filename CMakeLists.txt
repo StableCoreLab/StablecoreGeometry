@@ -76,49 +76,27 @@ endfunction()
 # -------------------
 # SCGeometry 库
 # -------------------
+file(GLOB_RECURSE SCGEOMETRY_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+)
+
+file(GLOB_RECURSE SCGEOMETRY_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
+
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PREFIX "Header Files"
+    FILES ${SCGEOMETRY_HEADERS}
+)
+
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    PREFIX "Source Files"
+    FILES ${SCGEOMETRY_SOURCES}
+)
+
 add_library(${SCGEOMETRY_TARGET} SHARED
-    src/common/GeometryEpsilon.cpp
-    src/serialize/GeometryText.cpp
-    src/sdk/ArcSegment2d.cpp
-    src/sdk/Circle2d.cpp
-    src/sdk/Ellipse2d.cpp
-    src/sdk/GeometryBoolean.cpp
-    src/sdk/GeometryBodyBoolean.cpp
-    src/sdk/GeometryBrepEditing.cpp
-    src/sdk/GeometryBrepConversion.cpp
-    src/sdk/GeometryEditing.cpp
-    src/sdk/GeometryAxisOps.cpp
-    src/sdk/GeometryBoxTree.cpp
-    src/sdk/GeometryIntersection.cpp
-    src/sdk/GeometryIntersection3d.cpp
-    src/sdk/GeometryHealing.cpp
-    src/sdk/GeometryMeasure.cpp
-    src/sdk/GeometryMeshConversion.cpp
-    src/sdk/GeometryMeshOps.cpp
-    src/sdk/GeometryMeshRepair.cpp
-    src/sdk/GeometryMetrics.cpp
-    src/sdk/GeometryKDTree.cpp
-    src/sdk/GeometryOffset.cpp
-    src/sdk/GeometryPathOps.cpp
-    src/sdk/GeometryProjection.cpp
-    src/sdk/GeometryProjection3d.cpp
-    src/sdk/GeometryRelation.cpp
-    src/sdk/GeometryRelation3d.cpp
-    src/sdk/GeometrySampling.cpp
-    src/sdk/GeometrySection.cpp
-    src/sdk/GeometrySearchPoly.cpp
-    src/sdk/GeometrySegmentSearch.cpp
-    src/sdk/GeometryShapeOps.cpp
-    src/sdk/GeometryTessellation.cpp
-    src/sdk/GeometryTopology.cpp
-    src/sdk/GeometryValidation.cpp
-    src/sdk/GeometryTransform.cpp
-    src/sdk/LineSegment2d.cpp
-    src/sdk/MultiPolyline2d.cpp
-    src/sdk/MultiPolygon2d.cpp
-    src/sdk/Polyline2d.cpp
-    src/sdk/Polygon2d.cpp
-    src/sdk/Rectangle2d.cpp
+    ${SCGEOMETRY_SOURCES}
+    ${SCGEOMETRY_HEADERS}
 )
 SCGeometryConfigureTarget(${SCGEOMETRY_TARGET})
 
