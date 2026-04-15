@@ -39,7 +39,7 @@ enum class SectionBodyRebuildIssue3d
     FaceRebuildFailed
 };
 
-struct GEOMETRY_API SectionBodySetRebuild3d
+struct GEOMETRY_API SectionBodySetRebuildResult3d
 {
     bool success{false};
     SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
@@ -158,7 +158,7 @@ struct GEOMETRY_API PolyhedronSection3d
     }
 };
 
-struct GEOMETRY_API SectionFaceRebuild3d
+struct GEOMETRY_API SectionFaceRebuildResult3d
 {
     bool success{false};
     SectionFaceRebuildIssue3d issue{SectionFaceRebuildIssue3d::None};
@@ -194,7 +194,7 @@ struct GEOMETRY_API SectionFaceRebuild3d
     }
 };
 
-struct GEOMETRY_API SectionBodyRebuild3d
+struct GEOMETRY_API SectionBodyRebuildResult3d
 {
     bool success{false};
     SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
@@ -206,7 +206,7 @@ struct GEOMETRY_API SectionBodyRebuild3d
     }
 };
 
-struct GEOMETRY_API SectionBrepFaceRebuild3d
+struct GEOMETRY_API SectionBrepFaceRebuildResult3d
 {
     bool success{false};
     SectionFaceRebuildIssue3d issue{SectionFaceRebuildIssue3d::None};
@@ -231,7 +231,7 @@ struct GEOMETRY_API SectionBrepFaceRebuild3d
     }
 };
 
-struct GEOMETRY_API SectionBrepBodyRebuild3d
+struct GEOMETRY_API SectionBrepBodyRebuildResult3d
 {
     bool success{false};
     SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
@@ -243,7 +243,7 @@ struct GEOMETRY_API SectionBrepBodyRebuild3d
     }
 };
 
-struct GEOMETRY_API SectionBrepBodySetRebuild3d
+struct GEOMETRY_API SectionBrepBodySetRebuildResult3d
 {
     bool success{false};
     SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
@@ -350,7 +350,7 @@ struct GEOMETRY_API SectionComponents3d
     }
 };
 
-struct GEOMETRY_API SectionMeshConversion3d
+struct GEOMETRY_API SectionMeshConversionResult3d
 {
     bool success{false};
     MeshConversionIssue3d issue{MeshConversionIssue3d::None};
@@ -362,7 +362,7 @@ struct GEOMETRY_API SectionMeshConversion3d
     }
 };
 
-struct GEOMETRY_API SectionMeshSetConversion3d
+struct GEOMETRY_API SectionMeshSetConversionResult3d
 {
     bool success{false};
     MeshConversionIssue3d issue{MeshConversionIssue3d::None};
@@ -393,6 +393,15 @@ struct GEOMETRY_API SectionMeshSetConversion3d
     }
 };
 
+using SectionBodySetRebuild3d = SectionBodySetRebuildResult3d;
+using SectionFaceRebuild3d = SectionFaceRebuildResult3d;
+using SectionBodyRebuild3d = SectionBodyRebuildResult3d;
+using SectionBrepFaceRebuild3d = SectionBrepFaceRebuildResult3d;
+using SectionBrepBodyRebuild3d = SectionBrepBodyRebuildResult3d;
+using SectionBrepBodySetRebuild3d = SectionBrepBodySetRebuildResult3d;
+using SectionMeshConversion3d = SectionMeshConversionResult3d;
+using SectionMeshSetConversion3d = SectionMeshSetConversionResult3d;
+
 [[nodiscard]] GEOMETRY_API PolyhedronSection3d Section(
     const PolyhedronBody& body,
     const Plane& plane,
@@ -403,27 +412,27 @@ struct GEOMETRY_API SectionMeshSetConversion3d
     const Plane& plane,
     const GeometryTolerance3d& tolerance = {});
 
-[[nodiscard]] GEOMETRY_API SectionFaceRebuild3d RebuildSectionFaces(
+[[nodiscard]] GEOMETRY_API SectionFaceRebuildResult3d RebuildSectionFaces(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
-[[nodiscard]] GEOMETRY_API SectionBrepFaceRebuild3d RebuildSectionBrepFaces(
+[[nodiscard]] GEOMETRY_API SectionBrepFaceRebuildResult3d RebuildSectionBrepFaces(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
-[[nodiscard]] GEOMETRY_API SectionBodyRebuild3d RebuildSectionBody(
+[[nodiscard]] GEOMETRY_API SectionBodyRebuildResult3d RebuildSectionBody(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
-[[nodiscard]] GEOMETRY_API SectionBrepBodyRebuild3d RebuildSectionBrepBody(
+[[nodiscard]] GEOMETRY_API SectionBrepBodyRebuildResult3d RebuildSectionBrepBody(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
-[[nodiscard]] GEOMETRY_API SectionBrepBodySetRebuild3d RebuildSectionBrepBodies(
+[[nodiscard]] GEOMETRY_API SectionBrepBodySetRebuildResult3d RebuildSectionBrepBodies(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
-[[nodiscard]] GEOMETRY_API SectionBodySetRebuild3d RebuildSectionBodies(
+[[nodiscard]] GEOMETRY_API SectionBodySetRebuildResult3d RebuildSectionBodies(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
@@ -431,11 +440,11 @@ struct GEOMETRY_API SectionMeshSetConversion3d
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
-[[nodiscard]] GEOMETRY_API SectionMeshConversion3d ConvertSectionToTriangleMesh(
+[[nodiscard]] GEOMETRY_API SectionMeshConversionResult3d ConvertSectionToTriangleMesh(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
-[[nodiscard]] GEOMETRY_API SectionMeshSetConversion3d ConvertSectionToTriangleMeshes(
+[[nodiscard]] GEOMETRY_API SectionMeshSetConversionResult3d ConvertSectionToTriangleMeshes(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
 
