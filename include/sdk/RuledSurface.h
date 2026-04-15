@@ -5,7 +5,7 @@
 
 #include "sdk/Surface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API RuledSurface final : public Surface
 {
@@ -48,7 +48,7 @@ public:
         }
 
         const double normalized =
-            vRange_.Length() <= geometry::kDefaultEpsilon ? 0.0 : (v - vRange_.min) / vRange_.Length();
+            vRange_.Length() <= Geometry::kDefaultEpsilon ? 0.0 : (v - vRange_.min) / vRange_.Length();
         const Point3d start = first_->PointAt(u);
         const Point3d end = second_->PointAt(u);
         return start + (end - start) * std::clamp(normalized, 0.0, 1.0);
@@ -62,7 +62,7 @@ public:
         if (eval.derivativeOrder >= 1 && first_ != nullptr && second_ != nullptr)
         {
             const double normalized =
-                vRange_.Length() <= geometry::kDefaultEpsilon ? 0.0 : (v - vRange_.min) / vRange_.Length();
+                vRange_.Length() <= Geometry::kDefaultEpsilon ? 0.0 : (v - vRange_.min) / vRange_.Length();
             const double weight = std::clamp(normalized, 0.0, 1.0);
             const CurveEval3d firstEval = first_->Evaluate(u, 1);
             const CurveEval3d secondEval = second_->Evaluate(u, 1);
@@ -121,4 +121,4 @@ private:
     std::shared_ptr<Curve3d> second_{};
     Intervald vRange_{0.0, 1.0};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

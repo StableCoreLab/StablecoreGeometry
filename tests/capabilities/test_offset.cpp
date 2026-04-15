@@ -8,19 +8,19 @@
 #include "sdk/ShapeOps.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::sdk::ArcSegment2d;
-using geometry::sdk::LineSegment2d;
-using geometry::sdk::MultiPolygon2d;
-using geometry::sdk::Point2d;
-using geometry::sdk::PointContainment2d;
-using geometry::sdk::Polygon2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
+using Geometry::Sdk::ArcSegment2d;
+using Geometry::Sdk::LineSegment2d;
+using Geometry::Sdk::MultiPolygon2d;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::PointContainment2d;
+using Geometry::Sdk::Polygon2d;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
 
 TEST(OffsetTest, CoversCurrentCapabilities)
 {
     const LineSegment2d line(Point2d{0.0, 0.0}, Point2d{4.0, 0.0});
-    const LineSegment2d shiftedLine = geometry::sdk::Offset(line, 2.0);
+    const LineSegment2d shiftedLine = Geometry::Sdk::Offset(line, 2.0);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(shiftedLine.startPoint, (Point2d{0.0, 2.0}), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(shiftedLine.endPoint, (Point2d{4.0, 2.0}), 1e-12);
 
@@ -29,7 +29,7 @@ TEST(OffsetTest, CoversCurrentCapabilities)
         5.0,
         0.0,
         std::acos(-1.0) * 0.5);
-    const ArcSegment2d insetArc = geometry::sdk::Offset(ccwArc, 1.0);
+    const ArcSegment2d insetArc = Geometry::Sdk::Offset(ccwArc, 1.0);
     GEOMETRY_TEST_ASSERT_NEAR(insetArc.radius, 4.0, 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(insetArc.StartPoint(), (Point2d{4.0, 0.0}), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(insetArc.EndPoint(), (Point2d{0.0, 4.0}), 1e-12);
@@ -37,7 +37,7 @@ TEST(OffsetTest, CoversCurrentCapabilities)
     const Polyline2d openPath(
         {Point2d{0.0, 0.0}, Point2d{4.0, 0.0}, Point2d{4.0, 3.0}},
         PolylineClosure::Open);
-    const Polyline2d openOffset = geometry::sdk::Offset(openPath, 1.0);
+    const Polyline2d openOffset = Geometry::Sdk::Offset(openPath, 1.0);
     ASSERT_TRUE(openOffset.IsValid());
     ASSERT_EQ(openOffset.PointCount(), 3);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(openOffset.PointAt(0), (Point2d{0.0, 1.0}), 1e-12);
@@ -48,7 +48,7 @@ TEST(OffsetTest, CoversCurrentCapabilities)
         {Point2d{0.0, 0.0}, Point2d{4.0, 0.0}, Point2d{4.0, 4.0}, Point2d{0.0, 4.0}},
         PolylineClosure::Closed);
     const Polygon2d polygon(ccwRing);
-    const Polygon2d grownPolygon = geometry::sdk::Offset(polygon, 1.0);
+    const Polygon2d grownPolygon = Geometry::Sdk::Offset(polygon, 1.0);
     ASSERT_TRUE(grownPolygon.IsValid());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(grownPolygon.OuterRing().PointAt(0), (Point2d{-1.0, -1.0}), 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(grownPolygon.OuterRing().PointAt(2), (Point2d{5.0, 5.0}), 1e-12);
@@ -57,7 +57,7 @@ TEST(OffsetTest, CoversCurrentCapabilities)
         {Point2d{1.0, 1.0}, Point2d{1.0, 3.0}, Point2d{3.0, 3.0}, Point2d{3.0, 1.0}},
         PolylineClosure::Closed);
     const Polygon2d polygonWithHole(ccwRing, {holeRing});
-    const Polygon2d offsetWithHole = geometry::sdk::Offset(polygonWithHole, 0.25);
+    const Polygon2d offsetWithHole = Geometry::Sdk::Offset(polygonWithHole, 0.25);
     ASSERT_TRUE(offsetWithHole.IsValid());
     ASSERT_GT(offsetWithHole.Area(), polygonWithHole.Area());
     GEOMETRY_TEST_ASSERT_POINT_NEAR(offsetWithHole.OuterRing().PointAt(0), (Point2d{-0.25, -0.25}), 1e-12);
@@ -67,7 +67,7 @@ TEST(OffsetTest, CoversCurrentCapabilities)
         Polyline2d(
             {Point2d{0.0, 0.0}, Point2d{5.0, 0.0}, Point2d{5.0, 1.0}, Point2d{2.0, 1.0}, Point2d{2.0, 4.0}, Point2d{0.0, 4.0}},
             PolylineClosure::Closed));
-    const Polygon2d concaveOffset = geometry::sdk::Offset(concave, 0.5);
+    const Polygon2d concaveOffset = Geometry::Sdk::Offset(concave, 0.5);
     ASSERT_TRUE(concaveOffset.IsValid());
     ASSERT_GT(concaveOffset.Area(), concave.Area());
 
@@ -78,14 +78,14 @@ TEST(OffsetTest, CoversCurrentCapabilities)
         Polygon2d(Polyline2d(
             {Point2d{4.0, 0.0}, Point2d{6.0, 0.0}, Point2d{6.0, 2.0}, Point2d{4.0, 2.0}},
             PolylineClosure::Closed))};
-    const MultiPolygon2d expandedDisjoint = geometry::sdk::Offset(disjoint, 0.5);
+    const MultiPolygon2d expandedDisjoint = Geometry::Sdk::Offset(disjoint, 0.5);
     ASSERT_EQ(expandedDisjoint.Count(), 2);
 
     const Polygon2d clockwiseOuter(
         Polyline2d(
             {Point2d{0.0, 0.0}, Point2d{0.0, 4.0}, Point2d{4.0, 4.0}, Point2d{4.0, 0.0}},
             PolylineClosure::Closed));
-    const Polygon2d clockwiseExpanded = geometry::sdk::Offset(clockwiseOuter, 0.5);
+    const Polygon2d clockwiseExpanded = Geometry::Sdk::Offset(clockwiseOuter, 0.5);
     ASSERT_TRUE(clockwiseExpanded.IsValid());
     ASSERT_GT(clockwiseExpanded.Area(), clockwiseOuter.Area());
 
@@ -96,13 +96,13 @@ TEST(OffsetTest, CoversCurrentCapabilities)
         {Polyline2d(
             {Point2d{3.5, 2.0}, Point2d{3.5, 4.0}, Point2d{6.5, 4.0}, Point2d{6.5, 2.0}},
             PolylineClosure::Closed)});
-    const Polygon2d inwardRecovered = geometry::sdk::Offset(narrowDonut, -0.75);
+    const Polygon2d inwardRecovered = Geometry::Sdk::Offset(narrowDonut, -0.75);
     ASSERT_TRUE(inwardRecovered.IsValid());
     ASSERT_LT(inwardRecovered.Area(), narrowDonut.Area());
     for (std::size_t i = 0; i < inwardRecovered.OuterRing().PointCount(); ++i)
     {
         const PointContainment2d containment =
-            geometry::sdk::LocatePoint(inwardRecovered.OuterRing().PointAt(i), narrowDonut);
+            Geometry::Sdk::LocatePoint(inwardRecovered.OuterRing().PointAt(i), narrowDonut);
         ASSERT_NE(containment, PointContainment2d::Outside);
     }
 
@@ -112,7 +112,7 @@ TEST(OffsetTest, CoversCurrentCapabilities)
             Polyline2d(
                 {Point2d{14.0, 0.0}, Point2d{20.0, 0.0}, Point2d{20.0, 5.0}, Point2d{14.0, 5.0}},
                 PolylineClosure::Closed))};
-    const MultiPolygon2d inwardMultiRecovered = geometry::sdk::Offset(multiWithHole, -0.8);
+    const MultiPolygon2d inwardMultiRecovered = Geometry::Sdk::Offset(multiWithHole, -0.8);
     ASSERT_FALSE(inwardMultiRecovered.IsEmpty());
     for (std::size_t polygonIndex = 0; polygonIndex < inwardMultiRecovered.Count(); ++polygonIndex)
     {
@@ -120,9 +120,9 @@ TEST(OffsetTest, CoversCurrentCapabilities)
         for (std::size_t pointIndex = 0; pointIndex < recovered.OuterRing().PointCount(); ++pointIndex)
         {
             const Point2d point = recovered.OuterRing().PointAt(pointIndex);
-            const bool inFirst = geometry::sdk::LocatePoint(point, narrowDonut) != PointContainment2d::Outside;
+            const bool inFirst = Geometry::Sdk::LocatePoint(point, narrowDonut) != PointContainment2d::Outside;
             const bool inSecond =
-                geometry::sdk::LocatePoint(point, multiWithHole[1]) != PointContainment2d::Outside;
+                Geometry::Sdk::LocatePoint(point, multiWithHole[1]) != PointContainment2d::Outside;
             ASSERT_TRUE(inFirst || inSecond);
         }
     }
@@ -138,7 +138,7 @@ TEST(OffsetTest, PreservesSinglePolygonHoleSemanticsAfterRebuild)
             {Point2d{1.0, 1.0}, Point2d{1.0, 3.0}, Point2d{3.0, 3.0}, Point2d{3.0, 1.0}},
             PolylineClosure::Closed)});
 
-    const Polygon2d outward = geometry::sdk::Offset(source, 0.5);
+    const Polygon2d outward = Geometry::Sdk::Offset(source, 0.5);
     ASSERT_TRUE(outward.IsValid());
     ASSERT_EQ(outward.HoleCount(), 1);
     ASSERT_GT(outward.Area(), source.Area());
@@ -151,13 +151,13 @@ TEST(OffsetTest, PreservesSinglePolygonHoleSemanticsAfterRebuild)
     GEOMETRY_TEST_ASSERT_NEAR(recoveredHole.Bounds().MaxPoint().x, 2.5, 1e-9);
     GEOMETRY_TEST_ASSERT_NEAR(recoveredHole.Bounds().MaxPoint().y, 2.5, 1e-9);
 
-    const Polygon2d inward = geometry::sdk::Offset(source, -0.4);
+    const Polygon2d inward = Geometry::Sdk::Offset(source, -0.4);
     ASSERT_TRUE(inward.IsValid());
     ASSERT_EQ(inward.HoleCount(), 1);
     ASSERT_LT(inward.Area(), source.Area());
     for (std::size_t i = 0; i < inward.OuterRing().PointCount(); ++i)
     {
-        ASSERT_NE(geometry::sdk::LocatePoint(inward.OuterRing().PointAt(i), source), PointContainment2d::Outside);
+        ASSERT_NE(Geometry::Sdk::LocatePoint(inward.OuterRing().PointAt(i), source), PointContainment2d::Outside);
     }
 }
 
@@ -169,16 +169,16 @@ TEST(OffsetTest, RecoversRepresentativeReverseEdgeSelfIntersectionCase)
              Point2d{6.0, 5.0}, Point2d{0.0, 5.0}},
             PolylineClosure::Closed));
 
-    const Polygon2d outward = geometry::sdk::Offset(source, 0.5);
+    const Polygon2d outward = Geometry::Sdk::Offset(source, 0.5);
     ASSERT_TRUE(outward.IsValid());
     ASSERT_GT(outward.Area(), source.Area());
 
-    const Polygon2d inward = geometry::sdk::Offset(source, -0.4);
+    const Polygon2d inward = Geometry::Sdk::Offset(source, -0.4);
     ASSERT_TRUE(inward.IsValid());
     ASSERT_LT(inward.Area(), source.Area());
     for (std::size_t i = 0; i < inward.OuterRing().PointCount(); ++i)
     {
-        ASSERT_NE(geometry::sdk::LocatePoint(inward.OuterRing().PointAt(i), source), PointContainment2d::Outside);
+        ASSERT_NE(Geometry::Sdk::LocatePoint(inward.OuterRing().PointAt(i), source), PointContainment2d::Outside);
     }
 }
 
@@ -190,7 +190,7 @@ TEST(OffsetTest, SupportsNarrowBridgeSplitViaMultiPolygonOffsetApi)
              Point2d{6.0, 2.0}, Point2d{4.0, 2.0}, Point2d{4.0, 1.2}, Point2d{2.0, 1.2}, Point2d{2.0, 2.0}, Point2d{0.0, 2.0}},
             PolylineClosure::Closed));
 
-    const MultiPolygon2d split = geometry::sdk::OffsetToMultiPolygon(source, -0.35);
+    const MultiPolygon2d split = Geometry::Sdk::OffsetToMultiPolygon(source, -0.35);
     ASSERT_FALSE(split.IsEmpty());
     ASSERT_GE(split.Count(), 2);
     for (std::size_t polygonIndex = 0; polygonIndex < split.Count(); ++polygonIndex)
@@ -199,7 +199,7 @@ TEST(OffsetTest, SupportsNarrowBridgeSplitViaMultiPolygonOffsetApi)
         ASSERT_TRUE(piece.IsValid());
         for (std::size_t pointIndex = 0; pointIndex < piece.OuterRing().PointCount(); ++pointIndex)
         {
-            ASSERT_NE(geometry::sdk::LocatePoint(piece.OuterRing().PointAt(pointIndex), source), PointContainment2d::Outside);
+            ASSERT_NE(Geometry::Sdk::LocatePoint(piece.OuterRing().PointAt(pointIndex), source), PointContainment2d::Outside);
         }
     }
 }

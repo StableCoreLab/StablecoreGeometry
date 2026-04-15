@@ -6,7 +6,7 @@
 #include "types/Direction3.h"
 #include "types/Point3.h"
 
-namespace geometry
+namespace Geometry
 {
 struct Ray3d
 {
@@ -35,4 +35,4 @@ struct Ray3d
         return stream.str();
     }
 };
-} // namespace geometry
+} // namespace Geometry

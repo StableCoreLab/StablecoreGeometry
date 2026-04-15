@@ -7,7 +7,7 @@
 
 #include "sdk/Polyline2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -85,4 +85,4 @@ std::string Rectangle2d::DebugString() const
            << ", angleRadians=" << angleRadians << "}";
     return stream.str();
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

@@ -7,7 +7,7 @@
 #include "common/Epsilon.h"
 #include "sdk/Metrics.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -64,7 +64,7 @@ SegmentProjection2d ProjectPointToLineSegment(
 
     const Vector2d direction = segment.endPoint - segment.startPoint;
     const double lengthSquared = direction.LengthSquared();
-    const double rawParameter = geometry::Dot(point - segment.startPoint, direction) / lengthSquared;
+    const double rawParameter = Geometry::Dot(point - segment.startPoint, direction) / lengthSquared;
     const double parameter = clampToSegment ? Clamp01(rawParameter) : rawParameter;
     const Point2d projectedPoint = segment.PointAt(parameter);
 
@@ -72,7 +72,7 @@ SegmentProjection2d ProjectPointToLineSegment(
         projectedPoint,
         parameter,
             DistanceSquared(point, projectedPoint),
-        rawParameter >= -geometry::kProjectionDefaultEpsilon && rawParameter <= 1.0 + geometry::kProjectionDefaultEpsilon};
+        rawParameter >= -Geometry::kProjectionDefaultEpsilon && rawParameter <= 1.0 + Geometry::kProjectionDefaultEpsilon};
 }
 
 SegmentProjection2d ProjectPointToArcSegment(
@@ -95,7 +95,7 @@ SegmentProjection2d ProjectPointToArcSegment(
         projectedPoint,
         parameter,
         DistanceSquared(point, projectedPoint),
-        rawParameter >= -geometry::kProjectionDefaultEpsilon && rawParameter <= 1.0 + geometry::kProjectionDefaultEpsilon};
+        rawParameter >= -Geometry::kProjectionDefaultEpsilon && rawParameter <= 1.0 + Geometry::kProjectionDefaultEpsilon};
 }
 
 SegmentProjection2d ProjectPointToSegment(
@@ -114,7 +114,7 @@ SegmentProjection2d ProjectPointToSegment(
 double ParameterAtLength(const LineSegment2d& segment, double length, bool clampToSegment)
 {
     const double totalLength = segment.Length();
-    if (totalLength <= geometry::kProjectionDefaultEpsilon)
+    if (totalLength <= Geometry::kProjectionDefaultEpsilon)
     {
         return 0.0;
     }
@@ -129,7 +129,7 @@ double ParameterAtLength(const LineSegment2d& segment, double length, bool clamp
 double ParameterAtLength(const ArcSegment2d& segment, double length, bool clampToSegment)
 {
     const double totalLength = segment.Length();
-    if (totalLength <= geometry::kProjectionDefaultEpsilon)
+    if (totalLength <= Geometry::kProjectionDefaultEpsilon)
     {
         return 0.0;
     }
@@ -145,7 +145,7 @@ Vector2d TangentAt(const LineSegment2d& segment, double)
 {
     const Vector2d direction = segment.endPoint - segment.startPoint;
     const double length = direction.Length();
-    if (length <= geometry::kProjectionDefaultEpsilon)
+    if (length <= Geometry::kProjectionDefaultEpsilon)
     {
         return Vector2d{};
     }
@@ -157,7 +157,7 @@ Vector2d TangentAt(const ArcSegment2d& segment, double parameter)
     const Point2d point = segment.PointAt(parameter);
     Vector2d radial = point - segment.center;
     const double radialLength = radial.Length();
-    if (radialLength <= geometry::kProjectionDefaultEpsilon)
+    if (radialLength <= Geometry::kProjectionDefaultEpsilon)
     {
         return Vector2d{};
     }
@@ -190,5 +190,5 @@ Vector2d NormalAt(const Segment2d& segment, double parameter)
 {
     return LeftNormal(TangentAt(segment, parameter));
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

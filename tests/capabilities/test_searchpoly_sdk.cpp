@@ -2,17 +2,17 @@
 
 #include "sdk/SearchPoly.h"
 
-using geometry::sdk::MultiPolyline2d;
-using geometry::sdk::Point2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
-using geometry::sdk::SearchPolygonContainingPoint;
-using geometry::sdk::SearchPolygons;
-using geometry::sdk::SearchPolyIssue2d;
-using geometry::sdk::SearchPolyOptions2d;
-using geometry::sdk::SearchPolyPenaltyKind2d;
-using geometry::sdk::SearchPolySyntheticEdgeKind2d;
-using geometry::sdk::SearchPolySyntheticEdgeSource2d;
+using Geometry::Sdk::MultiPolyline2d;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
+using Geometry::Sdk::SearchPolygonContainingPoint;
+using Geometry::Sdk::SearchPolygons;
+using Geometry::Sdk::SearchPolyIssue2d;
+using Geometry::Sdk::SearchPolyOptions2d;
+using Geometry::Sdk::SearchPolyPenaltyKind2d;
+using Geometry::Sdk::SearchPolySyntheticEdgeKind2d;
+using Geometry::Sdk::SearchPolySyntheticEdgeSource2d;
 
 TEST(SearchPolySdkCapabilityTest, InvalidInputContractRejectsEmptyLineCollection)
 {

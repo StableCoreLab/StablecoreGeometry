@@ -9,7 +9,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/GeometryTypes.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API TriangleMesh
 {
@@ -73,7 +73,7 @@ public:
         return Triangle3d{vertices_.at(tri[0]), vertices_.at(tri[1]), vertices_.at(tri[2])};
     }
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         for (const Point3d& vertex : vertices_)
         {
@@ -147,4 +147,4 @@ private:
     std::vector<Point3d> vertices_{};
     std::vector<TriangleIndices> triangles_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

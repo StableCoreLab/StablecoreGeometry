@@ -8,7 +8,7 @@
 #include "types/Point3.h"
 #include "types/Vector3.h"
 
-namespace geometry
+namespace Geometry
 {
 struct Matrix3d
 {
@@ -126,4 +126,4 @@ struct Matrix3d
         lhs.m20 * rhs.m01 + lhs.m21 * rhs.m11 + lhs.m22 * rhs.m21,
         lhs.m20 * rhs.m02 + lhs.m21 * rhs.m12 + lhs.m22 * rhs.m22};
 }
-} // namespace geometry
+} // namespace Geometry

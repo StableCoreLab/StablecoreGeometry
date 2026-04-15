@@ -15,7 +15,7 @@
 #include "sdk/Surface.h"
 #include "sdk/TriangleMesh.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 [[nodiscard]] GEOMETRY_API SegmentProjection2d ProjectPointToLineSegment(
     const Point2d& point,
@@ -131,4 +131,4 @@ struct GEOMETRY_API FaceProjection3d
 [[nodiscard]] GEOMETRY_API Vector2d NormalAt(const LineSegment2d& segment, double parameter);
 [[nodiscard]] GEOMETRY_API Vector2d NormalAt(const ArcSegment2d& segment, double parameter);
 [[nodiscard]] GEOMETRY_API Vector2d NormalAt(const Segment2d& segment, double parameter);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

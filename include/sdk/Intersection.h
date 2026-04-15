@@ -11,7 +11,7 @@
 #include "sdk/Surface.h"
 #include "sdk/TriangleMesh.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 [[nodiscard]] GEOMETRY_API SegmentIntersection2d Intersect(
     const LineSegment2d& first,
@@ -112,4 +112,4 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API ClosestPoints2d ClosestPoints(
     const Segment2d& first,
     const Segment2d& second);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

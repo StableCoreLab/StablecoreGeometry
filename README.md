@@ -25,7 +25,7 @@ For external consumers, prefer the umbrella header:
 
 `sdk/Geometry.h` is the stable umbrella entry point. It pulls in `GeometryApi`, `GeometryEpsilon`, `GeometrySearchPoly`, `GeometryBodyBoolean`, and the main 2D / 3D SDK headers.
 
-Common aliases available through `geometry::sdk::GeometryTypes` include:
+Common aliases available through `Geometry::Sdk::GeometryTypes` include:
 
 - `Point2d`, `Vector2d`, `Box2d`
 - `Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`

@@ -11,7 +11,7 @@
 #include "sdk/Polygon2d.h"
 #include "sdk/PolyhedronBody.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class SectionIssue3d
 {
@@ -46,7 +46,7 @@ struct GEOMETRY_API SectionBodySetRebuildResult3d
     std::vector<std::size_t> rootPolygonIndices{};
     std::vector<PolyhedronBody> bodies{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (!success)
         {
@@ -83,7 +83,7 @@ struct GEOMETRY_API SectionPolyline3d
     bool closed{false};
     std::vector<Point3d> points{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (closed ? points.size() < 3 : points.size() < 2)
         {
@@ -118,7 +118,7 @@ struct GEOMETRY_API PolyhedronSection3d
     Vector3d uAxis{};
     Vector3d vAxis{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (!success)
         {
@@ -170,7 +170,7 @@ struct GEOMETRY_API SectionFaceRebuildResult3d
     std::vector<PolyhedronFace3d> faces{};
     std::vector<FaceMapping> mappings{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (!success)
         {
@@ -200,7 +200,7 @@ struct GEOMETRY_API SectionBodyRebuildResult3d
     SectionBodyRebuildIssue3d issue{SectionBodyRebuildIssue3d::None};
     PolyhedronBody body{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         return !success || body.IsValid(eps) || body.IsEmpty();
     }
@@ -356,7 +356,7 @@ struct GEOMETRY_API SectionMeshConversionResult3d
     MeshConversionIssue3d issue{MeshConversionIssue3d::None};
     TriangleMesh mesh{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         return !success || mesh.IsValid(eps);
     }
@@ -369,7 +369,7 @@ struct GEOMETRY_API SectionMeshSetConversionResult3d
     std::vector<std::size_t> rootPolygonIndices{};
     std::vector<TriangleMesh> meshes{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (!success)
         {
@@ -455,4 +455,4 @@ using SectionMeshSetConversion3d = SectionMeshSetConversionResult3d;
 [[nodiscard]] GEOMETRY_API SectionComponents3d BuildSectionComponents(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

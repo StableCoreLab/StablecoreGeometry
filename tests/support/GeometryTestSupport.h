@@ -17,9 +17,9 @@
 #include "sdk/Polygon2d.h"
 #include "sdk/Polyline2d.h"
 
-namespace geometry::test
+namespace Geometry::Test
 {
-namespace detail
+namespace Detail
 {
 template <typename T>
 concept HasXY = requires(const T& value) {
@@ -226,9 +226,9 @@ template <typename T>
     out << "}";
     return out.str();
 }
-} // namespace detail
+} // namespace Detail
 
-template <detail::HasXY Actual, detail::HasXY Expected>
+template <Detail::HasXY Actual, Detail::HasXY Expected>
 inline void AssertPointNear(
     const Actual& actual,
     const Expected& expected,
@@ -238,22 +238,22 @@ inline void AssertPointNear(
     std::string_view file,
     int line)
 {
-    if (detail::NearlyEqual(actual.x, expected.x, eps) &&
-        detail::NearlyEqual(actual.y, expected.y, eps))
+    if (Detail::NearlyEqual(actual.x, expected.x, eps) &&
+        Detail::NearlyEqual(actual.y, expected.y, eps))
     {
         return;
     }
 
-    detail::Fail(
+    Detail::Fail(
         "point mismatch",
         file,
         line,
-        std::string(actualExpr) + " = " + detail::DescribePointLike(actual) +
-            ", " + std::string(expectedExpr) + " = " + detail::DescribePointLike(expected) +
-            ", eps = " + detail::FormatNumber(eps));
+        std::string(actualExpr) + " = " + Detail::DescribePointLike(actual) +
+            ", " + std::string(expectedExpr) + " = " + Detail::DescribePointLike(expected) +
+            ", eps = " + Detail::FormatNumber(eps));
 }
 
-template <detail::HasXY Actual, detail::HasXY Expected>
+template <Detail::HasXY Actual, Detail::HasXY Expected>
 inline void AssertVectorNear(
     const Actual& actual,
     const Expected& expected,
@@ -276,18 +276,18 @@ inline void AssertNear(
     std::string_view file,
     int line)
 {
-    if (detail::NearlyEqual(actual, expected, eps))
+    if (Detail::NearlyEqual(actual, expected, eps))
     {
         return;
     }
 
-    detail::Fail(
+    Detail::Fail(
         "value mismatch",
         file,
         line,
-        std::string(actualExpr) + " = " + detail::FormatNumber(actual) +
-            ", " + std::string(expectedExpr) + " = " + detail::FormatNumber(expected) +
-            ", eps = " + detail::FormatNumber(eps));
+        std::string(actualExpr) + " = " + Detail::FormatNumber(actual) +
+            ", " + std::string(expectedExpr) + " = " + Detail::FormatNumber(expected) +
+            ", eps = " + Detail::FormatNumber(eps));
 }
 
 template <typename Actual, typename Expected>
@@ -300,18 +300,18 @@ inline void AssertBoxNear(
     std::string_view file,
     int line)
 {
-    if constexpr (detail::HasIsValid<Actual> && detail::HasIsValid<Expected>)
+    if constexpr (Detail::HasIsValid<Actual> && Detail::HasIsValid<Expected>)
     {
         const bool actualValid = actual.IsValid();
         const bool expectedValid = expected.IsValid();
         if (actualValid != expectedValid)
         {
-            detail::Fail(
+            Detail::Fail(
                 "box validity mismatch",
                 file,
                 line,
-                std::string(actualExpr) + " = " + detail::DescribeBoxLike(actual) +
-                    ", " + std::string(expectedExpr) + " = " + detail::DescribeBoxLike(expected));
+                std::string(actualExpr) + " = " + Detail::DescribeBoxLike(actual) +
+                    ", " + std::string(expectedExpr) + " = " + Detail::DescribeBoxLike(expected));
         }
 
         if (!actualValid && !expectedValid)
@@ -321,16 +321,16 @@ inline void AssertBoxNear(
     }
 
     AssertPointNear(
-        detail::MinPointLike(actual),
-        detail::MinPointLike(expected),
+        Detail::MinPointLike(actual),
+        Detail::MinPointLike(expected),
         eps,
         actualExpr,
         expectedExpr,
         file,
         line);
     AssertPointNear(
-        detail::MaxPointLike(actual),
-        detail::MaxPointLike(expected),
+        Detail::MaxPointLike(actual),
+        Detail::MaxPointLike(expected),
         eps,
         actualExpr,
         expectedExpr,
@@ -375,16 +375,16 @@ inline void AssertProjectionNear(
 
     if (actual.isOnSegment != expected.isOnSegment)
     {
-        detail::Fail(
+        Detail::Fail(
             "projection flag mismatch",
             file,
             line,
-            std::string(actualExpr) + " = " + detail::DescribeProjectionLike(actual) +
-                ", " + std::string(expectedExpr) + " = " + detail::DescribeProjectionLike(expected));
+            std::string(actualExpr) + " = " + Detail::DescribeProjectionLike(actual) +
+                ", " + std::string(expectedExpr) + " = " + Detail::DescribeProjectionLike(expected));
     }
 }
 
-template <detail::HasPointCount Actual, detail::HasPointCount Expected>
+template <Detail::HasPointCount Actual, Detail::HasPointCount Expected>
 inline void AssertPolylineNear(
     const Actual& actual,
     const Expected& expected,
@@ -396,24 +396,24 @@ inline void AssertPolylineNear(
 {
     if (actual.PointCount() != expected.PointCount())
     {
-        detail::Fail(
+        Detail::Fail(
             "polyline point-count mismatch",
             file,
             line,
-            std::string(actualExpr) + " = " + detail::DescribePolylineLike(actual) +
-                ", " + std::string(expectedExpr) + " = " + detail::DescribePolylineLike(expected));
+            std::string(actualExpr) + " = " + Detail::DescribePolylineLike(actual) +
+                ", " + std::string(expectedExpr) + " = " + Detail::DescribePolylineLike(expected));
     }
 
     if constexpr (requires { actual.IsClosed(); expected.IsClosed(); })
     {
         if (actual.IsClosed() != expected.IsClosed())
         {
-            detail::Fail(
+            Detail::Fail(
                 "polyline closure mismatch",
                 file,
                 line,
-                std::string(actualExpr) + " = " + detail::DescribePolylineLike(actual) +
-                    ", " + std::string(expectedExpr) + " = " + detail::DescribePolylineLike(expected));
+                std::string(actualExpr) + " = " + Detail::DescribePolylineLike(actual) +
+                    ", " + std::string(expectedExpr) + " = " + Detail::DescribePolylineLike(expected));
         }
     }
 
@@ -435,12 +435,12 @@ inline void AssertPolygonNear(
 {
     if (actual.HoleCount() != expected.HoleCount())
     {
-        detail::Fail(
+        Detail::Fail(
             "polygon hole-count mismatch",
             file,
             line,
-            std::string(actualExpr) + " = " + detail::DescribePolygonLike(actual) +
-                ", " + std::string(expectedExpr) + " = " + detail::DescribePolygonLike(expected));
+            std::string(actualExpr) + " = " + Detail::DescribePolygonLike(actual) +
+                ", " + std::string(expectedExpr) + " = " + Detail::DescribePolygonLike(expected));
     }
 
     AssertPolylineNear(actual.OuterRing(), expected.OuterRing(), eps, actualExpr, expectedExpr, file, line);
@@ -450,69 +450,69 @@ inline void AssertPolygonNear(
     }
 }
 
-[[nodiscard]] inline geometry::sdk::Polyline2d MakeSdkPolyline(
-    std::initializer_list<geometry::sdk::Point2d> points,
-    geometry::sdk::PolylineClosure closure = geometry::sdk::PolylineClosure::Open)
+[[nodiscard]] inline Geometry::Sdk::Polyline2d MakeSdkPolyline(
+    std::initializer_list<Geometry::Sdk::Point2d> points,
+    Geometry::Sdk::PolylineClosure closure = Geometry::Sdk::PolylineClosure::Open)
 {
-    return geometry::sdk::Polyline2d(std::vector<geometry::sdk::Point2d>(points), closure);
+    return Geometry::Sdk::Polyline2d(std::vector<Geometry::Sdk::Point2d>(points), closure);
 }
 
-[[nodiscard]] inline geometry::sdk::Polyline2d MakeSdkRectangleRing(
-    const geometry::sdk::Point2d& minPoint,
-    const geometry::sdk::Point2d& maxPoint)
+[[nodiscard]] inline Geometry::Sdk::Polyline2d MakeSdkRectangleRing(
+    const Geometry::Sdk::Point2d& minPoint,
+    const Geometry::Sdk::Point2d& maxPoint)
 {
     return MakeSdkPolyline(
         {
             minPoint,
-            geometry::sdk::Point2d{maxPoint.x, minPoint.y},
+            Geometry::Sdk::Point2d{maxPoint.x, minPoint.y},
             maxPoint,
-            geometry::sdk::Point2d{minPoint.x, maxPoint.y},
+            Geometry::Sdk::Point2d{minPoint.x, maxPoint.y},
         },
-        geometry::sdk::PolylineClosure::Closed);
+        Geometry::Sdk::PolylineClosure::Closed);
 }
 
-[[nodiscard]] inline geometry::sdk::Polyline2d MakeSdkRectangleHoleRing(
-    const geometry::sdk::Point2d& minPoint,
-    const geometry::sdk::Point2d& maxPoint)
+[[nodiscard]] inline Geometry::Sdk::Polyline2d MakeSdkRectangleHoleRing(
+    const Geometry::Sdk::Point2d& minPoint,
+    const Geometry::Sdk::Point2d& maxPoint)
 {
     return MakeSdkPolyline(
         {
             minPoint,
-            geometry::sdk::Point2d{minPoint.x, maxPoint.y},
+            Geometry::Sdk::Point2d{minPoint.x, maxPoint.y},
             maxPoint,
-            geometry::sdk::Point2d{maxPoint.x, minPoint.y},
+            Geometry::Sdk::Point2d{maxPoint.x, minPoint.y},
         },
-        geometry::sdk::PolylineClosure::Closed);
+        Geometry::Sdk::PolylineClosure::Closed);
 }
 
-[[nodiscard]] inline geometry::sdk::Polygon2d MakeSdkRectanglePolygon(
-    const geometry::sdk::Point2d& minPoint,
-    const geometry::sdk::Point2d& maxPoint)
+[[nodiscard]] inline Geometry::Sdk::Polygon2d MakeSdkRectanglePolygon(
+    const Geometry::Sdk::Point2d& minPoint,
+    const Geometry::Sdk::Point2d& maxPoint)
 {
-    return geometry::sdk::Polygon2d(MakeSdkRectangleRing(minPoint, maxPoint));
+    return Geometry::Sdk::Polygon2d(MakeSdkRectangleRing(minPoint, maxPoint));
 }
-} // namespace geometry::test
+} // namespace Geometry::Test
 
 #define GEOMETRY_TEST_ASSERT_NEAR(actual, expected, eps) \
-    ::geometry::test::AssertNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+    ::Geometry::Test::AssertNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
 
 #define GEOMETRY_TEST_ASSERT_POINT_NEAR(actual, expected, eps) \
-    ::geometry::test::AssertPointNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+    ::Geometry::Test::AssertPointNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
 
 #define GEOMETRY_TEST_ASSERT_VECTOR_NEAR(actual, expected, eps) \
-    ::geometry::test::AssertVectorNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+    ::Geometry::Test::AssertVectorNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
 
 #define GEOMETRY_TEST_ASSERT_BOX_NEAR(actual, expected, eps) \
-    ::geometry::test::AssertBoxNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+    ::Geometry::Test::AssertBoxNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
 
 #define GEOMETRY_TEST_ASSERT_PROJECTION_NEAR(actual, expected, eps) \
-    ::geometry::test::AssertProjectionNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+    ::Geometry::Test::AssertProjectionNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
 
 #define GEOMETRY_TEST_ASSERT_POLYLINE_NEAR(actual, expected, eps) \
-    ::geometry::test::AssertPolylineNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+    ::Geometry::Test::AssertPolylineNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
 
 #define GEOMETRY_TEST_ASSERT_POLYGON_NEAR(actual, expected, eps) \
-    ::geometry::test::AssertPolygonNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+    ::Geometry::Test::AssertPolygonNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
 
 
 

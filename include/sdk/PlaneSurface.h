@@ -5,7 +5,7 @@
 
 #include "sdk/Surface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API PlaneSurface final : public Surface
 {
@@ -20,7 +20,7 @@ public:
         const Plane& plane,
         Intervald uRange = Intervald{-1.0, 1.0},
         Intervald vRange = Intervald{-1.0, 1.0},
-        double eps = geometry::kDefaultEpsilon);
+        double eps = Geometry::kDefaultEpsilon);
 
     [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const override
     {
@@ -109,4 +109,4 @@ private:
     Intervald uRange_{-1.0, 1.0};
     Intervald vRange_{-1.0, 1.0};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

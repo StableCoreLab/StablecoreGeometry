@@ -13,7 +13,7 @@
 #include "sdk/PlaneSurface.h"
 #include "sdk/ShapeOps.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -343,7 +343,7 @@ void EnsureOrientation(std::vector<Point2d>& points, bool ccw)
     for (std::size_t i = 1; i < ring.size(); ++i)
     {
         if (ring[i].x > ring[index].x ||
-            (std::abs(ring[i].x - ring[index].x) <= geometry::kMeshConversionDefaultEpsilon && ring[i].y < ring[index].y))
+            (std::abs(ring[i].x - ring[index].x) <= Geometry::kMeshConversionDefaultEpsilon && ring[i].y < ring[index].y))
         {
             index = i;
         }
@@ -713,5 +713,5 @@ PolyhedronMeshConversion3d ConvertToTriangleMesh(const BrepBody& body, double ep
 
     return {true, MeshConversionIssue3d::None, 0, TriangleMesh(std::move(vertices), std::move(triangles))};
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

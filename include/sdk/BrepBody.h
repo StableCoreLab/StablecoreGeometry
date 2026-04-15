@@ -10,7 +10,7 @@
 #include "sdk/BrepShell.h"
 #include "sdk/BrepVertex.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API BrepBody
 {
@@ -180,4 +180,4 @@ private:
     std::vector<BrepEdge> edges_{};
     std::vector<BrepShell> shells_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

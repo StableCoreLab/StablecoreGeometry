@@ -6,119 +6,119 @@
 #include "sdk/Geometry.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::sdk::Contains;
-using geometry::sdk::Distance;
-using geometry::sdk::Area;
-using geometry::sdk::ArcSegment2d;
-using geometry::sdk::Box2d;
-using geometry::sdk::Intersects;
-using geometry::sdk::LineSegment2d;
-using geometry::sdk::Line3d;
-using geometry::sdk::LineCurve3d;
-using geometry::sdk::MeshBoundaryEdge3d;
-using geometry::sdk::MeshBoundaryLoop3d;
-using geometry::sdk::MeshNonManifoldEdge3d;
-using geometry::sdk::MeshRepairIssue3d;
-using geometry::sdk::MeshShell3d;
-using geometry::sdk::MeshTriangleAdjacency3d;
-using geometry::sdk::MeshValidationIssue3d;
-using geometry::sdk::MeshConversionIssue3d;
-using geometry::sdk::Plane;
-using geometry::sdk::PlaneSurface;
-using geometry::sdk::Point2d;
-using geometry::sdk::Point3d;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::PolyhedronFace3d;
-using geometry::sdk::PolyhedronLoop3d;
-using geometry::sdk::SectionFaceRebuild3d;
-using geometry::sdk::SectionFaceRebuildIssue3d;
-using geometry::sdk::SectionBodyRebuild3d;
-using geometry::sdk::SectionBodyRebuildIssue3d;
-using geometry::sdk::SectionBodySetRebuild3d;
-using geometry::sdk::SectionBrepBodyRebuild3d;
-using geometry::sdk::SectionBrepBodySetRebuild3d;
-using geometry::sdk::SectionBrepFaceRebuild3d;
-using geometry::sdk::SectionContentKind3d;
-using geometry::sdk::SectionComponents3d;
-using geometry::sdk::SectionMeshConversion3d;
-using geometry::sdk::SectionMeshSetConversion3d;
-using geometry::sdk::SectionTopology3d;
-using geometry::sdk::SectionValidation3d;
-using geometry::sdk::SectionValidationIssue3d;
-using geometry::sdk::PolyhedronSection3d;
-using geometry::sdk::PolyhedronValidationIssue3d;
-using geometry::sdk::Polygon2d;
-using geometry::sdk::ProjectPointToBrepFace;
-using geometry::sdk::ProjectPointToBrepBody;
-using geometry::sdk::ProjectFaceToPolygon2d;
-using geometry::sdk::ProjectPointToPolyhedronBody;
-using geometry::sdk::ProjectPointToPolyhedronFace;
-using geometry::sdk::ProjectPointToSurface;
-using geometry::sdk::ProjectPointToSegment;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
-using geometry::sdk::Segment2d;
-using geometry::sdk::Surface;
-using geometry::sdk::Tessellate;
-using geometry::sdk::TriangleAdjacency;
-using geometry::sdk::TriangleNormal;
-using geometry::sdk::ComputeTriangleAdjacency;
-using geometry::sdk::ComputeTriangleNormals;
-using geometry::sdk::ComputeTriangleConnectedComponents;
-using geometry::sdk::ComputeMeshShells;
-using geometry::sdk::ExtractBoundaryEdges;
-using geometry::sdk::ExtractBoundaryLoops;
-using geometry::sdk::ExtractNonManifoldEdges;
-using geometry::sdk::ConvertToTriangleMesh;
-using geometry::sdk::Curve3d;
-using geometry::sdk::TriangleMesh;
-using geometry::sdk::TriangleMeshRepair3d;
-using geometry::sdk::Triangle3d;
-using geometry::sdk::Intervald;
-using geometry::sdk::Section;
-using geometry::sdk::SectionIssue3d;
-using geometry::sdk::RebuildSectionFaces;
-using geometry::sdk::RebuildSectionBody;
-using geometry::sdk::RebuildSectionBrepBody;
-using geometry::sdk::RebuildSectionBrepBodies;
-using geometry::sdk::RebuildSectionBrepFaces;
-using geometry::sdk::RebuildSectionBodies;
-using geometry::sdk::BuildSectionTopology;
-using geometry::sdk::ConvertSectionToTriangleMesh;
-using geometry::sdk::ConvertSectionToTriangleMeshes;
-using geometry::sdk::ClassifySectionContent;
-using geometry::sdk::BuildSectionComponents;
-using geometry::sdk::BrepHealing3d;
-using geometry::sdk::BrepBody;
-using geometry::sdk::BrepCoedge;
-using geometry::sdk::BrepConversionIssue3d;
-using geometry::sdk::BrepEdge;
-using geometry::sdk::BrepFace;
-using geometry::sdk::BrepLoop;
-using geometry::sdk::BrepShell;
-using geometry::sdk::BrepValidationIssue3d;
-using geometry::sdk::BrepVertex;
-using geometry::sdk::ConvertToPolyhedronBody;
-using geometry::sdk::ConvertToPolyhedronFace;
-using geometry::sdk::CurveOnSurface;
-using geometry::sdk::Heal;
-using geometry::sdk::MeshHealing3d;
-using geometry::sdk::NurbsCurve3d;
-using geometry::sdk::NurbsSurface;
-using geometry::sdk::OffsetSurface;
-using geometry::sdk::PolyhedronHealing3d;
-using geometry::sdk::RuledSurface;
-using geometry::sdk::Validate;
-using geometry::sdk::Vector2d;
-using geometry::sdk::Vector3d;
-using geometry::sdk::VertexNormal;
-using geometry::sdk::ComputeVertexNormals;
-using geometry::sdk::IsClosedTriangleMesh;
-using geometry::sdk::IsConsistentlyOrientedTriangleMesh;
-using geometry::sdk::IsManifoldTriangleMesh;
-using geometry::sdk::ClosePlanarBoundaryLoops;
-using geometry::sdk::OrientTriangleMeshConsistently;
-using geometry::sdk::CloseSinglePlanarBoundaryLoop;
+using Geometry::Sdk::Contains;
+using Geometry::Sdk::Distance;
+using Geometry::Sdk::Area;
+using Geometry::Sdk::ArcSegment2d;
+using Geometry::Sdk::Box2d;
+using Geometry::Sdk::Intersects;
+using Geometry::Sdk::LineSegment2d;
+using Geometry::Sdk::Line3d;
+using Geometry::Sdk::LineCurve3d;
+using Geometry::Sdk::MeshBoundaryEdge3d;
+using Geometry::Sdk::MeshBoundaryLoop3d;
+using Geometry::Sdk::MeshNonManifoldEdge3d;
+using Geometry::Sdk::MeshRepairIssue3d;
+using Geometry::Sdk::MeshShell3d;
+using Geometry::Sdk::MeshTriangleAdjacency3d;
+using Geometry::Sdk::MeshValidationIssue3d;
+using Geometry::Sdk::MeshConversionIssue3d;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::PlaneSurface;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::PolyhedronFace3d;
+using Geometry::Sdk::PolyhedronLoop3d;
+using Geometry::Sdk::SectionFaceRebuild3d;
+using Geometry::Sdk::SectionFaceRebuildIssue3d;
+using Geometry::Sdk::SectionBodyRebuild3d;
+using Geometry::Sdk::SectionBodyRebuildIssue3d;
+using Geometry::Sdk::SectionBodySetRebuild3d;
+using Geometry::Sdk::SectionBrepBodyRebuild3d;
+using Geometry::Sdk::SectionBrepBodySetRebuild3d;
+using Geometry::Sdk::SectionBrepFaceRebuild3d;
+using Geometry::Sdk::SectionContentKind3d;
+using Geometry::Sdk::SectionComponents3d;
+using Geometry::Sdk::SectionMeshConversion3d;
+using Geometry::Sdk::SectionMeshSetConversion3d;
+using Geometry::Sdk::SectionTopology3d;
+using Geometry::Sdk::SectionValidation3d;
+using Geometry::Sdk::SectionValidationIssue3d;
+using Geometry::Sdk::PolyhedronSection3d;
+using Geometry::Sdk::PolyhedronValidationIssue3d;
+using Geometry::Sdk::Polygon2d;
+using Geometry::Sdk::ProjectPointToBrepFace;
+using Geometry::Sdk::ProjectPointToBrepBody;
+using Geometry::Sdk::ProjectFaceToPolygon2d;
+using Geometry::Sdk::ProjectPointToPolyhedronBody;
+using Geometry::Sdk::ProjectPointToPolyhedronFace;
+using Geometry::Sdk::ProjectPointToSurface;
+using Geometry::Sdk::ProjectPointToSegment;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
+using Geometry::Sdk::Segment2d;
+using Geometry::Sdk::Surface;
+using Geometry::Sdk::Tessellate;
+using Geometry::Sdk::TriangleAdjacency;
+using Geometry::Sdk::TriangleNormal;
+using Geometry::Sdk::ComputeTriangleAdjacency;
+using Geometry::Sdk::ComputeTriangleNormals;
+using Geometry::Sdk::ComputeTriangleConnectedComponents;
+using Geometry::Sdk::ComputeMeshShells;
+using Geometry::Sdk::ExtractBoundaryEdges;
+using Geometry::Sdk::ExtractBoundaryLoops;
+using Geometry::Sdk::ExtractNonManifoldEdges;
+using Geometry::Sdk::ConvertToTriangleMesh;
+using Geometry::Sdk::Curve3d;
+using Geometry::Sdk::TriangleMesh;
+using Geometry::Sdk::TriangleMeshRepair3d;
+using Geometry::Sdk::Triangle3d;
+using Geometry::Sdk::Intervald;
+using Geometry::Sdk::Section;
+using Geometry::Sdk::SectionIssue3d;
+using Geometry::Sdk::RebuildSectionFaces;
+using Geometry::Sdk::RebuildSectionBody;
+using Geometry::Sdk::RebuildSectionBrepBody;
+using Geometry::Sdk::RebuildSectionBrepBodies;
+using Geometry::Sdk::RebuildSectionBrepFaces;
+using Geometry::Sdk::RebuildSectionBodies;
+using Geometry::Sdk::BuildSectionTopology;
+using Geometry::Sdk::ConvertSectionToTriangleMesh;
+using Geometry::Sdk::ConvertSectionToTriangleMeshes;
+using Geometry::Sdk::ClassifySectionContent;
+using Geometry::Sdk::BuildSectionComponents;
+using Geometry::Sdk::BrepHealing3d;
+using Geometry::Sdk::BrepBody;
+using Geometry::Sdk::BrepCoedge;
+using Geometry::Sdk::BrepConversionIssue3d;
+using Geometry::Sdk::BrepEdge;
+using Geometry::Sdk::BrepFace;
+using Geometry::Sdk::BrepLoop;
+using Geometry::Sdk::BrepShell;
+using Geometry::Sdk::BrepValidationIssue3d;
+using Geometry::Sdk::BrepVertex;
+using Geometry::Sdk::ConvertToPolyhedronBody;
+using Geometry::Sdk::ConvertToPolyhedronFace;
+using Geometry::Sdk::CurveOnSurface;
+using Geometry::Sdk::Heal;
+using Geometry::Sdk::MeshHealing3d;
+using Geometry::Sdk::NurbsCurve3d;
+using Geometry::Sdk::NurbsSurface;
+using Geometry::Sdk::OffsetSurface;
+using Geometry::Sdk::PolyhedronHealing3d;
+using Geometry::Sdk::RuledSurface;
+using Geometry::Sdk::Validate;
+using Geometry::Sdk::Vector2d;
+using Geometry::Sdk::Vector3d;
+using Geometry::Sdk::VertexNormal;
+using Geometry::Sdk::ComputeVertexNormals;
+using Geometry::Sdk::IsClosedTriangleMesh;
+using Geometry::Sdk::IsConsistentlyOrientedTriangleMesh;
+using Geometry::Sdk::IsManifoldTriangleMesh;
+using Geometry::Sdk::ClosePlanarBoundaryLoops;
+using Geometry::Sdk::OrientTriangleMeshConsistently;
+using Geometry::Sdk::CloseSinglePlanarBoundaryLoop;
 
 TEST(SdkTest, CoversCurrentCapabilities)
 {
@@ -143,7 +143,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
         Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{3.0, 4.0}),
         1e-12);
     ASSERT_EQ(line.DebugString().find("LineSegment2d{start="), 0);
-    ASSERT_EQ(line.Kind(), geometry::SegmentKind2::Line);
+    ASSERT_EQ(line.Kind(), Geometry::SegmentKind2::Line);
 
     const ArcSegment2d arc = ArcSegment2d::FromCenterRadiusStartSweep(
         Point2d{0.0, 0.0},
@@ -151,7 +151,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
         0.0,
         std::numbers::pi_v<double> * 0.5);
     ASSERT_TRUE(arc.IsValid());
-    ASSERT_EQ(arc.Direction(), geometry::ArcDirection::CounterClockwise);
+    ASSERT_EQ(arc.Direction(), Geometry::ArcDirection::CounterClockwise);
     GEOMETRY_TEST_ASSERT_NEAR(arc.Length(), std::numbers::pi_v<double> * 0.5, 1e-12);
     const Point2d arcStart{1.0, 0.0};
     const Point2d arcEnd{0.0, 1.0};
@@ -162,19 +162,19 @@ TEST(SdkTest, CoversCurrentCapabilities)
         Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{1.0, 1.0}),
         1e-12);
     ASSERT_EQ(arc.DebugString().find("ArcSegment2d{center="), 0);
-    ASSERT_EQ(arc.Kind(), geometry::SegmentKind2::Arc);
+    ASSERT_EQ(arc.Kind(), Geometry::SegmentKind2::Arc);
 
     std::unique_ptr<Segment2d> lineSegment = line.Clone();
     std::unique_ptr<Segment2d> arcSegment = arc.Clone();
-    ASSERT_EQ(lineSegment->Kind(), geometry::SegmentKind2::Line);
-    ASSERT_EQ(arcSegment->Kind(), geometry::SegmentKind2::Arc);
+    ASSERT_EQ(lineSegment->Kind(), Geometry::SegmentKind2::Line);
+    ASSERT_EQ(arcSegment->Kind(), Geometry::SegmentKind2::Arc);
     GEOMETRY_TEST_ASSERT_NEAR(lineSegment->Length(), 5.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(arcSegment->Length(), std::numbers::pi_v<double> * 0.5, 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(lineSegment->StartPoint(), a, 1e-12);
     GEOMETRY_TEST_ASSERT_POINT_NEAR(arcSegment->EndPoint(), arcEnd, 1e-12);
 
     const auto projection = ProjectPointToSegment(Point2d{3.0, 1.0}, a, b);
-    const geometry::sdk::SegmentProjection2d expectedProjection{
+    const Geometry::Sdk::SegmentProjection2d expectedProjection{
         Point2d{1.56, 2.08},
         0.52,
         3.24,
@@ -250,7 +250,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(lineEval.point.AlmostEquals(Point3d{4.0, 2.0, 3.0}, 1e-12));
     ASSERT_TRUE(lineEval.firstDerivative.AlmostEquals(Vector3d{2.0, 0.0, 0.0}, 1e-12));
     ASSERT_TRUE(lineEval.secondDerivative.AlmostEquals(Vector3d{0.0, 0.0, 0.0}, 1e-12));
-    const geometry::Box3d lineBounds = lineCurve.Bounds();
+    const Geometry::Box3d lineBounds = lineCurve.Bounds();
     ASSERT_TRUE(lineBounds.IsValid());
     ASSERT_TRUE(lineBounds.MinPoint().AlmostEquals(Point3d{-3.0, 2.0, 3.0}, 1e-12));
     ASSERT_TRUE(lineBounds.MaxPoint().AlmostEquals(Point3d{7.0, 2.0, 3.0}, 1e-12));
@@ -274,9 +274,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto surfaceEval = planeSurface.Evaluate(0.25, 0.75, 1);
     ASSERT_TRUE(surfaceEval.IsValid());
     ASSERT_TRUE(surfaceEval.point.AlmostEquals(planeSurface.PointAt(0.25, 0.75), 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::Dot(surfaceEval.derivativeU, surfaceEval.normal), 0.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::Dot(surfaceEval.derivativeV, surfaceEval.normal), 0.0, 1e-12);
-    const geometry::Box3d surfaceBounds = planeSurface.Bounds();
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Dot(surfaceEval.derivativeU, surfaceEval.normal), 0.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Dot(surfaceEval.derivativeV, surfaceEval.normal), 0.0, 1e-12);
+    const Geometry::Box3d surfaceBounds = planeSurface.Bounds();
     ASSERT_TRUE(surfaceBounds.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(surfaceBounds.MinPoint().z, 5.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(surfaceBounds.MaxPoint().z, 5.0, 1e-12);
@@ -301,12 +301,12 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto nurbsCurveEval = nurbsCurve.Evaluate(0.25, 2);
     ASSERT_TRUE(nurbsCurveEval.IsValid());
     ASSERT_EQ(nurbsCurveEval.derivativeOrder, 2);
-    const auto nurbsCurveProjection = geometry::sdk::ProjectPointToCurve(Point3d{1.0, 0.0, 1.0}, nurbsCurve);
+    const auto nurbsCurveProjection = Geometry::Sdk::ProjectPointToCurve(Point3d{1.0, 0.0, 1.0}, nurbsCurve);
     ASSERT_TRUE(nurbsCurveProjection.success);
     ASSERT_TRUE(nurbsCurveProjection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(nurbsCurveProjection.point.z, 0.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Length(nurbsCurve, 64), std::sqrt(2.0) * 2.0, 5e-2);
-    const geometry::Box3d nurbsCurveBounds = nurbsCurve.Bounds();
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Length(nurbsCurve, 64), std::sqrt(2.0) * 2.0, 5e-2);
+    const Geometry::Box3d nurbsCurveBounds = nurbsCurve.Bounds();
     ASSERT_TRUE(nurbsCurveBounds.IsValid());
     ASSERT_TRUE(nurbsCurveBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
     ASSERT_TRUE(nurbsCurveBounds.MaxPoint().AlmostEquals(Point3d{2.0, 1.0, 0.0}, 1e-12));
@@ -337,7 +337,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto nurbsSurfaceEval = nurbsSurface.Evaluate(0.5, 0.5, 1);
     ASSERT_TRUE(nurbsSurfaceEval.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(nurbsSurfaceEval.normal.Normalized().z, 1.0, 1e-12);
-    const geometry::Box3d nurbsSurfaceBounds = nurbsSurface.Bounds();
+    const Geometry::Box3d nurbsSurfaceBounds = nurbsSurface.Bounds();
     ASSERT_TRUE(nurbsSurfaceBounds.IsValid());
     ASSERT_TRUE(nurbsSurfaceBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
     ASSERT_TRUE(nurbsSurfaceBounds.MaxPoint().AlmostEquals(Point3d{2.0, 2.0, 0.0}, 1e-12));
@@ -352,26 +352,26 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const LineCurve3d upperRail = LineCurve3d::FromLine(
         Line3d::FromOriginAndDirection(Point3d{0.0, 0.0, 2.0}, Vector3d{2.0, 0.0, 0.0}),
         Intervald{0.0, 1.0});
-    const auto lineCurveProjection = geometry::sdk::ProjectPointToCurve(Point3d{0.5, 1.0, 0.0}, lowerRail);
+    const auto lineCurveProjection = Geometry::Sdk::ProjectPointToCurve(Point3d{0.5, 1.0, 0.0}, lowerRail);
     ASSERT_TRUE(lineCurveProjection.success);
     ASSERT_TRUE(lineCurveProjection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(lineCurveProjection.parameter, 0.25, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{0.5, 1.0, 0.0}, lowerRail), 1.0, 1e-12);
-    const auto lineCurveIntersection = geometry::sdk::Intersect(
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{0.5, 1.0, 0.0}, lowerRail), 1.0, 1e-12);
+    const auto lineCurveIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{0.5, 1.0, 0.0}, Vector3d{0.0, -1.0, 0.0}),
         lowerRail);
     ASSERT_TRUE(lineCurveIntersection.intersects);
     ASSERT_TRUE(lineCurveIntersection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(lineCurveIntersection.curveParameter, 0.25, 1e-12);
-    const auto planeCurveIntersection = geometry::sdk::Intersect(
+    const auto planeCurveIntersection = Geometry::Sdk::Intersect(
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
         lowerRail);
     ASSERT_TRUE(planeCurveIntersection.intersects);
     ASSERT_TRUE(planeCurveIntersection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(planeCurveIntersection.curveParameter, 0.0, 1e-12);
     ASSERT_TRUE(planeCurveIntersection.point.AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{0.5, 0.0, 0.0}, lowerRail), geometry::sdk::PointContainment2d::OnBoundary);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{0.5, 1.0, 0.0}, lowerRail), geometry::sdk::PointContainment2d::Outside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{0.5, 0.0, 0.0}, lowerRail), Geometry::Sdk::PointContainment2d::OnBoundary);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{0.5, 1.0, 0.0}, lowerRail), Geometry::Sdk::PointContainment2d::Outside);
     const RuledSurface ruledSurface = RuledSurface::FromCurves(lowerRail, upperRail);
     ASSERT_TRUE(ruledSurface.IsValid());
     ASSERT_NE(ruledSurface.FirstCurve(), nullptr);
@@ -386,7 +386,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_NE(offsetSurface.BaseSurface(), nullptr);
     GEOMETRY_TEST_ASSERT_NEAR(offsetSurface.OffsetDistance(), 2.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(offsetSurface.PointAt(0.0, 0.0).z, 7.0, 1e-12);
-    const geometry::Box3d offsetBounds = offsetSurface.Bounds();
+    const Geometry::Box3d offsetBounds = offsetSurface.Bounds();
     ASSERT_TRUE(offsetBounds.IsValid());
     ASSERT_LE(offsetBounds.MinPoint().z, 3.0 + 1e-12);
     ASSERT_GE(offsetBounds.MaxPoint().z, 7.0 - 1e-12);
@@ -404,32 +404,32 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_EQ(curveOnSurface.PointCount(), 3);
     ASSERT_TRUE(curveOnSurface.UvPointAt(1).AlmostEquals(Point2d{0.0, -1.0}, 1e-12));
     ASSERT_TRUE(curveOnSurface.PointAt(1).AlmostEquals(planeSurface.PointAt(0.0, -1.0), 1e-12));
-    const geometry::Box3d curveOnSurfaceBounds = curveOnSurface.Bounds();
+    const Geometry::Box3d curveOnSurfaceBounds = curveOnSurface.Bounds();
     ASSERT_TRUE(curveOnSurfaceBounds.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(curveOnSurfaceBounds.MinPoint().z, 5.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(curveOnSurfaceBounds.MaxPoint().z, 5.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Bounds(curveOnSurface).MinPoint().z, 5.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Length(curveOnSurface), std::sqrt(8.0) * 2.0, 1e-12);
-    const auto curveOnSurfaceProjection = geometry::sdk::ProjectPointToCurveOnSurface(Point3d{0.0, -1.0, 6.0}, curveOnSurface);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Bounds(curveOnSurface).MinPoint().z, 5.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Length(curveOnSurface), std::sqrt(8.0) * 2.0, 1e-12);
+    const auto curveOnSurfaceProjection = Geometry::Sdk::ProjectPointToCurveOnSurface(Point3d{0.0, -1.0, 6.0}, curveOnSurface);
     ASSERT_TRUE(curveOnSurfaceProjection.success);
     ASSERT_TRUE(curveOnSurfaceProjection.IsValid());
     ASSERT_TRUE(curveOnSurfaceProjection.point.AlmostEquals(Point3d{0.0, -1.0, 5.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{0.0, -1.0, 6.0}, curveOnSurface), 1.0, 1e-12);
-    const auto curveOnSurfaceIntersection = geometry::sdk::Intersect(
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{0.0, -1.0, 6.0}, curveOnSurface), 1.0, 1e-12);
+    const auto curveOnSurfaceIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{0.0, -1.0, 6.0}, Vector3d{0.0, 0.0, -1.0}),
         curveOnSurface);
     ASSERT_TRUE(curveOnSurfaceIntersection.intersects);
     ASSERT_TRUE(curveOnSurfaceIntersection.IsValid());
     ASSERT_TRUE(curveOnSurfaceIntersection.point.AlmostEquals(Point3d{0.0, -1.0, 5.0}, 1e-12));
-    const auto planeCurveOnSurfaceIntersection = geometry::sdk::Intersect(
+    const auto planeCurveOnSurfaceIntersection = Geometry::Sdk::Intersect(
         supportPlane,
         curveOnSurface);
     ASSERT_TRUE(planeCurveOnSurfaceIntersection.intersects);
     ASSERT_TRUE(planeCurveOnSurfaceIntersection.IsValid());
     ASSERT_TRUE(planeCurveOnSurfaceIntersection.uv.AlmostEquals(Point2d{-2.0, -3.0}, 1e-12));
     ASSERT_TRUE(planeCurveOnSurfaceIntersection.point.AlmostEquals(Point3d{-2.0, -3.0, 5.0}, 1e-12));
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{0.0, -1.0, 5.0}, curveOnSurface), geometry::sdk::PointContainment2d::OnBoundary);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{0.0, -1.0, 6.0}, curveOnSurface), geometry::sdk::PointContainment2d::Outside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{0.0, -1.0, 5.0}, curveOnSurface), Geometry::Sdk::PointContainment2d::OnBoundary);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{0.0, -1.0, 6.0}, curveOnSurface), Geometry::Sdk::PointContainment2d::Outside);
 
     const auto planeSurfaceProjection = ProjectPointToSurface(Point3d{0.5, -1.0, 8.0}, planeSurface);
     ASSERT_TRUE(planeSurfaceProjection.success);
@@ -445,7 +445,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     GEOMETRY_TEST_ASSERT_NEAR(nurbsSurfaceProjection.v, 0.7, 5e-2);
     GEOMETRY_TEST_ASSERT_NEAR(nurbsSurfaceProjection.point.z, 0.0, 1e-12);
 
-    const auto planeSurfaceIntersection = geometry::sdk::Intersect(
+    const auto planeSurfaceIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{0.5, -1.0, 8.0}, Vector3d{0.0, 0.0, -1.0}),
         planeSurface);
     ASSERT_TRUE(planeSurfaceIntersection.intersects);
@@ -455,7 +455,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     GEOMETRY_TEST_ASSERT_NEAR(planeSurfaceIntersection.v, -1.0, 1e-12);
     ASSERT_TRUE(planeSurfaceIntersection.point.AlmostEquals(Point3d{0.5, -1.0, 5.0}, 1e-12));
 
-    const auto nurbsSurfaceIntersection = geometry::sdk::Intersect(
+    const auto nurbsSurfaceIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{0.6, 1.4, 1.0}, Vector3d{0.0, 0.0, -1.0}),
         nurbsSurface);
     ASSERT_TRUE(nurbsSurfaceIntersection.intersects);
@@ -464,25 +464,25 @@ TEST(SdkTest, CoversCurrentCapabilities)
     GEOMETRY_TEST_ASSERT_NEAR(nurbsSurfaceIntersection.v, 0.7, 5e-2);
     GEOMETRY_TEST_ASSERT_NEAR(nurbsSurfaceIntersection.point.z, 0.0, 1e-12);
 
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{0.0, 0.0, 0.0}, Point3d{1.0, 2.0, 2.0}), 3.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{0.0, 0.0, 0.0}, Point3d{1.0, 2.0, 2.0}), 3.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(
-        geometry::sdk::Distance(Point3d{0.0, 2.0, 0.0}, Line3d::FromOriginAndDirection(Point3d{0.0, 0.0, 0.0}, Vector3d{1.0, 0.0, 0.0})),
+        Geometry::Sdk::Distance(Point3d{0.0, 2.0, 0.0}, Line3d::FromOriginAndDirection(Point3d{0.0, 0.0, 0.0}, Vector3d{1.0, 0.0, 0.0})),
         2.0,
         1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(
-        geometry::sdk::Distance(Point3d{0.0, 0.0, 8.0}, supportPlane),
+        Geometry::Sdk::Distance(Point3d{0.0, 0.0, 8.0}, supportPlane),
         3.0,
         1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(
-        geometry::sdk::Distance(Point3d{0.5, -1.0, 8.0}, planeSurface),
+        Geometry::Sdk::Distance(Point3d{0.5, -1.0, 8.0}, planeSurface),
         3.0,
         1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(
-        geometry::sdk::Distance(Point3d{0.6, 1.4, 1.0}, nurbsSurface),
+        Geometry::Sdk::Distance(Point3d{0.6, 1.4, 1.0}, nurbsSurface),
         1.0,
         5e-2);
     GEOMETRY_TEST_ASSERT_NEAR(
-        geometry::sdk::Length(geometry::LineSegment3d::FromStartEnd(Point3d{0.0, 0.0, 0.0}, Point3d{0.0, 3.0, 4.0})),
+        Geometry::Sdk::Length(Geometry::LineSegment3d::FromStartEnd(Point3d{0.0, 0.0, 0.0}, Point3d{0.0, 3.0, 4.0})),
         5.0,
         1e-12);
 
@@ -505,7 +505,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const Triangle3d firstTriangle = mesh.TriangleAt(0);
     ASSERT_TRUE(firstTriangle.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(firstTriangle.Area(), 0.5, 1e-12);
-    const geometry::Box3d meshBounds = mesh.Bounds();
+    const Geometry::Box3d meshBounds = mesh.Bounds();
     ASSERT_TRUE(meshBounds.IsValid());
     ASSERT_TRUE(meshBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
     ASSERT_TRUE(meshBounds.MaxPoint().AlmostEquals(Point3d{1.0, 1.0, 1.0}, 1e-12));
@@ -513,13 +513,13 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto meshValidation = Validate(mesh);
     ASSERT_TRUE(meshValidation.valid);
     ASSERT_EQ(meshValidation.issue, MeshValidationIssue3d::None);
-    const auto meshProjection = geometry::sdk::ProjectPointToTriangleMesh(Point3d{1.0, 1.0, 3.0}, mesh);
+    const auto meshProjection = Geometry::Sdk::ProjectPointToTriangleMesh(Point3d{1.0, 1.0, 3.0}, mesh);
     ASSERT_TRUE(meshProjection.success);
     ASSERT_TRUE(meshProjection.IsValid());
     ASSERT_TRUE(meshProjection.point.AlmostEquals(Point3d{0.0, 0.0, 1.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 3.0}, mesh), std::sqrt(6.0), 1e-12);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, mesh), geometry::sdk::PointContainment2d::Outside);
-    const auto meshLineIntersection = geometry::sdk::Intersect(
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{1.0, 1.0, 3.0}, mesh), std::sqrt(6.0), 1e-12);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, mesh), Geometry::Sdk::PointContainment2d::Outside);
+    const auto meshLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 3.0}, Vector3d{0.0, 0.0, -1.0}),
         mesh);
     ASSERT_FALSE(meshLineIntersection.intersects);
@@ -600,10 +600,10 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(IsClosedTriangleMesh(tetraMesh));
     ASSERT_TRUE(IsManifoldTriangleMesh(tetraMesh));
     ASSERT_TRUE(IsConsistentlyOrientedTriangleMesh(tetraMesh));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Volume(tetraMesh), 1.0 / 6.0, 1e-12);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{0.1, 0.1, 0.1}, tetraMesh), geometry::sdk::PointContainment2d::Inside);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 1.0}, tetraMesh), geometry::sdk::PointContainment2d::Outside);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{0.0, 0.2, 0.2}, tetraMesh), geometry::sdk::PointContainment2d::OnBoundary);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Volume(tetraMesh), 1.0 / 6.0, 1e-12);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{0.1, 0.1, 0.1}, tetraMesh), Geometry::Sdk::PointContainment2d::Inside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 1.0, 1.0}, tetraMesh), Geometry::Sdk::PointContainment2d::Outside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{0.0, 0.2, 0.2}, tetraMesh), Geometry::Sdk::PointContainment2d::OnBoundary);
     const TriangleMeshRepair3d repairedTetraMesh = OrientTriangleMeshConsistently(tetraMesh);
     ASSERT_TRUE(repairedTetraMesh.success);
     ASSERT_EQ(repairedTetraMesh.issue, MeshRepairIssue3d::None);
@@ -637,7 +637,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(IsConsistentlyOrientedTriangleMesh(closedOpenTetraMesh.mesh));
     const MeshHealing3d healedOpenTetra = Heal(openTetraMesh);
     ASSERT_TRUE(healedOpenTetra.success);
-    ASSERT_EQ(healedOpenTetra.issue, geometry::sdk::HealingIssue3d::None);
+    ASSERT_EQ(healedOpenTetra.issue, Geometry::Sdk::HealingIssue3d::None);
     ASSERT_TRUE(healedOpenTetra.mesh.IsValid());
     ASSERT_TRUE(IsClosedTriangleMesh(healedOpenTetra.mesh));
     const TriangleMesh disconnectedMesh(
@@ -704,7 +704,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_FALSE(nonManifoldShells[0].closed);
     ASSERT_FALSE(nonManifoldShells[0].manifold);
     ASSERT_FALSE(nonManifoldShells[0].consistentlyOriented);
-    const TriangleMesh movedMesh = mesh.Transformed(geometry::Transform3d::Translation(Vector3d{2.0, -1.0, 3.0}));
+    const TriangleMesh movedMesh = mesh.Transformed(Geometry::Transform3d::Translation(Vector3d{2.0, -1.0, 3.0}));
     ASSERT_TRUE(movedMesh.IsValid());
     ASSERT_TRUE(movedMesh.VertexAt(0).AlmostEquals(Point3d{2.0, -1.0, 3.0}, 1e-12));
     ASSERT_TRUE(movedMesh.VertexAt(3).AlmostEquals(Point3d{2.0, -1.0, 4.0}, 1e-12));
@@ -737,11 +737,11 @@ TEST(SdkTest, CoversCurrentCapabilities)
         outerLoop);
     ASSERT_TRUE(face.IsValid());
     ASSERT_EQ(face.HoleCount(), 0);
-    const geometry::Box3d faceBounds = face.Bounds();
+    const Geometry::Box3d faceBounds = face.Bounds();
     ASSERT_TRUE(faceBounds.IsValid());
     ASSERT_TRUE(faceBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
     ASSERT_TRUE(faceBounds.MaxPoint().AlmostEquals(Point3d{2.0, 2.0, 0.0}, 1e-12));
-    const geometry::Box3d faceMeasureBounds = geometry::sdk::Bounds(face);
+    const Geometry::Box3d faceMeasureBounds = Geometry::Sdk::Bounds(face);
     ASSERT_TRUE(faceMeasureBounds.IsValid());
     ASSERT_TRUE(faceMeasureBounds.MaxPoint().AlmostEquals(Point3d{2.0, 2.0, 0.0}, 1e-12));
     const PolyhedronBody body({face});
@@ -750,12 +750,12 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto bodyValidation = Validate(body);
     ASSERT_TRUE(bodyValidation.valid);
     ASSERT_EQ(bodyValidation.issue, PolyhedronValidationIssue3d::None);
-    const geometry::Box3d bodyBounds = body.Bounds();
+    const Geometry::Box3d bodyBounds = body.Bounds();
     ASSERT_TRUE(bodyBounds.IsValid());
     ASSERT_TRUE(bodyBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 0.0}, 1e-12));
     ASSERT_TRUE(bodyBounds.MaxPoint().AlmostEquals(Point3d{2.0, 2.0, 0.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(face), 4.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(mesh), 1.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Area(face), 4.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Area(mesh), 1.0, 1e-12);
 
     const PolyhedronFace3d invalidFace(
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
@@ -792,16 +792,16 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(faceMesh.mesh.IsValid());
     ASSERT_EQ(faceMesh.mesh.TriangleCount(), 2);
     GEOMETRY_TEST_ASSERT_NEAR(faceMesh.mesh.SurfaceArea(), 4.0, 1e-12);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, face), geometry::sdk::PointContainment2d::Inside);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{2.0, 1.0, 0.0}, face), geometry::sdk::PointContainment2d::OnBoundary);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{3.0, 1.0, 0.0}, face), geometry::sdk::PointContainment2d::Outside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, face), Geometry::Sdk::PointContainment2d::Inside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{2.0, 1.0, 0.0}, face), Geometry::Sdk::PointContainment2d::OnBoundary);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{3.0, 1.0, 0.0}, face), Geometry::Sdk::PointContainment2d::Outside);
     const auto polyFaceProjection = ProjectPointToPolyhedronFace(Point3d{1.0, 1.0, 3.0}, face);
     ASSERT_TRUE(polyFaceProjection.success);
     ASSERT_TRUE(polyFaceProjection.IsValid());
     ASSERT_TRUE(polyFaceProjection.onFace);
     ASSERT_TRUE(polyFaceProjection.point.AlmostEquals(Point3d{1.0, 1.0, 0.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 3.0}, face), 3.0, 1e-12);
-    const auto polyFaceLineIntersection = geometry::sdk::Intersect(
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{1.0, 1.0, 3.0}, face), 3.0, 1e-12);
+    const auto polyFaceLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 3.0}, Vector3d{0.0, 0.0, -1.0}),
         face);
     ASSERT_TRUE(polyFaceLineIntersection.intersects);
@@ -818,8 +818,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(polyBodyProjection.IsValid());
     ASSERT_EQ(polyBodyProjection.faceIndex, 0);
     ASSERT_TRUE(polyBodyProjection.projection.point.AlmostEquals(Point3d{2.0, 1.0, 0.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{3.0, 1.0, 1.0}, body), std::sqrt(2.0), 1e-12);
-    const auto polyBodyLineIntersection = geometry::sdk::Intersect(
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{3.0, 1.0, 1.0}, body), std::sqrt(2.0), 1e-12);
+    const auto polyBodyLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 3.0}, Vector3d{0.0, 0.0, -1.0}),
         body);
     ASSERT_TRUE(polyBodyLineIntersection.intersects);
@@ -828,7 +828,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_EQ(polyBodyLineIntersection.hits.size(), 1);
     ASSERT_EQ(polyBodyLineIntersection.faceIndices[0], 0);
     ASSERT_TRUE(polyBodyLineIntersection.hits[0].point.AlmostEquals(Point3d{1.0, 1.0, 0.0}, 1e-12));
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, body), geometry::sdk::PointContainment2d::OnBoundary);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 1.0, 0.0}, body), Geometry::Sdk::PointContainment2d::OnBoundary);
 
     const PolyhedronFace3d holedFace(
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, 1.0}),
@@ -845,7 +845,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(projectedFace.polygon.IsValid());
     ASSERT_EQ(projectedFace.polygon.HoleCount(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(projectedFace.origin.z, 0.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::Dot(projectedFace.uAxis, projectedFace.vAxis), 0.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Dot(projectedFace.uAxis, projectedFace.vAxis), 0.0, 1e-12);
 
     const auto holedFaceMesh = ConvertToTriangleMesh(holedFace);
     ASSERT_TRUE(holedFaceMesh.success);
@@ -859,23 +859,23 @@ TEST(SdkTest, CoversCurrentCapabilities)
         BrepVertex(Point3d{2.0, 2.0, 5.0}),
         BrepVertex(Point3d{0.0, 2.0, 5.0}),
     };
-    const auto brepVertexProjection = geometry::sdk::ProjectPointToBrepVertex(Point3d{1.0, 1.0, 6.0}, brepVertices[0]);
+    const auto brepVertexProjection = Geometry::Sdk::ProjectPointToBrepVertex(Point3d{1.0, 1.0, 6.0}, brepVertices[0]);
     ASSERT_TRUE(brepVertexProjection.success);
     ASSERT_TRUE(brepVertexProjection.IsValid());
     ASSERT_TRUE(brepVertexProjection.point.AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 6.0}, brepVertices[0]), std::sqrt(3.0), 1e-12);
-    const geometry::Box3d brepVertexBounds = geometry::sdk::Bounds(brepVertices[0]);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{1.0, 1.0, 6.0}, brepVertices[0]), std::sqrt(3.0), 1e-12);
+    const Geometry::Box3d brepVertexBounds = Geometry::Sdk::Bounds(brepVertices[0]);
     ASSERT_TRUE(brepVertexBounds.IsValid());
     ASSERT_TRUE(brepVertexBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     ASSERT_TRUE(brepVertexBounds.MaxPoint().AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
-    const auto brepVertexLineIntersection = geometry::sdk::Intersect(
+    const auto brepVertexLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{0.0, 0.0, 6.0}, Vector3d{0.0, 0.0, -1.0}),
         brepVertices[0]);
     ASSERT_TRUE(brepVertexLineIntersection.intersects);
     ASSERT_TRUE(brepVertexLineIntersection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(brepVertexLineIntersection.lineParameter, 1.0, 1e-12);
     ASSERT_TRUE(brepVertexLineIntersection.point.AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
-    const auto brepVertexPlaneIntersection = geometry::sdk::Intersect(
+    const auto brepVertexPlaneIntersection = Geometry::Sdk::Intersect(
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 5.0}, Vector3d{0.0, 0.0, 1.0}),
         brepVertices[0]);
     ASSERT_TRUE(brepVertexPlaneIntersection.intersects);
@@ -929,14 +929,14 @@ TEST(SdkTest, CoversCurrentCapabilities)
                 },
                 PolylineClosure::Closed)));
     ASSERT_TRUE(brepFace.IsValid());
-    const geometry::Box3d brepFaceBounds = brepFace.Bounds();
+    const Geometry::Box3d brepFaceBounds = brepFace.Bounds();
     ASSERT_TRUE(brepFaceBounds.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(brepFaceBounds.MinPoint().z, 5.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(brepFaceBounds.MaxPoint().z, 5.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Bounds(brepFace).MinPoint().z, 5.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Bounds(brepFace).MinPoint().z, 5.0, 1e-12);
     const BrepShell brepShell({brepFace}, false);
     ASSERT_TRUE(brepShell.IsValid());
-    const geometry::Box3d brepShellBounds = brepShell.Bounds();
+    const Geometry::Box3d brepShellBounds = brepShell.Bounds();
     ASSERT_TRUE(brepShellBounds.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(brepShellBounds.MinPoint().z, 5.0, 1e-12);
     const BrepBody brepBody(brepVertices, brepEdges, {brepShell});
@@ -947,25 +947,25 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_EQ(brepBody.ShellCount(), 1);
     ASSERT_EQ(brepBody.FaceCount(), 1);
     ASSERT_NE(brepBody.EdgeAt(0).Curve(), nullptr);
-    const geometry::Box3d brepEdgeBounds = brepBody.EdgeAt(0).Bounds();
+    const Geometry::Box3d brepEdgeBounds = brepBody.EdgeAt(0).Bounds();
     ASSERT_TRUE(brepEdgeBounds.IsValid());
     ASSERT_TRUE(brepEdgeBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     ASSERT_TRUE(brepEdgeBounds.MaxPoint().AlmostEquals(Point3d{2.0, 0.0, 5.0}, 1e-12));
-    ASSERT_TRUE(geometry::sdk::Bounds(brepBody.EdgeAt(0)).MaxPoint().AlmostEquals(Point3d{2.0, 0.0, 5.0}, 1e-12));
+    ASSERT_TRUE(Geometry::Sdk::Bounds(brepBody.EdgeAt(0)).MaxPoint().AlmostEquals(Point3d{2.0, 0.0, 5.0}, 1e-12));
     const auto brepEdgeProjection = ProjectPointToBrepEdge(Point3d{1.0, 1.0, 5.0}, brepBody.EdgeAt(0));
     ASSERT_TRUE(brepEdgeProjection.success);
     ASSERT_TRUE(brepEdgeProjection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(brepEdgeProjection.parameter, 0.5, 1e-12);
     ASSERT_TRUE(brepEdgeProjection.point.AlmostEquals(Point3d{1.0, 0.0, 5.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 5.0}, brepBody.EdgeAt(0)), 1.0, 1e-12);
-    const auto brepEdgeLineIntersection = geometry::sdk::Intersect(
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{1.0, 1.0, 5.0}, brepBody.EdgeAt(0)), 1.0, 1e-12);
+    const auto brepEdgeLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, -1.0, 5.0}, Vector3d{0.0, 1.0, 0.0}),
         brepBody.EdgeAt(0));
     ASSERT_TRUE(brepEdgeLineIntersection.intersects);
     ASSERT_TRUE(brepEdgeLineIntersection.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(brepEdgeLineIntersection.edgeParameter, 0.5, 1e-12);
     ASSERT_TRUE(brepEdgeLineIntersection.point.AlmostEquals(Point3d{1.0, 0.0, 5.0}, 1e-12));
-    const auto brepEdgePlaneIntersection = geometry::sdk::Intersect(
+    const auto brepEdgePlaneIntersection = Geometry::Sdk::Intersect(
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 5.0}, Vector3d{0.0, 0.0, 1.0}),
         brepBody.EdgeAt(0));
     ASSERT_TRUE(brepEdgePlaneIntersection.intersects);
@@ -975,9 +975,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
     const auto brepValidation = Validate(brepBody);
     ASSERT_TRUE(brepValidation.valid);
     ASSERT_EQ(brepValidation.issue, BrepValidationIssue3d::None);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(brepFace), 4.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Bounds(brepBody).MinPoint().z, 5.0, 1e-12);
-    const auto brepFaceLineIntersection = geometry::sdk::Intersect(
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Area(brepFace), 4.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Bounds(brepBody).MinPoint().z, 5.0, 1e-12);
+    const auto brepFaceLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 8.0}, Vector3d{0.0, 0.0, -1.0}),
         brepFace);
     ASSERT_TRUE(brepFaceLineIntersection.intersects);
@@ -985,10 +985,10 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_FALSE(brepFaceLineIntersection.onBoundary);
     GEOMETRY_TEST_ASSERT_NEAR(brepFaceLineIntersection.lineParameter, 3.0, 1e-12);
     ASSERT_TRUE(brepFaceLineIntersection.point.AlmostEquals(Point3d{1.0, 1.0, 5.0}, 1e-12));
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 5.0}, brepFace), geometry::sdk::PointContainment2d::Inside);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{2.0, 1.0, 5.0}, brepFace), geometry::sdk::PointContainment2d::OnBoundary);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{3.0, 1.0, 5.0}, brepFace), geometry::sdk::PointContainment2d::Outside);
-    const auto brepBodyLineIntersection = geometry::sdk::Intersect(
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 1.0, 5.0}, brepFace), Geometry::Sdk::PointContainment2d::Inside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{2.0, 1.0, 5.0}, brepFace), Geometry::Sdk::PointContainment2d::OnBoundary);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{3.0, 1.0, 5.0}, brepFace), Geometry::Sdk::PointContainment2d::Outside);
+    const auto brepBodyLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 8.0}, Vector3d{0.0, 0.0, -1.0}),
         brepBody);
     ASSERT_TRUE(brepBodyLineIntersection.intersects);
@@ -997,28 +997,28 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_EQ(brepBodyLineIntersection.hits.size(), 1);
     ASSERT_EQ(brepBodyLineIntersection.faceIndices[0], 0);
     ASSERT_TRUE(brepBodyLineIntersection.hits[0].point.AlmostEquals(Point3d{1.0, 1.0, 5.0}, 1e-12));
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 5.0}, brepBody), geometry::sdk::PointContainment2d::OnBoundary);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 1.0, 8.0}, brepBody), geometry::sdk::PointContainment2d::Outside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 1.0, 5.0}, brepBody), Geometry::Sdk::PointContainment2d::OnBoundary);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 1.0, 8.0}, brepBody), Geometry::Sdk::PointContainment2d::Outside);
     const auto brepFaceProjectionInside = ProjectPointToBrepFace(Point3d{1.0, 1.0, 8.0}, brepFace);
     ASSERT_TRUE(brepFaceProjectionInside.success);
     ASSERT_TRUE(brepFaceProjectionInside.IsValid());
     ASSERT_TRUE(brepFaceProjectionInside.onTrimmedFace);
     ASSERT_FALSE(brepFaceProjectionInside.onBoundary);
     ASSERT_TRUE(brepFaceProjectionInside.point.AlmostEquals(Point3d{1.0, 1.0, 5.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{1.0, 1.0, 8.0}, brepFace), 3.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{1.0, 1.0, 8.0}, brepFace), 3.0, 1e-12);
     const auto brepFaceProjectionOutside = ProjectPointToBrepFace(Point3d{3.0, 1.0, 5.0}, brepFace);
     ASSERT_TRUE(brepFaceProjectionOutside.success);
     ASSERT_TRUE(brepFaceProjectionOutside.IsValid());
     ASSERT_TRUE(brepFaceProjectionOutside.onTrimmedFace);
     ASSERT_TRUE(brepFaceProjectionOutside.onBoundary);
     ASSERT_TRUE(brepFaceProjectionOutside.point.AlmostEquals(Point3d{2.0, 1.0, 5.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{3.0, 1.0, 5.0}, brepFace), 1.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{3.0, 1.0, 5.0}, brepFace), 1.0, 1e-12);
     const auto brepBodyProjection = ProjectPointToBrepBody(Point3d{3.0, 1.0, 5.0}, brepBody);
     ASSERT_TRUE(brepBodyProjection.success);
     ASSERT_TRUE(brepBodyProjection.IsValid());
     ASSERT_EQ(brepBodyProjection.faceIndex, 0);
     ASSERT_TRUE(brepBodyProjection.projection.point.AlmostEquals(Point3d{2.0, 1.0, 5.0}, 1e-12));
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Distance(Point3d{3.0, 1.0, 5.0}, brepBody), 1.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Distance(Point3d{3.0, 1.0, 5.0}, brepBody), 1.0, 1e-12);
     const auto brepFaceMesh = ConvertToTriangleMesh(brepFace);
     ASSERT_TRUE(brepFaceMesh.success);
     ASSERT_TRUE(brepFaceMesh.mesh.IsValid());
@@ -1028,12 +1028,12 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(polyFaceFromBrep.success);
     ASSERT_EQ(polyFaceFromBrep.issue, BrepConversionIssue3d::None);
     ASSERT_TRUE(polyFaceFromBrep.face.IsValid());
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(polyFaceFromBrep.face), 4.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Area(polyFaceFromBrep.face), 4.0, 1e-12);
     const BrepHealing3d healedBrepBody = Heal(brepBody);
     ASSERT_TRUE(healedBrepBody.success);
-    ASSERT_EQ(healedBrepBody.issue, geometry::sdk::HealingIssue3d::None);
+    ASSERT_EQ(healedBrepBody.issue, Geometry::Sdk::HealingIssue3d::None);
     ASSERT_TRUE(healedBrepBody.body.IsValid());
-    const geometry::Box3d brepBodyBounds = brepBody.Bounds();
+    const Geometry::Box3d brepBodyBounds = brepBody.Bounds();
     ASSERT_TRUE(brepBodyBounds.IsValid());
     ASSERT_TRUE(brepBodyBounds.MinPoint().AlmostEquals(Point3d{0.0, 0.0, 5.0}, 1e-12));
     ASSERT_TRUE(brepBodyBounds.MaxPoint().AlmostEquals(Point3d{2.0, 2.0, 5.0}, 1e-12));
@@ -1042,7 +1042,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_EQ(polyBodyFromBrep.issue, BrepConversionIssue3d::None);
     ASSERT_TRUE(polyBodyFromBrep.body.IsValid());
     ASSERT_EQ(polyBodyFromBrep.body.FaceCount(), 1);
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Volume(brepBody), 0.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Volume(brepBody), 0.0, 1e-12);
     const auto brepMesh = ConvertToTriangleMesh(brepBody);
     ASSERT_TRUE(brepMesh.success);
     ASSERT_TRUE(brepMesh.mesh.IsValid());
@@ -1084,14 +1084,14 @@ TEST(SdkTest, CoversCurrentCapabilities)
         brepOuterLoop);
     const BrepBody brepBodyWithoutTrim(brepVertices, brepEdges, {BrepShell({brepFaceWithoutTrim}, false)});
     ASSERT_TRUE(brepBodyWithoutTrim.IsValid());
-    GEOMETRY_TEST_ASSERT_NEAR(geometry::sdk::Area(brepFaceWithoutTrim), 0.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(Geometry::Sdk::Area(brepFaceWithoutTrim), 0.0, 1e-12);
     const BrepHealing3d healedTrimmedBody = Heal(brepBodyWithoutTrim);
     ASSERT_TRUE(healedTrimmedBody.success);
     ASSERT_TRUE(healedTrimmedBody.body.IsValid());
     ASSERT_EQ(healedTrimmedBody.body.ShellCount(), 1);
     ASSERT_TRUE(healedTrimmedBody.body.ShellAt(0).FaceAt(0).OuterTrim().IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(
-        geometry::sdk::Area(healedTrimmedBody.body.ShellAt(0).FaceAt(0)),
+        Geometry::Sdk::Area(healedTrimmedBody.body.ShellAt(0).FaceAt(0)),
         4.0,
         1e-12);
     const auto healedTrimmedFaceMesh = ConvertToTriangleMesh(healedTrimmedBody.body.ShellAt(0).FaceAt(0));
@@ -1127,7 +1127,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(nurbsBrepFaceMesh.success);
     ASSERT_TRUE(nurbsBrepFaceMesh.mesh.IsValid());
     ASSERT_EQ(nurbsBrepFaceMesh.mesh.TriangleCount(), 2);
-    const auto nurbsBrepFaceLineIntersection = geometry::sdk::Intersect(
+    const auto nurbsBrepFaceLineIntersection = Geometry::Sdk::Intersect(
         Line3d::FromOriginAndDirection(Point3d{1.0, 1.0, 3.0}, Vector3d{0.0, 0.0, -1.0}),
         nurbsBrepFace);
     ASSERT_TRUE(nurbsBrepFaceLineIntersection.intersects);
@@ -1137,7 +1137,7 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(nurbsBrepFaceProjection.IsValid());
     ASSERT_TRUE(nurbsBrepFaceProjection.onTrimmedFace);
     ASSERT_GE(nurbsBrepFaceProjection.point.z, 0.0);
-    const double nurbsBrepFaceArea = geometry::sdk::Area(nurbsBrepFace);
+    const double nurbsBrepFaceArea = Geometry::Sdk::Area(nurbsBrepFace);
     GEOMETRY_TEST_ASSERT_NEAR(nurbsBrepFaceArea, 4.0, 1e-12);
     GEOMETRY_TEST_ASSERT_NEAR(nurbsBrepFaceArea, nurbsBrepFaceMesh.mesh.SurfaceArea(), 1e-12);
 
@@ -1199,9 +1199,9 @@ TEST(SdkTest, CoversCurrentCapabilities)
                     })),
         });
     ASSERT_TRUE(cubeBody.IsValid());
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{0.5, 0.5, 0.5}, cubeBody), geometry::sdk::PointContainment2d::Inside);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.5, 0.5, 0.5}, cubeBody), geometry::sdk::PointContainment2d::Outside);
-    ASSERT_EQ(geometry::sdk::LocatePoint(Point3d{1.0, 0.5, 0.5}, cubeBody), geometry::sdk::PointContainment2d::OnBoundary);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{0.5, 0.5, 0.5}, cubeBody), Geometry::Sdk::PointContainment2d::Inside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.5, 0.5, 0.5}, cubeBody), Geometry::Sdk::PointContainment2d::Outside);
+    ASSERT_EQ(Geometry::Sdk::LocatePoint(Point3d{1.0, 0.5, 0.5}, cubeBody), Geometry::Sdk::PointContainment2d::OnBoundary);
     const PolyhedronSection3d middleSection = Section(
         cubeBody,
         Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.5}, Vector3d{0.0, 0.0, 1.0}));

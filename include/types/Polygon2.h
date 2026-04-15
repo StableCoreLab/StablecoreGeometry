@@ -12,7 +12,7 @@
 #include "types/Box2.h"
 #include "types/Polyline2.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 using PolygonMeasureType = std::conditional_t<std::is_floating_point_v<T>, T, double>;

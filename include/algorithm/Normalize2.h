@@ -4,7 +4,7 @@
 
 #include "algorithm/Predicate2.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 [[nodiscard]] bool TryNormalize(

@@ -8,7 +8,7 @@
 #include "sdk/BrepLoop.h"
 #include "sdk/BrepShell.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class BrepLoopEditIssue3d
 {
@@ -106,4 +106,4 @@ struct GEOMETRY_API BrepBodyEdit3d
     std::size_t shellIndex,
     const BrepShell& shell,
     const GeometryTolerance3d& tolerance = {});
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

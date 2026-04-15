@@ -6,7 +6,7 @@
 #include "types/Box3.h"
 #include "types/Plane.h"
 
-namespace geometry
+namespace Geometry
 {
 struct Triangle3d
 {
@@ -57,7 +57,7 @@ struct Triangle3d
 
     [[nodiscard]] Plane Plane() const
     {
-        return geometry::Plane::FromPointAndNormal(a, Normal());
+        return Geometry::Plane::FromPointAndNormal(a, Normal());
     }
 
     [[nodiscard]] std::string DebugString() const
@@ -69,4 +69,4 @@ struct Triangle3d
         return stream.str();
     }
 };
-} // namespace geometry
+} // namespace Geometry

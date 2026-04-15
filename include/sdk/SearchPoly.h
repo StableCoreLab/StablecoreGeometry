@@ -10,7 +10,7 @@
 #include "sdk/MultiPolygon2d.h"
 #include "sdk/MultiPolyline2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class SearchPolyIssue2d
 {
@@ -146,4 +146,4 @@ struct GEOMETRY_API SearchPolyResult2d
     const MultiPolyline2d& lines,
     const Point2d& point,
     SearchPolyOptions2d options = {});
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

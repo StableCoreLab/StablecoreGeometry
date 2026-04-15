@@ -9,7 +9,7 @@
 #include "common/Epsilon.h"
 #include "types/Point2.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 using BoxMeasureType = std::conditional_t<std::is_floating_point_v<T>, T, double>;

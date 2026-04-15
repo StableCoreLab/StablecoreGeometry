@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/GeometryTypes.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 struct GEOMETRY_API KDTreeEntry2d
 {
@@ -63,4 +63,4 @@ private:
     std::vector<KDTreeEntry2d> entries_{};
 };
 
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

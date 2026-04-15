@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/Polyline2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API MultiPolyline2d
 {
@@ -43,4 +43,4 @@ public:
 private:
     std::vector<Polyline2d> polylines_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

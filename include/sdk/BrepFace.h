@@ -10,7 +10,7 @@
 #include "sdk/BrepLoop.h"
 #include "sdk/CurveOnSurface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API BrepFace
 {
@@ -130,4 +130,4 @@ private:
     CurveOnSurface outerTrim_{};
     std::vector<CurveOnSurface> holeTrims_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

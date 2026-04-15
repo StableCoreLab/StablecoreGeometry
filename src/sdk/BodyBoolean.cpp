@@ -9,7 +9,7 @@
 #include "sdk/BrepConversion.h"
 #include "sdk/PlaneSurface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -19,7 +19,7 @@ namespace
     {
         return options.tolerance.distanceEpsilon;
     }
-    return geometry::kBodyBooleanDefaultEpsilon;
+    return Geometry::kBodyBooleanDefaultEpsilon;
 }
 
 [[nodiscard]] BodyBooleanResult3d MakeInvalidInputResult()
@@ -78,7 +78,7 @@ namespace
             return BoundsLexicographicallyLess(
                 first.Bounds(),
                 second.Bounds(),
-                geometry::kBodyBooleanDefaultEpsilon);
+                Geometry::kBodyBooleanDefaultEpsilon);
         });
     result.bodies = std::move(bodies);
     result.message = message;
@@ -1098,5 +1098,5 @@ BodyBooleanResult3d DifferenceBodies(
 {
     return MakeResultForPolyhedronBodies(first, second, options, 'd');
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

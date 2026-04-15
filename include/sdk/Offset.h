@@ -8,7 +8,7 @@
 #include "sdk/Polygon2d.h"
 #include "sdk/Polyline2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 struct GEOMETRY_API OffsetOptions2d
 {
@@ -37,4 +37,4 @@ struct GEOMETRY_API OffsetOptions2d
     const MultiPolygon2d& polygons,
     double distance,
     OffsetOptions2d options = {});
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

@@ -11,7 +11,7 @@
 #include "sdk/Metrics.h"
 #include "sdk/Projection.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 struct GEOMETRY_API SegmentSearchEntry2d
 {
@@ -75,4 +75,4 @@ private:
     std::vector<SegmentSearchEntry2d> entries_{};
 };
 
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

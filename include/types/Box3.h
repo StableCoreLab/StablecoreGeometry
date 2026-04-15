@@ -6,7 +6,7 @@
 
 #include "types/Point3.h"
 
-namespace geometry
+namespace Geometry
 {
 struct Box3d
 {
@@ -63,4 +63,4 @@ struct Box3d
         return stream.str();
     }
 };
-} // namespace geometry
+} // namespace Geometry

@@ -8,7 +8,7 @@
 #include "sdk/GeometryTypes.h"
 #include "sdk/PolyhedronBody.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class BodyBooleanIssue3d
 {
@@ -67,4 +67,4 @@ struct GEOMETRY_API BodyBooleanResult3d
     const PolyhedronBody& first,
     const PolyhedronBody& second,
     BodyBooleanOptions3d options = {});
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

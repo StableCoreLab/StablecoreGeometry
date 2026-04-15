@@ -8,7 +8,7 @@
 #include "sdk/Polyline2d.h"
 #include "sdk/TriangleMesh.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class PolygonValidationIssue2d
 {
@@ -98,4 +98,4 @@ struct GEOMETRY_API SectionValidation3d
     const BrepBody& body,
     const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API SectionValidation3d Validate(const PolyhedronSection3d& section, double eps = 1e-9);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

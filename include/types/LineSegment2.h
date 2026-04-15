@@ -4,7 +4,7 @@
 
 #include "types/Segment2.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 class LineSegment2 : public Segment2<T>
@@ -73,7 +73,7 @@ public:
         }
 
         const LengthType clampedDistance = clampToSegment
-            ? static_cast<LengthType>(detail::ClampDouble(
+            ? static_cast<LengthType>(Detail::ClampDouble(
                 static_cast<double>(distanceFromStart),
                 0.0,
                 static_cast<double>(length)))

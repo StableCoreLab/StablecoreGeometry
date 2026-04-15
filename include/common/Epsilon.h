@@ -2,7 +2,7 @@
 
 #include "export/GeometryExport.h"
 
-namespace geometry
+namespace Geometry
 {
 constexpr double kDefaultEpsilon = 1e-9;
 

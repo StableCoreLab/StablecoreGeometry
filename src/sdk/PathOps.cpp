@@ -19,7 +19,7 @@
 #include "sdk/Topology.h"
 #include "sdk/Validation.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -70,7 +70,7 @@ struct VertexGraph2d
     const Vector2d r = a2 - a1;
     const Vector2d s = b2 - b1;
     const double denom = Cross(r, s);
-    if (std::abs(denom) <= geometry::kPathOpsDefaultEpsilon)
+    if (std::abs(denom) <= Geometry::kPathOpsDefaultEpsilon)
     {
         return a2;
     }
@@ -88,7 +88,7 @@ struct VertexGraph2d
     const double total = polyline.Length();
     startLength = std::clamp(startLength, 0.0, total);
     endLength = std::clamp(endLength, 0.0, total);
-    if (endLength < startLength + geometry::kPathOpsDefaultEpsilon)
+    if (endLength < startLength + Geometry::kPathOpsDefaultEpsilon)
     {
         return {};
     }
@@ -102,12 +102,12 @@ struct VertexGraph2d
         const double segStart = cursor;
         const double segEnd = cursor + segLen;
 
-        if (segEnd < startLength - geometry::kPathOpsDefaultEpsilon)
+        if (segEnd < startLength - Geometry::kPathOpsDefaultEpsilon)
         {
             cursor = segEnd;
             continue;
         }
-        if (segStart > endLength + geometry::kPathOpsDefaultEpsilon)
+        if (segStart > endLength + Geometry::kPathOpsDefaultEpsilon)
         {
             break;
         }
@@ -116,11 +116,11 @@ struct VertexGraph2d
         const double localEnd = std::min(segLen, endLength - segStart);
         const Point2d startPoint = segment.PointAtLength(localStart, true);
         const Point2d endPoint = segment.PointAtLength(localEnd, true);
-        if (points.empty() || !points.back().AlmostEquals(startPoint, geometry::kPathOpsDefaultEpsilon))
+        if (points.empty() || !points.back().AlmostEquals(startPoint, Geometry::kPathOpsDefaultEpsilon))
         {
             points.push_back(startPoint);
         }
-        if (points.empty() || !points.back().AlmostEquals(endPoint, geometry::kPathOpsDefaultEpsilon))
+        if (points.empty() || !points.back().AlmostEquals(endPoint, Geometry::kPathOpsDefaultEpsilon))
         {
             points.push_back(endPoint);
         }
@@ -156,9 +156,9 @@ struct VertexGraph2d
     for (const Point2d& current : input)
     {
         const double currentSide = SignedSide(current, cutter);
-        const bool prevInside = keepLeft ? prevSide >= -geometry::kPathOpsDefaultEpsilon : prevSide <= geometry::kPathOpsDefaultEpsilon;
+        const bool prevInside = keepLeft ? prevSide >= -Geometry::kPathOpsDefaultEpsilon : prevSide <= Geometry::kPathOpsDefaultEpsilon;
         const bool currentInside =
-            keepLeft ? currentSide >= -geometry::kPathOpsDefaultEpsilon : currentSide <= geometry::kPathOpsDefaultEpsilon;
+            keepLeft ? currentSide >= -Geometry::kPathOpsDefaultEpsilon : currentSide <= Geometry::kPathOpsDefaultEpsilon;
 
         if (currentInside)
         {
@@ -383,10 +383,10 @@ void AddParameter(std::vector<double>& parameters, double value, double eps)
     const double length = segment.Length();
     if (length <= eps)
     {
-        return geometry::kPathOpsComparisonEpsilon;
+        return Geometry::kPathOpsComparisonEpsilon;
     }
 
-    return std::min(1e-4, std::max(geometry::kPathOpsComparisonEpsilon, 8.0 * eps / length));
+    return std::min(1e-4, std::max(Geometry::kPathOpsComparisonEpsilon, 8.0 * eps / length));
 }
 
 [[nodiscard]] std::vector<double> CompactSortedParameters(std::vector<double> parameters, double parameterTol)
@@ -1041,11 +1041,11 @@ void SortOutgoing(const std::vector<DirectedEdge>& edges, std::vector<std::vecto
     }
 
     std::stable_sort(rings.begin(), rings.end(), [](const RingCandidate& lhs, const RingCandidate& rhs) {
-        if (std::abs(lhs.score - rhs.score) > geometry::kPathOpsComparisonEpsilon)
+        if (std::abs(lhs.score - rhs.score) > Geometry::kPathOpsComparisonEpsilon)
         {
             return lhs.score > rhs.score;
         }
-        if (std::abs(lhs.area - rhs.area) > geometry::kPathOpsComparisonEpsilon)
+        if (std::abs(lhs.area - rhs.area) > Geometry::kPathOpsComparisonEpsilon)
         {
             return lhs.area > rhs.area;
         }
@@ -1265,8 +1265,8 @@ Polygon2d NormalizePolygonByLines(const Polygon2d& polygon, double eps)
     }
 
     const std::vector<double> epsCandidates{
-        std::max(eps, geometry::kPathOpsComparisonEpsilon),
-        std::max(eps, geometry::kPathOpsRebuildFallbackEpsilon),
+        std::max(eps, Geometry::kPathOpsComparisonEpsilon),
+        std::max(eps, Geometry::kPathOpsRebuildFallbackEpsilon),
         std::max(eps, 1e-7)};
 
     Polygon2d rebuilt = RebuildLargestPolygonWithCandidates(boundaries, epsCandidates);
@@ -1275,7 +1275,7 @@ Polygon2d NormalizePolygonByLines(const Polygon2d& polygon, double eps)
         return rebuilt;
     }
 
-    const double simplifyEps = std::max(geometry::kPathOpsAreaEpsilon, 8.0 * std::max(eps, geometry::kPathOpsComparisonEpsilon));
+    const double simplifyEps = std::max(Geometry::kPathOpsAreaEpsilon, 8.0 * std::max(eps, Geometry::kPathOpsComparisonEpsilon));
     MultiPolyline2d simplifiedBoundaries = SimplifyBoundaryPolylines(boundaries, simplifyEps);
     if (simplifiedBoundaries.IsEmpty())
     {
@@ -1290,5 +1290,5 @@ Polygon2d NormalizePolygonByLines(const Polygon2d& polygon, double eps)
 
     return {};
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

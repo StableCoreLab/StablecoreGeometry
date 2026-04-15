@@ -7,8 +7,8 @@
 
 int main()
 {
-    using namespace geometry;
-    using namespace geometry::sdk;
+    using namespace Geometry;
+    using namespace Geometry::Sdk;
 
     const PolyhedronLoop3d outerLoop(
         {

@@ -2,9 +2,9 @@
 
 #include "sdk/Geometry.h"
 
-using geometry::sdk::BrepBody;
-using geometry::sdk::ConvertToTriangleMesh;
-using geometry::sdk::PolyhedronBody;
+using Geometry::Sdk::BrepBody;
+using Geometry::Sdk::ConvertToTriangleMesh;
+using Geometry::Sdk::PolyhedronBody;
 
 TEST(Conversion3dGapTest, HighFidelityBrepToMeshFeaturePreservationRemainsOpen)
 {

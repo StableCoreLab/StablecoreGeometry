@@ -3,10 +3,10 @@
 #include "sdk/Boolean.h"
 #include "sdk/ShapeOps.h"
 
-using geometry::sdk::Point2d;
-using geometry::sdk::Polygon2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::Polygon2d;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
 
 TEST(BooleanGapTest, HarderArrangementDegeneraciesRemainOpen)
 {

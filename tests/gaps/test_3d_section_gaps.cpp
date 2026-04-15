@@ -2,12 +2,12 @@
 
 #include "sdk/Geometry.h"
 
-using geometry::sdk::LineSegment3d;
-using geometry::sdk::Plane;
-using geometry::sdk::Point3d;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::Section;
-using geometry::sdk::Vector3d;
+using Geometry::Sdk::LineSegment3d;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::Section;
+using Geometry::Sdk::Vector3d;
 
 TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
 {

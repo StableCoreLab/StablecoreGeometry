@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -38,4 +38,4 @@ PlaneSurface PlaneSurface::FromPlane(
     const Vector3d vAxis = Cross(plane.UnitNormal(eps), uAxis).Normalized(eps);
     return PlaneSurface(plane, uAxis, vAxis, uRange, vRange);
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

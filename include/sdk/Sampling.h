@@ -7,7 +7,7 @@
 #include "sdk/LineSegment2d.h"
 #include "sdk/Segment2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 [[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample(
     const LineSegment2d& segment,
@@ -21,4 +21,4 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API std::vector<Point2d> SampleByMaxAngle(
     const ArcSegment2d& segment,
     double maxAngleRadians);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

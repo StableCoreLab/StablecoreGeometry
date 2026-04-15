@@ -8,7 +8,7 @@
 #include "common/Epsilon.h"
 #include "types/Vector3.h"
 
-namespace geometry
+namespace Geometry
 {
 struct Direction3d
 {
@@ -57,4 +57,4 @@ struct Direction3d
         return stream.str();
     }
 };
-} // namespace geometry
+} // namespace Geometry

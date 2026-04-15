@@ -15,7 +15,7 @@ include/stablecore/geometry/
 内部命名空间保持简洁：
 
 ```cpp
-namespace geometry
+namespace Geometry
 {
 }
 ```
@@ -23,7 +23,7 @@ namespace geometry
 原则：
 
 - 对外路径使用 `stablecore/geometry`
-- 对内命名空间使用 `geometry::`
+- 对内命名空间使用 `Geometry::`
 
 ## 2. 类型命名
 
@@ -143,7 +143,7 @@ IsZero(a - b)
 所有几何判定都应收敛到统一工具接口，例如：
 
 ```cpp
-namespace geometry
+namespace Geometry
 {
 constexpr double kDefaultEpsilon = 1e-9;
 

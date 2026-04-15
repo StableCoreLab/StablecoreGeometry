@@ -7,24 +7,24 @@
 #include "types/LineSegment2.h"
 #include "types/Polyline2.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
-[[nodiscard]] geometry::PolylineClosure ToInternalClosure(PolylineClosure closure)
+[[nodiscard]] Geometry::PolylineClosure ToInternalClosure(PolylineClosure closure)
 {
-    return closure == PolylineClosure::Closed ? geometry::PolylineClosure::Closed
-                                              : geometry::PolylineClosure::Open;
+    return closure == PolylineClosure::Closed ? Geometry::PolylineClosure::Closed
+                                              : Geometry::PolylineClosure::Open;
 }
 
-[[nodiscard]] geometry::Polyline2d MakeInternalPolyline(
+[[nodiscard]] Geometry::Polyline2d MakeInternalPolyline(
     const std::vector<Point2d>& points,
     PolylineClosure closure)
 {
-    std::vector<std::shared_ptr<geometry::Segment2d>> segments;
+    std::vector<std::shared_ptr<Geometry::Segment2d>> segments;
     if (points.size() < 2)
     {
-        return geometry::Polyline2d(std::move(segments), ToInternalClosure(closure));
+        return Geometry::Polyline2d(std::move(segments), ToInternalClosure(closure));
     }
 
     const std::size_t segmentCount =
@@ -34,18 +34,18 @@ namespace
     {
         const Point2d& start = points[i];
         const Point2d& end = points[(i + 1) % points.size()];
-        segments.push_back(std::make_shared<geometry::LineSegment2d>(
+        segments.push_back(std::make_shared<Geometry::LineSegment2d>(
             start,
             end));
     }
 
-    return geometry::Polyline2d(std::move(segments), ToInternalClosure(closure));
+    return Geometry::Polyline2d(std::move(segments), ToInternalClosure(closure));
 }
 } // namespace
 
 struct Polyline2d::Impl
 {
-    geometry::Polyline2d polyline;
+    Geometry::Polyline2d polyline;
 
     Impl() = default;
 
@@ -54,7 +54,7 @@ struct Polyline2d::Impl
     {
     }
 
-    explicit Impl(geometry::Polyline2d value)
+    explicit Impl(Geometry::Polyline2d value)
         : polyline(std::move(value))
     {
     }
@@ -136,5 +136,5 @@ std::string Polyline2d::DebugString() const
            << ", bounds=" << Bounds().DebugString() << "}";
     return stream.str();
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

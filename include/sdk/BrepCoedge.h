@@ -5,7 +5,7 @@
 
 #include "export/GeometryExport.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API BrepCoedge
 {
@@ -40,4 +40,4 @@ private:
     std::size_t edgeIndex_{static_cast<std::size_t>(-1)};
     bool reversed_{false};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

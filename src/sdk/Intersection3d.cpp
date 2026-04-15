@@ -12,7 +12,7 @@
 #include "sdk/NurbsSurface.h"
 #include "sdk/PlaneSurface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -785,7 +785,7 @@ LineBrepBodyIntersection3d Intersect(
             }
 
             const long long bucket = static_cast<long long>(
-                std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, geometry::kIntersectionDefaultEpsilon)));
+                std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, Geometry::kIntersectionDefaultEpsilon)));
             if (!dedup.emplace(bucket, faceIndex).second)
             {
                 continue;
@@ -878,7 +878,7 @@ LinePolyhedronBodyIntersection3d Intersect(
         }
 
         const long long bucket = static_cast<long long>(
-            std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, geometry::kIntersectionDefaultEpsilon)));
+            std::llround(hit.lineParameter / std::max(tolerance.parameterEpsilon, Geometry::kIntersectionDefaultEpsilon)));
         if (!dedup.emplace(bucket, faceIndex).second)
         {
             continue;
@@ -941,7 +941,7 @@ LineTriangleMeshIntersection3d Intersect(
         }
 
         const long long bucket = static_cast<long long>(
-            std::llround(planeHit.parameter / std::max(tolerance.parameterEpsilon, geometry::kIntersectionDefaultEpsilon)));
+            std::llround(planeHit.parameter / std::max(tolerance.parameterEpsilon, Geometry::kIntersectionDefaultEpsilon)));
         if (!dedup.emplace(bucket, triangleIndex).second)
         {
             continue;
@@ -1135,5 +1135,5 @@ PlanePlaneIntersection3d Intersect(
     result.line = Line3d::FromOriginAndDirection(Point3d{pointVector.x, pointVector.y, pointVector.z}, direction);
     return result;
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

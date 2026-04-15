@@ -7,7 +7,7 @@
 
 #include "sdk/Metrics.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -111,7 +111,7 @@ void QueryPoint(
     double eps,
     std::vector<std::size_t>& result)
 {
-    if (node == nullptr || !geometry::sdk::Contains(node->bounds, point, eps))
+    if (node == nullptr || !Geometry::Sdk::Contains(node->bounds, point, eps))
     {
         return;
     }
@@ -120,7 +120,7 @@ void QueryPoint(
     {
         for (std::size_t index : node->leafIndices)
         {
-            if (geometry::sdk::Contains(entries[index].box, point, eps))
+            if (Geometry::Sdk::Contains(entries[index].box, point, eps))
             {
                 result.push_back(entries[index].id);
             }
@@ -263,4 +263,4 @@ std::vector<BoxTreeEntry2d>& BoxTree2d::Data()
 {
     return Entries();
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

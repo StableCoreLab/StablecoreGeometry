@@ -6,10 +6,10 @@
 #include "sdk/PlaneSurface.h"
 #include "sdk/TriangleMesh.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 [[nodiscard]] GEOMETRY_API TriangleMesh Tessellate(
     const PlaneSurface& surface,
     std::size_t uSegments = 1,
     std::size_t vSegments = 1);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

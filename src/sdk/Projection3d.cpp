@@ -8,7 +8,7 @@
 #include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -195,7 +195,7 @@ bool UpdateClosestTrimProjection(
     {
         const std::size_t j = (i + 1) % pointCount;
         const LineProjection3d projected =
-            ProjectPointToSegment3d(point, trim.PointAt(i), trim.PointAt(j), geometry::kProjectionDefaultEpsilon);
+            ProjectPointToSegment3d(point, trim.PointAt(i), trim.PointAt(j), Geometry::kProjectionDefaultEpsilon);
         if (!best.success || projected.distanceSquared < best.distanceSquared)
         {
             const Point2d uv0 = trim.UvPointAt(i);
@@ -816,5 +816,5 @@ FaceProjection3d ProjectFaceToPolygon2d(const PolyhedronFace3d& face, const Geom
 
     return FaceProjection3d{true, std::move(polygon), plane.origin, basis.u, basis.v};
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

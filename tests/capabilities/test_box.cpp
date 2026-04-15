@@ -4,10 +4,10 @@
 #include "types/Box2.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::Box2d;
-using geometry::Box2i;
-using geometry::Point2d;
-using geometry::Point2i;
+using Geometry::Box2d;
+using Geometry::Box2i;
+using Geometry::Point2d;
+using Geometry::Point2i;
 
 TEST(BoxTest, CoversCurrentCapabilities)
 {
@@ -23,14 +23,14 @@ TEST(BoxTest, CoversCurrentCapabilities)
     ASSERT_EQ(pointBox.Width(), 0.0);
     ASSERT_EQ(pointBox.Height(), 0.0);
     ASSERT_EQ(pointBox.Area(), 0.0);
-    GEOMETRY_TEST_ASSERT_POINT_NEAR(pointBox.Center(), geometry::Point2<double>(2.0, 3.0), 1e-12);
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(pointBox.Center(), Geometry::Point2<double>(2.0, 3.0), 1e-12);
 
     const Box2i boxA(Point2i(1, 2), Point2i(4, 6));
     ASSERT_TRUE(boxA.IsValid());
     ASSERT_EQ(boxA.Width(), 3.0);
     ASSERT_EQ(boxA.Height(), 4.0);
     ASSERT_EQ(boxA.Area(), 12.0);
-    GEOMETRY_TEST_ASSERT_POINT_NEAR(boxA.Center(), geometry::Point2<double>(2.5, 4.0), 1e-12);
+    GEOMETRY_TEST_ASSERT_POINT_NEAR(boxA.Center(), Geometry::Point2<double>(2.5, 4.0), 1e-12);
 
     Box2i expanded;
     expanded.ExpandToInclude(Point2i(5, 7));

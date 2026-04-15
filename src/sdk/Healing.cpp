@@ -15,7 +15,7 @@
 #include "sdk/PlaneSurface.h"
 #include "sdk/Validation.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -34,7 +34,7 @@ HealingIssue3d MapMeshRepairIssue(const MeshRepairIssue3d issue)
     }
 }
 
-namespace trim_backfill
+namespace TrimBackfill
 {
 [[nodiscard]] bool AppendLoopVertices(
     const BrepBody& body,
@@ -85,8 +85,8 @@ namespace trim_backfill
     const Vector3d delta = point - plane.origin;
     const Vector3d uAxis = planeSurface.UAxis();
     const Vector3d vAxis = planeSurface.VAxis();
-    const double uDenom = std::max(uAxis.LengthSquared(), geometry::kHealingDefaultEpsilon);
-    const double vDenom = std::max(vAxis.LengthSquared(), geometry::kHealingDefaultEpsilon);
+    const double uDenom = std::max(uAxis.LengthSquared(), Geometry::kHealingDefaultEpsilon);
+    const double vDenom = std::max(vAxis.LengthSquared(), Geometry::kHealingDefaultEpsilon);
     return Point2d{
         Dot(delta, uAxis) / uDenom,
         Dot(delta, vAxis) / vDenom};
@@ -171,7 +171,7 @@ namespace trim_backfill
     return healedFace.IsValid(GeometryTolerance3d{eps, eps, eps});
 }
 
-} // namespace trim_backfill
+} // namespace TrimBackfill
 
 [[nodiscard]] bool ComputeShellClosed(
     const BrepShell& shell)
@@ -208,12 +208,12 @@ namespace trim_backfill
 return true;
 }
 
-namespace aggressive
+namespace Aggressive
 {
 [[nodiscard]] BrepLoop ReversedLoop(const BrepLoop& loop);
 }
 
-namespace shell_cap
+namespace ShellCap
 {
 [[nodiscard]] bool TryBuildStandaloneShellPlaneSurface(
     const BrepBody& body,
@@ -308,7 +308,7 @@ void AppendUniqueLoopVertexIndices(
     const GeometryTolerance3d& tolerance,
     PlaneSurface& planeSurface)
 {
-    const double eps = std::max(tolerance.distanceEpsilon, geometry::kHealingDefaultEpsilon);
+    const double eps = std::max(tolerance.distanceEpsilon, Geometry::kHealingDefaultEpsilon);
     std::vector<std::size_t> vertexIndices;
     vertexIndices.reserve(shell.FaceCount() * 8);
 
@@ -538,7 +538,7 @@ void AppendUniqueLoopVertexIndices(
         uvPoints.reserve(loopVertices.size());
         for (const Point3d& point : loopVertices)
         {
-            uvPoints.push_back(trim_backfill::ProjectPointToPlaneUv(point, planeSurface));
+            uvPoints.push_back(TrimBackfill::ProjectPointToPlaneUv(point, planeSurface));
         }
 
         const Polyline2d uvRing(std::move(uvPoints), PolylineClosure::Closed);
@@ -644,9 +644,9 @@ void AppendUniqueLoopVertexIndices(
             continue;
         }
 
-        const BrepLoop outerLoop = aggressive::ReversedLoop(boundaryLoops[loopIndex].loop);
+        const BrepLoop outerLoop = Aggressive::ReversedLoop(boundaryLoops[loopIndex].loop);
         CurveOnSurface outerTrim{};
-        if (!trim_backfill::BuildTrimFromLoop(body, outerLoop, planeSurface, outerTrim, tolerance.distanceEpsilon))
+        if (!TrimBackfill::BuildTrimFromLoop(body, outerLoop, planeSurface, outerTrim, tolerance.distanceEpsilon))
         {
             return false;
         }
@@ -660,9 +660,9 @@ void AppendUniqueLoopVertexIndices(
                 continue;
             }
 
-            const BrepLoop holeLoop = aggressive::ReversedLoop(boundaryLoops[childIndex].loop);
+            const BrepLoop holeLoop = Aggressive::ReversedLoop(boundaryLoops[childIndex].loop);
             CurveOnSurface holeTrim{};
-            if (!trim_backfill::BuildTrimFromLoop(body, holeLoop, planeSurface, holeTrim, tolerance.distanceEpsilon))
+            if (!TrimBackfill::BuildTrimFromLoop(body, holeLoop, planeSurface, holeTrim, tolerance.distanceEpsilon))
             {
                 return false;
             }
@@ -719,9 +719,9 @@ void AppendUniqueLoopVertexIndices(
     return repairedShell.IsValid(tolerance);
 }
 
-} // namespace shell_cap
+} // namespace ShellCap
 
-namespace aggressive
+namespace Aggressive
 {
 
 using BoundaryEdgeKey = std::pair<std::size_t, std::size_t>;
@@ -748,7 +748,7 @@ struct BoundaryGeometrySegment
     const Point3d& point,
     double eps)
 {
-    const double safeEps = std::max(eps, geometry::kHealingDefaultEpsilon);
+    const double safeEps = std::max(eps, Geometry::kHealingDefaultEpsilon);
     return BoundaryGeometryPointKey{
         static_cast<long long>(std::llround(point.x / safeEps)),
         static_cast<long long>(std::llround(point.y / safeEps)),
@@ -778,7 +778,7 @@ void CollectShellBoundaryEdgeKeys(
     boundaryEdgeKeys.clear();
 
     std::map<std::size_t, std::size_t> edgeUseCount;
-    shell_cap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
+    ShellCap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
 
     auto appendBoundaryEdgesFromLoop = [&](const BrepLoop& loop) {
         for (const BrepCoedge& coedge : loop.Coedges())
@@ -791,7 +791,7 @@ void CollectShellBoundaryEdgeKeys(
 
             std::size_t startVertexIndex = kInvalidIndex;
             std::size_t endVertexIndex = kInvalidIndex;
-            if (!shell_cap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
+            if (!ShellCap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
             {
                 continue;
             }
@@ -824,7 +824,7 @@ void CollectShellBoundaryGeometryEdgeKeys(
     boundaryGeometryEdgeKeys.clear();
 
     std::map<std::size_t, std::size_t> edgeUseCount;
-    shell_cap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
+    ShellCap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
 
     auto appendBoundaryEdgesFromLoop = [&](const BrepLoop& loop) {
         for (const BrepCoedge& coedge : loop.Coedges())
@@ -837,7 +837,7 @@ void CollectShellBoundaryGeometryEdgeKeys(
 
             std::size_t startVertexIndex = kInvalidIndex;
             std::size_t endVertexIndex = kInvalidIndex;
-            if (!shell_cap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
+            if (!ShellCap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
             {
                 continue;
             }
@@ -872,7 +872,7 @@ void CollectShellBoundaryGeometrySegments(
     boundaryGeometrySegments.clear();
 
     std::map<std::size_t, std::size_t> edgeUseCount;
-    shell_cap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
+    ShellCap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
 
     auto appendBoundaryEdgesFromLoop = [&](const BrepLoop& loop) {
         for (const BrepCoedge& coedge : loop.Coedges())
@@ -885,7 +885,7 @@ void CollectShellBoundaryGeometrySegments(
 
             std::size_t startVertexIndex = kInvalidIndex;
             std::size_t endVertexIndex = kInvalidIndex;
-            if (!shell_cap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
+            if (!ShellCap::TryGetCoedgeVertexIndices(body, coedge, startVertexIndex, endVertexIndex))
             {
                 continue;
             }
@@ -933,7 +933,7 @@ void CollectShellBoundaryGeometrySegments(
         return false;
     }
 
-    const double firstLengthSquared = std::max(firstDirection.LengthSquared(), geometry::kHealingDefaultEpsilon);
+    const double firstLengthSquared = std::max(firstDirection.LengthSquared(), Geometry::kHealingDefaultEpsilon);
     double secondStartParameter = Dot(second.startPoint - first.startPoint, firstDirection) / firstLengthSquared;
     double secondEndParameter = Dot(second.endPoint - first.startPoint, firstDirection) / firstLengthSquared;
     if (secondEndParameter < secondStartParameter)
@@ -1125,10 +1125,10 @@ void CollectShellBoundaryGeometrySegments(
         {
             ++openShellCount;
             PlaneSurface shellPlaneSurface{};
-            if (shell_cap::TryBuildStandaloneShellPlaneSurface(body, shell, tolerance, shellPlaneSurface))
+            if (ShellCap::TryBuildStandaloneShellPlaneSurface(body, shell, tolerance, shellPlaneSurface))
             {
                 const Plane shellPlane = shellPlaneSurface.SupportPlane();
-                const double eps = std::max(tolerance.distanceEpsilon, geometry::kHealingDefaultEpsilon);
+                const double eps = std::max(tolerance.distanceEpsilon, Geometry::kHealingDefaultEpsilon);
                 for (const BrepFace& face : shell.Faces())
                 {
                     const auto* facePlaneSurface = dynamic_cast<const PlaneSurface*>(face.SupportSurface());
@@ -1173,7 +1173,7 @@ void CollectShellBoundaryGeometrySegments(
             }
         }
 
-        shell_cap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
+        ShellCap::AccumulateShellEdgeUseCounts(shell, edgeUseCount);
 
         if (!eligible || edgeUseCount.empty())
         {
@@ -1207,7 +1207,7 @@ void CollectShellBoundaryGeometrySegments(
         if (eligible && !hasInteriorSharedEdge)
         {
             PlaneSurface shellPlaneSurface{};
-            eligible = shell_cap::TryBuildStandaloneShellPlaneSurface(body, shell, tolerance, shellPlaneSurface);
+            eligible = ShellCap::TryBuildStandaloneShellPlaneSurface(body, shell, tolerance, shellPlaneSurface);
         }
 
         if (!eligible)
@@ -1233,7 +1233,7 @@ void CollectShellBoundaryGeometrySegments(
             }
 
             BrepShell cappedShell{};
-            if (shell_cap::TryCloseStandaloneShellWithBoundaryCaps(body, shell, tolerance, edgeUseCount, cappedShell))
+            if (ShellCap::TryCloseStandaloneShellWithBoundaryCaps(body, shell, tolerance, edgeUseCount, cappedShell))
             {
                 repairedShells.push_back(std::move(cappedShell));
                 changed = true;
@@ -1286,7 +1286,7 @@ void CollectShellBoundaryGeometrySegments(
     repairedBody = BrepBody(body.Vertices(), body.Edges(), std::move(repairedShells));
     return repairedBody.IsValid(tolerance);
 }
-} // namespace aggressive
+} // namespace Aggressive
 } // namespace
 
 MeshHealing3d Heal(const TriangleMesh& mesh, double eps)
@@ -1334,7 +1334,7 @@ BrepHealing3d Heal(
     HealingPolicy3d policy)
 {
     const BrepValidation3d validation = Validate(body, tolerance);
-    if (validation.valid && !aggressive::NeedsBrepHealing(body, tolerance))
+    if (validation.valid && !Aggressive::NeedsBrepHealing(body, tolerance))
     {
         return {true, HealingIssue3d::None, body};
     }
@@ -1354,7 +1354,7 @@ BrepHealing3d Heal(
         for (std::size_t faceIndex = 0; faceIndex < shell.FaceCount(); ++faceIndex)
         {
             BrepFace healedFace{};
-            if (!trim_backfill::BuildHealedFace(body, shell.FaceAt(faceIndex), healedFace, tolerance.distanceEpsilon))
+            if (!TrimBackfill::BuildHealedFace(body, shell.FaceAt(faceIndex), healedFace, tolerance.distanceEpsilon))
             {
                 return {false, HealingIssue3d::RepairFailed, {}};
             }
@@ -1378,7 +1378,7 @@ BrepHealing3d Heal(
     if (policy == HealingPolicy3d::Aggressive)
     {
         BrepBody aggressivelyHealedBody{};
-        if (aggressive::TryAggressivelyCloseShells(healedBody, tolerance, aggressivelyHealedBody))
+        if (Aggressive::TryAggressivelyCloseShells(healedBody, tolerance, aggressivelyHealedBody))
         {
             return {true, HealingIssue3d::None, std::move(aggressivelyHealedBody)};
         }
@@ -1386,5 +1386,5 @@ BrepHealing3d Heal(
 
     return {true, HealingIssue3d::None, std::move(healedBody)};
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

@@ -7,7 +7,7 @@
 #include "sdk/GeometryTypes.h"
 #include "sdk/Polygon2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API Rectangle2d
 {
@@ -28,4 +28,4 @@ public:
     [[nodiscard]] Polygon2d ToPolygon() const;
     [[nodiscard]] std::string DebugString() const;
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

@@ -5,7 +5,7 @@
 
 #include "sdk/Curve3d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API LineCurve3d final : public Curve3d
 {
@@ -88,4 +88,4 @@ private:
     Line3d line_{};
     Intervald parameterRange_{-1.0, 1.0};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

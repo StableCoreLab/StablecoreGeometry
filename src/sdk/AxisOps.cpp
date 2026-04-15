@@ -12,7 +12,7 @@
 #include "sdk/ArcSegment2d.h"
 #include "sdk/LineSegment2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -58,7 +58,7 @@ namespace
 
     const Vector2d direction = segment.endPoint - segment.startPoint;
     const double lengthSquared = direction.LengthSquared();
-    if (lengthSquared <= geometry::kAxisOpsDefaultEpsilon * geometry::kAxisOpsDefaultEpsilon)
+    if (lengthSquared <= Geometry::kAxisOpsDefaultEpsilon * Geometry::kAxisOpsDefaultEpsilon)
     {
         return SegmentProjection2d{
             segment.startPoint,
@@ -75,8 +75,8 @@ namespace
         parameter,
         DistanceSquared(point, projectedPoint),
         clampToSegment ||
-            (rawParameter >= -geometry::kAxisOpsDefaultEpsilon &&
-             rawParameter <= 1.0 + geometry::kAxisOpsDefaultEpsilon)};
+            (rawParameter >= -Geometry::kAxisOpsDefaultEpsilon &&
+             rawParameter <= 1.0 + Geometry::kAxisOpsDefaultEpsilon)};
 }
 
 [[nodiscard]] double ParameterOnArc(const ArcSegment2d& segment, double angle)
@@ -112,7 +112,7 @@ namespace
 
     const Vector2d radial = point - segment.center;
     const double radialLengthSquared = radial.LengthSquared();
-    if (radialLengthSquared <= geometry::kAxisOpsDefaultEpsilon * geometry::kAxisOpsDefaultEpsilon)
+    if (radialLengthSquared <= Geometry::kAxisOpsDefaultEpsilon * Geometry::kAxisOpsDefaultEpsilon)
     {
         const Point2d startPoint = segment.StartPoint();
         return SegmentProjection2d{
@@ -131,15 +131,15 @@ namespace
         parameter,
         DistanceSquared(point, projectedPoint),
         clampToSegment ||
-            (rawParameter >= -geometry::kAxisOpsDefaultEpsilon &&
-             rawParameter <= 1.0 + geometry::kAxisOpsDefaultEpsilon)};
+            (rawParameter >= -Geometry::kAxisOpsDefaultEpsilon &&
+             rawParameter <= 1.0 + Geometry::kAxisOpsDefaultEpsilon)};
 }
 
 [[nodiscard]] Vector2d UnitTangentAt(const LineSegment2d& segment)
 {
     const Vector2d direction = segment.endPoint - segment.startPoint;
     const double length = direction.Length();
-    if (length <= geometry::kAxisOpsDefaultEpsilon)
+    if (length <= Geometry::kAxisOpsDefaultEpsilon)
     {
         return Vector2d{};
     }
@@ -157,7 +157,7 @@ namespace
     const Point2d point = segment.PointAt(parameter);
     Vector2d radial = point - segment.center;
     const double radialLength = radial.Length();
-    if (radialLength <= geometry::kAxisOpsDefaultEpsilon)
+    if (radialLength <= Geometry::kAxisOpsDefaultEpsilon)
     {
         return Vector2d{};
     }
@@ -190,7 +190,7 @@ AxisSample2d SampleAxis(const Segment2d& segment, double parameter)
 AxisSample2d SampleAxisAtLength(const Segment2d& segment, double length, bool clampToSegment)
 {
     const double totalLength = segment.Length();
-    if (totalLength <= geometry::kAxisOpsDefaultEpsilon)
+    if (totalLength <= Geometry::kAxisOpsDefaultEpsilon)
     {
         return SampleAxis(segment, 0.0);
     }
@@ -278,7 +278,7 @@ SegmentTrim2d TrimSegment(const Segment2d& segment, double startParameter, doubl
 
     startParameter = std::clamp(startParameter, 0.0, 1.0);
     endParameter = std::clamp(endParameter, 0.0, 1.0);
-    if (endParameter - startParameter <= geometry::kAxisOpsDefaultEpsilon)
+    if (endParameter - startParameter <= Geometry::kAxisOpsDefaultEpsilon)
     {
         return result;
     }
@@ -340,5 +340,5 @@ SnapResult2d SnapPointToSegments(
 
     return result;
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

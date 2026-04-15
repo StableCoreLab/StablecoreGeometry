@@ -1,6 +1,6 @@
 #include "common/Epsilon.h"
 
-namespace geometry
+namespace Geometry
 {
 const double kSharedTopologyMatchEpsilon = 1e-6;
 const double kLoopCleanupEpsilon = kDefaultEpsilon;
@@ -32,4 +32,4 @@ const double kSearchPolyComparisonEpsilon = 1e-12;
 const double kOffsetRebuildFallbackEpsilon = 1e-8;
 const double kSupportPlaneHoleDistanceWeight = 4.0;
 const double kSupportPlaneOnPlaneEpsilon = 1e-10;
-} // namespace geometry
+} // namespace Geometry

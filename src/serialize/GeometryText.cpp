@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace geometry::serialize
+namespace Geometry::Serialize
 {
 namespace
 {
@@ -60,12 +60,12 @@ template <typename... Ts>
     return iss.eof();
 }
 
-[[nodiscard]] std::string ClosureToken(geometry::sdk::PolylineClosure closure)
+[[nodiscard]] std::string ClosureToken(Geometry::Sdk::PolylineClosure closure)
 {
-    return closure == geometry::sdk::PolylineClosure::Closed ? "closed" : "open";
+    return closure == Geometry::Sdk::PolylineClosure::Closed ? "closed" : "open";
 }
 
-[[nodiscard]] bool ReadClosure(std::istringstream& iss, geometry::sdk::PolylineClosure& closure)
+[[nodiscard]] bool ReadClosure(std::istringstream& iss, Geometry::Sdk::PolylineClosure& closure)
 {
     std::string token;
     if (!(iss >> token))
@@ -75,13 +75,13 @@ template <typename... Ts>
 
     if (token == "open")
     {
-        closure = geometry::sdk::PolylineClosure::Open;
+        closure = Geometry::Sdk::PolylineClosure::Open;
         return true;
     }
 
     if (token == "closed")
     {
-        closure = geometry::sdk::PolylineClosure::Closed;
+        closure = Geometry::Sdk::PolylineClosure::Closed;
         return true;
     }
 
@@ -89,12 +89,12 @@ template <typename... Ts>
 }
 } // namespace
 
-std::string ToText(const sdk::Point2d& value)
+std::string ToText(const Geometry::Sdk::Point2d& value)
 {
     return MakeText("Point2d", value.x, value.y);
 }
 
-bool FromText(std::string_view text, sdk::Point2d& value)
+bool FromText(std::string_view text, Geometry::Sdk::Point2d& value)
 {
     std::istringstream iss{std::string(text)};
     if (!ExpectTag(iss, "Point2d"))
@@ -110,12 +110,12 @@ bool FromText(std::string_view text, sdk::Point2d& value)
     return ExpectEnd(iss);
 }
 
-std::string ToText(const sdk::Vector2d& value)
+std::string ToText(const Geometry::Sdk::Vector2d& value)
 {
     return MakeText("Vector2d", value.x, value.y);
 }
 
-bool FromText(std::string_view text, sdk::Vector2d& value)
+bool FromText(std::string_view text, Geometry::Sdk::Vector2d& value)
 {
     std::istringstream iss{std::string(text)};
     if (!ExpectTag(iss, "Vector2d"))
@@ -131,14 +131,14 @@ bool FromText(std::string_view text, sdk::Vector2d& value)
     return ExpectEnd(iss);
 }
 
-std::string ToText(const sdk::Box2d& value)
+std::string ToText(const Geometry::Sdk::Box2d& value)
 {
-    const sdk::Point2d minPoint = value.MinPoint();
-    const sdk::Point2d maxPoint = value.MaxPoint();
+    const Geometry::Sdk::Point2d minPoint = value.MinPoint();
+    const Geometry::Sdk::Point2d maxPoint = value.MaxPoint();
     return MakeText("Box2d", minPoint.x, minPoint.y, maxPoint.x, maxPoint.y);
 }
 
-bool FromText(std::string_view text, sdk::Box2d& value)
+bool FromText(std::string_view text, Geometry::Sdk::Box2d& value)
 {
     std::istringstream iss{std::string(text)};
     if (!ExpectTag(iss, "Box2d"))
@@ -146,8 +146,8 @@ bool FromText(std::string_view text, sdk::Box2d& value)
         return false;
     }
 
-    sdk::Point2d minPoint{};
-    sdk::Point2d maxPoint{};
+    Geometry::Sdk::Point2d minPoint{};
+    Geometry::Sdk::Point2d maxPoint{};
     if (!ReadDouble(iss, minPoint.x) ||
         !ReadDouble(iss, minPoint.y) ||
         !ReadDouble(iss, maxPoint.x) ||
@@ -156,11 +156,11 @@ bool FromText(std::string_view text, sdk::Box2d& value)
         return false;
     }
 
-    value = sdk::Box2d::FromMinMax(minPoint, maxPoint);
+    value = Geometry::Sdk::Box2d::FromMinMax(minPoint, maxPoint);
     return ExpectEnd(iss);
 }
 
-std::string ToText(const sdk::SegmentProjection2d& value)
+std::string ToText(const Geometry::Sdk::SegmentProjection2d& value)
 {
     return MakeText(
         "SegmentProjection2d",
@@ -171,7 +171,7 @@ std::string ToText(const sdk::SegmentProjection2d& value)
         value.isOnSegment ? 1 : 0);
 }
 
-bool FromText(std::string_view text, sdk::SegmentProjection2d& value)
+bool FromText(std::string_view text, Geometry::Sdk::SegmentProjection2d& value)
 {
     std::istringstream iss{std::string(text)};
     if (!ExpectTag(iss, "SegmentProjection2d"))
@@ -191,7 +191,7 @@ bool FromText(std::string_view text, sdk::SegmentProjection2d& value)
     return ExpectEnd(iss);
 }
 
-std::string ToText(const sdk::ArcSegment2d& value)
+std::string ToText(const Geometry::Sdk::ArcSegment2d& value)
 {
     return MakeText(
         "ArcSegment2d",
@@ -202,7 +202,7 @@ std::string ToText(const sdk::ArcSegment2d& value)
         value.sweepAngle);
 }
 
-bool FromText(std::string_view text, sdk::ArcSegment2d& value)
+bool FromText(std::string_view text, Geometry::Sdk::ArcSegment2d& value)
 {
     std::istringstream iss{std::string(text)};
     if (!ExpectTag(iss, "ArcSegment2d"))
@@ -222,23 +222,23 @@ bool FromText(std::string_view text, sdk::ArcSegment2d& value)
     return ExpectEnd(iss) && value.IsValid();
 }
 
-std::string ToText(const sdk::Polyline2d& value)
+std::string ToText(const Geometry::Sdk::Polyline2d& value)
 {
     std::ostringstream oss;
     oss.setf(std::ios::fmtflags(0), std::ios::floatfield);
     oss << std::setprecision(std::numeric_limits<double>::max_digits10)
-        << "Polyline2d " << ClosureToken(value.IsClosed() ? sdk::PolylineClosure::Closed
-                                                          : sdk::PolylineClosure::Open)
+        << "Polyline2d " << ClosureToken(value.IsClosed() ? Geometry::Sdk::PolylineClosure::Closed
+                                                          : Geometry::Sdk::PolylineClosure::Open)
         << ' ' << value.PointCount();
     for (std::size_t i = 0; i < value.PointCount(); ++i)
     {
-        const sdk::Point2d point = value.PointAt(i);
+        const Geometry::Sdk::Point2d point = value.PointAt(i);
         oss << ' ' << point.x << ' ' << point.y;
     }
     return oss.str();
 }
 
-bool FromText(std::string_view text, sdk::Polyline2d& value)
+bool FromText(std::string_view text, Geometry::Sdk::Polyline2d& value)
 {
     std::istringstream iss{std::string(text)};
     if (!ExpectTag(iss, "Polyline2d"))
@@ -246,14 +246,14 @@ bool FromText(std::string_view text, sdk::Polyline2d& value)
         return false;
     }
 
-    sdk::PolylineClosure closure{};
+    Geometry::Sdk::PolylineClosure closure{};
     std::size_t pointCount = 0;
     if (!ReadClosure(iss, closure) || !(iss >> pointCount))
     {
         return false;
     }
 
-    std::vector<sdk::Point2d> points(pointCount);
+    std::vector<Geometry::Sdk::Point2d> points(pointCount);
     for (std::size_t i = 0; i < pointCount; ++i)
     {
         if (!ReadDouble(iss, points[i].x) || !ReadDouble(iss, points[i].y))
@@ -267,11 +267,11 @@ bool FromText(std::string_view text, sdk::Polyline2d& value)
         return false;
     }
 
-    value = sdk::Polyline2d(std::move(points), closure);
+    value = Geometry::Sdk::Polyline2d(std::move(points), closure);
     return true;
 }
 
-std::string ToText(const sdk::Polygon2d& value)
+std::string ToText(const Geometry::Sdk::Polygon2d& value)
 {
     std::ostringstream oss;
     oss.setf(std::ios::fmtflags(0), std::ios::floatfield);
@@ -284,7 +284,7 @@ std::string ToText(const sdk::Polygon2d& value)
     return oss.str();
 }
 
-bool FromText(std::string_view text, sdk::Polygon2d& value)
+bool FromText(std::string_view text, Geometry::Sdk::Polygon2d& value)
 {
     std::istringstream iss{std::string(text)};
     if (!ExpectTag(iss, "Polygon2d"))
@@ -324,7 +324,7 @@ bool FromText(std::string_view text, sdk::Polygon2d& value)
         outerText += " " + token;
     }
 
-    sdk::Polyline2d outerRing;
+    Geometry::Sdk::Polyline2d outerRing;
     if (!FromText(outerText, outerRing))
     {
         return false;
@@ -340,7 +340,7 @@ bool FromText(std::string_view text, sdk::Polygon2d& value)
         return false;
     }
 
-    std::vector<sdk::Polyline2d> holes;
+    std::vector<Geometry::Sdk::Polyline2d> holes;
     holes.reserve(holeCount);
     for (std::size_t holeIndex = 0; holeIndex < holeCount; ++holeIndex)
     {
@@ -376,7 +376,7 @@ bool FromText(std::string_view text, sdk::Polygon2d& value)
             holeText += " " + token;
         }
 
-        sdk::Polyline2d hole;
+        Geometry::Sdk::Polyline2d hole;
         if (!FromText(holeText, hole))
         {
             return false;
@@ -393,8 +393,8 @@ bool FromText(std::string_view text, sdk::Polygon2d& value)
         return false;
     }
 
-    value = sdk::Polygon2d(std::move(outerRing), std::move(holes));
+    value = Geometry::Sdk::Polygon2d(std::move(outerRing), std::move(holes));
     return value.IsValid();
 }
-} // namespace geometry::serialize
+} // namespace Geometry::Serialize
 

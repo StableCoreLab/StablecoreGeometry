@@ -5,7 +5,7 @@
 #include "sdk/Intersection.h"
 #include "sdk/Projection.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 PointPlaneSide3d LocatePoint(
     const Point3d& point,
@@ -270,4 +270,4 @@ bool IsPerpendicular(
     return std::abs(Dot(first, second)) <= tolerance.angleEpsilon * firstLength * secondLength +
            tolerance.distanceEpsilon;
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

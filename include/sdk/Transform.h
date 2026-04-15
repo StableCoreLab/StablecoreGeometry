@@ -8,7 +8,7 @@
 #include "sdk/Polygon2d.h"
 #include "sdk/Polyline2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 [[nodiscard]] GEOMETRY_API Point2d Translate(const Point2d& point, const Vector2d& offset);
 [[nodiscard]] GEOMETRY_API LineSegment2d Translate(const LineSegment2d& segment, const Vector2d& offset);
@@ -74,4 +74,4 @@ namespace geometry::sdk
     const Polygon2d& polygon,
     const Box2d& region,
     const Vector2d& offset);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

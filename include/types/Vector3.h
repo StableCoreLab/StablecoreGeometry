@@ -6,7 +6,7 @@
 
 #include "types/Point3.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 using VectorLengthType3 = std::conditional_t<std::is_floating_point_v<T>, T, double>;
@@ -118,4 +118,4 @@ template <typename T>
 
 using Vector3d = Vector3<double>;
 using Vector3i = Vector3<int>;
-} // namespace geometry
+} // namespace Geometry

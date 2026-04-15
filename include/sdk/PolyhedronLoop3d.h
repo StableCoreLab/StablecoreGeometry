@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/GeometryTypes.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API PolyhedronLoop3d
 {
@@ -16,7 +16,7 @@ public:
     PolyhedronLoop3d() = default;
     explicit PolyhedronLoop3d(std::vector<Point3d> vertices) : vertices_(std::move(vertices)) {}
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (vertices_.size() < 3)
         {
@@ -79,4 +79,4 @@ public:
 private:
     std::vector<Point3d> vertices_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

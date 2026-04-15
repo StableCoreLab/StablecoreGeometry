@@ -6,7 +6,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/GeometryTypes.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API BrepVertex
 {
@@ -34,4 +34,4 @@ public:
 private:
     Point3d point_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

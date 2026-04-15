@@ -9,7 +9,7 @@
 #include "algorithm/Predicate2.h"
 #include "types/Segment2.h"
 
-namespace geometry
+namespace Geometry
 {
 enum class PolylineClosure
 {

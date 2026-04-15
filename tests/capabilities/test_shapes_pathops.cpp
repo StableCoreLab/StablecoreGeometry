@@ -3,19 +3,19 @@
 #include "sdk/Geometry.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::sdk::BuildMultiPolygonByLines;
-using geometry::sdk::Circle2d;
-using geometry::sdk::CutPolygon;
-using geometry::sdk::Ellipse2d;
-using geometry::sdk::LineSegment2d;
-using geometry::sdk::MultiPolyline2d;
-using geometry::sdk::NormalizePolygonByLines;
-using geometry::sdk::Point2d;
-using geometry::sdk::Polygon2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
-using geometry::sdk::Rectangle2d;
-using geometry::sdk::SubPolyline;
+using Geometry::Sdk::BuildMultiPolygonByLines;
+using Geometry::Sdk::Circle2d;
+using Geometry::Sdk::CutPolygon;
+using Geometry::Sdk::Ellipse2d;
+using Geometry::Sdk::LineSegment2d;
+using Geometry::Sdk::MultiPolyline2d;
+using Geometry::Sdk::NormalizePolygonByLines;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::Polygon2d;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
+using Geometry::Sdk::Rectangle2d;
+using Geometry::Sdk::SubPolyline;
 
 TEST(ShapesPathopsTest, CoversCurrentCapabilities)
 {

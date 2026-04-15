@@ -4,7 +4,7 @@
 
 #include "sdk/Projection.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 double DistanceSquared(const Point2d& lhs, const Point2d& rhs)
 {
@@ -71,4 +71,4 @@ double Distance(const Point2d& point, const Segment2d& segment)
 {
     return std::sqrt(DistanceSquared(point, segment));
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

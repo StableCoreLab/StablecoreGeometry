@@ -8,9 +8,9 @@
 #include "sdk/GeometryTypes.h"
 #include "types/Segment2.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
-using geometry::ArcDirection;
+using Geometry::ArcDirection;
 
 class GEOMETRY_API ArcSegment2d : public Segment2d
 {
@@ -43,7 +43,7 @@ public:
     [[nodiscard]] Box2d Bounds() const override;
     [[nodiscard]] Point2d PointAt(double parameter) const override;
     [[nodiscard]] Point2d PointAtLength(double distanceFromStart, bool clampToSegment = false) const override;
-    [[nodiscard]] bool AlmostEquals(const ArcSegment2d& other, double eps = geometry::kDefaultEpsilon) const;
+    [[nodiscard]] bool AlmostEquals(const ArcSegment2d& other, double eps = Geometry::kDefaultEpsilon) const;
     [[nodiscard]] std::string DebugString() const override;
     [[nodiscard]] std::unique_ptr<Segment2d> Clone() const override;
 
@@ -55,4 +55,4 @@ private:
     [[nodiscard]] bool IsAngleOnArc(double candidateAngle) const;
     [[nodiscard]] Point2d PointAtAngle(double angle) const;
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

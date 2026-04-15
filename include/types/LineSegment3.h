@@ -6,7 +6,7 @@
 #include "types/Box3.h"
 #include "types/Direction3.h"
 
-namespace geometry
+namespace Geometry
 {
 struct LineSegment3d
 {
@@ -79,4 +79,4 @@ struct LineSegment3d
         return stream.str();
     }
 };
-} // namespace geometry
+} // namespace Geometry

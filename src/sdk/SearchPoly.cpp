@@ -13,7 +13,7 @@
 #include "sdk/Relation.h"
 #include "sdk/ShapeOps.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -478,7 +478,7 @@ struct CandidateMetrics2d
     }
 
     std::sort(intervals.begin(), intervals.end(), [](const std::pair<double, double>& left, const std::pair<double, double>& right) {
-        if (std::abs(left.first - right.first) > geometry::kSearchPolyComparisonEpsilon)
+        if (std::abs(left.first - right.first) > Geometry::kSearchPolyComparisonEpsilon)
         {
             return left.first < right.first;
         }
@@ -745,11 +745,11 @@ void AccumulateRingMetrics(
 void RankCandidates(std::vector<SearchPolyCandidate2d>& candidates)
 {
     std::stable_sort(candidates.begin(), candidates.end(), [](const SearchPolyCandidate2d& left, const SearchPolyCandidate2d& right) {
-        if (std::abs(left.branchScore - right.branchScore) > geometry::kSearchPolyComparisonEpsilon)
+        if (std::abs(left.branchScore - right.branchScore) > Geometry::kSearchPolyComparisonEpsilon)
         {
             return left.branchScore > right.branchScore;
         }
-        if (std::abs(left.absoluteArea - right.absoluteArea) > geometry::kSearchPolyComparisonEpsilon)
+        if (std::abs(left.absoluteArea - right.absoluteArea) > Geometry::kSearchPolyComparisonEpsilon)
         {
             return left.absoluteArea > right.absoluteArea;
         }
@@ -800,7 +800,7 @@ void PopulateResultExplanation(
     for (std::size_t index = 1; index < result.candidates.size(); ++index)
     {
         const SearchPolyCandidate2d& candidate = result.candidates[index];
-        if (std::abs(candidate.branchScore - bestCandidate.branchScore) <= geometry::kSearchPolyComparisonEpsilon)
+        if (std::abs(candidate.branchScore - bestCandidate.branchScore) <= Geometry::kSearchPolyComparisonEpsilon)
         {
             ++result.ambiguousTopCandidateCount;
             ambiguousTopPenaltyKinds.push_back(candidate.dominantPenaltyKind);
@@ -939,5 +939,5 @@ std::optional<SearchPolyCandidate2d> SearchPolygonContainingPoint(
 
     return bestCandidate;
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

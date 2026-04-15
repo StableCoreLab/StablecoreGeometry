@@ -6,7 +6,7 @@
 #include "sdk/Results.h"
 #include "sdk/Segment2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 [[nodiscard]] GEOMETRY_API AxisSample2d SampleAxis(const Segment2d& segment, double parameter);
 [[nodiscard]] GEOMETRY_API AxisSample2d SampleAxisAtLength(
@@ -27,4 +27,4 @@ namespace geometry::sdk
     const Point2d& point,
     std::span<const Segment2d* const> segments,
     double maxDistance);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

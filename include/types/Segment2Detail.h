@@ -4,9 +4,9 @@
 #include <cmath>
 #include <type_traits>
 
-namespace geometry
+namespace Geometry
 {
-namespace detail
+namespace Detail
 {
 constexpr double kPi = 3.141592653589793238462643383279502884;
 constexpr double kTwoPi = 2.0 * kPi;
@@ -60,5 +60,5 @@ template <typename T>
         return true;
     }
 }
-} // namespace detail
-} // namespace geometry
+} // namespace Detail
+} // namespace Geometry

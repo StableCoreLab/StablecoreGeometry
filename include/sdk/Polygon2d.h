@@ -9,7 +9,7 @@
 #include "sdk/Polyline2d.h"
 #include "sdk/GeometryTypes.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API Polygon2d
 {
@@ -37,4 +37,4 @@ private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

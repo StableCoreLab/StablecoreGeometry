@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 TriangleMesh Tessellate(const PlaneSurface& surface, std::size_t uSegments, std::size_t vSegments)
 {
@@ -58,4 +58,4 @@ TriangleMesh Tessellate(const PlaneSurface& surface, std::size_t uSegments, std:
 
     return TriangleMesh(std::move(vertices), std::move(triangles));
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

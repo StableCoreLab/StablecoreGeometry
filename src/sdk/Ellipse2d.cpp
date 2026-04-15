@@ -7,7 +7,7 @@
 
 #include "sdk/Polyline2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 Ellipse2d::Ellipse2d(
     const Point2d& center,
@@ -86,4 +86,4 @@ std::string Ellipse2d::DebugString() const
            << ", angleRadians=" << angleRadians << "}";
     return stream.str();
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

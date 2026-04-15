@@ -7,7 +7,7 @@
 #include "sdk/GeometryTypes.h"
 #include "sdk/Segment2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API LineSegment2d : public Segment2d
 {
@@ -30,11 +30,11 @@ public:
     [[nodiscard]] Box2d Bounds() const override;
     [[nodiscard]] Point2d PointAt(double parameter) const override;
     [[nodiscard]] Point2d PointAtLength(double distanceFromStart, bool clampToSegment = false) const override;
-    [[nodiscard]] bool AlmostEquals(const LineSegment2d& other, double eps = geometry::kDefaultEpsilon) const;
+    [[nodiscard]] bool AlmostEquals(const LineSegment2d& other, double eps = Geometry::kDefaultEpsilon) const;
     [[nodiscard]] std::string DebugString() const override;
     [[nodiscard]] std::unique_ptr<Segment2d> Clone() const override;
 
     [[nodiscard]] constexpr bool operator==(const LineSegment2d& other) const = default;
     [[nodiscard]] constexpr bool operator!=(const LineSegment2d& other) const = default;
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

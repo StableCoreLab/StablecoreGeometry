@@ -65,14 +65,14 @@
 
 - status: `done`
 - notes:
-  - 已按当前 `Polyline2 / sdk::Polyline2d / MultiPolyline2d` API 与设计结论重写
+  - 已按当前 `Polyline2 / Geometry::Sdk::Polyline2d / MultiPolyline2d` API 与设计结论重写
   - 已同步 `SegmentCount / VertexCount / VertexAt / StartPoint / EndPoint / Bounds / PointAt / PointAtLength`
 
 ### `docs/polygon-design.md`
 
 - status: `done`
 - notes:
-  - 已按当前 `Polygon2 / sdk::Polygon2d / MultiPolygon2d` API 与设计结论重写
+  - 已按当前 `Polygon2 / Geometry::Sdk::Polygon2d / MultiPolygon2d` API 与设计结论重写
   - 已同步 `OuterRing / HoleCount / HoleAt / Bounds`
 
 ### `docs/archive/box-design.md`

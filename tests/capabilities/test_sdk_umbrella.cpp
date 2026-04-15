@@ -2,21 +2,21 @@
 
 #include "sdk/Geometry.h"
 
-using geometry::sdk::BodyBooleanIssue3d;
-using geometry::sdk::DifferenceBodies;
-using geometry::sdk::IntersectBodies;
-using geometry::sdk::Point2d;
-using geometry::sdk::Point3d;
-using geometry::sdk::Plane;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::PolyhedronFace3d;
-using geometry::sdk::PolyhedronLoop3d;
-using geometry::sdk::SearchPolyIssue2d;
-using geometry::sdk::SearchPolygons;
-using geometry::sdk::UnionBodies;
-using geometry::sdk::Vector3d;
+using Geometry::Sdk::BodyBooleanIssue3d;
+using Geometry::Sdk::DifferenceBodies;
+using Geometry::Sdk::IntersectBodies;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::PolyhedronFace3d;
+using Geometry::Sdk::PolyhedronLoop3d;
+using Geometry::Sdk::SearchPolyIssue2d;
+using Geometry::Sdk::SearchPolygons;
+using Geometry::Sdk::UnionBodies;
+using Geometry::Sdk::Vector3d;
 
 namespace
 {
@@ -90,7 +90,7 @@ namespace
 
 TEST(SdkUmbrellaHeaderTest, GeometryUmbrellaExposesSearchPolyContract)
 {
-    const geometry::sdk::MultiPolyline2d lines{
+    const Geometry::Sdk::MultiPolyline2d lines{
         Polyline2d({Point2d{0.0, 0.0}, Point2d{4.0, 0.0}}, PolylineClosure::Open),
         Polyline2d({Point2d{4.0, 0.0}, Point2d{4.0, 4.0}}, PolylineClosure::Open),
         Polyline2d({Point2d{4.0, 4.0}, Point2d{0.0, 4.0}}, PolylineClosure::Open),

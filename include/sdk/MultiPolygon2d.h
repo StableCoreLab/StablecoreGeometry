@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/Polygon2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API MultiPolygon2d
 {
@@ -44,4 +44,4 @@ public:
 private:
     std::vector<Polygon2d> polygons_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

@@ -3,7 +3,7 @@
 #include <memory>
 #include <sstream>
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 LineSegment2d::LineSegment2d(const Point2d& startPoint, const Point2d& endPoint)
     : startPoint(startPoint), endPoint(endPoint)
@@ -109,4 +109,4 @@ std::unique_ptr<Segment2d> LineSegment2d::Clone() const
 {
     return std::make_unique<LineSegment2d>(*this);
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

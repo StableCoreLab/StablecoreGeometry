@@ -7,7 +7,7 @@
 #include "sdk/PolyhedronBody.h"
 #include "sdk/TriangleMesh.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class MeshConversionIssue3d
 {
@@ -47,4 +47,4 @@ struct GEOMETRY_API PolyhedronMeshConversion3d
 [[nodiscard]] GEOMETRY_API PolyhedronMeshConversion3d ConvertToTriangleMesh(
     const BrepBody& body,
     double eps = 1e-9);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

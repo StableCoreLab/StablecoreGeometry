@@ -7,17 +7,17 @@
 #include "sdk/Validation.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::sdk::LineSegment2d;
-using geometry::sdk::LocatePoint;
-using geometry::sdk::Point2d;
-using geometry::sdk::PointContainment2d;
-using geometry::sdk::Polygon2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
+using Geometry::Sdk::LineSegment2d;
+using Geometry::Sdk::LocatePoint;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::PointContainment2d;
+using Geometry::Sdk::Polygon2d;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
 
 namespace
 {
-double TotalArea(const geometry::sdk::MultiPolygon2d& polygons)
+double TotalArea(const Geometry::Sdk::MultiPolygon2d& polygons)
 {
     double total = 0.0;
     for (std::size_t i = 0; i < polygons.Count(); ++i)
@@ -40,23 +40,23 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
     const Polygon2d square(squareRing);
     ASSERT_EQ(LocatePoint(Point2d{2.0, 2.0}, square), PointContainment2d::Inside);
     ASSERT_EQ(LocatePoint(Point2d{5.0, 2.0}, square), PointContainment2d::Outside);
-    ASSERT_TRUE(geometry::sdk::Validate(square).valid);
+    ASSERT_TRUE(Geometry::Sdk::Validate(square).valid);
 
     const Polyline2d clipRing(
         {Point2d{2.0, 0.0}, Point2d{6.0, 0.0}, Point2d{6.0, 4.0}, Point2d{2.0, 4.0}},
         PolylineClosure::Closed);
     const Polygon2d clip(clipRing);
-    const auto intersection = geometry::sdk::Intersect(square, clip);
+    const auto intersection = Geometry::Sdk::Intersect(square, clip);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(intersection), 8.0, 1e-9);
 
-    const auto united = geometry::sdk::Union(square, clip);
+    const auto united = Geometry::Sdk::Union(square, clip);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(united), 24.0, 1e-9);
 
     const Polyline2d innerRing(
         {Point2d{1.0, 1.0}, Point2d{3.0, 1.0}, Point2d{3.0, 3.0}, Point2d{1.0, 3.0}},
         PolylineClosure::Closed);
     const Polygon2d inner(innerRing);
-    const auto difference = geometry::sdk::Difference(square, inner);
+    const auto difference = Geometry::Sdk::Difference(square, inner);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(difference), 12.0, 1e-9);
 
     const Polygon2d horizontalBar(
@@ -68,11 +68,11 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
             {Point2d{1.0, 0.0}, Point2d{3.0, 0.0}, Point2d{3.0, 4.0}, Point2d{1.0, 4.0}},
             PolylineClosure::Closed));
 
-    const auto crossUnion = geometry::sdk::Union(horizontalBar, verticalBar);
+    const auto crossUnion = Geometry::Sdk::Union(horizontalBar, verticalBar);
     ASSERT_GE(crossUnion.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(crossUnion), 12.0, 1e-9);
 
-    const auto crossDifference = geometry::sdk::Difference(horizontalBar, verticalBar);
+    const auto crossDifference = Geometry::Sdk::Difference(horizontalBar, verticalBar);
     ASSERT_GE(crossDifference.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(crossDifference), 4.0, 1e-9);
 
@@ -85,15 +85,15 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
             {Point2d{2.0, 2.0}, Point2d{4.0, 2.0}, Point2d{4.0, 4.0}, Point2d{2.0, 4.0}},
             PolylineClosure::Closed));
 
-    const auto containedUnion = geometry::sdk::Union(outer, nested);
+    const auto containedUnion = Geometry::Sdk::Union(outer, nested);
     ASSERT_GE(containedUnion.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(containedUnion), 36.0, 1e-9);
 
-    const auto containedIntersection = geometry::sdk::Intersect(outer, nested);
+    const auto containedIntersection = Geometry::Sdk::Intersect(outer, nested);
     ASSERT_GE(containedIntersection.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(containedIntersection), 4.0, 1e-9);
 
-    const auto containedDifference = geometry::sdk::Difference(outer, nested);
+    const auto containedDifference = Geometry::Sdk::Difference(outer, nested);
     ASSERT_GE(containedDifference.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(containedDifference), 32.0, 1e-9);
 
@@ -105,9 +105,9 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
         Polyline2d(
             {Point2d{2.0, 0.0}, Point2d{6.0, 0.0}, Point2d{6.0, 2.0}, Point2d{2.0, 2.0}},
             PolylineClosure::Closed));
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(overlapStripA, overlapStripB)), 4.0, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(overlapStripA, overlapStripB)), 12.0, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(overlapStripA, overlapStripB)), 4.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Intersect(overlapStripA, overlapStripB)), 4.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Union(overlapStripA, overlapStripB)), 12.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Difference(overlapStripA, overlapStripB)), 4.0, 1e-9);
 
     const Polygon2d overlapFamilyA(
         Polyline2d(
@@ -117,9 +117,9 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
         Polyline2d(
             {Point2d{3.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 3.0}, Point2d{6.0, 3.0}, Point2d{6.0, 5.0}, Point2d{3.0, 5.0}},
             PolylineClosure::Closed));
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(overlapFamilyA, overlapFamilyB)), 14.0, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(overlapFamilyA, overlapFamilyB)), 39.0, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(overlapFamilyA, overlapFamilyB)), 12.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Intersect(overlapFamilyA, overlapFamilyB)), 14.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Union(overlapFamilyA, overlapFamilyB)), 39.0, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Difference(overlapFamilyA, overlapFamilyB)), 12.0, 1e-9);
 
     const Polygon2d nearDegenerateOverlapA(
         Polyline2d(
@@ -129,9 +129,9 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
         Polyline2d(
             {Point2d{3.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 2.000001}, Point2d{6.0, 2.000001}, Point2d{6.0, 4.0}, Point2d{3.0, 4.0}},
             PolylineClosure::Closed));
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(nearDegenerateOverlapA, nearDegenerateOverlapB)), 10.000002, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(nearDegenerateOverlapA, nearDegenerateOverlapB)), 26.000007, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(nearDegenerateOverlapA, nearDegenerateOverlapB)), 6.000003, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Intersect(nearDegenerateOverlapA, nearDegenerateOverlapB)), 10.000002, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Union(nearDegenerateOverlapA, nearDegenerateOverlapB)), 26.000007, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Difference(nearDegenerateOverlapA, nearDegenerateOverlapB)), 6.000003, 1e-9);
 
     const Polygon2d ultraThinOverlapA(
         Polyline2d(
@@ -141,22 +141,22 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
         Polyline2d(
             {Point2d{3.0, 0.0}, Point2d{10.0, 0.0}, Point2d{10.0, 2.00000001}, Point2d{6.0, 2.00000001}, Point2d{6.0, 4.0}, Point2d{3.0, 4.0}},
             PolylineClosure::Closed));
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(ultraThinOverlapA, ultraThinOverlapB)), 10.00000002, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(ultraThinOverlapA, ultraThinOverlapB)), 26.00000007, 1e-9);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(ultraThinOverlapA, ultraThinOverlapB)), 6.00000003, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Intersect(ultraThinOverlapA, ultraThinOverlapB)), 10.00000002, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Union(ultraThinOverlapA, ultraThinOverlapB)), 26.00000007, 1e-9);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Difference(ultraThinOverlapA, ultraThinOverlapB)), 6.00000003, 1e-9);
 
-    const auto equalIntersection = geometry::sdk::Intersect(square, square);
+    const auto equalIntersection = Geometry::Sdk::Intersect(square, square);
     ASSERT_GE(equalIntersection.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(equalIntersection), 16.0, 1e-9);
 
-    const auto equalDifference = geometry::sdk::Difference(square, square);
+    const auto equalDifference = Geometry::Sdk::Difference(square, square);
     ASSERT_EQ(equalDifference.Count(), 0);
 
     const Polygon2d disjointOther(
         Polyline2d(
             {Point2d{10.0, 0.0}, Point2d{12.0, 0.0}, Point2d{12.0, 2.0}, Point2d{10.0, 2.0}},
             PolylineClosure::Closed));
-    const auto disjointUnion = geometry::sdk::Union(square, disjointOther);
+    const auto disjointUnion = Geometry::Sdk::Union(square, disjointOther);
     ASSERT_GE(disjointUnion.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(disjointUnion), 20.0, 1e-9);
 
@@ -164,7 +164,7 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
         Polyline2d(
             {Point2d{4.0, 1.0}, Point2d{6.0, 1.0}, Point2d{6.0, 3.0}, Point2d{4.0, 3.0}},
             PolylineClosure::Closed));
-    const auto touchingDifference = geometry::sdk::Difference(square, edgeTouch);
+    const auto touchingDifference = Geometry::Sdk::Difference(square, edgeTouch);
     ASSERT_GE(touchingDifference.Count(), 1);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(touchingDifference), 16.0, 1e-9);
 
@@ -184,15 +184,15 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
             {Point2d{2.0, -1.0}, Point2d{8.0, -1.0}, Point2d{8.0, 3.0}, Point2d{2.0, 3.0}},
             PolylineClosure::Closed));
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Intersect(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
+        TotalArea(Geometry::Sdk::Intersect(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
         12.0,
         1e-8);
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Union(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
+        TotalArea(Geometry::Sdk::Union(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
         36.0,
         1e-8);
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Difference(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
+        TotalArea(Geometry::Sdk::Difference(duplicateEdgeFamilyA, duplicateEdgeFamilyB)),
         12.0,
         1e-8);
 
@@ -217,15 +217,15 @@ TEST(RelationBooleanTest, CoversCurrentCapabilities)
              Point2d{3.0, 2.000000001}},
             PolylineClosure::Closed));
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Intersect(repeatedCollinearChainA, repeatedCollinearChainB)),
+        TotalArea(Geometry::Sdk::Intersect(repeatedCollinearChainA, repeatedCollinearChainB)),
         6.000000003,
         1e-8);
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Union(repeatedCollinearChainA, repeatedCollinearChainB)),
+        TotalArea(Geometry::Sdk::Union(repeatedCollinearChainA, repeatedCollinearChainB)),
         24.0,
         1e-8);
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Difference(repeatedCollinearChainA, repeatedCollinearChainB)),
+        TotalArea(Geometry::Sdk::Difference(repeatedCollinearChainA, repeatedCollinearChainB)),
         11.999999997,
         1e-8);
 }
@@ -254,19 +254,19 @@ TEST(RelationBooleanTest, HandlesHigherDegreeRepeatedCollinearFamilyOverlap)
             {Point2d{3.0, -1.0}, Point2d{5.0, -1.0}, Point2d{5.0, 5.0}, Point2d{3.0, 5.0}},
             PolylineClosure::Closed));
 
-    ASSERT_TRUE(geometry::sdk::Validate(repeatedFamilyA).valid);
-    ASSERT_TRUE(geometry::sdk::Validate(repeatedFamilyB).valid);
+    ASSERT_TRUE(Geometry::Sdk::Validate(repeatedFamilyA).valid);
+    ASSERT_TRUE(Geometry::Sdk::Validate(repeatedFamilyB).valid);
 
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Intersect(repeatedFamilyA, repeatedFamilyB)),
+        TotalArea(Geometry::Sdk::Intersect(repeatedFamilyA, repeatedFamilyB)),
         8.0 - delta,
         1e-8);
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Union(repeatedFamilyA, repeatedFamilyB)),
+        TotalArea(Geometry::Sdk::Union(repeatedFamilyA, repeatedFamilyB)),
         28.0 - delta,
         1e-8);
     GEOMETRY_TEST_ASSERT_NEAR(
-        TotalArea(geometry::sdk::Difference(repeatedFamilyA, repeatedFamilyB)),
+        TotalArea(Geometry::Sdk::Difference(repeatedFamilyA, repeatedFamilyB)),
         16.0 - delta,
         1e-8);
 }
@@ -294,12 +294,12 @@ TEST(RelationBooleanTest, HandlesNearDegenerateIntersectionClusters)
              Point2d{3.0, 9.0}},
             PolylineClosure::Closed));
 
-    ASSERT_TRUE(geometry::sdk::Validate(clusterA).valid);
-    ASSERT_TRUE(geometry::sdk::Validate(clusterB).valid);
+    ASSERT_TRUE(Geometry::Sdk::Validate(clusterA).valid);
+    ASSERT_TRUE(Geometry::Sdk::Validate(clusterB).valid);
 
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(clusterA, clusterB)), 16.0, 1e-8);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(clusterA, clusterB)), 68.0, 1e-8);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(clusterA, clusterB)), 48.0, 1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Intersect(clusterA, clusterB)), 16.0, 1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Union(clusterA, clusterB)), 68.0, 1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Difference(clusterA, clusterB)), 48.0, 1e-8);
 }
 
 TEST(RelationBooleanTest, HandlesBelowToleranceArrangementDegeneracies)
@@ -325,10 +325,10 @@ TEST(RelationBooleanTest, HandlesBelowToleranceArrangementDegeneracies)
              Point2d{3.0, 4.0}},
             PolylineClosure::Closed));
 
-    ASSERT_GE(geometry::sdk::Intersect(first, second).Count(), 1);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Intersect(first, second)), 10.0, 1e-8);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Union(first, second)), 26.0, 1e-8);
-    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(geometry::sdk::Difference(first, second)), 6.0, 1e-8);
+    ASSERT_GE(Geometry::Sdk::Intersect(first, second).Count(), 1);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Intersect(first, second)), 10.0, 1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Union(first, second)), 26.0, 1e-8);
+    GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Geometry::Sdk::Difference(first, second)), 6.0, 1e-8);
 }
 
 

@@ -7,7 +7,7 @@
 #include <functional>
 #include <unordered_map>
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -517,4 +517,4 @@ std::vector<MeshShell3d> ComputeMeshShells(const TriangleMesh& mesh)
 
     return shells;
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

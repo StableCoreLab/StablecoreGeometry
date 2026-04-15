@@ -2,16 +2,16 @@
 
 #include "sdk/Geometry.h"
 
-namespace geometry::test
+namespace Geometry::Test
 {
-inline geometry::sdk::PolyhedronBody BuildUnitCubeBody()
+inline Geometry::Sdk::PolyhedronBody BuildUnitCubeBody()
 {
-    using geometry::sdk::Plane;
-    using geometry::sdk::Point3d;
-    using geometry::sdk::PolyhedronBody;
-    using geometry::sdk::PolyhedronFace3d;
-    using geometry::sdk::PolyhedronLoop3d;
-    using geometry::sdk::Vector3d;
+    using Geometry::Sdk::Plane;
+    using Geometry::Sdk::Point3d;
+    using Geometry::Sdk::PolyhedronBody;
+    using Geometry::Sdk::PolyhedronFace3d;
+    using Geometry::Sdk::PolyhedronLoop3d;
+    using Geometry::Sdk::Vector3d;
 
     return PolyhedronBody(
         {
@@ -71,4 +71,4 @@ inline geometry::sdk::PolyhedronBody BuildUnitCubeBody()
                     })),
         });
 }
-} // namespace geometry::test
+} // namespace Geometry::Test

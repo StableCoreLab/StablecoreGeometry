@@ -9,7 +9,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/PolyhedronLoop3d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API PolyhedronFace3d
 {
@@ -21,7 +21,7 @@ public:
     {
     }
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (!supportPlane_.IsValid(eps) || !outerLoop_.IsValid(eps))
         {
@@ -100,4 +100,4 @@ private:
     PolyhedronLoop3d outerLoop_{};
     std::vector<PolyhedronLoop3d> holes_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

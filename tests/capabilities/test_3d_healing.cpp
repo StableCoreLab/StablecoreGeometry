@@ -4,27 +4,27 @@
 #include "sdk/Geometry.h"
 #include "support/Fixtures3d.h"
 
-using geometry::sdk::Heal;
-using geometry::sdk::HealingIssue3d;
-using geometry::sdk::HealingPolicy3d;
-using geometry::sdk::Line3d;
-using geometry::sdk::LineCurve3d;
-using geometry::sdk::Plane;
-using geometry::sdk::PlaneSurface;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::PolyhedronHealing3d;
-using geometry::sdk::Point3d;
-using geometry::sdk::Vector3d;
-using geometry::sdk::BrepBody;
-using geometry::sdk::BrepCoedge;
-using geometry::sdk::BrepEdge;
-using geometry::sdk::BrepFace;
-using geometry::sdk::BrepLoop;
-using geometry::sdk::BrepShell;
-using geometry::sdk::BrepVertex;
-using geometry::sdk::BrepHealing3d;
-using geometry::sdk::Intervald;
-using geometry::sdk::Surface;
+using Geometry::Sdk::Heal;
+using Geometry::Sdk::HealingIssue3d;
+using Geometry::Sdk::HealingPolicy3d;
+using Geometry::Sdk::Line3d;
+using Geometry::Sdk::LineCurve3d;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::PlaneSurface;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::PolyhedronHealing3d;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::Vector3d;
+using Geometry::Sdk::BrepBody;
+using Geometry::Sdk::BrepCoedge;
+using Geometry::Sdk::BrepEdge;
+using Geometry::Sdk::BrepFace;
+using Geometry::Sdk::BrepLoop;
+using Geometry::Sdk::BrepShell;
+using Geometry::Sdk::BrepVertex;
+using Geometry::Sdk::BrepHealing3d;
+using Geometry::Sdk::Intervald;
+using Geometry::Sdk::Surface;
 
 // Demonstrates that the conservative healing pass preserves an already-valid
 // PolyhedronBody without altering face count or validity.
@@ -32,7 +32,7 @@ using geometry::sdk::Surface;
 // "multi-step mesh/body joint healing" remain open gaps.
 TEST(Healing3dCapabilityTest, UnitCubePolyhedronBodyHealingPreservesAllSixFaces)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
     ASSERT_EQ(cubeBody.FaceCount(), 6);
 
@@ -190,7 +190,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableSingleFaceShel
     ASSERT_TRUE(openBody.IsValid());
     ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
-    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(openBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -246,7 +246,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableMultiFaceOpenS
     ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
     ASSERT_EQ(openBody.FaceCount(), 2);
 
-    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(openBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 1);
@@ -299,7 +299,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseSharedEdgeOpenSheet)
     ASSERT_TRUE(openBody.IsValid());
     ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
-    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(openBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -366,7 +366,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapSharedEdgeHoledShel
     ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
     ASSERT_EQ(openBody.FaceCount(), 2);
 
-    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(openBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -455,7 +455,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapSharedEdgeShellInsi
     ASSERT_TRUE(mixedBody.ShellAt(0).IsClosed());
     ASSERT_FALSE(mixedBody.ShellAt(1).IsClosed());
 
-    const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(mixedBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -571,7 +571,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanBoundaryCapTwoSharedEdgeShells
     ASSERT_FALSE(mixedBody.ShellAt(1).IsClosed());
     ASSERT_FALSE(mixedBody.ShellAt(2).IsClosed());
 
-    const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(mixedBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -679,7 +679,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSkipsCompetingSharedBoundaryEdgeE
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 3);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -789,7 +789,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSkipsGeometricallyCoincidentBound
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 3);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -875,7 +875,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSkipsPartiallyOverlappedBoundaryL
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 2);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -980,7 +980,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentShellWhileSkippi
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 3);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -1081,7 +1081,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingKeepsClosedShellWhileSkippingPart
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 3);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -1206,7 +1206,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentAndVertexTouchSh
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 4);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -1296,7 +1296,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesVertexTouchingEligibleShare
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 2);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -1401,7 +1401,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingKeepsCompetingPairOpenButClosesVe
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 3);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -1528,7 +1528,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesIndependentAndVertexTouchSh
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 4);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -1653,7 +1653,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingKeepsClosedShellAndCompetingPairW
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.ShellCount(), 4);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -1715,7 +1715,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCanCloseRecoverableHoledOpenShell
     ASSERT_TRUE(openBody.IsValid());
     ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
-    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(openBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 1);
@@ -1768,7 +1768,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingCompositeHoledOpenShellWithMissin
     ASSERT_TRUE(openBody.IsValid());
     ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
 
-    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(openBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 1);
@@ -1831,7 +1831,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingClosesMultipleOpenShells)
     ASSERT_FALSE(openBody.ShellAt(0).IsClosed());
     ASSERT_FALSE(openBody.ShellAt(1).IsClosed());
 
-    const BrepHealing3d healed = Heal(openBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(openBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 2);
@@ -1900,7 +1900,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingPreservesClosedShellAndClosesOpen
     ASSERT_FALSE(mixedBody.ShellAt(1).IsClosed());
     ASSERT_EQ(mixedBody.FaceCount(), 3);
 
-    const BrepHealing3d healed = Heal(mixedBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(mixedBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 2);
@@ -1965,7 +1965,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingPartiallyRepairsMixedOpenShells)
     ASSERT_FALSE(mixedOpenBody.ShellAt(1).IsClosed());
     ASSERT_EQ(mixedOpenBody.FaceCount(), 2);
 
-    const BrepHealing3d healed = Heal(mixedOpenBody, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(mixedOpenBody, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 2);
@@ -2021,7 +2021,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingRejectsNonPlanarSharedEdgeShellFo
     ASSERT_FALSE(body.ShellAt(0).IsClosed());
     ASSERT_EQ(body.ShellAt(0).FaceCount(), 2);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_EQ(healed.issue, HealingIssue3d::None);
     ASSERT_TRUE(healed.body.IsValid());
@@ -2110,7 +2110,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellMixedDeterministicBehav
     ASSERT_FALSE(body.ShellAt(2).IsClosed());
     ASSERT_EQ(body.FaceCount(), 4);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2196,7 +2196,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellMixedWithEligibleTrimBa
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2291,7 +2291,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellWithEligibleMultiFaceOp
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.FaceCount(), 5);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2386,7 +2386,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellWithEligibleHoledShellA
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2496,7 +2496,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceHoledM
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2607,7 +2607,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceBothTr
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2721,7 +2721,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingThreeShellEligibleMultiFaceHoledS
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2819,7 +2819,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingMixedSupportMismatchWithIneligibl
     ASSERT_TRUE(body.IsValid());
     ASSERT_EQ(body.FaceCount(), 5);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -2916,7 +2916,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingMixedSupportMismatchWithTrimBackf
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -3027,7 +3027,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSupportMismatchHoledEligibleWithI
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -3151,7 +3151,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSupportMismatchEligibleMultiFaceM
         });
     ASSERT_TRUE(body.IsValid());
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 3);
@@ -3426,7 +3426,7 @@ TEST(Healing3dCapabilityTest, AggressiveFourShellTwoEligibleOneIneligibleDetermi
     ASSERT_FALSE(body.ShellAt(3).IsClosed());
     ASSERT_EQ(body.FaceCount(), 5);
 
-    const BrepHealing3d healed = Heal(body, geometry::sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
+    const BrepHealing3d healed = Heal(body, Geometry::Sdk::GeometryTolerance3d{}, HealingPolicy3d::Aggressive);
     ASSERT_TRUE(healed.success);
     ASSERT_TRUE(healed.body.IsValid());
     ASSERT_EQ(healed.body.ShellCount(), 4);

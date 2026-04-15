@@ -6,7 +6,7 @@
 #include "sdk/Polyline2d.h"
 #include "sdk/Surface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API CurveOnSurface
 {
@@ -72,4 +72,4 @@ private:
     std::shared_ptr<Surface> supportSurface_{};
     Polyline2d uvCurve_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

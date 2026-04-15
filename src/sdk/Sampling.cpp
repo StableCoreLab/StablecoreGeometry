@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 std::vector<Point2d> Sample(const LineSegment2d& segment, std::size_t partCount)
 {
@@ -62,4 +62,4 @@ std::vector<Point2d> SampleByMaxAngle(const ArcSegment2d& segment, double maxAng
         static_cast<std::size_t>(std::ceil(std::abs(segment.sweepAngle) / maxAngleRadians)));
     return Sample(segment, parts);
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

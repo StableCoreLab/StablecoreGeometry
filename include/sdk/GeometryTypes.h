@@ -23,23 +23,50 @@
 #include "types/Vector2.h"
 #include "types/Vector3.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
-using geometry::Box2d;
-using geometry::Box3d;
-using geometry::Direction3d;
-using geometry::Intervald;
-using geometry::Line3d;
-using geometry::LineSegment3d;
-using geometry::Matrix3d;
-using geometry::Plane;
-using geometry::Point2d;
-using geometry::Point3d;
-using geometry::Ray3d;
-using geometry::Transform3d;
-using geometry::Triangle3d;
-using geometry::Vector2d;
-using geometry::Vector3d;
+class ISCPolyline2d;
+class ISCPolygon2d;
+class SCSegment2d;
+class SCLineSegment2d;
+class SCArcSegment2d;
+class SCCircle2d;
+class SCCurve3d;
+class SCMultiPolyline2d;
+class SCMultiPolygon2d;
+enum class ISCPolylineClosure;
+struct CurveEval3d;
+
+using Geometry::Box2d;
+using Geometry::Box3d;
+using Geometry::Direction3d;
+using Geometry::Intervald;
+using Geometry::Line3d;
+using Geometry::LineSegment3d;
+using Geometry::Matrix3d;
+using Geometry::Plane;
+using Geometry::Point2d;
+using Geometry::Point3d;
+using Geometry::Ray3d;
+using Geometry::Transform3d;
+using Geometry::Triangle3d;
+using Geometry::Vector2d;
+using Geometry::Vector3d;
+using SCBox2d = Box2d;
+using SCBox3d = Box3d;
+using SCDirection3d = Direction3d;
+using SCCurveEval3d = CurveEval3d;
+using SCIntervald = Intervald;
+using SCLine3d = Line3d;
+using SCLineSegment3d = LineSegment3d;
+using SCPlane = Plane;
+using SCPoint2d = Point2d;
+using SCPoint3d = Point3d;
+using SCRay3d = Ray3d;
+using SCTransform3d = Transform3d;
+using SCTriangle3d = Triangle3d;
+using SCVector2d = Vector2d;
+using SCVector3d = Vector3d;
 
 struct GEOMETRY_API SegmentProjection2d
 {
@@ -56,7 +83,7 @@ struct GEOMETRY_API SegmentProjection2d
 
     [[nodiscard]] bool AlmostEquals(
         const SegmentProjection2d& other,
-        double eps = geometry::kDefaultEpsilon) const
+        double eps = Geometry::kDefaultEpsilon) const
     {
         return point.AlmostEquals(other.point, eps) &&
                std::abs(parameter - other.parameter) <= eps &&
@@ -77,10 +104,10 @@ struct GEOMETRY_API SegmentProjection2d
 
 struct GEOMETRY_API GeometryTolerance3d
 {
-    double distanceEpsilon{geometry::kDefaultEpsilon};
-    double angleEpsilon{geometry::kDefaultEpsilon};
-    double parameterEpsilon{geometry::kDefaultEpsilon};
-    double boxPadding{geometry::kDefaultEpsilon};
+    double distanceEpsilon{Geometry::kDefaultEpsilon};
+    double angleEpsilon{Geometry::kDefaultEpsilon};
+    double parameterEpsilon{Geometry::kDefaultEpsilon};
+    double boxPadding{Geometry::kDefaultEpsilon};
 
     [[nodiscard]] bool IsValid() const
     {
@@ -574,7 +601,7 @@ struct GEOMETRY_API SurfaceEval3d
     Vector3d normal{};
     int derivativeOrder{0};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (!point.IsValid() || derivativeOrder < 0 || derivativeOrder > 1)
         {
@@ -598,4 +625,21 @@ struct GEOMETRY_API SurfaceEval3d
     }
 };
 
-} // namespace geometry::sdk
+using SCGeometryContext3d = GeometryContext3d;
+using SCGeometryTolerance3d = GeometryTolerance3d;
+
+} // namespace Geometry::Sdk
+
+namespace Geometry
+{
+using ISCPolylineClosure = Sdk::ISCPolylineClosure;
+using ISCPolyline2d = Sdk::ISCPolyline2d;
+using ISCPolygon2d = Sdk::ISCPolygon2d;
+using SCSegment2d = Sdk::SCSegment2d;
+using SCLineSegment2d = Sdk::SCLineSegment2d;
+using SCArcSegment2d = Sdk::SCArcSegment2d;
+using SCCircle2d = Sdk::SCCircle2d;
+using SCCurve3d = Sdk::SCCurve3d;
+using SCMultiPolyline2d = Sdk::SCMultiPolyline2d;
+using SCMultiPolygon2d = Sdk::SCMultiPolygon2d;
+} // namespace Geometry

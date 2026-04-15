@@ -6,7 +6,7 @@
 #include "sdk/GeometryTypes.h"
 #include "sdk/Polygon2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API Ellipse2d
 {
@@ -31,4 +31,4 @@ public:
     [[nodiscard]] Polygon2d ToPolygon(std::size_t segmentCount = 128) const;
     [[nodiscard]] std::string DebugString() const;
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

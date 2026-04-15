@@ -2,10 +2,10 @@
 
 #include "sdk/Geometry.h"
 
-using geometry::sdk::BrepBody;
-using geometry::sdk::Heal;
-using geometry::sdk::MeshHealing3d;
-using geometry::sdk::TriangleMesh;
+using Geometry::Sdk::BrepBody;
+using Geometry::Sdk::Heal;
+using Geometry::Sdk::MeshHealing3d;
+using Geometry::Sdk::TriangleMesh;
 
 TEST(Healing3dGapTest, AggressiveShellRepairPolicyRemainsOpen)
 {

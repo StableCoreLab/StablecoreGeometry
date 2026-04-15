@@ -5,20 +5,20 @@
 
 #include "sdk/Geometry.h"
 
-using geometry::Point2d;
-using geometry::sdk::ArcSegment2d;
-using geometry::sdk::Box2d;
-using geometry::sdk::BoxTree2d;
-using geometry::sdk::KDTree2d;
-using geometry::sdk::SegmentSearch2d;
-using geometry::sdk::LineSegment2d;
-using geometry::sdk::MultiPolygon2d;
-using geometry::sdk::MultiPolyline2d;
-using geometry::sdk::Polygon2d;
-using geometry::sdk::PolygonContainment2d;
-using geometry::sdk::PolygonTopology2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
+using Geometry::Point2d;
+using Geometry::Sdk::ArcSegment2d;
+using Geometry::Sdk::Box2d;
+using Geometry::Sdk::BoxTree2d;
+using Geometry::Sdk::KDTree2d;
+using Geometry::Sdk::SegmentSearch2d;
+using Geometry::Sdk::LineSegment2d;
+using Geometry::Sdk::MultiPolygon2d;
+using Geometry::Sdk::MultiPolyline2d;
+using Geometry::Sdk::Polygon2d;
+using Geometry::Sdk::PolygonContainment2d;
+using Geometry::Sdk::PolygonTopology2d;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
 
 namespace
 {
@@ -52,12 +52,12 @@ TEST(SdkMultigeometryTest, CoversCurrentCapabilities)
     ASSERT_TRUE(multiPolygon.IsValid());
     ASSERT_EQ(multiPolygon.HoleCount(), 0);
 
-    ASSERT_TRUE(geometry::sdk::ContainsPoint(outerPolygon, Point2d{0.5, 0.5}));
-    ASSERT_FALSE(geometry::sdk::ContainsPoint(outerPolygon, Point2d{8.5, 8.5}));
-    ASSERT_TRUE(geometry::sdk::Contains(outerPolygon, innerPolygon));
-    ASSERT_EQ(geometry::sdk::Relate(outerPolygon, innerPolygon), PolygonContainment2d::FirstContainsSecond);
+    ASSERT_TRUE(Geometry::Sdk::ContainsPoint(outerPolygon, Point2d{0.5, 0.5}));
+    ASSERT_FALSE(Geometry::Sdk::ContainsPoint(outerPolygon, Point2d{8.5, 8.5}));
+    ASSERT_TRUE(Geometry::Sdk::Contains(outerPolygon, innerPolygon));
+    ASSERT_EQ(Geometry::Sdk::Relate(outerPolygon, innerPolygon), PolygonContainment2d::FirstContainsSecond);
 
-    PolygonTopology2d topology = geometry::sdk::BuildPolygonTopology(multiPolygon);
+    PolygonTopology2d topology = Geometry::Sdk::BuildPolygonTopology(multiPolygon);
     ASSERT_EQ(topology.Count(), 3);
     ASSERT_EQ(topology.Roots().size(), 2);
     ASSERT_EQ(topology.ParentOf(1), 0);

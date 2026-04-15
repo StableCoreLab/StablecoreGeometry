@@ -7,7 +7,7 @@
 #include "sdk/Polygon2d.h"
 #include "sdk/Polyline2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 struct GEOMETRY_API PolygonCutResult2d
 {
@@ -33,4 +33,4 @@ struct GEOMETRY_API PolygonCutResult2d
 [[nodiscard]] GEOMETRY_API Polygon2d NormalizePolygonByLines(
     const Polygon2d& polygon,
     double eps = 1e-9);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

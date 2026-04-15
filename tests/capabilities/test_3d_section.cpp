@@ -6,19 +6,19 @@
 #include "sdk/Geometry.h"
 #include "support/Fixtures3d.h"
 
-using geometry::sdk::BuildSectionComponents;
-using geometry::sdk::BuildSectionTopology;
-using geometry::sdk::ClassifySectionContent;
-using geometry::sdk::ConvertToBrepBody;
-using geometry::sdk::BrepConversionIssue3d;
-using geometry::sdk::Plane;
-using geometry::sdk::Point3d;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::PolyhedronFace3d;
-using geometry::sdk::PolyhedronLoop3d;
-using geometry::sdk::Section;
-using geometry::sdk::SectionContentKind3d;
-using geometry::sdk::Vector3d;
+using Geometry::Sdk::BuildSectionComponents;
+using Geometry::Sdk::BuildSectionTopology;
+using Geometry::Sdk::ClassifySectionContent;
+using Geometry::Sdk::ConvertToBrepBody;
+using Geometry::Sdk::BrepConversionIssue3d;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::PolyhedronFace3d;
+using Geometry::Sdk::PolyhedronLoop3d;
+using Geometry::Sdk::Section;
+using Geometry::Sdk::SectionContentKind3d;
+using Geometry::Sdk::Vector3d;
 
 namespace
 {
@@ -118,7 +118,7 @@ PolyhedronFace3d TranslateFace(const PolyhedronFace3d& face, const Vector3d& del
 
 PolyhedronBody BuildTwoSeparatedUnitCubesBody()
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = first.Faces();
 
     const Vector3d delta{3.0, 0.0, 0.0};
@@ -135,7 +135,7 @@ PolyhedronBody BuildMixedCoplanarFrameAndIntersectingCubeBody()
     const PolyhedronBody frame = BuildCoplanarFrameFacesBody();
     std::vector<PolyhedronFace3d> faces = frame.Faces();
 
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     const Vector3d delta{5.0, 0.0, -0.5};
     for (const PolyhedronFace3d& face : cube.Faces())
     {
@@ -147,7 +147,7 @@ PolyhedronBody BuildMixedCoplanarFrameAndIntersectingCubeBody()
 
 PolyhedronBody BuildMixedAreaAndOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -164,7 +164,7 @@ PolyhedronBody BuildMixedAreaAndOpenSectionBody()
 
 PolyhedronBody BuildVertexAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -181,7 +181,7 @@ PolyhedronBody BuildVertexAttachedOpenSectionBody()
 
 PolyhedronBody BuildEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -198,7 +198,7 @@ PolyhedronBody BuildEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildMixedCoplanarAdjacentAndNonPlanarSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -215,7 +215,7 @@ PolyhedronBody BuildMixedCoplanarAdjacentAndNonPlanarSectionBody()
 
 PolyhedronBody BuildMixedCoplanarStripAndNonPlanarSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -241,7 +241,7 @@ PolyhedronBody BuildMixedCoplanarStripAndNonPlanarSectionBody()
 
 PolyhedronBody BuildMixedCoplanarStripAndEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -276,7 +276,7 @@ PolyhedronBody BuildMixedCoplanarStripAndEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildMixedCoplanarStripAndVertexAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -311,7 +311,7 @@ PolyhedronBody BuildMixedCoplanarStripAndVertexAttachedOpenSectionBody()
 
 PolyhedronBody BuildMixedCoplanarStripAndDetachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -346,7 +346,7 @@ PolyhedronBody BuildMixedCoplanarStripAndDetachedOpenSectionBody()
 
 PolyhedronBody BuildMixedCoplanarStripWithVertexAndEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -390,7 +390,7 @@ PolyhedronBody BuildMixedCoplanarStripWithVertexAndEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildMixedCoplanarStripWithDetachedVertexAndEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -443,7 +443,7 @@ PolyhedronBody BuildMixedCoplanarStripWithDetachedVertexAndEdgeAttachedOpenSecti
 
 PolyhedronBody BuildTwoEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -469,7 +469,7 @@ PolyhedronBody BuildTwoEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildVertexAndEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -495,7 +495,7 @@ PolyhedronBody BuildVertexAndEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildDetachedVertexAndEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -530,7 +530,7 @@ PolyhedronBody BuildDetachedVertexAndEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildDetachedLeftAndEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -556,7 +556,7 @@ PolyhedronBody BuildDetachedLeftAndEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildDetachedAndTwoEdgeAttachedOpenSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -591,7 +591,7 @@ PolyhedronBody BuildDetachedAndTwoEdgeAttachedOpenSectionBody()
 
 PolyhedronBody BuildNonPlanarLoopWithInteriorOpenSpurSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -608,7 +608,7 @@ PolyhedronBody BuildNonPlanarLoopWithInteriorOpenSpurSectionBody()
 
 PolyhedronBody BuildLCornerCoplanarPatchAndNonPlanarSectionBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     faces.emplace_back(
@@ -644,7 +644,7 @@ PolyhedronBody BuildMixedMergedHoleAndAdjacentNonPlanarSectionBody()
         faces.push_back(TranslateFace(face, frameDelta));
     }
 
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     const Vector3d cubeDelta{3.0, 1.0, 0.0};
     for (const PolyhedronFace3d& face : cube.Faces())
     {
@@ -708,7 +708,7 @@ PolyhedronBody BuildMixedMergedHoleAndAdjacentNonPlanarWithVertexAttachedOpenSec
 
 TEST(Section3dCapabilityTest, SlantedCubeSectionBuildsSingleAreaComponent)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const Plane slantedCut = Plane::FromPointAndNormal(
@@ -739,7 +739,7 @@ TEST(Section3dCapabilityTest, SlantedCubeSectionBuildsSingleAreaComponent)
 // generic cube cut: contour/polygon counts stay deterministic.
 TEST(Section3dCapabilityTest, NonAxisAlignedCubeSectionHasSingleHexLikeContour)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const Plane cut = Plane::FromPointAndNormal(
@@ -766,7 +766,7 @@ TEST(Section3dCapabilityTest, NonAxisAlignedCubeSectionHasSingleHexLikeContour)
 // contour with deterministic vertex count.
 TEST(Section3dCapabilityTest, BrepBodyObliqueSectionHasSingleHexLikeContour)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const auto converted = ConvertToBrepBody(cubeBody);
@@ -2939,7 +2939,7 @@ TEST(Section3dCapabilityTest, BrepDetachedPlusTwoEdgeAttachedContoursRemainSepar
 // specific subset: convex-body oblique-face-to-face stitching.
 TEST(Section3dCapabilityTest, UnitCubeMidPlaneSectionYieldsFourSegmentClosedContour)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     // y=0.5 mid-plane cuts left/right/bottom/top faces (all mutually non-coplanar).
@@ -2977,7 +2977,7 @@ TEST(Section3dCapabilityTest, UnitCubeMidPlaneSectionYieldsFourSegmentClosedCont
 // Brep path after Polyhedron->Brep conversion.
 TEST(Section3dCapabilityTest, BrepUnitCubeMidPlaneSectionYieldsFourSegmentClosedContour)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const auto converted = ConvertToBrepBody(cubeBody);
@@ -3140,7 +3140,7 @@ TEST(Section3dCapabilityTest, BrepObliquePrismSectionYieldsDeterministicContourL
 // triangular-prism tests already present.
 TEST(Section3dCapabilityTest, UnitCubeXAxisSectionYieldsDeterministicRebarPerimeter)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     // x=0.5 plane intersects the four faces whose vertex x-coordinates span
@@ -3191,7 +3191,7 @@ TEST(Section3dCapabilityTest, UnitCubeXAxisSectionYieldsDeterministicRebarPerime
 // holds on the Brep path after Polyhedron->Brep conversion.
 TEST(Section3dCapabilityTest, BrepUnitCubeXAxisSectionYieldsDeterministicRebarPerimeter)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const auto converted = ConvertToBrepBody(cubeBody);
@@ -3721,7 +3721,7 @@ TEST(Section3dCapabilityTest, BrepRectangularPrismYAxisSectionYieldsDeterministi
 // the PolyhedronBody path.
 TEST(Section3dCapabilityTest, UnitCubeZAxisSectionYieldsDeterministicRebarPerimeter)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     // z=0.5 plane intersects the four lateral faces whose vertex z-coordinates
@@ -3771,7 +3771,7 @@ TEST(Section3dCapabilityTest, UnitCubeZAxisSectionYieldsDeterministicRebarPerime
 // holds on the Brep path after Polyhedron->Brep conversion.
 TEST(Section3dCapabilityTest, BrepUnitCubeZAxisSectionYieldsDeterministicRebarPerimeter)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const auto converted = ConvertToBrepBody(cubeBody);

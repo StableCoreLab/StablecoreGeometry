@@ -2,13 +2,13 @@
 
 #include "sdk/Geometry.h"
 
-using geometry::sdk::BrepBody;
-using geometry::sdk::BrepEdge;
-using geometry::sdk::BrepFace;
-using geometry::sdk::BrepLoop;
-using geometry::sdk::BrepShell;
-using geometry::sdk::BrepVertex;
-using geometry::sdk::Point3d;
+using Geometry::Sdk::BrepBody;
+using Geometry::Sdk::BrepEdge;
+using Geometry::Sdk::BrepFace;
+using Geometry::Sdk::BrepLoop;
+using Geometry::Sdk::BrepShell;
+using Geometry::Sdk::BrepVertex;
+using Geometry::Sdk::Point3d;
 
 TEST(Brep3dGapTest, CoedgeLoopOwnershipEditingWorkflowRemainsOpen)
 {

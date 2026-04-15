@@ -8,7 +8,7 @@
 #include "sdk/ShapeOps.h"
 #include "sdk/MultiPolygon2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class PolygonContainment2d
 {
@@ -69,5 +69,5 @@ private:
 [[nodiscard]] GEOMETRY_API PolygonTopology2d BuildPolygonTopology(
     const MultiPolygon2d& polygons,
     double eps = 1e-9);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

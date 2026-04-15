@@ -23,7 +23,7 @@
 #include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -198,7 +198,7 @@ bool IsPointOnAnyPolygonBoundary(
     const PolyhedronSection3d& section,
     double eps)
 {
-    const double boundaryEps = std::max(eps, geometry::kPathOpsComparisonEpsilon);
+    const double boundaryEps = std::max(eps, Geometry::kPathOpsComparisonEpsilon);
     const Point2d projected = ProjectPointToSectionBasis(point, section);
     for (const Polygon2d& polygon : section.polygons)
     {
@@ -215,7 +215,7 @@ bool IsPointAtAnyPolygonVertex(
     const PolyhedronSection3d& section,
     double eps)
 {
-    const double boundaryEps = std::max(eps, geometry::kPathOpsComparisonEpsilon);
+    const double boundaryEps = std::max(eps, Geometry::kPathOpsComparisonEpsilon);
     const Point2d projected = ProjectPointToSectionBasis(point, section);
     auto ringContainsVertex = [&](const Polyline2d& ring) {
         for (std::size_t i = 0; i < ring.PointCount(); ++i)
@@ -449,7 +449,7 @@ Point3d InterpolateToPlane(
     double secondDistance)
 {
     const double denominator = firstDistance - secondDistance;
-    if (std::abs(denominator) <= geometry::kSectionDefaultEpsilon)
+    if (std::abs(denominator) <= Geometry::kSectionDefaultEpsilon)
     {
         return first;
     }
@@ -928,8 +928,8 @@ Point2d ProjectPointToSectionBasis(
     const PolyhedronSection3d& section)
 {
     const Vector3d delta = point - section.origin;
-    const double uDenom = std::max(section.uAxis.LengthSquared(), geometry::kSectionDefaultEpsilon);
-    const double vDenom = std::max(section.vAxis.LengthSquared(), geometry::kSectionDefaultEpsilon);
+    const double uDenom = std::max(section.uAxis.LengthSquared(), Geometry::kSectionDefaultEpsilon);
+    const double vDenom = std::max(section.vAxis.LengthSquared(), Geometry::kSectionDefaultEpsilon);
     return Point2d{
         Dot(delta, section.uAxis) / uDenom,
         Dot(delta, section.vAxis) / vDenom};
@@ -992,7 +992,7 @@ MultiPolygon2d MergeCoplanarPolygonsStable(
     const std::vector<Polygon2d>& polygons,
     double eps)
 {
-    const double mergeEps = std::max(eps, geometry::kPathOpsComparisonEpsilon);
+    const double mergeEps = std::max(eps, Geometry::kPathOpsComparisonEpsilon);
     std::vector<Polygon2d> merged;
     merged.reserve(polygons.size());
     for (const Polygon2d& polygon : polygons)
@@ -3102,5 +3102,5 @@ SectionComponents3d BuildSectionComponents(const PolyhedronSection3d& section, d
 
     return result;
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

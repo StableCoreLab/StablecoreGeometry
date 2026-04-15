@@ -7,7 +7,7 @@
 
 #include "sdk/Curve3d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API NurbsCurve3d final : public Curve3d
 {
@@ -99,10 +99,10 @@ public:
             const Intervald range = ParameterRange();
             const double step = std::max(
                 range.Length() / static_cast<double>(std::max<std::size_t>(controlPoints_.size() * 8, 8)),
-                geometry::kDefaultEpsilon);
+                Geometry::kDefaultEpsilon);
             const double prevParameter = std::max(range.min, parameter - step);
             const double nextParameter = std::min(range.max, parameter + step);
-            const double denom = std::max(nextParameter - prevParameter, geometry::kDefaultEpsilon);
+            const double denom = std::max(nextParameter - prevParameter, Geometry::kDefaultEpsilon);
             eval.firstDerivative = (PointAt(nextParameter) - PointAt(prevParameter)) / denom;
         }
         if (derivativeOrder >= 2)
@@ -110,13 +110,13 @@ public:
             const Intervald range = ParameterRange();
             const double step = std::max(
                 range.Length() / static_cast<double>(std::max<std::size_t>(controlPoints_.size() * 8, 8)),
-                geometry::kDefaultEpsilon);
+                Geometry::kDefaultEpsilon);
             const double prevParameter = std::max(range.min, parameter - step);
             const double nextParameter = std::min(range.max, parameter + step);
             const Point3d previous = PointAt(prevParameter);
             const Point3d current = PointAt(parameter);
             const Point3d next = PointAt(nextParameter);
-            const double denom = std::max(step * step, geometry::kDefaultEpsilon);
+            const double denom = std::max(step * step, Geometry::kDefaultEpsilon);
             eval.secondDerivative = ((next - current) - (current - previous)) / denom;
         }
         return eval;
@@ -159,14 +159,14 @@ private:
         {
             const bool inHalfOpen = knots_[index] <= parameter && parameter < knots_[index + 1];
             const bool isRightBoundary =
-                std::abs(parameter - knots_[controlPoints_.size()]) <= geometry::kDefaultEpsilon &&
+                std::abs(parameter - knots_[controlPoints_.size()]) <= Geometry::kDefaultEpsilon &&
                 index + 1 == controlPoints_.size();
             return (inHalfOpen || isRightBoundary) ? 1.0 : 0.0;
         }
 
         double left = 0.0;
         const double leftDenom = knots_[index + static_cast<std::size_t>(degree)] - knots_[index];
-        if (std::abs(leftDenom) > geometry::kDefaultEpsilon)
+        if (std::abs(leftDenom) > Geometry::kDefaultEpsilon)
         {
             left = ((parameter - knots_[index]) / leftDenom) * Basis(index, degree - 1, parameter);
         }
@@ -174,7 +174,7 @@ private:
         double right = 0.0;
         const double rightDenom =
             knots_[index + static_cast<std::size_t>(degree) + 1] - knots_[index + 1];
-        if (std::abs(rightDenom) > geometry::kDefaultEpsilon)
+        if (std::abs(rightDenom) > Geometry::kDefaultEpsilon)
         {
             right = ((knots_[index + static_cast<std::size_t>(degree) + 1] - parameter) / rightDenom) *
                     Basis(index + 1, degree - 1, parameter);
@@ -188,4 +188,4 @@ private:
     std::vector<double> knots_{0.0, 1.0};
     bool periodic_{false};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

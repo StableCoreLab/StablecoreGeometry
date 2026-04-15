@@ -9,7 +9,7 @@
 #include "algorithm/Predicate2.h"
 #include "sdk/Metrics.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -286,4 +286,4 @@ std::vector<KDTreeEntry2d>& KDTree2d::Data()
 {
     return Entries();
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

@@ -8,14 +8,14 @@
 #include "types/Polyline2.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::ArcDirection;
-using geometry::ArcSegment2d;
-using geometry::Box2d;
-using geometry::IsEqual;
-using geometry::LineSegment2d;
-using geometry::Point2d;
-using geometry::Polyline2d;
-using geometry::PolylineClosure;
+using Geometry::ArcDirection;
+using Geometry::ArcSegment2d;
+using Geometry::Box2d;
+using Geometry::IsEqual;
+using Geometry::LineSegment2d;
+using Geometry::Point2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
 
 namespace
 {

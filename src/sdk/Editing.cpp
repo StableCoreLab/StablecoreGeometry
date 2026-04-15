@@ -5,7 +5,7 @@
 #include "sdk/Relation.h"
 #include "sdk/ShapeOps.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -86,4 +86,4 @@ Polygon2d InsertPoint(const Polygon2d& polygon, const Point2d& point, double eps
 {
     return Polygon2d(InsertPoint(polygon.OuterRing(), point, eps));
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

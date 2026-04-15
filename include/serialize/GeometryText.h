@@ -10,26 +10,26 @@
 #include "sdk/Polyline2d.h"
 #include "sdk/GeometryTypes.h"
 
-namespace geometry::serialize
+namespace Geometry::Serialize
 {
-[[nodiscard]] GEOMETRY_API std::string ToText(const sdk::Point2d& value);
-[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, sdk::Point2d& value);
+[[nodiscard]] GEOMETRY_API std::string ToText(const Geometry::Sdk::Point2d& value);
+[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, Geometry::Sdk::Point2d& value);
 
-[[nodiscard]] GEOMETRY_API std::string ToText(const sdk::Vector2d& value);
-[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, sdk::Vector2d& value);
+[[nodiscard]] GEOMETRY_API std::string ToText(const Geometry::Sdk::Vector2d& value);
+[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, Geometry::Sdk::Vector2d& value);
 
-[[nodiscard]] GEOMETRY_API std::string ToText(const sdk::Box2d& value);
-[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, sdk::Box2d& value);
+[[nodiscard]] GEOMETRY_API std::string ToText(const Geometry::Sdk::Box2d& value);
+[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, Geometry::Sdk::Box2d& value);
 
-[[nodiscard]] GEOMETRY_API std::string ToText(const sdk::SegmentProjection2d& value);
-[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, sdk::SegmentProjection2d& value);
+[[nodiscard]] GEOMETRY_API std::string ToText(const Geometry::Sdk::SegmentProjection2d& value);
+[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, Geometry::Sdk::SegmentProjection2d& value);
 
-[[nodiscard]] GEOMETRY_API std::string ToText(const sdk::ArcSegment2d& value);
-[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, sdk::ArcSegment2d& value);
+[[nodiscard]] GEOMETRY_API std::string ToText(const Geometry::Sdk::ArcSegment2d& value);
+[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, Geometry::Sdk::ArcSegment2d& value);
 
-[[nodiscard]] GEOMETRY_API std::string ToText(const sdk::Polyline2d& value);
-[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, sdk::Polyline2d& value);
+[[nodiscard]] GEOMETRY_API std::string ToText(const Geometry::Sdk::Polyline2d& value);
+[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, Geometry::Sdk::Polyline2d& value);
 
-[[nodiscard]] GEOMETRY_API std::string ToText(const sdk::Polygon2d& value);
-[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, sdk::Polygon2d& value);
-} // namespace geometry::serialize
+[[nodiscard]] GEOMETRY_API std::string ToText(const Geometry::Sdk::Polygon2d& value);
+[[nodiscard]] GEOMETRY_API bool FromText(std::string_view text, Geometry::Sdk::Polygon2d& value);
+} // namespace Geometry::Serialize

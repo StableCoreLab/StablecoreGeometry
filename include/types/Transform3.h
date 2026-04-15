@@ -8,7 +8,7 @@
 #include "types/Direction3.h"
 #include "types/Matrix3.h"
 
-namespace geometry
+namespace Geometry
 {
 struct Transform3d
 {
@@ -80,4 +80,4 @@ struct Transform3d
         lhs.linear * rhs.linear,
         lhs.linear * rhs.translation + lhs.translation};
 }
-} // namespace geometry
+} // namespace Geometry

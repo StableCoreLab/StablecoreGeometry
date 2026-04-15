@@ -7,16 +7,16 @@
 
 TEST(SerializeTest, CoversCurrentCapabilities)
 {
-    using geometry::sdk::Box2d;
-    using geometry::sdk::Point2d;
-    using geometry::sdk::ArcSegment2d;
-    using geometry::sdk::Polygon2d;
-    using geometry::sdk::Polyline2d;
-    using geometry::sdk::PolylineClosure;
-    using geometry::sdk::SegmentProjection2d;
-    using geometry::sdk::Vector2d;
-    using geometry::serialize::FromText;
-    using geometry::serialize::ToText;
+    using Geometry::Sdk::Box2d;
+    using Geometry::Sdk::Point2d;
+    using Geometry::Sdk::ArcSegment2d;
+    using Geometry::Sdk::Polygon2d;
+    using Geometry::Sdk::Polyline2d;
+    using Geometry::Sdk::PolylineClosure;
+    using Geometry::Sdk::SegmentProjection2d;
+    using Geometry::Sdk::Vector2d;
+    using Geometry::Serialize::FromText;
+    using Geometry::Serialize::ToText;
 
     const Point2d point = Point2d::FromXY(1.25, -3.5);
     const Vector2d vector = Vector2d::FromXY(-4.0, 8.5);
@@ -35,8 +35,8 @@ TEST(SerializeTest, CoversCurrentCapabilities)
         {Point2d{0.0, 0.0}, Point2d{3.0, 0.0}, Point2d{3.0, 4.0}},
         PolylineClosure::Open);
     const Polygon2d polygon(
-        geometry::test::MakeSdkRectangleRing(Point2d{0.0, 0.0}, Point2d{4.0, 4.0}),
-        {geometry::test::MakeSdkRectangleHoleRing(Point2d{1.0, 1.0}, Point2d{3.0, 3.0})});
+        Geometry::Test::MakeSdkRectangleRing(Point2d{0.0, 0.0}, Point2d{4.0, 4.0}),
+        {Geometry::Test::MakeSdkRectangleHoleRing(Point2d{1.0, 1.0}, Point2d{3.0, 3.0})});
 
     const std::string pointText = ToText(point);
     const std::string vectorText = ToText(vector);

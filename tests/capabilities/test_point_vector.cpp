@@ -8,22 +8,22 @@
 #include "types/LineSegment2.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::ArcDirection;
-using geometry::ArcSegment2d;
-using geometry::Box2d;
-using geometry::Box2i;
-using geometry::Cross;
-using geometry::Dot;
-using geometry::IsEqual;
-using geometry::IsZero;
-using geometry::LineSegment2d;
-using geometry::Point2d;
-using geometry::Point2i;
-using geometry::Segment2d;
-using geometry::SegmentKind2;
-using geometry::TryNormalize;
-using geometry::Vector2d;
-using geometry::Vector2i;
+using Geometry::ArcDirection;
+using Geometry::ArcSegment2d;
+using Geometry::Box2d;
+using Geometry::Box2i;
+using Geometry::Cross;
+using Geometry::Dot;
+using Geometry::IsEqual;
+using Geometry::IsZero;
+using Geometry::LineSegment2d;
+using Geometry::Point2d;
+using Geometry::Point2i;
+using Geometry::Segment2d;
+using Geometry::SegmentKind2;
+using Geometry::TryNormalize;
+using Geometry::Vector2d;
+using Geometry::Vector2i;
 
 template <typename T>
 concept SupportsPointPlusPoint = requires(T a, T b) {

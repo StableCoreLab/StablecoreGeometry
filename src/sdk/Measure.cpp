@@ -8,7 +8,7 @@
 #include "sdk/Projection.h"
 #include "sdk/ShapeOps.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 double DistanceSquared(const Point3d& lhs, const Point3d& rhs)
 {
@@ -310,4 +310,4 @@ Box3d Bounds(const BrepBody& body)
 {
     return body.Bounds();
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

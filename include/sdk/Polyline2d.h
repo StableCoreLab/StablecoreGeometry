@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/GeometryTypes.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class PolylineClosure
 {
@@ -44,4 +44,4 @@ private:
     explicit Polyline2d(std::unique_ptr<Impl> impl);
 
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

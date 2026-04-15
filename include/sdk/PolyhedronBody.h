@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/PolyhedronFace3d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API PolyhedronBody
 {
@@ -21,7 +21,7 @@ public:
         return faces_.empty();
     }
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         if (faces_.empty())
         {
@@ -81,4 +81,4 @@ public:
 private:
     std::vector<PolyhedronFace3d> faces_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

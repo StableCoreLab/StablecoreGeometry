@@ -10,7 +10,7 @@
 #include "sdk/Results.h"
 #include "sdk/Segment2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 [[nodiscard]] GEOMETRY_API double Perimeter(const Polygon2d& polygon);
 [[nodiscard]] GEOMETRY_API RingOrientation2d Orientation(const Polyline2d& ring);
@@ -22,4 +22,4 @@ namespace geometry::sdk
 [[nodiscard]] GEOMETRY_API ArcSegment2d Reverse(const ArcSegment2d& segment);
 [[nodiscard]] GEOMETRY_API Polyline2d Reverse(const Polyline2d& polyline);
 [[nodiscard]] GEOMETRY_API Polyline2d Close(const Polyline2d& polyline);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

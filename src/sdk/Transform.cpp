@@ -8,7 +8,7 @@
 #include "sdk/Metrics.h"
 #include "sdk/ShapeOps.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -25,7 +25,7 @@ namespace
 [[nodiscard]] Point2d MirrorPoint(const Point2d& point, const Point2d& linePoint, const Vector2d& lineDir)
 {
     const double lengthSquared = lineDir.LengthSquared();
-    if (lengthSquared <= geometry::kTransformDefaultEpsilon)
+    if (lengthSquared <= Geometry::kTransformDefaultEpsilon)
     {
         return point;
     }
@@ -229,5 +229,5 @@ Polygon2d Stretch(const Polygon2d& polygon, const Box2d& region, const Vector2d&
     }
     return Polygon2d(Stretch(polygon.OuterRing(), region, offset), std::move(holes));
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

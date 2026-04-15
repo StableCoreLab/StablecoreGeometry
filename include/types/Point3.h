@@ -7,7 +7,7 @@
 
 #include "common/Epsilon.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 struct Vector3;
@@ -94,4 +94,4 @@ template <typename T>
 
 using Point3d = Point3<double>;
 using Point3i = Point3<int>;
-} // namespace geometry
+} // namespace Geometry

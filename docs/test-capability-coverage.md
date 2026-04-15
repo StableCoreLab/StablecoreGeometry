@@ -212,7 +212,7 @@
 ## 共享测试支持
 
 - `tests/support/Fixtures3d.h`
-  - `geometry::test::BuildUnitCubeBody()` — 单位立方体 `[0,1]³`，6 个四边形 `PolyhedronFace3d`，法向朝外
+  - `Geometry::Test::BuildUnitCubeBody()` — 单位立方体 `[0,1]³`，6 个四边形 `PolyhedronFace3d`，法向朝外
 
 ## 3D 算量必需项已收敛能力列表
 

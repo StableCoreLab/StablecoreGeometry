@@ -7,7 +7,7 @@
 #include "sdk/BrepBody.h"
 #include "sdk/PolyhedronBody.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class BrepConversionIssue3d
 {
@@ -24,7 +24,7 @@ struct GEOMETRY_API BrepFaceConversion3d
     BrepConversionIssue3d issue{BrepConversionIssue3d::None};
     PolyhedronFace3d face{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         return !success || face.IsValid(eps);
     }
@@ -37,7 +37,7 @@ struct GEOMETRY_API BrepBodyConversion3d
     std::size_t faceIndex{0};
     PolyhedronBody body{};
 
-    [[nodiscard]] bool IsValid(double eps = geometry::kDefaultEpsilon) const
+    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
     {
         return !success || body.IsValid(eps);
     }
@@ -67,4 +67,4 @@ struct GEOMETRY_API PolyhedronBrepBodyConversion3d
 [[nodiscard]] GEOMETRY_API PolyhedronBrepBodyConversion3d ConvertToBrepBody(
     const PolyhedronBody& body,
     double eps = 1e-9);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

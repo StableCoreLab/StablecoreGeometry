@@ -6,7 +6,7 @@
 #include "common/Epsilon.h"
 #include "types/Vector2.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 //requires std::is_signed_v<T>

@@ -9,21 +9,21 @@
 #include "types/Polygon2.h"
 #include "support/GeometryTestSupport.h"
 
-using geometry::Box2d;
-using geometry::ArcDirection;
-using geometry::ArcSegment2d;
-using geometry::IsEqual;
-using geometry::LineSegment2d;
-using geometry::Point2d;
-using geometry::Polygon2d;
-using geometry::Polyline2d;
-using geometry::PolylineClosure;
+using Geometry::Box2d;
+using Geometry::ArcDirection;
+using Geometry::ArcSegment2d;
+using Geometry::IsEqual;
+using Geometry::LineSegment2d;
+using Geometry::Point2d;
+using Geometry::Polygon2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
 
 namespace
 {
 Polyline2d MakeClosedRing(const std::vector<std::pair<Point2d, Point2d>>& edges)
 {
-    std::vector<std::shared_ptr<geometry::Segment2d>> segments;
+    std::vector<std::shared_ptr<Geometry::Segment2d>> segments;
     segments.reserve(edges.size());
     for (const auto& edge : edges)
     {
@@ -73,7 +73,7 @@ TEST(PolygonTest, CoversCurrentCapabilities)
     Polygon2d invalidPolygon(outerRing, {badHole});
     ASSERT_FALSE(invalidPolygon.IsValid());
 
-    std::vector<std::shared_ptr<geometry::Segment2d>> arcSegments;
+    std::vector<std::shared_ptr<Geometry::Segment2d>> arcSegments;
     arcSegments.push_back(std::make_shared<LineSegment2d>(Point2d(0.0, 0.0), Point2d(1.0, 0.0)));
     arcSegments.push_back(std::make_shared<ArcSegment2d>(
         Point2d(0.0, 0.0),

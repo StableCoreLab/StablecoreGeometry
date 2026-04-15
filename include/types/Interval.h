@@ -7,7 +7,7 @@
 
 #include "common/Epsilon.h"
 
-namespace geometry
+namespace Geometry
 {
 struct Intervald
 {
@@ -46,4 +46,4 @@ struct Intervald
         return stream.str();
     }
 };
-} // namespace geometry
+} // namespace Geometry

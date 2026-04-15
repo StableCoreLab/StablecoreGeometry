@@ -6,7 +6,7 @@
 #include "sdk/Relation.h"
 #include "sdk/ShapeOps.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 bool HasSelfIntersection(const Polyline2d& ring, double eps)
 {
@@ -272,4 +272,4 @@ SectionValidation3d Validate(const PolyhedronSection3d& section, double eps)
 
     return {true, SectionValidationIssue3d::None, 0};
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

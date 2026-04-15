@@ -6,7 +6,7 @@
 #include "sdk/PolyhedronBody.h"
 #include "sdk/TriangleMesh.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class HealingIssue3d
 {
@@ -51,4 +51,4 @@ struct GEOMETRY_API BrepHealing3d
     const BrepBody& body,
     const GeometryTolerance3d& tolerance,
     HealingPolicy3d policy);
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

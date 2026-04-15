@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/BrepCoedge.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API BrepLoop
 {
@@ -59,4 +59,4 @@ public:
 private:
     std::vector<BrepCoedge> coedges_{};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

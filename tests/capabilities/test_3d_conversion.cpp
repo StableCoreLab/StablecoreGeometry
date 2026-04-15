@@ -6,35 +6,35 @@
 #include "sdk/Geometry.h"
 #include "support/Fixtures3d.h"
 
-using geometry::sdk::ConvertToTriangleMesh;
-using geometry::sdk::ConvertToBrepBody;
-using geometry::sdk::BrepConversionIssue3d;
-using geometry::sdk::BrepBody;
-using geometry::sdk::BrepCoedge;
-using geometry::sdk::BrepEdge;
-using geometry::sdk::BrepFace;
-using geometry::sdk::BrepLoop;
-using geometry::sdk::BrepShell;
-using geometry::sdk::BrepVertex;
-using geometry::sdk::ComputeTriangleConnectedComponents;
-using geometry::sdk::CurveOnSurface;
-using geometry::sdk::Intervald;
-using geometry::sdk::Line3d;
-using geometry::sdk::LineCurve3d;
-using geometry::sdk::MeshConversionIssue3d;
-using geometry::sdk::Plane;
-using geometry::sdk::PlaneSurface;
-using geometry::sdk::Point3d;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::PolyhedronFace3d;
-using geometry::sdk::PolyhedronLoop3d;
-using geometry::sdk::PolyhedronMeshConversion3d;
-using geometry::sdk::PolyhedronBrepBodyConversion3d;
-using geometry::sdk::Point2d;
-using geometry::sdk::Polyline2d;
-using geometry::sdk::PolylineClosure;
-using geometry::sdk::Surface;
-using geometry::sdk::Vector3d;
+using Geometry::Sdk::ConvertToTriangleMesh;
+using Geometry::Sdk::ConvertToBrepBody;
+using Geometry::Sdk::BrepConversionIssue3d;
+using Geometry::Sdk::BrepBody;
+using Geometry::Sdk::BrepCoedge;
+using Geometry::Sdk::BrepEdge;
+using Geometry::Sdk::BrepFace;
+using Geometry::Sdk::BrepLoop;
+using Geometry::Sdk::BrepShell;
+using Geometry::Sdk::BrepVertex;
+using Geometry::Sdk::ComputeTriangleConnectedComponents;
+using Geometry::Sdk::CurveOnSurface;
+using Geometry::Sdk::Intervald;
+using Geometry::Sdk::Line3d;
+using Geometry::Sdk::LineCurve3d;
+using Geometry::Sdk::MeshConversionIssue3d;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::PlaneSurface;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::PolyhedronFace3d;
+using Geometry::Sdk::PolyhedronLoop3d;
+using Geometry::Sdk::PolyhedronMeshConversion3d;
+using Geometry::Sdk::PolyhedronBrepBodyConversion3d;
+using Geometry::Sdk::Point2d;
+using Geometry::Sdk::Polyline2d;
+using Geometry::Sdk::PolylineClosure;
+using Geometry::Sdk::Surface;
+using Geometry::Sdk::Vector3d;
 
 namespace
 {
@@ -111,7 +111,7 @@ PolyhedronFace3d SkewFace(const PolyhedronFace3d& face)
 
 PolyhedronBody BuildSkewedUnitCubeBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces;
     faces.reserve(cube.FaceCount());
     for (const PolyhedronFace3d& face : cube.Faces())
@@ -125,7 +125,7 @@ PolyhedronBody BuildSupportPlaneMismatchedCubeBody()
 {
     try
     {
-        const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+        const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
         std::vector<PolyhedronFace3d> faces = cube.Faces();
 
         if (faces.empty())
@@ -192,7 +192,7 @@ PolyhedronBody BuildTwoSeparatedUnitCubeBody()
 {
     try
     {
-        const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+        const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
         std::vector<PolyhedronFace3d> faces = first.Faces();
 
         const Vector3d delta{3.0, 0.0, 0.0};
@@ -358,7 +358,7 @@ PolyhedronBody BuildDualDeformedUnitCubeWithDualDuplicateLoopBody()
 
 PolyhedronBody BuildMildlyNonPlanarCubeFaceBody()
 {
-    const PolyhedronBody cube = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cube = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = cube.Faces();
 
     const std::size_t topFaceIndex = 1;
@@ -2272,7 +2272,7 @@ void AssertClosedCuboidAllVerticesRepresentativeTargets(const BrepBody& body)
 // repair remain open gaps.
 TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToTriangleMesh)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
     ASSERT_EQ(cubeBody.FaceCount(), 6);
 
@@ -2290,7 +2290,7 @@ TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToTriangleMesh)
 // BrepBody representation while preserving top-level face cardinality.
 TEST(Conversion3dCapabilityTest, UnitCubePolyhedronBodyConvertsToBrepBody)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
     ASSERT_EQ(cubeBody.FaceCount(), 6);
 

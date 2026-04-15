@@ -8,7 +8,7 @@
 #include "export/GeometryExport.h"
 #include "sdk/Metrics.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 struct GEOMETRY_API BoxTreeEntry2d
 {
@@ -56,4 +56,4 @@ private:
     std::vector<BoxTreeEntry2d> entries_{};
 };
 
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

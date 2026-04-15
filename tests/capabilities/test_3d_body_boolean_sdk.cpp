@@ -7,17 +7,17 @@
 #include "sdk/BrepConversion.h"
 #include "support/Fixtures3d.h"
 
-using geometry::sdk::BodyBooleanIssue3d;
-using geometry::sdk::BodyBooleanOptions3d;
-using geometry::sdk::DifferenceBodies;
-using geometry::sdk::IntersectBodies;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::Point3d;
-using geometry::sdk::PolyhedronFace3d;
-using geometry::sdk::PolyhedronLoop3d;
-using geometry::sdk::UnionBodies;
-using geometry::sdk::Plane;
-using geometry::sdk::Vector3d;
+using Geometry::Sdk::BodyBooleanIssue3d;
+using Geometry::Sdk::BodyBooleanOptions3d;
+using Geometry::Sdk::DifferenceBodies;
+using Geometry::Sdk::IntersectBodies;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::PolyhedronFace3d;
+using Geometry::Sdk::PolyhedronLoop3d;
+using Geometry::Sdk::UnionBodies;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::Vector3d;
 
 namespace
 {
@@ -180,8 +180,8 @@ TEST(BodyBooleanSdkCapabilityTest, InvalidInputContractIsStableForEmptyBodies)
 
 TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronIntersectionReturnsClosedBody)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
-    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
+    const PolyhedronBody second = Geometry::Test::BuildUnitCubeBody();
 
     const auto result = IntersectBodies(first, second);
 
@@ -196,8 +196,8 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronIntersectionReturnsClosedB
 
 TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronUnionReturnsSingleClosedBody)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
-    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
+    const PolyhedronBody second = Geometry::Test::BuildUnitCubeBody();
 
     const auto result = UnionBodies(first, second);
 
@@ -210,8 +210,8 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronUnionReturnsSingleClosedBo
 
 TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronDifferenceReturnsDeterministicEmptyResult)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
-    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
+    const PolyhedronBody second = Geometry::Test::BuildUnitCubeBody();
 
     const auto result = DifferenceBodies(first, second);
 
@@ -224,7 +224,7 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalPolyhedronDifferenceReturnsDetermini
 
 TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronUnionReturnsTwoBodies)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildTranslatedUnitCubeBody(3.0, 0.0, 0.0);
 
     const auto result = UnionBodies(first, second);
@@ -239,7 +239,7 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronUnionReturnsTwoBodies)
 
 TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronUnionNormalizesBodyOrder)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildTranslatedUnitCubeBody(3.0, 0.0, 0.0);
 
     const auto result = UnionBodies(second, first);
@@ -259,7 +259,7 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronUnionNormalizesBodyOrder)
 
 TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronDifferenceReturnsOriginalBody)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildTranslatedUnitCubeBody(3.0, 0.0, 0.0);
 
     const auto result = DifferenceBodies(first, second);
@@ -273,7 +273,7 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronDifferenceReturnsOriginalBo
 
 TEST(BodyBooleanSdkCapabilityTest, OverlappingPolyhedronIntersectionReturnsSingleOverlapBox)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(0.5, 0.0, 0.0, 1.5, 1.0, 1.0);
 
     const auto result = IntersectBodies(first, second);
@@ -294,7 +294,7 @@ TEST(BodyBooleanSdkCapabilityTest, OverlappingPolyhedronIntersectionReturnsSingl
 
 TEST(BodyBooleanSdkCapabilityTest, OverlappingPolyhedronUnionReturnsSingleAxisAlignedBox)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(0.5, 0.0, 0.0, 1.5, 1.0, 1.0);
 
     const auto result = UnionBodies(first, second);
@@ -315,7 +315,7 @@ TEST(BodyBooleanSdkCapabilityTest, OverlappingPolyhedronUnionReturnsSingleAxisAl
 
 TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronUnionReturnsSingleAxisAlignedBox)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0);
 
     const auto result = UnionBodies(first, second);
@@ -337,7 +337,7 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronUnionReturnsSingleAxisAlign
 
 TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronIntersectionReturnsDeterministicEmptyResult)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0);
 
     const auto intersection = IntersectBodies(first, second);
@@ -352,7 +352,7 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronIntersectionReturnsDetermin
 TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronIntersectionReturnsInnerBody)
 {
     const PolyhedronBody first = BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5);
-    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = Geometry::Test::BuildUnitCubeBody();
 
     const auto result = IntersectBodies(first, second);
 
@@ -375,7 +375,7 @@ TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronIntersectionReturnsInnerBo
 TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronUnionReturnsOuterBody)
 {
     const PolyhedronBody first = BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5);
-    const PolyhedronBody second = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody second = Geometry::Test::BuildUnitCubeBody();
 
     const auto result = UnionBodies(first, second);
 
@@ -397,7 +397,7 @@ TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronUnionReturnsOuterBody)
 
 TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronIntersectionReturnsDeterministicEmptyResult)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(3.0, 0.0, 0.0, 4.0, 1.0, 1.0);
 
     const auto result = IntersectBodies(first, second);
@@ -411,7 +411,7 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointPolyhedronIntersectionReturnsDetermin
 
 TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingPolyhedronIntersectionReturnsDeterministicEmptyResult)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0);
 
     const auto intersection = IntersectBodies(first, second);
@@ -425,7 +425,7 @@ TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingPolyhedronIntersectionReturnsDete
 
 TEST(BodyBooleanSdkCapabilityTest, VertexTouchingPolyhedronIntersectionReturnsDeterministicEmptyResult)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0);
 
     const auto intersection = IntersectBodies(first, second);
@@ -439,7 +439,7 @@ TEST(BodyBooleanSdkCapabilityTest, VertexTouchingPolyhedronIntersectionReturnsDe
 
 TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingPolyhedronUnionReturnsDeterministicOrderedMultiBodyResult)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0);
 
     const auto result = UnionBodies(second, first);
@@ -459,7 +459,7 @@ TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingPolyhedronUnionReturnsDeterminist
 
 TEST(BodyBooleanSdkCapabilityTest, VertexTouchingPolyhedronDifferenceReturnsOriginalBody)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0);
 
     const auto result = DifferenceBodies(first, second);
@@ -482,7 +482,7 @@ TEST(BodyBooleanSdkCapabilityTest, VertexTouchingPolyhedronDifferenceReturnsOrig
 
 TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronDifferenceReturnsOriginalBody)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0);
 
     const auto result = DifferenceBodies(first, second);
@@ -504,7 +504,7 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingPolyhedronDifferenceReturnsOriginalBo
 
 TEST(BodyBooleanSdkCapabilityTest, OverlappingPolyhedronDifferenceReturnsRemainingSingleBox)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(0.5, 0.0, 0.0, 1.0, 1.0, 1.0);
 
     const auto result = DifferenceBodies(first, second);
@@ -525,7 +525,7 @@ TEST(BodyBooleanSdkCapabilityTest, OverlappingPolyhedronDifferenceReturnsRemaini
 
 TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronDifferenceReturnsDeterministicEmptyResult)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5);
 
     const auto result = DifferenceBodies(first, second);
@@ -539,7 +539,7 @@ TEST(BodyBooleanSdkCapabilityTest, ContainedPolyhedronDifferenceReturnsDetermini
 
 TEST(BodyBooleanSdkCapabilityTest, NonBoxOverlapUnionAndDifferenceRemainUnsupported)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildAxisAlignedBoxBody(0.5, 0.5, 0.0, 1.5, 1.5, 1.0);
 
     const auto united = UnionBodies(first, second);
@@ -566,8 +566,8 @@ TEST(BodyBooleanSdkCapabilityTest, FaceTouchingLShapeUnionReturnsExplicitUnsuppo
 
 TEST(BodyBooleanSdkCapabilityTest, BrepFaceTouchingLShapeUnionReturnsExplicitUnsupportedOperation)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.0, 0.0, 0.0, 2.0, 1.0, 1.0));
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.0, 1.0, 0.0, 1.0, 2.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.0, 0.0, 0.0, 2.0, 1.0, 1.0));
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.0, 1.0, 0.0, 1.0, 2.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -581,7 +581,7 @@ TEST(BodyBooleanSdkCapabilityTest, BrepFaceTouchingLShapeUnionReturnsExplicitUns
 
 TEST(BodyBooleanSdkCapabilityTest, RotatedBoxIntersectionReturnsExplicitUnsupportedOperation)
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     const PolyhedronBody second = BuildRotatedOverlapBoxBody();
 
     const auto result = IntersectBodies(first, second);
@@ -594,8 +594,8 @@ TEST(BodyBooleanSdkCapabilityTest, RotatedBoxIntersectionReturnsExplicitUnsuppor
 
 TEST(BodyBooleanSdkCapabilityTest, BrepRotatedBoxIntersectionReturnsExplicitUnsupportedOperation)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildRotatedOverlapBoxBody());
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildRotatedOverlapBoxBody());
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -609,7 +609,7 @@ TEST(BodyBooleanSdkCapabilityTest, BrepRotatedBoxIntersectionReturnsExplicitUnsu
 
 TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepIntersectionReturnsClosedBody)
 {
-    const auto converted = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto converted = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
     ASSERT_TRUE(converted.success);
 
     const auto result = IntersectBodies(converted.body, converted.body);
@@ -623,7 +623,7 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepIntersectionReturnsClosedBody)
 
 TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepDifferenceReturnsDeterministicEmptyResult)
 {
-    const auto converted = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto converted = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
     ASSERT_TRUE(converted.success);
 
     const auto result = DifferenceBodies(converted.body, converted.body);
@@ -637,8 +637,8 @@ TEST(BodyBooleanSdkCapabilityTest, IdenticalBrepDifferenceReturnsDeterministicEm
 
 TEST(BodyBooleanSdkCapabilityTest, ContainedBrepIntersectionReturnsInnerBody)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
-    const auto second = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto first = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
+    const auto second = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -662,8 +662,8 @@ TEST(BodyBooleanSdkCapabilityTest, ContainedBrepIntersectionReturnsInnerBody)
 
 TEST(BodyBooleanSdkCapabilityTest, ContainedBrepUnionReturnsOuterBody)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
-    const auto second = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
+    const auto first = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
+    const auto second = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -687,8 +687,8 @@ TEST(BodyBooleanSdkCapabilityTest, ContainedBrepUnionReturnsOuterBody)
 
 TEST(BodyBooleanSdkCapabilityTest, DisjointBrepIntersectionReturnsDeterministicEmptyResult)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(3.0, 0.0, 0.0, 4.0, 1.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(3.0, 0.0, 0.0, 4.0, 1.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -703,8 +703,8 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointBrepIntersectionReturnsDeterministicE
 
 TEST(BodyBooleanSdkCapabilityTest, DisjointBrepUnionNormalizesBodyOrder)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildTranslatedUnitCubeBody(3.0, 0.0, 0.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildTranslatedUnitCubeBody(3.0, 0.0, 0.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -725,8 +725,8 @@ TEST(BodyBooleanSdkCapabilityTest, DisjointBrepUnionNormalizesBodyOrder)
 
 TEST(BodyBooleanSdkCapabilityTest, OverlappingBrepUnionReturnsSingleAxisAlignedBox)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.5, 0.0, 0.0, 1.5, 1.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(0.5, 0.0, 0.0, 1.5, 1.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -748,8 +748,8 @@ TEST(BodyBooleanSdkCapabilityTest, OverlappingBrepUnionReturnsSingleAxisAlignedB
 
 TEST(BodyBooleanSdkCapabilityTest, TouchingBrepUnionReturnsSingleAxisAlignedBox)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -772,8 +772,8 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingBrepUnionReturnsSingleAxisAlignedBox)
 
 TEST(BodyBooleanSdkCapabilityTest, TouchingBrepDifferenceReturnsOriginalBody)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -796,8 +796,8 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingBrepDifferenceReturnsOriginalBody)
 
 TEST(BodyBooleanSdkCapabilityTest, TouchingBrepIntersectionReturnsDeterministicEmptyResult)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 0.0, 0.0, 2.0, 1.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -812,8 +812,8 @@ TEST(BodyBooleanSdkCapabilityTest, TouchingBrepIntersectionReturnsDeterministicE
 
 TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingBrepIntersectionReturnsDeterministicEmptyResult)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -828,8 +828,8 @@ TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingBrepIntersectionReturnsDeterminis
 
 TEST(BodyBooleanSdkCapabilityTest, VertexTouchingBrepIntersectionReturnsDeterministicEmptyResult)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -844,8 +844,8 @@ TEST(BodyBooleanSdkCapabilityTest, VertexTouchingBrepIntersectionReturnsDetermin
 
 TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingBrepUnionReturnsDeterministicOrderedMultiBodyResult)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 0.0, 2.0, 2.0, 1.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -866,8 +866,8 @@ TEST(BodyBooleanSdkCapabilityTest, EdgeTouchingBrepUnionReturnsDeterministicOrde
 
 TEST(BodyBooleanSdkCapabilityTest, VertexTouchingBrepDifferenceReturnsOriginalBody)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(1.0, 1.0, 1.0, 2.0, 2.0, 2.0));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 
@@ -891,8 +891,8 @@ TEST(BodyBooleanSdkCapabilityTest, VertexTouchingBrepDifferenceReturnsOriginalBo
 
 TEST(BodyBooleanSdkCapabilityTest, ContainedBrepDifferenceReturnsDeterministicEmptyResult)
 {
-    const auto first = geometry::sdk::ConvertToBrepBody(geometry::test::BuildUnitCubeBody());
-    const auto second = geometry::sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
+    const auto first = Geometry::Sdk::ConvertToBrepBody(Geometry::Test::BuildUnitCubeBody());
+    const auto second = Geometry::Sdk::ConvertToBrepBody(BuildAxisAlignedBoxBody(-0.5, -0.5, -0.5, 1.5, 1.5, 1.5));
     ASSERT_TRUE(first.success);
     ASSERT_TRUE(second.success);
 

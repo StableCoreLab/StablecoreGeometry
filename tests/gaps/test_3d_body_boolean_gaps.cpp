@@ -3,9 +3,9 @@
 #include "sdk/BodyBoolean.h"
 #include "sdk/PolyhedronBody.h"
 
-using geometry::sdk::BodyBooleanIssue3d;
-using geometry::sdk::IntersectBodies;
-using geometry::sdk::PolyhedronBody;
+using Geometry::Sdk::BodyBooleanIssue3d;
+using Geometry::Sdk::IntersectBodies;
+using Geometry::Sdk::PolyhedronBody;
 
 TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
 {

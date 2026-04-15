@@ -9,7 +9,7 @@
 #include "sdk/Projection.h"
 #include "sdk/ShapeOps.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -91,11 +91,11 @@ PointContainment2d LocatePoint(const Point2d& point, const ArcSegment2d& segment
 
 PointContainment2d LocatePoint(const Point2d& point, const Segment2d& segment, double eps)
 {
-    if (segment.Kind() == geometry::SegmentKind2::Line)
+    if (segment.Kind() == Geometry::SegmentKind2::Line)
     {
         return LocatePoint(point, static_cast<const LineSegment2d&>(segment), eps);
     }
-    if (segment.Kind() == geometry::SegmentKind2::Arc)
+    if (segment.Kind() == Geometry::SegmentKind2::Arc)
     {
         return LocatePoint(point, static_cast<const ArcSegment2d&>(segment), eps);
     }
@@ -200,4 +200,4 @@ bool IsEqual(const LineSegment2d& first, const LineSegment2d& second, bool ignor
            first.startPoint.AlmostEquals(second.endPoint, eps) &&
            first.endPoint.AlmostEquals(second.startPoint, eps);
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

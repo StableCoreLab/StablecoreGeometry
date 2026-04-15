@@ -12,7 +12,7 @@
 #include "sdk/GeometryTypes.h"
 #include "sdk/Segment2d.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 enum class RingOrientation2d
 {
@@ -42,7 +42,7 @@ struct GEOMETRY_API IntersectionPoint2d
 
     [[nodiscard]] bool AlmostEquals(
         const IntersectionPoint2d& other,
-        double eps = geometry::kDefaultEpsilon) const
+        double eps = Geometry::kDefaultEpsilon) const
     {
         return point.AlmostEquals(other.point, eps) &&
                std::abs(parameterOnFirst - other.parameterOnFirst) <= eps &&
@@ -139,4 +139,4 @@ struct GEOMETRY_API SnapResult2d
         return !snapped || point.IsValid();
     }
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

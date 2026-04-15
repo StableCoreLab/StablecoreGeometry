@@ -5,7 +5,7 @@
 
 #include "sdk/Surface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 class GEOMETRY_API OffsetSurface final : public Surface
 {
@@ -44,7 +44,7 @@ public:
         }
 
         const SurfaceEval3d eval = baseSurface_->Evaluate(u, v, 1);
-        const Vector3d unitNormal = eval.normal.Normalized(geometry::kDefaultEpsilon);
+        const Vector3d unitNormal = eval.normal.Normalized(Geometry::kDefaultEpsilon);
         return baseSurface_->PointAt(u, v) + unitNormal * offsetDistance_;
     }
 
@@ -98,4 +98,4 @@ private:
     std::shared_ptr<Surface> baseSurface_{};
     double offsetDistance_{0.0};
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

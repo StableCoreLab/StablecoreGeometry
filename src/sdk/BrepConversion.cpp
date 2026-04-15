@@ -17,7 +17,7 @@
 #include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -151,7 +151,7 @@ void BuildBodyLoopRepresentativeIds(
                 FindOrAddRepresentativePoint(
                     groupPoint(face.OuterLoop().VertexAt(i)),
                     representativePoints,
-                    geometry::kRepresentativeGroupingEpsilon));
+                    Geometry::kRepresentativeGroupingEpsilon));
         }
 
         faceIds.holes.resize(face.HoleCount());
@@ -166,7 +166,7 @@ void BuildBodyLoopRepresentativeIds(
                     FindOrAddRepresentativePoint(
                         groupPoint(hole.VertexAt(i)),
                         representativePoints,
-                        geometry::kRepresentativeGroupingEpsilon));
+                        Geometry::kRepresentativeGroupingEpsilon));
             }
         }
     }
@@ -278,7 +278,7 @@ template <typename FaceAccessor>
         [&faces](const std::size_t faceIndex) -> const PolyhedronFace3d& { return faces[faceIndex]; },
         representativeIds,
         representativeTargetPoints,
-        geometry::kRepresentativeMatchEpsilon);
+        Geometry::kRepresentativeMatchEpsilon);
 }
 
 [[nodiscard]] bool ExecuteRepresentativeTargetAggregationPass(
@@ -291,7 +291,7 @@ template <typename FaceAccessor>
         [&body](const std::size_t faceIndex) { return body.FaceAt(faceIndex); },
         representativeIds,
         representativeTargetPoints,
-        geometry::kRepresentativeMatchEpsilon);
+        Geometry::kRepresentativeMatchEpsilon);
 }
 
 [[nodiscard]] bool ExecuteCrossFaceSnappingPass(
@@ -397,13 +397,13 @@ template <typename FaceAccessor>
         }
 
         const Point3d point = body.VertexAt(vertexIndex).Point();
-        if (vertices.empty() || !vertices.back().AlmostEquals(point, geometry::kLoopCleanupEpsilon))
+        if (vertices.empty() || !vertices.back().AlmostEquals(point, Geometry::kLoopCleanupEpsilon))
         {
             vertices.push_back(point);
         }
     }
 
-    while (vertices.size() >= 2 && vertices.front().AlmostEquals(vertices.back(), geometry::kLoopCleanupEpsilon))
+    while (vertices.size() >= 2 && vertices.front().AlmostEquals(vertices.back(), Geometry::kLoopCleanupEpsilon))
     {
         vertices.pop_back();
     }
@@ -465,13 +465,13 @@ template <typename FaceAccessor>
             return false;
         }
 
-        if (vertices.empty() || !vertices.back().AlmostEquals(point, geometry::kLoopCleanupEpsilon))
+        if (vertices.empty() || !vertices.back().AlmostEquals(point, Geometry::kLoopCleanupEpsilon))
         {
             vertices.push_back(point);
         }
     }
 
-    while (vertices.size() >= 2 && vertices.front().AlmostEquals(vertices.back(), geometry::kLoopCleanupEpsilon))
+    while (vertices.size() >= 2 && vertices.front().AlmostEquals(vertices.back(), Geometry::kLoopCleanupEpsilon))
     {
         vertices.pop_back();
     }
@@ -522,8 +522,8 @@ template <typename FaceAccessor>
     const Vector3d delta = point - plane.origin;
     const Vector3d uAxis = planeSurface.UAxis();
     const Vector3d vAxis = planeSurface.VAxis();
-    const double uDenom = std::max(uAxis.LengthSquared(), geometry::kPlaneProjectionEpsilon);
-    const double vDenom = std::max(vAxis.LengthSquared(), geometry::kPlaneProjectionEpsilon);
+    const double uDenom = std::max(uAxis.LengthSquared(), Geometry::kPlaneProjectionEpsilon);
+    const double vDenom = std::max(vAxis.LengthSquared(), Geometry::kPlaneProjectionEpsilon);
     return Point2d{
         Dot(delta, uAxis) / uDenom,
         Dot(delta, vAxis) / vDenom};
@@ -799,7 +799,7 @@ void BuildSharedOuterVertexPreferenceMask(
     std::vector<Point3d> representatives;
     std::vector<std::size_t> representativeCounts;
     std::vector<std::vector<std::size_t>> faceRepresentativeIndices(body.FaceCount());
-    const double matchEps = std::max(eps, geometry::kSharedTopologyMatchEpsilon);
+    const double matchEps = std::max(eps, Geometry::kSharedTopologyMatchEpsilon);
 
     for (std::size_t faceIndex = 0; faceIndex < body.FaceCount(); ++faceIndex)
     {
@@ -920,7 +920,7 @@ void BuildSharedOuterVertexPreferenceMask(
     const std::vector<std::vector<std::size_t>>* sourceHoleRepresentativeIds,
     FaceLoopRepresentativeIds* repairedRepresentativeIds)
 {
-    const double supportEps = std::min(eps, geometry::kBooleanComparisonEpsilon);
+    const double supportEps = std::min(eps, Geometry::kBooleanComparisonEpsilon);
     auto normalizeLoop = [&](const PolyhedronLoop3d& loop, PolyhedronLoop3d& normalized, std::vector<std::size_t>* keptIndices) {
         std::vector<Point3d> vertices;
         if (keptIndices != nullptr)
@@ -1092,7 +1092,7 @@ void BuildSharedOuterVertexPreferenceMask(
             for (std::size_t vertexIndex = 0; vertexIndex < loop.VertexCount(); ++vertexIndex)
             {
                 const double distance = std::abs(plane.SignedDistanceTo(loop.VertexAt(vertexIndex), eps));
-                if (distance <= geometry::kSupportPlaneOnPlaneEpsilon)
+                if (distance <= Geometry::kSupportPlaneOnPlaneEpsilon)
                 {
                     ++onPlaneCount;
                 }
@@ -1105,7 +1105,7 @@ void BuildSharedOuterVertexPreferenceMask(
         for (const PolyhedronLoop3d& hole : holes)
         {
             const double beforeHoleDistance = totalDistance;
-            accumulateLoopDistance(hole, geometry::kSupportPlaneHoleDistanceWeight);
+            accumulateLoopDistance(hole, Geometry::kSupportPlaneHoleDistanceWeight);
             holeDistance += totalDistance - beforeHoleDistance;
         }
 
@@ -1134,7 +1134,7 @@ void BuildSharedOuterVertexPreferenceMask(
 
                         const Plane seedPlane = Plane::FromPointAndNormal(a, seedNormal);
                         const auto [onPlaneCount, holeDistance, totalDistance, maxDistance] = scorePlane(seedPlane);
-                        if (holeDistance > geometry::kSupportPlaneOnPlaneEpsilon * static_cast<double>(hole.VertexCount()))
+                        if (holeDistance > Geometry::kSupportPlaneOnPlaneEpsilon * static_cast<double>(hole.VertexCount()))
                         {
                             continue;
                         }
@@ -1875,7 +1875,7 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
                 const std::size_t clusterIndex = FindOrAddRepresentativePoint(
                     point,
                     projectedClusterRepresentatives,
-                    geometry::kRepresentativeGroupingEpsilon);
+                    Geometry::kRepresentativeGroupingEpsilon);
                 if (clusterIndex >= projectedClusterAccumulators.size())
                 {
                     projectedClusterAccumulators.resize(clusterIndex + 1);
@@ -1990,8 +1990,8 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
     }
 
     const double vertexDedupEps = repairQuadHolelessBody
-        ? std::max(geometry::kBrepVertexDedupEpsilon, computeBodyScale() * 0.1)
-        : geometry::kBrepVertexDedupEpsilon;
+        ? std::max(Geometry::kBrepVertexDedupEpsilon, computeBodyScale() * 0.1)
+        : Geometry::kBrepVertexDedupEpsilon;
     const double validationEps = ComputeBodyValidationEpsilon(sourceBody, eps);
 
     std::vector<BrepVertex> vertices;
@@ -2311,5 +2311,5 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
     }
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

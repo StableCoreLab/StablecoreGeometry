@@ -4,7 +4,7 @@
 
 #include "types/Segment2.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 class ArcSegment2 : public Segment2<T>
@@ -62,7 +62,7 @@ public:
 
     [[nodiscard]] double SignedSweep() const
     {
-        return detail::SignedSweep(AngleAsDouble(startAngle_), AngleAsDouble(endAngle_), direction_);
+        return Detail::SignedSweep(AngleAsDouble(startAngle_), AngleAsDouble(endAngle_), direction_);
     }
 
     [[nodiscard]] PointType StartPoint() const override
@@ -102,14 +102,14 @@ public:
 
         static constexpr double kCriticalAngles[] = {
             0.0,
-            detail::kPi * 0.5,
-            detail::kPi,
-            detail::kPi * 1.5
+            Detail::kPi * 0.5,
+            Detail::kPi,
+            Detail::kPi * 1.5
         };
 
         for (const double candidateAngle : kCriticalAngles)
         {
-            if (detail::IsAngleOnArc(candidateAngle, startAngle, signedSweep))
+            if (Detail::IsAngleOnArc(candidateAngle, startAngle, signedSweep))
             {
                 box.ExpandToInclude(PointAtAngle(candidateAngle));
             }
@@ -137,7 +137,7 @@ public:
         }
 
         const LengthType clampedDistance = clampToSegment
-            ? static_cast<LengthType>(detail::ClampDouble(
+            ? static_cast<LengthType>(Detail::ClampDouble(
                 static_cast<double>(distanceFromStart),
                 0.0,
                 static_cast<double>(length)))
@@ -150,17 +150,17 @@ public:
 
     [[nodiscard]] bool IsValid() const override
     {
-        if (!detail::IsFiniteValue(center_.x) || !detail::IsFiniteValue(center_.y))
+        if (!Detail::IsFiniteValue(center_.x) || !Detail::IsFiniteValue(center_.y))
         {
             return false;
         }
 
-        if (!detail::IsFiniteValue(radius_) || !(radius_ > T{}))
+        if (!Detail::IsFiniteValue(radius_) || !(radius_ > T{}))
         {
             return false;
         }
 
-        if (!detail::IsFiniteValue(startAngle_) || !detail::IsFiniteValue(endAngle_))
+        if (!Detail::IsFiniteValue(startAngle_) || !Detail::IsFiniteValue(endAngle_))
         {
             return false;
         }

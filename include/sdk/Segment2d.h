@@ -7,9 +7,9 @@
 #include "sdk/GeometryTypes.h"
 #include "types/Segment2.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
-using geometry::SegmentKind2;
+using Geometry::SegmentKind2;
 
 class GEOMETRY_API Segment2d
 {
@@ -27,4 +27,4 @@ public:
     [[nodiscard]] virtual std::string DebugString() const = 0;
     [[nodiscard]] virtual std::unique_ptr<Segment2d> Clone() const = 0;
 };
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk

@@ -7,7 +7,7 @@
 
 #include "common/Epsilon.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 struct Vector2;

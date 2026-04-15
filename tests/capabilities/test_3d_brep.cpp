@@ -4,44 +4,44 @@
 #include "sdk/Geometry.h"
 #include "support/Fixtures3d.h"
 
-using geometry::sdk::BrepFace;
-using geometry::sdk::BrepFaceEdit3d;
-using geometry::sdk::BrepShell;
-using geometry::sdk::BrepBody;
-using geometry::sdk::BrepConversionIssue3d;
-using geometry::sdk::BrepBodyEdit3d;
-using geometry::sdk::BrepLoop;
-using geometry::sdk::BrepLoopEdit3d;
-using geometry::sdk::BrepLoopEditIssue3d;
-using geometry::sdk::BrepShellEdit3d;
-using geometry::sdk::ConvertToBrepBody;
-using geometry::sdk::FlipCoedgeDirection;
-using geometry::sdk::InsertCoedge;
-using geometry::sdk::Plane;
-using geometry::sdk::Point3d;
-using geometry::sdk::PolyhedronFace3d;
-using geometry::sdk::PolyhedronLoop3d;
-using geometry::sdk::PolyhedronBody;
-using geometry::sdk::ReplaceFace;
-using geometry::sdk::ReplaceOuterLoop;
-using geometry::sdk::ReplaceShell;
-using geometry::sdk::RemoveCoedge;
-using geometry::sdk::RebuildSectionBrepBodies;
-using geometry::sdk::RebuildSectionBrepBody;
-using geometry::sdk::RebuildSectionBodies;
-using geometry::sdk::RebuildSectionBody;
-using geometry::sdk::Section;
-using geometry::sdk::SectionBrepBodySetRebuild3d;
-using geometry::sdk::SectionBrepBodyRebuild3d;
-using geometry::sdk::SectionBodySetRebuild3d;
-using geometry::sdk::SectionBodyRebuild3d;
-using geometry::sdk::Vector3d;
+using Geometry::Sdk::BrepFace;
+using Geometry::Sdk::BrepFaceEdit3d;
+using Geometry::Sdk::BrepShell;
+using Geometry::Sdk::BrepBody;
+using Geometry::Sdk::BrepConversionIssue3d;
+using Geometry::Sdk::BrepBodyEdit3d;
+using Geometry::Sdk::BrepLoop;
+using Geometry::Sdk::BrepLoopEdit3d;
+using Geometry::Sdk::BrepLoopEditIssue3d;
+using Geometry::Sdk::BrepShellEdit3d;
+using Geometry::Sdk::ConvertToBrepBody;
+using Geometry::Sdk::FlipCoedgeDirection;
+using Geometry::Sdk::InsertCoedge;
+using Geometry::Sdk::Plane;
+using Geometry::Sdk::Point3d;
+using Geometry::Sdk::PolyhedronFace3d;
+using Geometry::Sdk::PolyhedronLoop3d;
+using Geometry::Sdk::PolyhedronBody;
+using Geometry::Sdk::ReplaceFace;
+using Geometry::Sdk::ReplaceOuterLoop;
+using Geometry::Sdk::ReplaceShell;
+using Geometry::Sdk::RemoveCoedge;
+using Geometry::Sdk::RebuildSectionBrepBodies;
+using Geometry::Sdk::RebuildSectionBrepBody;
+using Geometry::Sdk::RebuildSectionBodies;
+using Geometry::Sdk::RebuildSectionBody;
+using Geometry::Sdk::Section;
+using Geometry::Sdk::SectionBrepBodySetRebuild3d;
+using Geometry::Sdk::SectionBrepBodyRebuild3d;
+using Geometry::Sdk::SectionBodySetRebuild3d;
+using Geometry::Sdk::SectionBodyRebuild3d;
+using Geometry::Sdk::Vector3d;
 
 namespace
 {
-geometry::sdk::PolyhedronLoop3d TranslateLoop(
-    const geometry::sdk::PolyhedronLoop3d& loop,
-    const geometry::sdk::Vector3d& delta)
+Geometry::Sdk::PolyhedronLoop3d TranslateLoop(
+    const Geometry::Sdk::PolyhedronLoop3d& loop,
+    const Geometry::Sdk::Vector3d& delta)
 {
     std::vector<Point3d> vertices;
     vertices.reserve(loop.VertexCount());
@@ -49,12 +49,12 @@ geometry::sdk::PolyhedronLoop3d TranslateLoop(
     {
         vertices.push_back(loop.VertexAt(i) + delta);
     }
-    return geometry::sdk::PolyhedronLoop3d(std::move(vertices));
+    return Geometry::Sdk::PolyhedronLoop3d(std::move(vertices));
 }
 
-geometry::sdk::PolyhedronFace3d TranslateFace(
-    const geometry::sdk::PolyhedronFace3d& face,
-    const geometry::sdk::Vector3d& delta)
+Geometry::Sdk::PolyhedronFace3d TranslateFace(
+    const Geometry::Sdk::PolyhedronFace3d& face,
+    const Geometry::Sdk::Vector3d& delta)
 {
     const Plane plane = Plane::FromPointAndNormal(
         face.SupportPlane().origin + delta,
@@ -71,9 +71,9 @@ geometry::sdk::PolyhedronFace3d TranslateFace(
     return PolyhedronFace3d(plane, std::move(outer), std::move(holes));
 }
 
-geometry::sdk::PolyhedronBody BuildTwoSeparatedUnitCubes()
+Geometry::Sdk::PolyhedronBody BuildTwoSeparatedUnitCubes()
 {
-    const PolyhedronBody first = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody first = Geometry::Test::BuildUnitCubeBody();
     std::vector<PolyhedronFace3d> faces = first.Faces();
 
     const Vector3d delta{3.0, 0.0, 0.0};
@@ -92,7 +92,7 @@ geometry::sdk::PolyhedronBody BuildTwoSeparatedUnitCubes()
 // the part that is verifiably working while coedge-editing APIs remain open.
 TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFaceBrepWithValidOuterLoop)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     // plane: x + z = 0.5 â€?oblique cut yielding a quadrilateral section
@@ -122,7 +122,7 @@ TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFaceBrepWithValidOuterLoop)
 // slanted cube section can be rebuilt into a valid single-face PolyhedronBody.
 TEST(Brep3dCapabilityTest, SlantedCubeRebuildsSingleFacePolyhedronBody)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const Plane slantedCut = Plane::FromPointAndNormal(
@@ -239,7 +239,7 @@ TEST(Brep3dCapabilityTest, TwoSeparatedCubeBrepSectionRebuildsIntoTwoBrepBodies)
 // insert -> flip orientation -> remove, with deterministic recovery.
 TEST(Brep3dCapabilityTest, CoedgeLoopEditingInsertFlipRemoveRoundTrips)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     const Plane slantedCut = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{1.0, 0.0, 1.0});
@@ -256,7 +256,7 @@ TEST(Brep3dCapabilityTest, CoedgeLoopEditingInsertFlipRemoveRoundTrips)
     const BrepLoopEdit3d inserted = InsertCoedge(
         originalLoop,
         2,
-        geometry::sdk::BrepCoedge(seedCoedge.EdgeIndex(), true));
+        Geometry::Sdk::BrepCoedge(seedCoedge.EdgeIndex(), true));
     ASSERT_TRUE(inserted.success);
     ASSERT_EQ(inserted.issue, BrepLoopEditIssue3d::None);
     ASSERT_TRUE(inserted.loop.IsValid());
@@ -286,7 +286,7 @@ TEST(Brep3dCapabilityTest, CoedgeLoopEditingInsertFlipRemoveRoundTrips)
 // loop edit -> face replacement -> shell replacement -> body replacement.
 TEST(Brep3dCapabilityTest, OwnershipConsistentEditingWorkflowRoundTripsIntoBody)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     const Plane slantedCut = Plane::FromPointAndNormal(
         Point3d{0.0, 0.0, 0.5},
         Vector3d{1.0, 0.0, 1.0});
@@ -305,7 +305,7 @@ TEST(Brep3dCapabilityTest, OwnershipConsistentEditingWorkflowRoundTripsIntoBody)
     const BrepLoopEdit3d inserted = InsertCoedge(
         originalLoop,
         1,
-        geometry::sdk::BrepCoedge(originalLoop.CoedgeAt(1).EdgeIndex(), true));
+        Geometry::Sdk::BrepCoedge(originalLoop.CoedgeAt(1).EdgeIndex(), true));
     ASSERT_TRUE(inserted.success);
 
     const BrepLoopEdit3d removed = RemoveCoedge(inserted.loop, 1);
@@ -341,7 +341,7 @@ TEST(Brep3dCapabilityTest, OwnershipConsistentEditingWorkflowRoundTripsIntoBody)
 // single-face rebuilt section body.
 TEST(Brep3dCapabilityTest, OwnershipReplacementWorkflowOnMultiFaceClosedShell)
 {
-    const PolyhedronBody cubeBody = geometry::test::BuildUnitCubeBody();
+    const PolyhedronBody cubeBody = Geometry::Test::BuildUnitCubeBody();
     ASSERT_TRUE(cubeBody.IsValid());
 
     const auto converted = ConvertToBrepBody(cubeBody);

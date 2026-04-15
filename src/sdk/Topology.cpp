@@ -7,7 +7,7 @@
 #include "sdk/PathOps.h"
 #include "sdk/Relation.h"
 
-namespace geometry::sdk
+namespace Geometry::Sdk
 {
 namespace
 {
@@ -381,5 +381,5 @@ PolygonTopology2d BuildPolygonTopology(const MultiPolygon2d& polygons, double ep
 {
     return PolygonTopology2d(polygons, eps);
 }
-} // namespace geometry::sdk
+} // namespace Geometry::Sdk
 

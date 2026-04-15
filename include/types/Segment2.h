@@ -5,7 +5,7 @@
 #include "types/Point2.h"
 #include "types/Vector2.h"
 
-namespace geometry
+namespace Geometry
 {
 enum class SegmentKind2
 {
@@ -19,11 +19,11 @@ enum class ArcDirection
     CounterClockwise
 };
 
-} // namespace geometry
+} // namespace Geometry
 
 #include "types/Segment2Detail.h"
 
-namespace geometry
+namespace Geometry
 {
 template <typename T>
 class Segment2
