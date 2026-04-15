@@ -1,11 +1,11 @@
-#include "sdk/GeometryIntersection.h"
+﻿#include "sdk/GeometryIntersection.h"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <set>
 
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryRelation.h"
 #include "sdk/LineCurve3d.h"
@@ -1136,3 +1136,4 @@ PlanePlaneIntersection3d Intersect(
     return result;
 }
 } // namespace geometry::sdk
+

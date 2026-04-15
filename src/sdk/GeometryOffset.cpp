@@ -1,4 +1,4 @@
-#include "sdk/GeometryOffset.h"
+﻿#include "sdk/GeometryOffset.h"
 
 #include <algorithm>
 #include <cmath>
@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "common/Epsilon.h"
-#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryBoolean.h"
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometryMetrics.h"
@@ -778,3 +777,4 @@ MultiPolygon2d Offset(const MultiPolygon2d& polygons, double distance, OffsetOpt
     return RecoverMultiPolygonSemanticFlip(normalizedSources, rebuilt, distance, geometry::kOffsetDefaultEpsilon);
 }
 } // namespace geometry::sdk
+

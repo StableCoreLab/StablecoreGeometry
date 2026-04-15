@@ -1,11 +1,11 @@
-#include "sdk/GeometryBodyBoolean.h"
+﻿#include "sdk/GeometryBodyBoolean.h"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <utility>
 
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryBrepConversion.h"
 #include "sdk/PlaneSurface.h"
 
@@ -1099,3 +1099,4 @@ BodyBooleanResult3d DifferenceBodies(
     return MakeResultForPolyhedronBodies(first, second, options, 'd');
 }
 } // namespace geometry::sdk
+

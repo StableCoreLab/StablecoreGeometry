@@ -1,4 +1,4 @@
-#include "sdk/GeometryBrepConversion.h"
+﻿#include "sdk/GeometryBrepConversion.h"
 
 #include <algorithm>
 #include <cmath>
@@ -13,7 +13,7 @@
 #include <tuple>
 #include <vector>
 
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
 
@@ -2312,3 +2312,4 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
     }
 }
 } // namespace geometry::sdk
+

@@ -1,4 +1,4 @@
-#include "sdk/GeometrySection.h"
+﻿#include "sdk/GeometrySection.h"
 
 #include <algorithm>
 #include <array>
@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryMeshConversion.h"
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometryProjection.h"
@@ -3103,3 +3103,4 @@ SectionComponents3d BuildSectionComponents(const PolyhedronSection3d& section, d
     return result;
 }
 } // namespace geometry::sdk
+

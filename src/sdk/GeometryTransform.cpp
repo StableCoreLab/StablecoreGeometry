@@ -1,10 +1,10 @@
-#include "sdk/GeometryTransform.h"
+﻿#include "sdk/GeometryTransform.h"
 
 #include <cmath>
 #include <vector>
 
 #include "algorithm/Predicate2.h"
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryMetrics.h"
 #include "sdk/GeometryShapeOps.h"
 
@@ -230,3 +230,4 @@ Polygon2d Stretch(const Polygon2d& polygon, const Box2d& region, const Vector2d&
     return Polygon2d(Stretch(polygon.OuterRing(), region, offset), std::move(holes));
 }
 } // namespace geometry::sdk
+

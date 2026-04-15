@@ -1,11 +1,10 @@
-#include "sdk/GeometryAlgorithms.h"
+﻿#include "sdk/GeometryAlgorithms.h"
 
 #include <algorithm>
 #include <cmath>
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
-#include "common/GeometryEpsilon.h"
 
 namespace geometry::sdk
 {
@@ -57,3 +56,4 @@ SegmentProjection2d ProjectPointToSegment(
              rawParameter <= 1.0 + geometry::kAlgorithmsDefaultEpsilon)};
 }
 } // namespace geometry::sdk
+

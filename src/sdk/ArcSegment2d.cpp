@@ -1,4 +1,4 @@
-#include "sdk/ArcSegment2d.h"
+﻿#include "sdk/ArcSegment2d.h"
 
 #include <cmath>
 #include <memory>
@@ -6,7 +6,6 @@
 #include <sstream>
 
 #include "common/Epsilon.h"
-#include "common/GeometryEpsilon.h"
 
 namespace geometry::sdk
 {
@@ -190,3 +189,4 @@ Point2d ArcSegment2d::PointAtAngle(double angle) const
         center.y + radius * std::sin(angle)};
 }
 } // namespace geometry::sdk
+

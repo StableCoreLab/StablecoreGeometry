@@ -1,4 +1,4 @@
-#include "sdk/GeometryBoolean.h"
+﻿#include "sdk/GeometryBoolean.h"
 
 #include <algorithm>
 #include <cmath>
@@ -10,7 +10,6 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
-#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryIntersection.h"
 #include "sdk/GeometryPathOps.h"
 #include "sdk/GeometryRelation.h"
@@ -1969,5 +1968,6 @@ MultiPolygon2d Difference(const Polygon2d& first, const Polygon2d& second, doubl
     return result;
 }
 } // namespace geometry::sdk
+
 
 

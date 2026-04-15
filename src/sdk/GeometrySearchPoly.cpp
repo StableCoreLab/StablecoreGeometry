@@ -1,4 +1,4 @@
-#include "sdk/GeometrySearchPoly.h"
+﻿#include "sdk/GeometrySearchPoly.h"
 
 #include <algorithm>
 #include <cmath>
@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "algorithm/Predicate2.h"
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryMetrics.h"
 #include "sdk/GeometryPathOps.h"
 #include "sdk/GeometryRelation.h"
@@ -940,3 +940,4 @@ std::optional<SearchPolyCandidate2d> SearchPolygonContainingPoint(
     return bestCandidate;
 }
 } // namespace geometry::sdk
+

@@ -1,4 +1,4 @@
-#include "sdk/GeometryAxisOps.h"
+﻿#include "sdk/GeometryAxisOps.h"
 
 #include <algorithm>
 #include <cmath>
@@ -8,7 +8,6 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
-#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryAlgorithms.h"
 #include "sdk/ArcSegment2d.h"
 #include "sdk/LineSegment2d.h"
@@ -342,3 +341,4 @@ SnapResult2d SnapPointToSegments(
     return result;
 }
 } // namespace geometry::sdk
+

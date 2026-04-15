@@ -1,4 +1,4 @@
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 
 namespace geometry
 {

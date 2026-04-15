@@ -1,4 +1,4 @@
-#include "sdk/GeometryMeshConversion.h"
+﻿#include "sdk/GeometryMeshConversion.h"
 
 #include <algorithm>
 #include <cmath>
@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "algorithm/Predicate2.h"
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryIntersection.h"
 #include "sdk/GeometryProjection.h"
 #include "sdk/GeometryRelation.h"
@@ -714,3 +714,4 @@ PolyhedronMeshConversion3d ConvertToTriangleMesh(const BrepBody& body, double ep
     return {true, MeshConversionIssue3d::None, 0, TriangleMesh(std::move(vertices), std::move(triangles))};
 }
 } // namespace geometry::sdk
+

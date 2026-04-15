@@ -1,4 +1,4 @@
-#include "sdk/GeometryHealing.h"
+﻿#include "sdk/GeometryHealing.h"
 
 #include <algorithm>
 #include <array>
@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryMeshRepair.h"
 #include "sdk/GeometryRelation.h"
 #include "sdk/GeometryShapeOps.h"
@@ -1387,3 +1387,4 @@ BrepHealing3d Heal(
     return {true, HealingIssue3d::None, std::move(healedBody)};
 }
 } // namespace geometry::sdk
+

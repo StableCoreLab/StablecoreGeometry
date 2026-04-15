@@ -1,4 +1,4 @@
-#include "sdk/GeometryPathOps.h"
+﻿#include "sdk/GeometryPathOps.h"
 
 #include <algorithm>
 #include <cmath>
@@ -10,7 +10,6 @@
 
 #include "algorithm/Predicate2.h"
 #include "common/Epsilon.h"
-#include "common/GeometryEpsilon.h"
 #include "sdk/GeometryEditing.h"
 #include "sdk/GeometryBoolean.h"
 #include "sdk/GeometryIntersection.h"
@@ -1292,3 +1291,4 @@ Polygon2d NormalizePolygonByLines(const Polygon2d& polygon, double eps)
     return {};
 }
 } // namespace geometry::sdk
+

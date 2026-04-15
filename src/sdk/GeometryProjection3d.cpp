@@ -1,9 +1,9 @@
-#include "sdk/GeometryProjection.h"
+﻿#include "sdk/GeometryProjection.h"
 
 #include <algorithm>
 #include <array>
 
-#include "common/GeometryEpsilon.h"
+#include "common/Epsilon.h"
 #include "sdk/GeometryRelation.h"
 #include "sdk/LineCurve3d.h"
 #include "sdk/PlaneSurface.h"
@@ -817,3 +817,4 @@ FaceProjection3d ProjectFaceToPolygon2d(const PolyhedronFace3d& face, const Geom
     return FaceProjection3d{true, std::move(polygon), plane.origin, basis.u, basis.v};
 }
 } // namespace geometry::sdk
+
