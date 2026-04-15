@@ -1,36 +1,12 @@
 #pragma once
 
 #include <algorithm>
-#include <cmath>
 #include <memory>
 
 #include "sdk/Surface.h"
 
 namespace geometry::sdk
 {
-namespace detail
-{
-[[nodiscard]] inline Vector3d MakePerpendicularVector(const Vector3d& normal, double eps)
-{
-    const Vector3d normalized = normal.Normalized(eps);
-    if (normalized.Length() <= eps)
-    {
-        return Vector3d{};
-    }
-
-    // Prefer world-aligned in-plane axes when possible so plane UV coordinates
-    // remain stable and intuitive, especially for axis-aligned support planes.
-    Vector3d referenceAxis{1.0, 0.0, 0.0};
-    if (std::abs(Dot(normalized, referenceAxis)) >= 1.0 - eps)
-    {
-        referenceAxis = Vector3d{0.0, 1.0, 0.0};
-    }
-
-    const Vector3d inPlane = referenceAxis - normalized * Dot(referenceAxis, normalized);
-    return inPlane.Normalized(eps);
-}
-} // namespace detail
-
 class GEOMETRY_API PlaneSurface final : public Surface
 {
 public:
@@ -44,12 +20,7 @@ public:
         const Plane& plane,
         Intervald uRange = Intervald{-1.0, 1.0},
         Intervald vRange = Intervald{-1.0, 1.0},
-        double eps = geometry::kDefaultEpsilon)
-    {
-        const Vector3d uAxis = detail::MakePerpendicularVector(plane.normal, eps);
-        const Vector3d vAxis = Cross(plane.UnitNormal(eps), uAxis).Normalized(eps);
-        return PlaneSurface(plane, uAxis, vAxis, uRange, vRange);
-    }
+        double eps = geometry::kDefaultEpsilon);
 
     [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const override
     {

@@ -6,7 +6,7 @@
 
 namespace geometry::sdk
 {
-GeometrySegmentSearch2d::GeometrySegmentSearch2d(std::vector<SegmentSearchEntry2d> entries)
+SegmentSearch2d::SegmentSearch2d(std::vector<SegmentSearchEntry2d> entries)
     : entries_(std::move(entries))
 {
     for (const auto& entry : entries_)
@@ -15,13 +15,13 @@ GeometrySegmentSearch2d::GeometrySegmentSearch2d(std::vector<SegmentSearchEntry2
     }
 }
 
-void GeometrySegmentSearch2d::Clear()
+void SegmentSearch2d::Clear()
 {
     entries_.clear();
     nextId_ = 0;
 }
 
-std::size_t GeometrySegmentSearch2d::Add(std::shared_ptr<const Segment2d> segment)
+std::size_t SegmentSearch2d::Add(std::shared_ptr<const Segment2d> segment)
 {
     const std::size_t id = nextId_++;
     entries_.push_back(SegmentSearchEntry2d{id, std::move(segment), entries_.empty() ? Box2d{} : entries_.back().box});
@@ -29,11 +29,11 @@ std::size_t GeometrySegmentSearch2d::Add(std::shared_ptr<const Segment2d> segmen
     return id;
 }
 
-std::size_t GeometrySegmentSearch2d::Add(const Segment2d& segment) { return Add(segment.Clone()); }
-std::size_t GeometrySegmentSearch2d::Add(const LineSegment2d& segment) { return Add(segment.Clone()); }
-std::size_t GeometrySegmentSearch2d::Add(const ArcSegment2d& segment) { return Add(segment.Clone()); }
+std::size_t SegmentSearch2d::Add(const Segment2d& segment) { return Add(segment.Clone()); }
+std::size_t SegmentSearch2d::Add(const LineSegment2d& segment) { return Add(segment.Clone()); }
+std::size_t SegmentSearch2d::Add(const ArcSegment2d& segment) { return Add(segment.Clone()); }
 
-bool GeometrySegmentSearch2d::Remove(std::size_t id)
+bool SegmentSearch2d::Remove(std::size_t id)
 {
     const auto it = std::remove_if(entries_.begin(), entries_.end(), [id](const SegmentSearchEntry2d& entry) {
         return entry.id == id;
@@ -46,9 +46,9 @@ bool GeometrySegmentSearch2d::Remove(std::size_t id)
     return true;
 }
 
-std::size_t GeometrySegmentSearch2d::Size() const { return entries_.size(); }
-bool GeometrySegmentSearch2d::IsEmpty() const { return entries_.empty(); }
-bool GeometrySegmentSearch2d::IsValid() const
+std::size_t SegmentSearch2d::Size() const { return entries_.size(); }
+bool SegmentSearch2d::IsEmpty() const { return entries_.empty(); }
+bool SegmentSearch2d::IsValid() const
 {
     for (const auto& entry : entries_)
     {
@@ -60,9 +60,9 @@ bool GeometrySegmentSearch2d::IsValid() const
     return true;
 }
 
-bool GeometrySegmentSearch2d::Contains(std::size_t id) const { return Find(id) != nullptr; }
+bool SegmentSearch2d::Contains(std::size_t id) const { return Find(id) != nullptr; }
 
-const SegmentSearchEntry2d* GeometrySegmentSearch2d::Find(std::size_t id) const
+const SegmentSearchEntry2d* SegmentSearch2d::Find(std::size_t id) const
 {
     const auto it = std::find_if(entries_.begin(), entries_.end(), [id](const SegmentSearchEntry2d& entry) {
         return entry.id == id;
@@ -70,7 +70,7 @@ const SegmentSearchEntry2d* GeometrySegmentSearch2d::Find(std::size_t id) const
     return it == entries_.end() ? nullptr : &*it;
 }
 
-std::vector<std::size_t> GeometrySegmentSearch2d::QueryIntersecting(const Box2d& box, double eps) const
+std::vector<std::size_t> SegmentSearch2d::QueryIntersecting(const Box2d& box, double eps) const
 {
     std::vector<std::size_t> result;
     for (const auto& entry : entries_)
@@ -83,7 +83,7 @@ std::vector<std::size_t> GeometrySegmentSearch2d::QueryIntersecting(const Box2d&
     return result;
 }
 
-std::vector<std::size_t> GeometrySegmentSearch2d::QueryIntersecting(const Segment2d& segment, double eps) const
+std::vector<std::size_t> SegmentSearch2d::QueryIntersecting(const Segment2d& segment, double eps) const
 {
     std::vector<std::size_t> result;
     for (const auto& entry : entries_)
@@ -96,7 +96,7 @@ std::vector<std::size_t> GeometrySegmentSearch2d::QueryIntersecting(const Segmen
     return result;
 }
 
-std::vector<SegmentSearchHit2d> GeometrySegmentSearch2d::QueryWithinDistance(
+std::vector<SegmentSearchHit2d> SegmentSearch2d::QueryWithinDistance(
     const Point2d& point,
     double maxDistance) const
 {
@@ -118,7 +118,7 @@ std::vector<SegmentSearchHit2d> GeometrySegmentSearch2d::QueryWithinDistance(
     return result;
 }
 
-std::optional<SegmentSearchHit2d> GeometrySegmentSearch2d::Nearest(const Point2d& point) const
+std::optional<SegmentSearchHit2d> SegmentSearch2d::Nearest(const Point2d& point) const
 {
     std::optional<SegmentSearchHit2d> best;
     for (const auto& entry : entries_)
@@ -137,15 +137,15 @@ std::optional<SegmentSearchHit2d> GeometrySegmentSearch2d::Nearest(const Point2d
     return best;
 }
 
-std::string GeometrySegmentSearch2d::DebugString() const
+std::string SegmentSearch2d::DebugString() const
 {
     std::ostringstream stream;
-    stream << "GeometrySegmentSearch2d{size=" << Size()
+    stream << "SegmentSearch2d{size=" << Size()
            << ", nextId=" << nextId_
            << ", valid=" << (IsValid() ? "true" : "false") << "}";
     return stream.str();
 }
 
-const std::vector<SegmentSearchEntry2d>& GeometrySegmentSearch2d::Data() const { return entries_; }
-std::vector<SegmentSearchEntry2d>& GeometrySegmentSearch2d::Data() { return entries_; }
+const std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() const { return entries_; }
+std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() { return entries_; }
 } // namespace geometry::sdk

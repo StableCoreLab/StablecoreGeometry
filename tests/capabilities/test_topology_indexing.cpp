@@ -9,9 +9,9 @@
 
 using geometry::sdk::ArcSegment2d;
 using geometry::sdk::Box2d;
-using geometry::sdk::GeometryBoxTree2d;
-using geometry::sdk::GeometryKDTree2d;
-using geometry::sdk::GeometrySegmentSearch2d;
+using geometry::sdk::BoxTree2d;
+using geometry::sdk::KDTree2d;
+using geometry::sdk::SegmentSearch2d;
 using geometry::sdk::LineSegment2d;
 using geometry::sdk::MultiPolygon2d;
 using geometry::sdk::Point2d;
@@ -22,18 +22,18 @@ using geometry::sdk::PolylineClosure;
 
 TEST(TopologyIndexingTest, CoversCurrentCapabilities)
 {
-    GeometryBoxTree2d boxTree;
+    BoxTree2d boxTree;
     boxTree.Add(1, Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{2.0, 2.0}));
     boxTree.Add(2, Box2d::FromMinMax(Point2d{3.0, 3.0}, Point2d{4.0, 4.0}));
     ASSERT_EQ(boxTree.Query(Box2d::FromMinMax(Point2d{1.0, 1.0}, Point2d{3.1, 3.1})).size(), 2);
 
-    GeometryKDTree2d kdTree;
+    KDTree2d kdTree;
     kdTree.Add(7, Point2d{1.0, 1.0});
     kdTree.Add(8, Point2d{3.0, 3.0});
     ASSERT_EQ(kdTree.Query(Point2d{1.0, 1.0}).size(), 1);
     ASSERT_EQ(kdTree.Nearest(Point2d{2.9, 3.1})->id, 8);
 
-    GeometrySegmentSearch2d search;
+    SegmentSearch2d search;
     const std::size_t lineId = search.Add(LineSegment2d(Point2d{0.0, 0.0}, Point2d{4.0, 0.0}));
     const std::size_t arcId = search.Add(ArcSegment2d(Point2d{0.0, 0.0}, 2.0, 0.0, 1.0));
     (void)arcId;
@@ -125,4 +125,3 @@ TEST(TopologyIndexingTest, CoversCurrentCapabilities)
     ASSERT_EQ(normalizedTopology.ParentOf(1), 0);
     ASSERT_EQ(geometry::sdk::Relate(noisyOuter, smallInner), PolygonContainment2d::FirstContainsSecond);
 }
-

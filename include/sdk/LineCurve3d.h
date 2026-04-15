@@ -35,7 +35,7 @@ public:
             return false;
         }
 
-        return PointAt(StartT()).AlmostEquals(PointAt(EndT()), tolerance.distanceEpsilon);
+        return PointAt(StartParameter()).AlmostEquals(PointAt(EndParameter()), tolerance.distanceEpsilon);
     }
 
     [[nodiscard]] bool IsPeriodic(const GeometryTolerance3d& tolerance = {}) const override
@@ -69,8 +69,8 @@ public:
     [[nodiscard]] Box3d Bounds() const override
     {
         Box3d bounds{};
-        bounds.ExpandToInclude(PointAt(StartT()));
-        bounds.ExpandToInclude(PointAt(EndT()));
+        bounds.ExpandToInclude(PointAt(StartParameter()));
+        bounds.ExpandToInclude(PointAt(EndParameter()));
         return bounds;
     }
 

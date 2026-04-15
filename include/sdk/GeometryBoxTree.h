@@ -27,11 +27,11 @@ struct GEOMETRY_API BoxTreeHit2d
     Box2d box{};
 };
 
-class GEOMETRY_API GeometryBoxTree2d
+class GEOMETRY_API BoxTree2d
 {
 public:
-    GeometryBoxTree2d() = default;
-    explicit GeometryBoxTree2d(std::vector<BoxTreeEntry2d> entries);
+    BoxTree2d() = default;
+    explicit BoxTree2d(std::vector<BoxTreeEntry2d> entries);
 
     void Clear();
     void Add(std::size_t id, const Box2d& box);
@@ -53,4 +53,6 @@ public:
 private:
     std::vector<BoxTreeEntry2d> entries_{};
 };
+
+using GeometryBoxTree2d = BoxTree2d;
 } // namespace geometry::sdk

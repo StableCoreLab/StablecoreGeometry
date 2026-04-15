@@ -6,7 +6,7 @@
 
 默认前置规范：
 
-- 所有任务先满足 [ai-execution-spec.md](/d:/code/stablecore/stablecore-geometry/docs/ai-execution-spec.md)
+- 所有任务先满足 [ai-execution-spec.md](ai-execution-spec.md)
 - 每一轮必须形成 closed capability unit
 - 每一轮必须完整完成 `P1`，并至少触达一个 `P2 / P3`
 - 每一轮必须同时包含 capability / edge-case / gap tests

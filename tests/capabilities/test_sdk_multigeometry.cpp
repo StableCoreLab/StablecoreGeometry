@@ -8,9 +8,9 @@
 using geometry::Point2d;
 using geometry::sdk::ArcSegment2d;
 using geometry::sdk::Box2d;
-using geometry::sdk::GeometryBoxTree2d;
-using geometry::sdk::GeometryKDTree2d;
-using geometry::sdk::GeometrySegmentSearch2d;
+using geometry::sdk::BoxTree2d;
+using geometry::sdk::KDTree2d;
+using geometry::sdk::SegmentSearch2d;
 using geometry::sdk::LineSegment2d;
 using geometry::sdk::MultiPolygon2d;
 using geometry::sdk::MultiPolyline2d;
@@ -64,7 +64,7 @@ TEST(SdkMultigeometryTest, CoversCurrentCapabilities)
     ASSERT_EQ(topology.ChildrenOf(0).size(), 1);
     ASSERT_TRUE(topology.IsValid());
 
-    GeometryBoxTree2d boxTree;
+    BoxTree2d boxTree;
     boxTree.Add(1, Box2d::FromMinMax(Point2d{0.0, 0.0}, Point2d{2.0, 2.0}));
     boxTree.Add(2, Box2d::FromMinMax(Point2d{1.0, 1.0}, Point2d{3.0, 3.0}));
     boxTree.Add(3, Box2d::FromMinMax(Point2d{5.0, 5.0}, Point2d{6.0, 6.0}));
@@ -73,7 +73,7 @@ TEST(SdkMultigeometryTest, CoversCurrentCapabilities)
     ASSERT_EQ(boxTree.QueryContaining(Point2d{1.0, 1.0}).size(), 2);
     ASSERT_TRUE(boxTree.Contains(3));
 
-    GeometryKDTree2d kdTree;
+    KDTree2d kdTree;
     kdTree.Add(1, Point2d{0.0, 0.0});
     kdTree.Add(2, Point2d{1.0, 1.0});
     kdTree.Add(3, Point2d{5.0, 5.0});
@@ -84,7 +84,7 @@ TEST(SdkMultigeometryTest, CoversCurrentCapabilities)
     ASSERT_TRUE(nearest.has_value());
     ASSERT_EQ(nearest->id, 2);
 
-    GeometrySegmentSearch2d segmentSearch;
+    SegmentSearch2d segmentSearch;
     const std::size_t lineId = segmentSearch.Add(LineSegment2d(Point2d{0.0, 0.0}, Point2d{4.0, 0.0}));
     const std::size_t arcId = segmentSearch.Add(ArcSegment2d(
         Point2d{4.0, 0.0},
@@ -98,6 +98,5 @@ TEST(SdkMultigeometryTest, CoversCurrentCapabilities)
     ASSERT_TRUE(nearestSegment.has_value());
     ASSERT_EQ(nearestSegment->id, lineId);
 }
-
 
 

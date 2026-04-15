@@ -39,11 +39,11 @@ struct GEOMETRY_API SegmentSearchHit2d
     }
 };
 
-class GEOMETRY_API GeometrySegmentSearch2d
+class GEOMETRY_API SegmentSearch2d
 {
 public:
-    GeometrySegmentSearch2d() = default;
-    explicit GeometrySegmentSearch2d(std::vector<SegmentSearchEntry2d> entries);
+    SegmentSearch2d() = default;
+    explicit SegmentSearch2d(std::vector<SegmentSearchEntry2d> entries);
 
     void Clear();
     std::size_t Add(std::shared_ptr<const Segment2d> segment);
@@ -72,4 +72,6 @@ private:
     std::size_t nextId_{0};
     std::vector<SegmentSearchEntry2d> entries_{};
 };
+
+using GeometrySegmentSearch2d = SegmentSearch2d;
 } // namespace geometry::sdk

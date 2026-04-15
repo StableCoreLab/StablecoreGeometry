@@ -141,22 +141,22 @@ void QueryNearest(
 }
 } // namespace
 
-GeometryKDTree2d::GeometryKDTree2d(std::vector<KDTreeEntry2d> entries)
+KDTree2d::KDTree2d(std::vector<KDTreeEntry2d> entries)
     : entries_(std::move(entries))
 {
 }
 
-void GeometryKDTree2d::Clear()
+void KDTree2d::Clear()
 {
     entries_.clear();
 }
 
-void GeometryKDTree2d::Add(std::size_t id, const Point2d& point)
+void KDTree2d::Add(std::size_t id, const Point2d& point)
 {
     entries_.push_back(KDTreeEntry2d{id, point});
 }
 
-bool GeometryKDTree2d::Remove(std::size_t id)
+bool KDTree2d::Remove(std::size_t id)
 {
     const auto it = std::remove_if(entries_.begin(), entries_.end(), [id](const KDTreeEntry2d& entry) {
         return entry.id == id;
@@ -170,7 +170,7 @@ bool GeometryKDTree2d::Remove(std::size_t id)
     return true;
 }
 
-void GeometryKDTree2d::Update(std::size_t id, const Point2d& point)
+void KDTree2d::Update(std::size_t id, const Point2d& point)
 {
     if (auto* entry = const_cast<KDTreeEntry2d*>(Find(id)); entry != nullptr)
     {
@@ -181,17 +181,17 @@ void GeometryKDTree2d::Update(std::size_t id, const Point2d& point)
     Add(id, point);
 }
 
-std::size_t GeometryKDTree2d::Size() const
+std::size_t KDTree2d::Size() const
 {
     return entries_.size();
 }
 
-bool GeometryKDTree2d::IsEmpty() const
+bool KDTree2d::IsEmpty() const
 {
     return entries_.empty();
 }
 
-bool GeometryKDTree2d::IsValid() const
+bool KDTree2d::IsValid() const
 {
     for (const auto& entry : entries_)
     {
@@ -203,12 +203,12 @@ bool GeometryKDTree2d::IsValid() const
     return true;
 }
 
-bool GeometryKDTree2d::Contains(std::size_t id) const
+bool KDTree2d::Contains(std::size_t id) const
 {
     return Find(id) != nullptr;
 }
 
-const KDTreeEntry2d* GeometryKDTree2d::Find(std::size_t id) const
+const KDTreeEntry2d* KDTree2d::Find(std::size_t id) const
 {
     const auto it = std::find_if(entries_.begin(), entries_.end(), [id](const KDTreeEntry2d& entry) {
         return entry.id == id;
@@ -216,7 +216,7 @@ const KDTreeEntry2d* GeometryKDTree2d::Find(std::size_t id) const
     return it == entries_.end() ? nullptr : &*it;
 }
 
-std::vector<std::size_t> GeometryKDTree2d::Query(const Point2d& point, double eps) const
+std::vector<std::size_t> KDTree2d::Query(const Point2d& point, double eps) const
 {
     std::vector<std::size_t> indices(entries_.size());
     for (std::size_t i = 0; i < entries_.size(); ++i)
@@ -230,7 +230,7 @@ std::vector<std::size_t> GeometryKDTree2d::Query(const Point2d& point, double ep
     return result;
 }
 
-std::vector<std::size_t> GeometryKDTree2d::QueryWithinDistance(const Point2d& point, double maxDistance) const
+std::vector<std::size_t> KDTree2d::QueryWithinDistance(const Point2d& point, double maxDistance) const
 {
     std::vector<std::size_t> indices(entries_.size());
     for (std::size_t i = 0; i < entries_.size(); ++i)
@@ -245,7 +245,7 @@ std::vector<std::size_t> GeometryKDTree2d::QueryWithinDistance(const Point2d& po
     return result;
 }
 
-std::optional<KDTreeHit2d> GeometryKDTree2d::Nearest(const Point2d& point) const
+std::optional<KDTreeHit2d> KDTree2d::Nearest(const Point2d& point) const
 {
     std::vector<std::size_t> indices(entries_.size());
     for (std::size_t i = 0; i < entries_.size(); ++i)
@@ -259,20 +259,20 @@ std::optional<KDTreeHit2d> GeometryKDTree2d::Nearest(const Point2d& point) const
     return best;
 }
 
-std::string GeometryKDTree2d::DebugString() const
+std::string KDTree2d::DebugString() const
 {
     std::ostringstream stream;
-    stream << "GeometryKDTree2d{size=" << Size()
+    stream << "KDTree2d{size=" << Size()
            << ", valid=" << (IsValid() ? "true" : "false") << "}";
     return stream.str();
 }
 
-const std::vector<KDTreeEntry2d>& GeometryKDTree2d::Data() const
+const std::vector<KDTreeEntry2d>& KDTree2d::Data() const
 {
     return entries_;
 }
 
-std::vector<KDTreeEntry2d>& GeometryKDTree2d::Data()
+std::vector<KDTreeEntry2d>& KDTree2d::Data()
 {
     return entries_;
 }

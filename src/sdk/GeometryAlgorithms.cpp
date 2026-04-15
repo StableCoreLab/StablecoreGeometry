@@ -22,17 +22,6 @@ namespace
 }
 } // namespace
 
-double DistanceSquared(const Point2d& lhs, const Point2d& rhs)
-{
-    return (rhs - lhs).LengthSquared();
-}
-
-double Distance(const Point2d& lhs, const Point2d& rhs)
-{
-    using std::sqrt;
-    return sqrt(DistanceSquared(lhs, rhs));
-}
-
 SegmentProjection2d ProjectPointToSegment(
     const Point2d& point,
     const Point2d& segmentStart,
@@ -66,34 +55,5 @@ SegmentProjection2d ProjectPointToSegment(
         clampToSegment ||
             (rawParameter >= -geometry::kAlgorithmsDefaultEpsilon &&
              rawParameter <= 1.0 + geometry::kAlgorithmsDefaultEpsilon)};
-}
-
-bool Contains(const Box2d& box, const Point2d& point, double eps)
-{
-    const geometry::Box2d internalBox = box;
-    if (!internalBox.IsValid())
-    {
-        return false;
-    }
-
-    return point.x >= internalBox.MinPoint().x - eps &&
-           point.y >= internalBox.MinPoint().y - eps &&
-           point.x <= internalBox.MaxPoint().x + eps &&
-           point.y <= internalBox.MaxPoint().y + eps;
-}
-
-bool Intersects(const Box2d& lhs, const Box2d& rhs, double eps)
-{
-    const geometry::Box2d left = lhs;
-    const geometry::Box2d right = rhs;
-    if (!left.IsValid() || !right.IsValid())
-    {
-        return false;
-    }
-
-    return !(left.MaxPoint().x < right.MinPoint().x - eps ||
-             left.MaxPoint().y < right.MinPoint().y - eps ||
-             right.MaxPoint().x < left.MinPoint().x - eps ||
-             right.MaxPoint().y < left.MinPoint().y - eps);
 }
 } // namespace geometry::sdk

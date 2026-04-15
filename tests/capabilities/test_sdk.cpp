@@ -241,8 +241,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_TRUE(lineCurve.IsValid());
     ASSERT_FALSE(lineCurve.IsClosed());
     ASSERT_FALSE(lineCurve.IsPeriodic());
-    GEOMETRY_TEST_ASSERT_NEAR(lineCurve.StartT(), -2.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(lineCurve.EndT(), 3.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(lineCurve.StartParameter(), -2.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(lineCurve.EndParameter(), 3.0, 1e-12);
     ASSERT_TRUE(lineCurve.PointAt(0.5).AlmostEquals(Point3d{2.0, 2.0, 3.0}, 1e-12));
     const auto lineEval = lineCurve.Evaluate(1.5, 2);
     ASSERT_TRUE(lineEval.IsValid());
@@ -295,8 +295,8 @@ TEST(SdkTest, CoversCurrentCapabilities)
         {0.0, 0.0, 0.5, 1.0, 1.0});
     ASSERT_TRUE(nurbsCurve.IsValid());
     ASSERT_FALSE(nurbsCurve.IsPeriodic());
-    GEOMETRY_TEST_ASSERT_NEAR(nurbsCurve.StartT(), 0.0, 1e-12);
-    GEOMETRY_TEST_ASSERT_NEAR(nurbsCurve.EndT(), 1.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(nurbsCurve.StartParameter(), 0.0, 1e-12);
+    GEOMETRY_TEST_ASSERT_NEAR(nurbsCurve.EndParameter(), 1.0, 1e-12);
     ASSERT_TRUE(nurbsCurve.PointAt(0.5).AlmostEquals(Point3d{1.0, 1.0, 0.0}, 1e-12));
     const auto nurbsCurveEval = nurbsCurve.Evaluate(0.25, 2);
     ASSERT_TRUE(nurbsCurveEval.IsValid());
@@ -1480,4 +1480,3 @@ TEST(SdkTest, CoversCurrentCapabilities)
     ASSERT_FALSE(invalidSectionValidation.valid);
     ASSERT_EQ(invalidSectionValidation.issue, SectionValidationIssue3d::InvalidBasis);
 }
-

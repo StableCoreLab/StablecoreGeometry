@@ -133,22 +133,22 @@ void QueryPoint(
 }
 } // namespace
 
-GeometryBoxTree2d::GeometryBoxTree2d(std::vector<BoxTreeEntry2d> entries)
+BoxTree2d::BoxTree2d(std::vector<BoxTreeEntry2d> entries)
     : entries_(std::move(entries))
 {
 }
 
-void GeometryBoxTree2d::Clear()
+void BoxTree2d::Clear()
 {
     entries_.clear();
 }
 
-void GeometryBoxTree2d::Add(std::size_t id, const Box2d& box)
+void BoxTree2d::Add(std::size_t id, const Box2d& box)
 {
     entries_.push_back(BoxTreeEntry2d{id, box});
 }
 
-bool GeometryBoxTree2d::Remove(std::size_t id)
+bool BoxTree2d::Remove(std::size_t id)
 {
     const auto it = std::remove_if(entries_.begin(), entries_.end(), [id](const BoxTreeEntry2d& entry) {
         return entry.id == id;
@@ -162,7 +162,7 @@ bool GeometryBoxTree2d::Remove(std::size_t id)
     return true;
 }
 
-void GeometryBoxTree2d::Update(std::size_t id, const Box2d& box)
+void BoxTree2d::Update(std::size_t id, const Box2d& box)
 {
     if (auto* entry = const_cast<BoxTreeEntry2d*>(Find(id)); entry != nullptr)
     {
@@ -173,17 +173,17 @@ void GeometryBoxTree2d::Update(std::size_t id, const Box2d& box)
     Add(id, box);
 }
 
-std::size_t GeometryBoxTree2d::Size() const
+std::size_t BoxTree2d::Size() const
 {
     return entries_.size();
 }
 
-bool GeometryBoxTree2d::IsEmpty() const
+bool BoxTree2d::IsEmpty() const
 {
     return entries_.empty();
 }
 
-bool GeometryBoxTree2d::IsValid() const
+bool BoxTree2d::IsValid() const
 {
     for (const auto& entry : entries_)
     {
@@ -195,12 +195,12 @@ bool GeometryBoxTree2d::IsValid() const
     return true;
 }
 
-bool GeometryBoxTree2d::Contains(std::size_t id) const
+bool BoxTree2d::Contains(std::size_t id) const
 {
     return Find(id) != nullptr;
 }
 
-const BoxTreeEntry2d* GeometryBoxTree2d::Find(std::size_t id) const
+const BoxTreeEntry2d* BoxTree2d::Find(std::size_t id) const
 {
     const auto it = std::find_if(entries_.begin(), entries_.end(), [id](const BoxTreeEntry2d& entry) {
         return entry.id == id;
@@ -208,7 +208,7 @@ const BoxTreeEntry2d* GeometryBoxTree2d::Find(std::size_t id) const
     return it == entries_.end() ? nullptr : &*it;
 }
 
-std::vector<std::size_t> GeometryBoxTree2d::Query(const Box2d& box, double eps) const
+std::vector<std::size_t> BoxTree2d::Query(const Box2d& box, double eps) const
 {
     std::vector<std::size_t> indices(entries_.size());
     for (std::size_t i = 0; i < entries_.size(); ++i)
@@ -222,7 +222,7 @@ std::vector<std::size_t> GeometryBoxTree2d::Query(const Box2d& box, double eps) 
     return result;
 }
 
-std::vector<std::size_t> GeometryBoxTree2d::QueryContaining(const Point2d& point, double eps) const
+std::vector<std::size_t> BoxTree2d::QueryContaining(const Point2d& point, double eps) const
 {
     std::vector<std::size_t> indices(entries_.size());
     for (std::size_t i = 0; i < entries_.size(); ++i)
@@ -236,20 +236,20 @@ std::vector<std::size_t> GeometryBoxTree2d::QueryContaining(const Point2d& point
     return result;
 }
 
-std::string GeometryBoxTree2d::DebugString() const
+std::string BoxTree2d::DebugString() const
 {
     std::ostringstream stream;
-    stream << "GeometryBoxTree2d{size=" << Size()
+    stream << "BoxTree2d{size=" << Size()
            << ", valid=" << (IsValid() ? "true" : "false") << "}";
     return stream.str();
 }
 
-const std::vector<BoxTreeEntry2d>& GeometryBoxTree2d::Data() const
+const std::vector<BoxTreeEntry2d>& BoxTree2d::Data() const
 {
     return entries_;
 }
 
-std::vector<BoxTreeEntry2d>& GeometryBoxTree2d::Data()
+std::vector<BoxTreeEntry2d>& BoxTree2d::Data()
 {
     return entries_;
 }

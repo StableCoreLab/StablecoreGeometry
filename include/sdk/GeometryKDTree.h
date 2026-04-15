@@ -33,11 +33,11 @@ struct GEOMETRY_API KDTreeHit2d
     }
 };
 
-class GEOMETRY_API GeometryKDTree2d
+class GEOMETRY_API KDTree2d
 {
 public:
-    GeometryKDTree2d() = default;
-    explicit GeometryKDTree2d(std::vector<KDTreeEntry2d> entries);
+    KDTree2d() = default;
+    explicit KDTree2d(std::vector<KDTreeEntry2d> entries);
 
     void Clear();
     void Add(std::size_t id, const Point2d& point);
@@ -60,4 +60,6 @@ public:
 private:
     std::vector<KDTreeEntry2d> entries_{};
 };
+
+using GeometryKDTree2d = KDTree2d;
 } // namespace geometry::sdk

@@ -21,14 +21,24 @@ public:
     [[nodiscard]] virtual Box3d Bounds() const = 0;
     [[nodiscard]] virtual std::unique_ptr<Curve3d> Clone() const = 0;
 
-    [[nodiscard]] double StartT() const
+    [[nodiscard]] double StartParameter() const
     {
         return ParameterRange().min;
     }
 
-    [[nodiscard]] double EndT() const
+    [[nodiscard]] double EndParameter() const
     {
         return ParameterRange().max;
+    }
+
+    [[nodiscard]] double StartT() const
+    {
+        return StartParameter();
+    }
+
+    [[nodiscard]] double EndT() const
+    {
+        return EndParameter();
     }
 };
 } // namespace geometry::sdk
