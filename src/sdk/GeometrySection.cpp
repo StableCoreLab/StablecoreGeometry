@@ -27,11 +27,11 @@ namespace geometry::sdk
 {
 namespace
 {
-[[nodiscard]] Point2d ProjectPointToSectionBasis(
+Point2d ProjectPointToSectionBasis(
     const Point3d& point,
     const PolyhedronSection3d& section);
 
-[[nodiscard]] Point3d LiftFromSectionPlane(
+Point3d LiftFromSectionPlane(
     const Point2d& point,
     const Point3d& origin,
     const Vector3d& uAxis,
@@ -65,7 +65,7 @@ struct PolylineBuildResult
     std::vector<std::size_t> nodeIndices{};
 };
 
-[[nodiscard]] bool Point3dLexicographicallyLess(const Point3d& first, const Point3d& second, double eps)
+bool IsPoint3dLexicographicallyLess(const Point3d& first, const Point3d& second, double eps)
 {
     if (std::abs(first.x - second.x) > eps)
     {
@@ -78,7 +78,7 @@ struct PolylineBuildResult
     return first.z < second.z - eps;
 }
 
-[[nodiscard]] PlaneProjectionBasis BuildPlaneProjectionBasis(const Plane& plane, double eps)
+PlaneProjectionBasis BuildPlaneProjectionBasis(const Plane& plane, double eps)
 {
     const Vector3d normal = plane.UnitNormal(eps);
     const Vector3d axis = std::abs(normal.x) <= std::abs(normal.y) &&
@@ -92,7 +92,7 @@ struct PolylineBuildResult
     return {u, v};
 }
 
-[[nodiscard]] Point2d ProjectToLocalPlaneCoordinates(
+Point2d ProjectToLocalPlaneCoordinates(
     const Point3d& point,
     const Plane& plane,
     const PlaneProjectionBasis& basis)
@@ -101,7 +101,7 @@ struct PolylineBuildResult
     return Point2d{Dot(delta, basis.u), Dot(delta, basis.v)};
 }
 
-[[nodiscard]] std::size_t FindOrAddPoint2d(
+std::size_t FindOrAddPoint2d(
     const Point2d& point,
     std::vector<Point2d>& uniquePoints,
     double eps)
@@ -118,7 +118,7 @@ struct PolylineBuildResult
     return uniquePoints.size() - 1;
 }
 
-[[nodiscard]] bool ContainsUndirectedSegment(
+bool ContainsUndirectedSegment(
     const std::vector<LineSegment3d>& segments,
     const Point3d& first,
     const Point3d& second,
@@ -135,7 +135,7 @@ struct PolylineBuildResult
     return false;
 }
 
-[[nodiscard]] bool AddNormalizedSectionSegment(
+bool AddNormalizedSectionSegment(
     const Point3d& first,
     const Point3d& second,
     std::vector<LineSegment3d>& segments,
@@ -193,7 +193,7 @@ void RebuildUniqueSegmentsFromContours(
     }
 }
 
-[[nodiscard]] bool IsPointOnAnyPolygonBoundary(
+bool IsPointOnAnyPolygonBoundary(
     const Point3d& point,
     const PolyhedronSection3d& section,
     double eps)
@@ -210,7 +210,7 @@ void RebuildUniqueSegmentsFromContours(
     return false;
 }
 
-[[nodiscard]] bool IsPointAtAnyPolygonVertex(
+bool IsPointAtAnyPolygonVertex(
     const Point3d& point,
     const PolyhedronSection3d& section,
     double eps)
@@ -301,11 +301,11 @@ void NormalizeOpenContourDirection(
                 std::reverse(contour.points.begin(), contour.points.end());
             }
         }
-        else if (firstOnBoundary && Point3dLexicographicallyLess(freePoint, boundaryPoint, eps))
+        else if (firstOnBoundary && IsPoint3dLexicographicallyLess(freePoint, boundaryPoint, eps))
         {
             std::reverse(contour.points.begin(), contour.points.end());
         }
-        else if (lastOnBoundary && Point3dLexicographicallyLess(boundaryPoint, freePoint, eps))
+        else if (lastOnBoundary && IsPoint3dLexicographicallyLess(boundaryPoint, freePoint, eps))
         {
             std::reverse(contour.points.begin(), contour.points.end());
         }
@@ -321,13 +321,13 @@ void NormalizeOpenContourDirection(
         return;
     }
 
-    if (Point3dLexicographicallyLess(contour.points.back(), contour.points.front(), eps))
+    if (IsPoint3dLexicographicallyLess(contour.points.back(), contour.points.front(), eps))
     {
         std::reverse(contour.points.begin(), contour.points.end());
     }
 }
 
-[[nodiscard]] OpenContourSortKey BuildOpenContourSortKey(
+OpenContourSortKey BuildOpenContourSortKey(
     const PolyhedronSection3d& section,
     const SectionPolyline3d& contour,
     double eps)
@@ -398,22 +398,22 @@ void SortOpenContoursStable(PolyhedronSection3d& section, double eps)
                 return firstKey.boundaryEndpointCount > secondKey.boundaryEndpointCount;
             }
 
-            if (Point3dLexicographicallyLess(first.points.front(), second.points.front(), eps))
+            if (IsPoint3dLexicographicallyLess(first.points.front(), second.points.front(), eps))
             {
                 return true;
             }
-            if (Point3dLexicographicallyLess(second.points.front(), first.points.front(), eps))
+            if (IsPoint3dLexicographicallyLess(second.points.front(), first.points.front(), eps))
             {
                 return false;
             }
             const std::size_t minimumCount = std::min(first.points.size(), second.points.size());
             for (std::size_t index = 0; index < minimumCount; ++index)
             {
-                if (Point3dLexicographicallyLess(first.points[index], second.points[index], eps))
+                if (IsPoint3dLexicographicallyLess(first.points[index], second.points[index], eps))
                 {
                     return true;
                 }
-                if (Point3dLexicographicallyLess(second.points[index], first.points[index], eps))
+                if (IsPoint3dLexicographicallyLess(second.points[index], first.points[index], eps))
                 {
                     return false;
                 }
@@ -442,7 +442,7 @@ void AddUniqueIntersectionPoint(
     points.push_back(point);
 }
 
-[[nodiscard]] Point3d InterpolateToPlane(
+Point3d InterpolateToPlane(
     const Point3d& first,
     const Point3d& second,
     double firstDistance,
@@ -458,7 +458,7 @@ void AddUniqueIntersectionPoint(
     return first + (second - first) * parameter;
 }
 
-[[nodiscard]] bool SliceTriangle(
+bool SliceTriangle(
     const Triangle3d& triangle,
     const Plane& plane,
     double eps,
@@ -525,7 +525,7 @@ void AddUniqueIntersectionPoint(
     return segment.IsValid(eps);
 }
 
-[[nodiscard]] bool ContainsPoint(
+bool ContainsPoint2d(
     const std::vector<Point2d>& points,
     const Point2d& point,
     double eps)
@@ -571,7 +571,7 @@ void SimplifyLoop(
                 continue;
             }
 
-            if (preservePoints != nullptr && ContainsPoint(*preservePoints, contour2d[i], eps))
+            if (preservePoints != nullptr && ContainsPoint2d(*preservePoints, contour2d[i], eps))
             {
                 continue;
             }
@@ -617,7 +617,7 @@ void SimplifyOpenPolyline(
             }
 
             const Point3d liftedPoint = LiftFromSectionPlane(contour2d[i], plane.origin, basis.u, basis.v);
-            if ((preservePoints != nullptr && ContainsPoint(*preservePoints, contour2d[i], eps)) ||
+            if ((preservePoints != nullptr && ContainsPoint2d(*preservePoints, contour2d[i], eps)) ||
                 IsPointOnAnyPolygonBoundary(liftedPoint, section, eps))
             {
                 continue;
@@ -679,7 +679,7 @@ void EnsureCounterClockwise(
     std::vector<Point3d>& contour3d,
     std::vector<Point2d>& contour2d);
 
-[[nodiscard]] std::vector<Point2d> CollectOpenContourAttachmentPoints(
+std::vector<Point2d> CollectOpenContourAttachmentPoints(
     const PolyhedronSection3d& section,
     const Plane& plane,
     const PlaneProjectionBasis& basis,
@@ -795,7 +795,7 @@ void RebuildClosedContoursFromPolygons(
     RebuildUniqueSegmentsFromContours(result, eps);
 }
 
-[[nodiscard]] double SignedArea2d(const std::vector<Point2d>& contour)
+double SignedArea2d(const std::vector<Point2d>& contour)
 {
     if (contour.size() < 3)
     {
@@ -851,7 +851,7 @@ void EnsureClockwise(
     }
 }
 
-[[nodiscard]] bool IsCoplanarWithSectionPlane(
+bool IsCoplanarWithSectionPlane(
     const PolyhedronFace3d& face,
     const Plane& plane,
     double eps)
@@ -872,7 +872,7 @@ void EnsureClockwise(
     return std::abs(plane.SignedDistanceTo(supportPlane.origin, eps)) <= eps;
 }
 
-[[nodiscard]] FaceSectionData BuildCoplanarFaceSectionData(
+FaceSectionData BuildCoplanarFaceSectionData(
     const PolyhedronFace3d& face,
     const Plane& plane,
     const PlaneProjectionBasis& basis,
@@ -914,7 +914,7 @@ void EnsureClockwise(
     return data;
 }
 
-[[nodiscard]] Point3d LiftFromSectionPlane(
+Point3d LiftFromSectionPlane(
     const Point2d& point,
     const Point3d& origin,
     const Vector3d& uAxis,
@@ -923,7 +923,7 @@ void EnsureClockwise(
     return origin + uAxis * point.x + vAxis * point.y;
 }
 
-[[nodiscard]] Point2d ProjectPointToSectionBasis(
+Point2d ProjectPointToSectionBasis(
     const Point3d& point,
     const PolyhedronSection3d& section)
 {
@@ -935,7 +935,7 @@ void EnsureClockwise(
         Dot(delta, section.vAxis) / vDenom};
 }
 
-[[nodiscard]] std::size_t PolygonDepth(
+std::size_t PolygonDepth(
     const PolygonTopology2d& topology,
     std::size_t index)
 {
@@ -949,7 +949,7 @@ void EnsureClockwise(
     return depth;
 }
 
-[[nodiscard]] std::vector<Point2d> CollectRingPoints(const Polyline2d& ring)
+std::vector<Point2d> CollectRingPoints(const Polyline2d& ring)
 {
     std::vector<Point2d> points;
     points.reserve(ring.PointCount());
@@ -960,7 +960,7 @@ void EnsureClockwise(
     return points;
 }
 
-[[nodiscard]] Polyline2d NormalizeRingOrientation(const Polyline2d& ring, bool counterClockwise)
+Polyline2d NormalizeRingOrientation(const Polyline2d& ring, bool counterClockwise)
 {
     std::vector<Point2d> points = CollectRingPoints(ring);
     if (points.size() >= 3)
@@ -975,7 +975,7 @@ void EnsureClockwise(
     return Polyline2d(std::move(points), PolylineClosure::Closed);
 }
 
-[[nodiscard]] Polygon2d NormalizePolygonOrientation(const Polygon2d& polygon)
+Polygon2d NormalizePolygonOrientation(const Polygon2d& polygon)
 {
     Polyline2d outer = NormalizeRingOrientation(polygon.OuterRing(), true);
     std::vector<Polyline2d> holes;
@@ -988,7 +988,7 @@ void EnsureClockwise(
     return Polygon2d(std::move(outer), std::move(holes));
 }
 
-[[nodiscard]] MultiPolygon2d MergeCoplanarPolygonsStable(
+MultiPolygon2d MergeCoplanarPolygonsStable(
     const std::vector<Polygon2d>& polygons,
     double eps)
 {
@@ -1377,13 +1377,13 @@ void EnsureClockwise(
     return collapsed;
 }
 
-[[nodiscard]] bool IsSectionFrameValid(const PolyhedronSection3d& section, double eps)
+bool IsSectionFrameValid(const PolyhedronSection3d& section, double eps)
 {
     return section.origin.IsValid() && section.uAxis.IsValid() && section.vAxis.IsValid() &&
            section.uAxis.Length() > eps && section.vAxis.Length() > eps;
 }
 
-[[nodiscard]] bool BuildNormalizedSectionPolygons(
+bool BuildNormalizedSectionPolygons(
     const PolyhedronSection3d& section,
     MultiPolygon2d& polygons)
 {
@@ -1800,7 +1800,7 @@ void AddUniquePlaneEdgeSegments(
     }
 }
 
-[[nodiscard]] bool MarkVisitedEdge(
+bool MarkVisitedEdge(
     std::size_t first,
     std::size_t second,
     const std::vector<IndexedSegment2d>& indexedSegments,
@@ -1825,7 +1825,7 @@ void AddUniquePlaneEdgeSegments(
     return false;
 }
 
-[[nodiscard]] bool HasUnvisitedIncidentEdge(
+bool HasUnvisitedIncidentEdge(
     std::size_t nodeIndex,
     const std::vector<std::vector<std::size_t>>& adjacency,
     const std::vector<IndexedSegment2d>& indexedSegments,
@@ -1848,7 +1848,7 @@ void AddUniquePlaneEdgeSegments(
     return false;
 }
 
-[[nodiscard]] std::size_t CountUnvisitedIncidentEdges(
+std::size_t CountUnvisitedIncidentEdges(
     std::size_t nodeIndex,
     const std::vector<IndexedSegment2d>& indexedSegments,
     const std::vector<bool>& edgeVisited)
@@ -1870,7 +1870,7 @@ void AddUniquePlaneEdgeSegments(
     return count;
 }
 
-[[nodiscard]] PolylineBuildResult BuildPolylineFromNode(
+PolylineBuildResult BuildPolylineFromNode(
     std::size_t startNode,
     bool closed,
     const std::vector<std::vector<std::size_t>>& adjacency,
@@ -1950,7 +1950,7 @@ void AddUniquePlaneEdgeSegments(
     }
 }
 
-[[nodiscard]] bool ReconstructSectionGraphContours(
+bool ReconstructSectionGraphContours(
     const std::vector<LineSegment3d>& rawSegments,
     const Plane& plane,
     const PlaneProjectionBasis& basis,

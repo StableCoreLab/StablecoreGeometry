@@ -18,7 +18,7 @@ struct PlaneProjectionBasis
     Vector3d v{};
 };
 
-[[nodiscard]] PlaneProjectionBasis BuildPlaneProjectionBasis(const Plane& plane, double eps)
+PlaneProjectionBasis BuildPlaneProjectionBasis(const Plane& plane, double eps)
 {
     const Vector3d normal = plane.UnitNormal(eps);
     const Vector3d axis = std::abs(normal.x) <= std::abs(normal.y) &&
@@ -32,7 +32,7 @@ struct PlaneProjectionBasis
     return {u, v};
 }
 
-[[nodiscard]] Point2d ProjectToLocalPlaneCoordinates(
+Point2d ProjectToLocalPlaneCoordinates(
     const Point3d& point,
     const Plane& plane,
     const PlaneProjectionBasis& basis)
@@ -41,7 +41,7 @@ struct PlaneProjectionBasis
     return Point2d{Dot(delta, basis.u), Dot(delta, basis.v)};
 }
 
-[[nodiscard]] double SignedArea2d(const std::vector<Point2d>& points)
+double SignedArea2d(const std::vector<Point2d>& points)
 {
     if (points.size() < 3)
     {
@@ -73,7 +73,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     }
 }
 
-[[nodiscard]] double DistanceSquaredToSurfacePoint(
+double DistanceSquaredToSurfacePoint(
     const Point3d& point,
     const Surface& surface,
     double u,
@@ -82,7 +82,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     return (point - surface.PointAt(u, v)).LengthSquared();
 }
 
-[[nodiscard]] SurfaceProjection3d RefineSurfaceProjection(
+SurfaceProjection3d RefineSurfaceProjection(
     const Point3d& point,
     const Surface& surface,
     double u,
@@ -135,7 +135,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     return {true, surface.PointAt(bestU, bestV), bestU, bestV, bestDistanceSquared};
 }
 
-[[nodiscard]] bool BuildPolygonFromBrepFaceTrims(
+bool TryBuildPolygonFromBrepFaceTrims(
     const BrepFace& face,
     Polygon2d& polygon)
 {
@@ -159,7 +159,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     return polygon.IsValid();
 }
 
-[[nodiscard]] LineProjection3d ProjectPointToSegment3d(
+LineProjection3d ProjectPointToSegment3d(
     const Point3d& point,
     const Point3d& start,
     const Point3d& end,
@@ -177,7 +177,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     return {projectedPoint, parameter, (point - projectedPoint).LengthSquared(), true};
 }
 
-[[nodiscard]] bool UpdateTrimClosestProjection(
+bool UpdateClosestTrimProjection(
     const Point3d& point,
     const CurveOnSurface& trim,
     BrepFaceProjection3d& best,
@@ -215,7 +215,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     return improved;
 }
 
-[[nodiscard]] BrepEdgeProjection3d RefineCurveProjection(
+BrepEdgeProjection3d RefineCurveProjection(
     const Point3d& point,
     const Curve3d& curve,
     double initialParameter,
@@ -263,7 +263,7 @@ void EnsureRingOrientation(std::vector<Point2d>& points, bool counterClockwise)
     return {true, bestParameter, bestPoint, bestDistanceSquared};
 }
 
-[[nodiscard]] Point3d ClosestPointOnTriangle(
+Point3d ClosestPointOnTriangle(
     const Point3d& point,
     const Triangle3d& triangle,
     double eps)
@@ -523,7 +523,7 @@ BrepFaceProjection3d ProjectPointToBrepFace(
     if (surfaceProjection.success)
     {
         Polygon2d polygon{};
-        if (BuildPolygonFromBrepFaceTrims(face, polygon))
+        if (TryBuildPolygonFromBrepFaceTrims(face, polygon))
         {
             const PointContainment2d containment =
                 LocatePoint(Point2d{surfaceProjection.u, surfaceProjection.v}, polygon, tolerance.distanceEpsilon);
@@ -543,11 +543,11 @@ BrepFaceProjection3d ProjectPointToBrepFace(
 
     if (face.OuterTrim().IsValid())
     {
-        UpdateTrimClosestProjection(point, face.OuterTrim(), best, true);
+        UpdateClosestTrimProjection(point, face.OuterTrim(), best, true);
     }
     for (const CurveOnSurface& holeTrim : face.HoleTrims())
     {
-        UpdateTrimClosestProjection(point, holeTrim, best, true);
+        UpdateClosestTrimProjection(point, holeTrim, best, true);
     }
     return best;
 }
