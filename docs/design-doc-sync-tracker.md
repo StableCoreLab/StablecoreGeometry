@@ -252,7 +252,7 @@
   - 已将一组 reverse-edge / self-intersection offset 恢复场景从 `UnitTests/Gaps` 提升到 `UnitTests/Capabilities`，并通过定向 gtest 验证
   - 已新增 `OffsetToMultiPolygon(const Polygon2d&, ...)`，补齐单 polygon 内缩发生分裂时的 multipolygon 输出能力
   - 已将 narrow-bridge split 从 `UnitTests/Gaps` 提升到 `UnitTests/Capabilities`，并通过定向 gtest 验证
-  - 已完成 3D gap 骨架落地：新增 section / brep / healing / conversion 四组 3D gap tests，并接入 `SCGeometryGapTests`
+  - 已完成 3D gap 骨架落地：新增 section / brep / healing / conversion 四组 3D gap tests，并接入独立的 gap 测试目标
   - 当前 `gap` 目标已从“空套件”切换为“3D P1 骨架套件”（2D gaps 已清空，3D gaps 已建档）
   - 已新增 3D capability：倾斜切平面下 `Section + BuildSectionTopology + BuildSectionComponents` 单区域闭环验证，section gap 收敛为更高阶歧义 stitching / merge 语义  - 已新增 `UnitTests/Support/Fixtures3d.h`，提供共享 `BuildUnitCubeBody()` 单位立方体 fixture
   - 已扩展 section 子能力：coplanar 相邻 face fragment 在 `Section(...)` 中可归并为单 polygon，收窄 face-merge gap 到更高阶歧义 fragment 语义

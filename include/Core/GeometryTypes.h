@@ -25,16 +25,6 @@
 
 namespace Geometry::Sdk
 {
-class ISCPolyline2d;
-class ISCPolygon2d;
-class SCSegment2d;
-class SCLineSegment2d;
-class SCArcSegment2d;
-class SCCircle2d;
-class SCCurve3d;
-class SCMultiPolyline2d;
-class SCMultiPolygon2d;
-enum class ISCPolylineClosure;
 struct CurveEval3d;
 
 using Geometry::Box2d;
@@ -52,21 +42,6 @@ using Geometry::Transform3d;
 using Geometry::Triangle3d;
 using Geometry::Vector2d;
 using Geometry::Vector3d;
-using SCBox2d = Box2d;
-using SCBox3d = Box3d;
-using SCDirection3d = Direction3d;
-using SCCurveEval3d = CurveEval3d;
-using SCIntervald = Intervald;
-using SCLine3d = Line3d;
-using SCLineSegment3d = LineSegment3d;
-using SCPlane = Plane;
-using SCPoint2d = Point2d;
-using SCPoint3d = Point3d;
-using SCRay3d = Ray3d;
-using SCTransform3d = Transform3d;
-using SCTriangle3d = Triangle3d;
-using SCVector2d = Vector2d;
-using SCVector3d = Vector3d;
 
 struct GEOMETRY_API SegmentProjection2d
 {
@@ -625,11 +600,4 @@ struct GEOMETRY_API SurfaceEval3d
     }
 };
 
-using SCGeometryContext3d = GeometryContext3d;
-using SCGeometryTolerance3d = GeometryTolerance3d;
-
 } // namespace Geometry::Sdk
-
-namespace Geometry
-{
-} // namespace Geometry

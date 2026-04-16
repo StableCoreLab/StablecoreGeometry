@@ -171,6 +171,12 @@ install(FILES $<TARGET_PDB_FILE:${SCGEOMETRY_TARGET}>
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING
+        PATTERN "*.h"
+        PATTERN "Geometry2d/SC*" EXCLUDE
+        PATTERN "Geometry2d/ISC*" EXCLUDE
+        PATTERN "Geometry3d/SC*" EXCLUDE
+        PATTERN "Types/Detail/*" EXCLUDE
 )
 
 install(EXPORT SCGeometryTargets

@@ -42,6 +42,8 @@ The lower-level surface is also split more explicitly:
 - `Serialize/GeometryText.h` for text serialization helpers
 - `Export/GeometryExport.h` for import/export annotations
 
+Public value types and result structures that need to cross DLL boundaries are exported from `Core/GeometryTypes.h` and the other public headers with `GEOMETRY_API`.
+
 Common aliases available through the umbrella include:
 
 - `Point2d`, `Vector2d`, `Box2d`
@@ -50,6 +52,11 @@ Common aliases available through the umbrella include:
 - `Transform3d`, `Matrix3d`, `Plane`
 
 If you only need a narrow area, include the specific header directly instead of the umbrella.
+
+The release install is intentionally curated:
+
+- Compatibility wrappers and detail headers are not part of the default installed public surface.
+- The shipped header set is limited to the supported publish API.
 
 ## Design Principles
 

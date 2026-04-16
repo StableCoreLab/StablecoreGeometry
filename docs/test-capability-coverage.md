@@ -315,8 +315,8 @@
 - 优先 `find_package(GTest CONFIG QUIET)` 使用本地 gtest 资源
 - 本地不存在时，保留 `FetchContent` 作为后备接入方式
 - 当前拆成两个目标：
-  - `SCGeometryCapabilitiesTests`
-  - `SCGeometryGapTests`
+  - capability test target
+  - gap test target
 - `UnitTests/Capabilities/Test3dConversion.cpp` 已新增 closed-prism dual-shared-vertices + dual-duplicate-loop-normalization capability：双侧面同时含 duplicate leading 顶点时，`ConvertToBrepBody(...)` 仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（FaceCount=5 / VertexCount=6 / EdgeCount=9）
 - `UnitTests/Capabilities/Test3dConversion.cpp` 已新增 closed-prism all-shared-vertices + dual-duplicate-loop-normalization capability：六个共享顶点 near-equal 扰动叠加双侧面 duplicate-loop-normalization 时，`ConvertToBrepBody(...)` 仍可稳定保持 representative-average 落点与 closed-shell 拓扑（FaceCount=5 / VertexCount=6 / EdgeCount=9）
 - `UnitTests/Capabilities/Test3dConversion.cpp` 已新增 closed-tetra dual-shared-vertices + dual-duplicate-loop-normalization capability：双三角面同时含 duplicate leading 顶点时，`ConvertToBrepBody(...)` 仍可稳定保持 representative-average 落点与 closed-shell 拓扑（FaceCount=4 / VertexCount=4 / EdgeCount=6）
