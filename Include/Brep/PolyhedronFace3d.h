@@ -1,9 +1,15 @@
 #pragma once
+
+#include <cstddef>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "Support/Epsilon.h"
 #include "Brep/PolyhedronLoop3d.h"
 #include "Export/GeometryExport.h"
+#include "Types/Geometry3d/Box3.h"
+#include "Types/Geometry3d/Plane.h"
 
 namespace Geometry
 {

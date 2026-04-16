@@ -1,9 +1,20 @@
 #pragma once
+
 #include <array>
+#include <memory>
+
+#include "Core/GeometryTypesPrimitives.h"
 #include "Core/GeometryTypes.h"
 #include "Export/GeometryExport.h"
 #include "Geometry2d/Segment2d.h"
 #include "Support/Epsilon.h"
+#include "Types/Geometry2d/Box2.h"
+#include "Types/Geometry2d/Point2.h"
+#include "Types/Geometry2d/Vector2.h"
+#include "Types/Geometry3d/Box3.h"
+#include "Types/Geometry3d/Interval.h"
+#include "Types/Geometry3d/Line3.h"
+#include "Types/Geometry3d/Plane.h"
 
 namespace Geometry
 {

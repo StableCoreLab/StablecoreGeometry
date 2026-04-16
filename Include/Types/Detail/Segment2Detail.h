@@ -4,6 +4,8 @@
 #include <cmath>
 #include <type_traits>
 
+#include "Support/Epsilon.h"
+
 namespace Geometry
 {
     namespace Detail

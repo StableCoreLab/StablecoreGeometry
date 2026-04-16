@@ -6,6 +6,7 @@
 #include "Geometry2d/ArcSegment2d.h"
 #include "Geometry2d/LineSegment2d.h"
 #include "Geometry2d/Segment2d.h"
+#include "Types/Geometry2d/Point2.h"
 
 namespace Geometry
 {

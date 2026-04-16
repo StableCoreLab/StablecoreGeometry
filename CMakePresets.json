@@ -16,6 +16,19 @@
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "SCGEOMETRY_BUILD_TESTS": "ON"
       }
+    },
+    {
+      "name": "vs2022-x64-fast",
+      "displayName": "VS2022 x64 Fast Build",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/../Build/GeometryVs2022Fast",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "SCGEOMETRY_BUILD_TESTS": "ON",
+        "SCGEOMETRY_ENABLE_PCH": "ON",
+        "SCGEOMETRY_ENABLE_UNITY_BUILD": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -23,6 +36,11 @@
       "name": "vs2022-x64-build",
       "displayName": "Build VS2022 x64",
       "configurePreset": "vs2022-x64"
+    },
+    {
+      "name": "vs2022-x64-fast-build",
+      "displayName": "Build VS2022 x64 Fast",
+      "configurePreset": "vs2022-x64-fast"
     }
   ],
   "testPresets": [
@@ -30,6 +48,14 @@
       "name": "vs2022-x64-test",
       "displayName": "Test VS2022 x64",
       "configurePreset": "vs2022-x64",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "vs2022-x64-fast-test",
+      "displayName": "Test VS2022 x64 Fast",
+      "configurePreset": "vs2022-x64-fast",
       "output": {
         "outputOnFailure": true
       }

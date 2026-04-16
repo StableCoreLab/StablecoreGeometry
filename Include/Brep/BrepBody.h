@@ -6,8 +6,10 @@
 #include <vector>
 
 #include "Brep/BrepEdge.h"
+#include "Brep/BrepFace.h"
 #include "Brep/BrepShell.h"
 #include "Brep/BrepVertex.h"
+#include "Core/GeometryTypesPrimitives.h"
 #include "Export/GeometryExport.h"
 
 namespace Geometry

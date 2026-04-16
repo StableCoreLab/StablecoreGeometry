@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "Core/GeometryTypes.h"
 #include "Export/GeometryExport.h"
+#include "Types/Geometry2d/Box2.h"
+#include "Types/Geometry2d/Point2.h"
 
 namespace Geometry
 {

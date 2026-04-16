@@ -2,8 +2,10 @@
 
 #include <memory>
 
-#include "Core/GeometryTypes.h"
+#include "Core/GeometryTypesPrimitives.h"
 #include "Export/GeometryExport.h"
+#include "Types/Geometry3d/Box3.h"
+#include "Types/Geometry3d/Interval.h"
 
 namespace Geometry
 {

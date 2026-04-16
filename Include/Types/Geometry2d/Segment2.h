@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Support/Geometry2d/Predicate2.h"
 #include "Types/Geometry2d/Box2.h"
 #include "Types/Geometry2d/Point2.h"
 #include "Types/Geometry2d/Vector2.h"

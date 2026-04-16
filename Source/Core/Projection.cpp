@@ -5,6 +5,7 @@
 #include <numbers>
 
 #include "Core/Metrics.h"
+#include "Support/Geometry2d/Predicate2.h"
 #include "Support/Epsilon.h"
 
 namespace Geometry

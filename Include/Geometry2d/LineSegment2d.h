@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "Core/GeometryTypes.h"
+#include "Support/Epsilon.h"
 #include "Export/GeometryExport.h"
 #include "Geometry2d/Segment2d.h"
 

@@ -3,6 +3,7 @@
 #include <vector>
 #include "Core/GeometryTypes.h"
 #include "Export/GeometryExport.h"
+#include "Geometry2d/Polygon2d.h"
 #include "Geometry2d/LineSegment2d.h"
 #include "Geometry2d/MultiPolygon2d.h"
 #include "Geometry2d/MultiPolyline2d.h"

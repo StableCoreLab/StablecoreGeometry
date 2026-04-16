@@ -7,6 +7,9 @@
 #include "Geometry2d/MultiPolyline2d.h"
 #include "Geometry2d/Polygon2d.h"
 #include "Geometry2d/Polyline2d.h"
+#include "Types/Geometry2d/Box2.h"
+#include "Types/Geometry2d/Point2.h"
+#include "Types/Geometry2d/Vector2.h"
 
 namespace Geometry
 {

@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/GeometryTypes.h"
 #include "Brep/BrepBody.h"
 #include "Brep/PolyhedronBody.h"
 #include "Core/Section.h"

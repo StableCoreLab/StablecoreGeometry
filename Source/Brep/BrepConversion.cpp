@@ -15,6 +15,7 @@
 
 #include "Geometry3d/LineCurve3d.h"
 #include "Geometry3d/PlaneSurface.h"
+#include "Types/Geometry3d/Line3.h"
 #include "Support/Epsilon.h"
 
 namespace Geometry

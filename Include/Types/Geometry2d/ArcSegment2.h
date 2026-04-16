@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "Support/Geometry2d/Predicate2.h"
 #include "Types/Geometry2d/Segment2.h"
 
 namespace Geometry

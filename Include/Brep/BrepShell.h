@@ -1,9 +1,14 @@
 #pragma once
+
+#include <cstddef>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "Core/GeometryTypesPrimitives.h"
 #include "Brep/BrepFace.h"
 #include "Export/GeometryExport.h"
+#include "Types/Geometry3d/Box3.h"
 
 namespace Geometry
 {

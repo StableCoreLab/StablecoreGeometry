@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "Geometry3d/Curve3d.h"
+#include "Types/Geometry3d/Line3.h"
 
 namespace Geometry
 {

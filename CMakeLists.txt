@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(SCGeometry LANGUAGES CXX)
 
+set(SCGEOMETRY_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
 # 设置 CMP0135 政策，消除 FetchContent 下载时间戳警告
 if(POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW)
@@ -14,6 +16,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/SCUtf8.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/SCTestHelpers.cmake)
 
 option(SCGEOMETRY_BUILD_TESTS "Build stablecore geometry tests" ON)
+option(SCGEOMETRY_ENABLE_PCH "Enable precompiled headers for SCGeometry targets" OFF)
+option(SCGEOMETRY_ENABLE_UNITY_BUILD "Enable unity build for SCGeometry targets" OFF)
+set(SCGEOMETRY_UNITY_BUILD_BATCH_SIZE 8 CACHE STRING "Number of source files per unity build batch")
 
 set(SCGEOMETRY_TARGET SCGeometry)
 set(SCGEOMETRY_BIN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../Bin")
@@ -72,6 +77,21 @@ function(SCGeometryConfigureTarget target_name)
     SCEnableUtf8ForTargets(${target_name})
 endfunction()
 
+function(SCGeometryConfigurePerformance target_name)
+    if (SCGEOMETRY_ENABLE_PCH)
+        target_precompile_headers(${target_name} PRIVATE
+            "$<$<COMPILE_LANGUAGE:CXX>:${SCGEOMETRY_ROOT_DIR}/Source/SCGeometryPch.h>"
+        )
+    endif()
+
+    if (SCGEOMETRY_ENABLE_UNITY_BUILD)
+        set_target_properties(${target_name} PROPERTIES
+            UNITY_BUILD ON
+            UNITY_BUILD_BATCH_SIZE ${SCGEOMETRY_UNITY_BUILD_BATCH_SIZE}
+        )
+    endif()
+endfunction()
+
 # -------------------
 # SCGeometry 库
 # -------------------
@@ -98,6 +118,7 @@ add_library(${SCGEOMETRY_TARGET} SHARED
     ${SCGEOMETRY_HEADERS}
 )
 SCGeometryConfigureTarget(${SCGEOMETRY_TARGET})
+SCGeometryConfigurePerformance(${SCGEOMETRY_TARGET})
 
 add_library(SCGeometry::Geometry ALIAS ${SCGEOMETRY_TARGET})
 

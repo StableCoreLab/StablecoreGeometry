@@ -1,10 +1,13 @@
 #pragma once
+
 #include <memory>
 #include <sstream>
 #include <string>
-#include "Core/GeometryTypes.h"
+
+#include "Core/GeometryTypesPrimitives.h"
 #include "Export/GeometryExport.h"
 #include "Geometry3d/Curve3d.h"
+#include "Types/Geometry3d/Box3.h"
 
 namespace Geometry
 {

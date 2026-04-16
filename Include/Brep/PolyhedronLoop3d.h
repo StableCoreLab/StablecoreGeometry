@@ -3,7 +3,10 @@
 #include <string>
 #include <vector>
 
+#include "Support/Epsilon.h"
 #include "Export/GeometryExport.h"
+#include "Types/Geometry3d/Box3.h"
+#include "Types/Geometry3d/Point3.h"
 
 namespace Geometry
 {

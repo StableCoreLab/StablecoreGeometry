@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "Geometry3d/Surface.h"
+#include "Types/Geometry3d/Plane.h"
 
 namespace Geometry
 {

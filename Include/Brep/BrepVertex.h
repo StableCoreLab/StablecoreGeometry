@@ -1,7 +1,11 @@
 #pragma once
+
+#include <cstddef>
 #include <sstream>
 #include <string>
+
 #include "Export/GeometryExport.h"
+#include "Types/Geometry3d/Point3.h"
 
 namespace Geometry
 {
