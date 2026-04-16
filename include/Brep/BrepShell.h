@@ -1,90 +1,75 @@
-﻿#pragma once
-
-#include <cstddef>
+#pragma once
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "Export/GeometryExport.h"
 #include "Brep/BrepFace.h"
+#include "Export/GeometryExport.h"
 
 namespace Geometry
 {
-class GEOMETRY_API BrepShell
-{
-public:
-    BrepShell() = default;
-    explicit BrepShell(std::vector<BrepFace> faces, bool closed = false)
-        : faces_(std::move(faces)), closed_(closed)
+    class GEOMETRY_API BrepShell
     {
-    }
-
-    [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const
-    {
-        if (faces_.empty())
+    public:
+        BrepShell() = default;
+        explicit BrepShell( std::vector<BrepFace> faces, bool closed = false ) :
+            faces_( std::move( faces ) ),
+            closed_( closed )
         {
-            return false;
         }
 
-        for (const BrepFace& face : faces_)
+        [[nodiscard]] bool IsValid( const GeometryTolerance3d &tolerance = {} ) const
         {
-            if (!face.IsValid(tolerance))
+            if( faces_.empty() )
             {
                 return false;
             }
-        }
 
-        return true;
-    }
-
-    [[nodiscard]] bool IsClosed() const
-    {
-        return closed_;
-    }
-
-    [[nodiscard]] std::size_t FaceCount() const
-    {
-        return faces_.size();
-    }
-
-    [[nodiscard]] BrepFace FaceAt(std::size_t index) const
-    {
-        return faces_.at(index);
-    }
-
-    [[nodiscard]] const std::vector<BrepFace>& Faces() const
-    {
-        return faces_;
-    }
-
-    [[nodiscard]] Box3d Bounds() const
-    {
-        Box3d bounds{};
-        for (const BrepFace& face : faces_)
-        {
-            const Box3d faceBounds = face.Bounds();
-            if (!faceBounds.IsValid())
+            for( const BrepFace &face : faces_ )
             {
-                continue;
+                if( !face.IsValid( tolerance ) )
+                {
+                    return false;
+                }
             }
 
-            bounds.ExpandToInclude(faceBounds.MinPoint());
-            bounds.ExpandToInclude(faceBounds.MaxPoint());
+            return true;
         }
-        return bounds;
-    }
 
-    [[nodiscard]] std::string DebugString() const
-    {
-        std::ostringstream stream;
-        stream << "BrepShell{faceCount=" << FaceCount()
-               << ", closed=" << (closed_ ? "true" : "false") << "}";
-        return stream.str();
-    }
+        [[nodiscard]] bool IsClosed() const { return closed_; }
 
-private:
-    std::vector<BrepFace> faces_{};
-    bool closed_{false};
-};
-} // namespace Geometry
+        [[nodiscard]] std::size_t FaceCount() const { return faces_.size(); }
 
+        [[nodiscard]] BrepFace FaceAt( std::size_t index ) const { return faces_.at( index ); }
+
+        [[nodiscard]] const std::vector<BrepFace> &Faces() const { return faces_; }
+
+        [[nodiscard]] Box3d Bounds() const
+        {
+            Box3d bounds{};
+            for( const BrepFace &face : faces_ )
+            {
+                const Box3d faceBounds = face.Bounds();
+                if( !faceBounds.IsValid() )
+                {
+                    continue;
+                }
+
+                bounds.ExpandToInclude( faceBounds.MinPoint() );
+                bounds.ExpandToInclude( faceBounds.MaxPoint() );
+            }
+            return bounds;
+        }
+
+        [[nodiscard]] std::string DebugString() const
+        {
+            std::ostringstream stream;
+            stream << "BrepShell{faceCount=" << FaceCount()
+                   << ", closed=" << ( closed_ ? "true" : "false" ) << "}";
+            return stream.str();
+        }
+
+    private:
+        std::vector<BrepFace> faces_{};
+        bool closed_{ false };
+    };
+}  // namespace Geometry

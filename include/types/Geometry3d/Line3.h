@@ -8,31 +8,33 @@
 
 namespace Geometry
 {
-struct Line3d
-{
-    Point3d origin{};
-    Vector3d direction{};
-
-    [[nodiscard]] static Line3d FromOriginAndDirection(const Point3d& originValue, const Vector3d& directionValue)
+    struct Line3d
     {
-        return Line3d{originValue, directionValue};
-    }
+        Point3d origin{};
+        Vector3d direction{};
 
-    [[nodiscard]] bool IsValid(double eps = kDefaultEpsilon) const
-    {
-        return origin.IsValid() && direction.IsValid() && direction.Length() > eps;
-    }
+        [[nodiscard]] static Line3d FromOriginAndDirection( const Point3d &originValue,
+                                                            const Vector3d &directionValue )
+        {
+            return Line3d{ originValue, directionValue };
+        }
 
-    [[nodiscard]] Point3d PointAt(double parameter) const
-    {
-        return origin + direction * parameter;
-    }
+        [[nodiscard]] bool IsValid( double eps = kDefaultEpsilon ) const
+        {
+            return origin.IsValid() && direction.IsValid() && direction.Length() > eps;
+        }
 
-    [[nodiscard]] std::string DebugString() const
-    {
-        std::ostringstream stream;
-        stream << "Line3d{origin=" << origin.DebugString() << ", direction=" << direction.DebugString() << "}";
-        return stream.str();
-    }
-};
-} // namespace Geometry
+        [[nodiscard]] Point3d PointAt( double parameter ) const
+        {
+            return origin + direction * parameter;
+        }
+
+        [[nodiscard]] std::string DebugString() const
+        {
+            std::ostringstream stream;
+            stream << "Line3d{origin=" << origin.DebugString()
+                   << ", direction=" << direction.DebugString() << "}";
+            return stream.str();
+        }
+    };
+}  // namespace Geometry

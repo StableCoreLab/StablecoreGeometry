@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <vector>
 
@@ -9,17 +9,12 @@
 
 namespace Geometry
 {
-[[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample(
-    const LineSegment2d& segment,
-    std::size_t partCount);
-[[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample(
-    const ArcSegment2d& segment,
-    std::size_t partCount);
-[[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample(
-    const Segment2d& segment,
-    std::size_t partCount);
-[[nodiscard]] GEOMETRY_API std::vector<Point2d> SampleByMaxAngle(
-    const ArcSegment2d& segment,
-    double maxAngleRadians);
-} // namespace Geometry
-
+    [[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample( const LineSegment2d &segment,
+                                                            std::size_t partCount );
+    [[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample( const ArcSegment2d &segment,
+                                                            std::size_t partCount );
+    [[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample( const Segment2d &segment,
+                                                            std::size_t partCount );
+    [[nodiscard]] GEOMETRY_API std::vector<Point2d> SampleByMaxAngle( const ArcSegment2d &segment,
+                                                                      double maxAngleRadians );
+}  // namespace Geometry

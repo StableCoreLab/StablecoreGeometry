@@ -1,110 +1,92 @@
-﻿#pragma once
-
-#include <cstddef>
-
-#include "Export/GeometryExport.h"
+#pragma once
 #include "Brep/BrepBody.h"
 #include "Brep/BrepFace.h"
 #include "Brep/BrepLoop.h"
 #include "Brep/BrepShell.h"
+#include "Export/GeometryExport.h"
 
 namespace Geometry
 {
-enum class BrepLoopEditIssue3d
-{
-    None,
-    InvalidLoop,
-    InvalidIndex,
-    InvalidResult
-};
-
-enum class BrepTopologyEditIssue3d
-{
-    None,
-    InvalidFace,
-    InvalidShell,
-    InvalidBody,
-    InvalidIndex,
-    InvalidResult
-};
-
-struct GEOMETRY_API BrepLoopEdit3d
-{
-    bool success{false};
-    BrepLoopEditIssue3d issue{BrepLoopEditIssue3d::None};
-    BrepLoop loop{};
-
-    [[nodiscard]] bool IsValid() const
+    enum class BrepLoopEditIssue3d
     {
-        return !success || loop.IsValid();
-    }
-};
+        None,
+        InvalidLoop,
+        InvalidIndex,
+        InvalidResult
+    };
 
-struct GEOMETRY_API BrepFaceEdit3d
-{
-    bool success{false};
-    BrepTopologyEditIssue3d issue{BrepTopologyEditIssue3d::None};
-    BrepFace face{};
-
-    [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const
+    enum class BrepTopologyEditIssue3d
     {
-        return !success || face.IsValid(tolerance);
-    }
-};
+        None,
+        InvalidFace,
+        InvalidShell,
+        InvalidBody,
+        InvalidIndex,
+        InvalidResult
+    };
 
-struct GEOMETRY_API BrepShellEdit3d
-{
-    bool success{false};
-    BrepTopologyEditIssue3d issue{BrepTopologyEditIssue3d::None};
-    BrepShell shell{};
-
-    [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const
+    struct GEOMETRY_API BrepLoopEdit3d
     {
-        return !success || shell.IsValid(tolerance);
-    }
-};
+        bool success{ false };
+        BrepLoopEditIssue3d issue{ BrepLoopEditIssue3d::None };
+        BrepLoop loop{};
 
-struct GEOMETRY_API BrepBodyEdit3d
-{
-    bool success{false};
-    BrepTopologyEditIssue3d issue{BrepTopologyEditIssue3d::None};
-    BrepBody body{};
+        [[nodiscard]] bool IsValid() const { return !success || loop.IsValid(); }
+    };
 
-    [[nodiscard]] bool IsValid(const GeometryTolerance3d& tolerance = {}) const
+    struct GEOMETRY_API BrepFaceEdit3d
     {
-        return !success || body.IsValid(tolerance);
-    }
-};
+        bool success{ false };
+        BrepTopologyEditIssue3d issue{ BrepTopologyEditIssue3d::None };
+        BrepFace face{};
 
-[[nodiscard]] GEOMETRY_API BrepLoopEdit3d InsertCoedge(
-    const BrepLoop& loop,
-    std::size_t index,
-    const BrepCoedge& coedge);
+        [[nodiscard]] bool IsValid( const GeometryTolerance3d &tolerance = {} ) const
+        {
+            return !success || face.IsValid( tolerance );
+        }
+    };
 
-[[nodiscard]] GEOMETRY_API BrepLoopEdit3d RemoveCoedge(
-    const BrepLoop& loop,
-    std::size_t index);
+    struct GEOMETRY_API BrepShellEdit3d
+    {
+        bool success{ false };
+        BrepTopologyEditIssue3d issue{ BrepTopologyEditIssue3d::None };
+        BrepShell shell{};
 
-[[nodiscard]] GEOMETRY_API BrepLoopEdit3d FlipCoedgeDirection(
-    const BrepLoop& loop,
-    std::size_t index);
+        [[nodiscard]] bool IsValid( const GeometryTolerance3d &tolerance = {} ) const
+        {
+            return !success || shell.IsValid( tolerance );
+        }
+    };
 
-[[nodiscard]] GEOMETRY_API BrepFaceEdit3d ReplaceOuterLoop(
-    const BrepFace& face,
-    const BrepLoop& outerLoop,
-    CurveOnSurface outerTrim = {},
-    const GeometryTolerance3d& tolerance = {});
+    struct GEOMETRY_API BrepBodyEdit3d
+    {
+        bool success{ false };
+        BrepTopologyEditIssue3d issue{ BrepTopologyEditIssue3d::None };
+        BrepBody body{};
 
-[[nodiscard]] GEOMETRY_API BrepShellEdit3d ReplaceFace(
-    const BrepShell& shell,
-    std::size_t faceIndex,
-    const BrepFace& face,
-    const GeometryTolerance3d& tolerance = {});
+        [[nodiscard]] bool IsValid( const GeometryTolerance3d &tolerance = {} ) const
+        {
+            return !success || body.IsValid( tolerance );
+        }
+    };
 
-[[nodiscard]] GEOMETRY_API BrepBodyEdit3d ReplaceShell(
-    const BrepBody& body,
-    std::size_t shellIndex,
-    const BrepShell& shell,
-    const GeometryTolerance3d& tolerance = {});
-} // namespace Geometry
+    [[nodiscard]] GEOMETRY_API BrepLoopEdit3d InsertCoedge( const BrepLoop &loop, std::size_t index,
+                                                            const BrepCoedge &coedge );
 
+    [[nodiscard]] GEOMETRY_API BrepLoopEdit3d RemoveCoedge( const BrepLoop &loop, std::size_t index );
+
+    [[nodiscard]] GEOMETRY_API BrepLoopEdit3d FlipCoedgeDirection( const BrepLoop &loop,
+                                                                   std::size_t index );
+
+    [[nodiscard]] GEOMETRY_API BrepFaceEdit3d
+    ReplaceOuterLoop( const BrepFace &face, const BrepLoop &outerLoop, CurveOnSurface outerTrim = {},
+                      const GeometryTolerance3d &tolerance = {} );
+
+    [[nodiscard]] GEOMETRY_API BrepShellEdit3d ReplaceFace( const BrepShell &shell,
+                                                            std::size_t faceIndex, const BrepFace &face,
+                                                            const GeometryTolerance3d &tolerance = {} );
+
+    [[nodiscard]] GEOMETRY_API BrepBodyEdit3d ReplaceShell( const BrepBody &body, std::size_t shellIndex,
+                                                            const BrepShell &shell,
+                                                            const GeometryTolerance3d &tolerance = {} );
+}  // namespace Geometry

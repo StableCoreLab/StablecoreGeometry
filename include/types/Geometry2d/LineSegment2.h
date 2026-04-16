@@ -6,100 +6,88 @@
 
 namespace Geometry
 {
-template <typename T>
-class LineSegment2 : public Segment2<T>
-{
-public:
-    using BaseType = Segment2<T>;
-    using PointType = typename BaseType::PointType;
-    using VectorType = typename BaseType::VectorType;
-    using LengthType = typename BaseType::LengthType;
-
-    constexpr LineSegment2() = default;
-    constexpr LineSegment2(const PointType& startPoint, const PointType& endPoint)
-        : startPoint_(startPoint), endPoint_(endPoint)
+    template <typename T>
+    class LineSegment2 : public Segment2<T>
     {
-    }
+    public:
+        using BaseType = Segment2<T>;
+        using PointType = typename BaseType::PointType;
+        using VectorType = typename BaseType::VectorType;
+        using LengthType = typename BaseType::LengthType;
 
-    [[nodiscard]] SegmentKind2 Kind() const override
-    {
-        return SegmentKind2::Line;
-    }
-
-    [[nodiscard]] PointType StartPoint() const override
-    {
-        return startPoint_;
-    }
-
-    [[nodiscard]] PointType EndPoint() const override
-    {
-        return endPoint_;
-    }
-
-    [[nodiscard]] LengthType Length() const override
-    {
-        return (endPoint_ - startPoint_).Length();
-    }
-
-    [[nodiscard]] Box2<T> Bounds() const override
-    {
-        if (!IsValid())
+        constexpr LineSegment2() = default;
+        constexpr LineSegment2( const PointType &startPoint, const PointType &endPoint ) :
+            startPoint_( startPoint ),
+            endPoint_( endPoint )
         {
-            return Box2<T>();
         }
 
-        Box2<T> box;
-        box.ExpandToInclude(startPoint_);
-        box.ExpandToInclude(endPoint_);
-        return box;
-    }
+        [[nodiscard]] SegmentKind2 Kind() const override { return SegmentKind2::Line; }
 
-    [[nodiscard]] PointType PointAt(double parameter) const override
-    {
-        return PointAtLength(static_cast<LengthType>(parameter) * Length(), false);
-    }
+        [[nodiscard]] PointType StartPoint() const override { return startPoint_; }
 
-    [[nodiscard]] PointType PointAtLength(LengthType distanceFromStart, bool clampToSegment = false) const override
-    {
-        if (!IsValid())
+        [[nodiscard]] PointType EndPoint() const override { return endPoint_; }
+
+        [[nodiscard]] LengthType Length() const override { return ( endPoint_ - startPoint_ ).Length(); }
+
+        [[nodiscard]] Box2<T> Bounds() const override
         {
-            return startPoint_;
+            if( !IsValid() )
+            {
+                return Box2<T>();
+            }
+
+            Box2<T> box;
+            box.ExpandToInclude( startPoint_ );
+            box.ExpandToInclude( endPoint_ );
+            return box;
         }
 
-        const LengthType length = Length();
-        if (length <= LengthType{})
+        [[nodiscard]] PointType PointAt( double parameter ) const override
         {
-            return startPoint_;
+            return PointAtLength( static_cast<LengthType>( parameter ) * Length(), false );
         }
 
-        const LengthType clampedDistance = clampToSegment
-            ? static_cast<LengthType>(Detail::ClampDouble(
-                static_cast<double>(distanceFromStart),
-                0.0,
-                static_cast<double>(length)))
-            : distanceFromStart;
+        [[nodiscard]] PointType PointAtLength( LengthType distanceFromStart,
+                                               bool clampToSegment = false ) const override
+        {
+            if( !IsValid() )
+            {
+                return startPoint_;
+            }
 
-        const double ratio = static_cast<double>(clampedDistance) / static_cast<double>(length);
-        return Interpolate(ratio);
-    }
+            const LengthType length = Length();
+            if( length <= LengthType{} )
+            {
+                return startPoint_;
+            }
 
-    [[nodiscard]] bool IsValid() const override
-    {
-        return !IsZero(endPoint_ - startPoint_);
-    }
+            const LengthType clampedDistance = clampToSegment
+                                                   ? static_cast<LengthType>( Detail::ClampDouble(
+                                                         static_cast<double>( distanceFromStart ), 0.0,
+                                                         static_cast<double>( length ) ) )
+                                                   : distanceFromStart;
 
-private:
-    [[nodiscard]] PointType Interpolate(double ratio) const
-    {
-        const double x = static_cast<double>(startPoint_.x) +
-                         (static_cast<double>(endPoint_.x) - static_cast<double>(startPoint_.x)) * ratio;
-        const double y = static_cast<double>(startPoint_.y) +
-                         (static_cast<double>(endPoint_.y) - static_cast<double>(startPoint_.y)) * ratio;
-        return PointType(static_cast<T>(x), static_cast<T>(y));
-    }
+            const double ratio = static_cast<double>( clampedDistance ) / static_cast<double>( length );
+            return Interpolate( ratio );
+        }
 
-    PointType startPoint_{};
-    PointType endPoint_{};
-};
+        [[nodiscard]] bool IsValid() const override { return !IsZero( endPoint_ - startPoint_ ); }
 
-}
+    private:
+        [[nodiscard]] PointType Interpolate( double ratio ) const
+        {
+            const double x =
+                static_cast<double>( startPoint_.x ) +
+                ( static_cast<double>( endPoint_.x ) - static_cast<double>( startPoint_.x ) ) * ratio;
+            const double y =
+                static_cast<double>( startPoint_.y ) +
+                ( static_cast<double>( endPoint_.y ) - static_cast<double>( startPoint_.y ) ) * ratio;
+            return PointType( static_cast<T>( x ), static_cast<T>( y ) );
+        }
+
+        PointType startPoint_{};
+        PointType endPoint_{};
+    };
+
+}  // namespace Geometry

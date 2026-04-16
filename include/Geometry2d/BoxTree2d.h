@@ -1,60 +1,54 @@
-﻿#pragma once
-
-#include <cstddef>
-#include <optional>
+#pragma once
 #include <string>
 #include <vector>
 
-#include "Export/GeometryExport.h"
 #include "Core/Metrics.h"
+#include "Export/GeometryExport.h"
 
 namespace Geometry
 {
-struct GEOMETRY_API BoxTreeEntry2d
-{
-    std::size_t id{0};
-    Box2d box{};
-
-    [[nodiscard]] bool IsValid() const
+    struct GEOMETRY_API BoxTreeEntry2d
     {
-        return box.IsValid();
-    }
-};
+        std::size_t id{ 0 };
+        Box2d box{};
 
-struct GEOMETRY_API BoxTreeHit2d
-{
-    std::size_t id{0};
-    Box2d box{};
-};
+        [[nodiscard]] bool IsValid() const { return box.IsValid(); }
+    };
 
-class GEOMETRY_API BoxTree2d
-{
-public:
-    BoxTree2d() = default;
-    explicit BoxTree2d(std::vector<BoxTreeEntry2d> entries);
+    struct GEOMETRY_API BoxTreeHit2d
+    {
+        std::size_t id{ 0 };
+        Box2d box{};
+    };
 
-    void Clear();
-    void Add(std::size_t id, const Box2d& box);
-    bool Remove(std::size_t id);
-    void Update(std::size_t id, const Box2d& box);
+    class GEOMETRY_API BoxTree2d
+    {
+    public:
+        BoxTree2d() = default;
+        explicit BoxTree2d( std::vector<BoxTreeEntry2d> entries );
 
-    [[nodiscard]] std::size_t Size() const;
-    [[nodiscard]] bool IsEmpty() const;
-    [[nodiscard]] bool IsValid() const;
-    [[nodiscard]] bool Contains(std::size_t id) const;
-    [[nodiscard]] const BoxTreeEntry2d* Find(std::size_t id) const;
-    [[nodiscard]] std::vector<std::size_t> Query(const Box2d& box, double eps = 1e-9) const;
-    [[nodiscard]] std::vector<std::size_t> QueryContaining(const Point2d& point, double eps = 1e-9) const;
-    [[nodiscard]] std::string DebugString() const;
+        void Clear();
+        void Add( std::size_t id, const Box2d &box );
+        bool Remove( std::size_t id );
+        void Update( std::size_t id, const Box2d &box );
 
-    [[nodiscard]] const std::vector<BoxTreeEntry2d>& Entries() const;
-    [[nodiscard]] std::vector<BoxTreeEntry2d>& Entries();
-    [[nodiscard]] const std::vector<BoxTreeEntry2d>& Data() const;
-    [[nodiscard]] std::vector<BoxTreeEntry2d>& Data();
+        [[nodiscard]] std::size_t Size() const;
+        [[nodiscard]] bool IsEmpty() const;
+        [[nodiscard]] bool IsValid() const;
+        [[nodiscard]] bool Contains( std::size_t id ) const;
+        [[nodiscard]] const BoxTreeEntry2d *Find( std::size_t id ) const;
+        [[nodiscard]] std::vector<std::size_t> Query( const Box2d &box, double eps = 1e-9 ) const;
+        [[nodiscard]] std::vector<std::size_t> QueryContaining( const Point2d &point,
+                                                                double eps = 1e-9 ) const;
+        [[nodiscard]] std::string DebugString() const;
 
-private:
-    std::vector<BoxTreeEntry2d> entries_{};
-};
+        [[nodiscard]] const std::vector<BoxTreeEntry2d> &Entries() const;
+        [[nodiscard]] std::vector<BoxTreeEntry2d> &Entries();
+        [[nodiscard]] const std::vector<BoxTreeEntry2d> &Data() const;
+        [[nodiscard]] std::vector<BoxTreeEntry2d> &Data();
 
-} // namespace Geometry
+    private:
+        std::vector<BoxTreeEntry2d> entries_{};
+    };
 
+}  // namespace Geometry

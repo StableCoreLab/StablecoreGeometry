@@ -1,38 +1,28 @@
-﻿#pragma once
-
+#pragma once
 #include <sstream>
 #include <string>
-
 #include "Export/GeometryExport.h"
-#include "Core/GeometryTypes.h"
 
 namespace Geometry
 {
-class GEOMETRY_API BrepVertex
-{
-public:
-    BrepVertex() = default;
-    explicit BrepVertex(Point3d point) : point_(point) {}
-
-    [[nodiscard]] bool IsValid() const
+    class GEOMETRY_API BrepVertex
     {
-        return point_.IsValid();
-    }
+    public:
+        BrepVertex() = default;
+        explicit BrepVertex( Point3d point ) : point_( point ) {}
 
-    [[nodiscard]] Point3d Point() const
-    {
-        return point_;
-    }
+        [[nodiscard]] bool IsValid() const { return point_.IsValid(); }
 
-    [[nodiscard]] std::string DebugString() const
-    {
-        std::ostringstream stream;
-        stream << "BrepVertex{point=" << point_.DebugString() << "}";
-        return stream.str();
-    }
+        [[nodiscard]] Point3d Point() const { return point_; }
 
-private:
-    Point3d point_{};
-};
-} // namespace Geometry
+        [[nodiscard]] std::string DebugString() const
+        {
+            std::ostringstream stream;
+            stream << "BrepVertex{point=" << point_.DebugString() << "}";
+            return stream.str();
+        }
 
+    private:
+        Point3d point_{};
+    };
+}  // namespace Geometry

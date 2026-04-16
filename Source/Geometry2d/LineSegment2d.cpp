@@ -5,109 +5,94 @@
 
 namespace Geometry
 {
-LineSegment2d::LineSegment2d(const Point2d& startPoint, const Point2d& endPoint)
-    : startPoint(startPoint), endPoint(endPoint)
-{
-}
-
-LineSegment2d LineSegment2d::FromEndpoints(
-    const Point2d& startPoint,
-    const Point2d& endPoint)
-{
-    return LineSegment2d(startPoint, endPoint);
-}
-
-SegmentKind2 LineSegment2d::Kind() const
-{
-    return SegmentKind2::Line;
-}
-
-bool LineSegment2d::IsValid() const
-{
-    return startPoint.IsValid() && endPoint.IsValid() && !startPoint.AlmostEquals(endPoint);
-}
-
-Point2d LineSegment2d::StartPoint() const
-{
-    return startPoint;
-}
-
-Point2d LineSegment2d::EndPoint() const
-{
-    return endPoint;
-}
-
-double LineSegment2d::Length() const
-{
-    return (endPoint - startPoint).Length();
-}
-
-Box2d LineSegment2d::Bounds() const
-{
-    if (!IsValid())
+    LineSegment2d::LineSegment2d( const Point2d &startPoint, const Point2d &endPoint ) :
+        startPoint( startPoint ),
+        endPoint( endPoint )
     {
-        return Box2d{};
     }
 
-    Box2d box;
-    box.ExpandToInclude(startPoint);
-    box.ExpandToInclude(endPoint);
-    return box;
-}
-
-Point2d LineSegment2d::PointAt(double parameter) const
-{
-    return PointAtLength(parameter * Length(), false);
-}
-
-Point2d LineSegment2d::PointAtLength(double distanceFromStart, bool clampToSegment) const
-{
-    if (!IsValid())
+    LineSegment2d LineSegment2d::FromEndpoints( const Point2d &startPoint, const Point2d &endPoint )
     {
-        return startPoint;
+        return LineSegment2d( startPoint, endPoint );
     }
 
-    const double length = Length();
-    if (length <= 0.0)
+    SegmentKind2 LineSegment2d::Kind() const { return SegmentKind2::Line; }
+
+    bool LineSegment2d::IsValid() const
     {
-        return startPoint;
+        return startPoint.IsValid() && endPoint.IsValid() && !startPoint.AlmostEquals( endPoint );
     }
 
-    if (clampToSegment)
+    Point2d LineSegment2d::StartPoint() const { return startPoint; }
+
+    Point2d LineSegment2d::EndPoint() const { return endPoint; }
+
+    double LineSegment2d::Length() const { return ( endPoint - startPoint ).Length(); }
+
+    Box2d LineSegment2d::Bounds() const
     {
-        if (distanceFromStart < 0.0)
+        if( !IsValid() )
         {
-            distanceFromStart = 0.0;
+            return Box2d{};
         }
-        else if (distanceFromStart > length)
-        {
-            distanceFromStart = length;
-        }
+
+        Box2d box;
+        box.ExpandToInclude( startPoint );
+        box.ExpandToInclude( endPoint );
+        return box;
     }
 
-    const double ratio = distanceFromStart / length;
-    return Point2d{
-        startPoint.x + (endPoint.x - startPoint.x) * ratio,
-        startPoint.y + (endPoint.y - startPoint.y) * ratio};
-}
+    Point2d LineSegment2d::PointAt( double parameter ) const
+    {
+        return PointAtLength( parameter * Length(), false );
+    }
 
-bool LineSegment2d::AlmostEquals(const LineSegment2d& other, double eps) const
-{
-    return startPoint.AlmostEquals(other.startPoint, eps) &&
-           endPoint.AlmostEquals(other.endPoint, eps);
-}
+    Point2d LineSegment2d::PointAtLength( double distanceFromStart, bool clampToSegment ) const
+    {
+        if( !IsValid() )
+        {
+            return startPoint;
+        }
 
-std::string LineSegment2d::DebugString() const
-{
-    std::ostringstream stream;
-    stream << "LineSegment2d{start=" << startPoint.DebugString()
-           << ", end=" << endPoint.DebugString() << "}";
-    return stream.str();
-}
+        const double length = Length();
+        if( length <= 0.0 )
+        {
+            return startPoint;
+        }
 
-std::unique_ptr<Segment2d> LineSegment2d::Clone() const
-{
-    return std::make_unique<LineSegment2d>(*this);
-}
-} // namespace Geometry
+        if( clampToSegment )
+        {
+            if( distanceFromStart < 0.0 )
+            {
+                distanceFromStart = 0.0;
+            }
+            else if( distanceFromStart > length )
+            {
+                distanceFromStart = length;
+            }
+        }
 
+        const double ratio = distanceFromStart / length;
+        return Point2d{ startPoint.x + ( endPoint.x - startPoint.x ) * ratio,
+                        startPoint.y + ( endPoint.y - startPoint.y ) * ratio };
+    }
+
+    bool LineSegment2d::AlmostEquals( const LineSegment2d &other, double eps ) const
+    {
+        return startPoint.AlmostEquals( other.startPoint, eps ) &&
+               endPoint.AlmostEquals( other.endPoint, eps );
+    }
+
+    std::string LineSegment2d::DebugString() const
+    {
+        std::ostringstream stream;
+        stream << "LineSegment2d{start=" << startPoint.DebugString()
+               << ", end=" << endPoint.DebugString() << "}";
+        return stream.str();
+    }
+
+    std::unique_ptr<Segment2d> LineSegment2d::Clone() const
+    {
+        return std::make_unique<LineSegment2d>( *this );
+    }
+}  // namespace Geometry

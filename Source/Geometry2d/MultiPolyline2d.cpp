@@ -7,129 +7,95 @@
 
 namespace Geometry
 {
-MultiPolyline2d::MultiPolyline2d(std::vector<Polyline2d> polylines)
-    : polylines_(std::move(polylines))
-{
-}
-
-MultiPolyline2d::MultiPolyline2d(std::initializer_list<Polyline2d> polylines)
-    : polylines_(polylines)
-{
-}
-
-std::size_t MultiPolyline2d::Count() const
-{
-    return polylines_.size();
-}
-
-bool MultiPolyline2d::IsEmpty() const
-{
-    return polylines_.empty();
-}
-
-bool MultiPolyline2d::IsValid() const
-{
-    for (const auto& polyline : polylines_)
+    MultiPolyline2d::MultiPolyline2d( std::vector<Polyline2d> polylines ) :
+        polylines_( std::move( polylines ) )
     {
-        if (!polyline.IsValid())
+    }
+
+    MultiPolyline2d::MultiPolyline2d( std::initializer_list<Polyline2d> polylines ) :
+        polylines_( polylines )
+    {
+    }
+
+    std::size_t MultiPolyline2d::Count() const { return polylines_.size(); }
+
+    bool MultiPolyline2d::IsEmpty() const { return polylines_.empty(); }
+
+    bool MultiPolyline2d::IsValid() const
+    {
+        for( const auto &polyline : polylines_ )
         {
-            return false;
+            if( !polyline.IsValid() )
+            {
+                return false;
+            }
         }
+
+        return true;
     }
 
-    return true;
-}
+    void MultiPolyline2d::Clear() { polylines_.clear(); }
 
-void MultiPolyline2d::Clear()
-{
-    polylines_.clear();
-}
+    void MultiPolyline2d::Add( Polyline2d polyline ) { polylines_.push_back( std::move( polyline ) ); }
 
-void MultiPolyline2d::Add(Polyline2d polyline)
-{
-    polylines_.push_back(std::move(polyline));
-}
-
-const Polyline2d& MultiPolyline2d::PolylineAt(std::size_t index) const
-{
-    return polylines_.at(index);
-}
-
-Polyline2d& MultiPolyline2d::PolylineAt(std::size_t index)
-{
-    return polylines_.at(index);
-}
-
-const Polyline2d& MultiPolyline2d::operator[](std::size_t index) const
-{
-    return polylines_[index];
-}
-
-Polyline2d& MultiPolyline2d::operator[](std::size_t index)
-{
-    return polylines_[index];
-}
-
-std::size_t MultiPolyline2d::PointCount() const
-{
-    std::size_t count = 0;
-    for (const auto& polyline : polylines_)
+    const Polyline2d &MultiPolyline2d::PolylineAt( std::size_t index ) const
     {
-        count += polyline.PointCount();
+        return polylines_.at( index );
     }
-    return count;
-}
 
-std::size_t MultiPolyline2d::SegmentCount() const
-{
-    std::size_t count = 0;
-    for (const auto& polyline : polylines_)
+    Polyline2d &MultiPolyline2d::PolylineAt( std::size_t index ) { return polylines_.at( index ); }
+
+    const Polyline2d &MultiPolyline2d::operator[]( std::size_t index ) const
     {
-        count += polyline.SegmentCount();
+        return polylines_[index];
     }
-    return count;
-}
 
-Box2d MultiPolyline2d::Bounds() const
-{
-    Box2d box;
-    for (const auto& polyline : polylines_)
+    Polyline2d &MultiPolyline2d::operator[]( std::size_t index ) { return polylines_[index]; }
+
+    std::size_t MultiPolyline2d::PointCount() const
     {
-        box.ExpandToInclude(polyline.Bounds());
+        std::size_t count = 0;
+        for( const auto &polyline : polylines_ )
+        {
+            count += polyline.PointCount();
+        }
+        return count;
     }
-    return box;
-}
 
-std::string MultiPolyline2d::DebugString() const
-{
-    std::ostringstream stream;
-    stream << "MultiPolyline2d{count=" << Count()
-           << ", pointCount=" << PointCount()
-           << ", segmentCount=" << SegmentCount()
-           << ", valid=" << (IsValid() ? "true" : "false")
-           << ", bounds=" << Bounds().DebugString() << "}";
-    return stream.str();
-}
+    std::size_t MultiPolyline2d::SegmentCount() const
+    {
+        std::size_t count = 0;
+        for( const auto &polyline : polylines_ )
+        {
+            count += polyline.SegmentCount();
+        }
+        return count;
+    }
 
-const std::vector<Polyline2d>& MultiPolyline2d::Polylines() const
-{
-    return polylines_;
-}
+    Box2d MultiPolyline2d::Bounds() const
+    {
+        Box2d box;
+        for( const auto &polyline : polylines_ )
+        {
+            box.ExpandToInclude( polyline.Bounds() );
+        }
+        return box;
+    }
 
-std::vector<Polyline2d>& MultiPolyline2d::Polylines()
-{
-    return polylines_;
-}
+    std::string MultiPolyline2d::DebugString() const
+    {
+        std::ostringstream stream;
+        stream << "MultiPolyline2d{count=" << Count() << ", pointCount=" << PointCount()
+               << ", segmentCount=" << SegmentCount() << ", valid=" << ( IsValid() ? "true" : "false" )
+               << ", bounds=" << Bounds().DebugString() << "}";
+        return stream.str();
+    }
 
-const std::vector<Polyline2d>& MultiPolyline2d::Data() const
-{
-    return Polylines();
-}
+    const std::vector<Polyline2d> &MultiPolyline2d::Polylines() const { return polylines_; }
 
-std::vector<Polyline2d>& MultiPolyline2d::Data()
-{
-    return Polylines();
-}
-} // namespace Geometry
+    std::vector<Polyline2d> &MultiPolyline2d::Polylines() { return polylines_; }
 
+    const std::vector<Polyline2d> &MultiPolyline2d::Data() const { return Polylines(); }
 
+    std::vector<Polyline2d> &MultiPolyline2d::Data() { return Polylines(); }
+}  // namespace Geometry

@@ -8,37 +8,39 @@
 
 namespace Geometry
 {
-struct Plane
-{
-    Point3d origin{};
-    Vector3d normal{};
-
-    [[nodiscard]] static Plane FromPointAndNormal(const Point3d& originValue, const Vector3d& normalValue)
+    struct Plane
     {
-        return Plane{originValue, normalValue};
-    }
+        Point3d origin{};
+        Vector3d normal{};
 
-    [[nodiscard]] bool IsValid(double eps = kDefaultEpsilon) const
-    {
-        return origin.IsValid() && normal.IsValid() && normal.Length() > eps;
-    }
+        [[nodiscard]] static Plane FromPointAndNormal( const Point3d &originValue,
+                                                       const Vector3d &normalValue )
+        {
+            return Plane{ originValue, normalValue };
+        }
 
-    [[nodiscard]] Vector3d UnitNormal(double eps = kDefaultEpsilon) const
-    {
-        return normal.Normalized(eps);
-    }
+        [[nodiscard]] bool IsValid( double eps = kDefaultEpsilon ) const
+        {
+            return origin.IsValid() && normal.IsValid() && normal.Length() > eps;
+        }
 
-    [[nodiscard]] double SignedDistanceTo(const Point3d& point, double eps = kDefaultEpsilon) const
-    {
-        const Vector3d unitNormal = UnitNormal(eps);
-        return Dot(point - origin, unitNormal);
-    }
+        [[nodiscard]] Vector3d UnitNormal( double eps = kDefaultEpsilon ) const
+        {
+            return normal.Normalized( eps );
+        }
 
-    [[nodiscard]] std::string DebugString() const
-    {
-        std::ostringstream stream;
-        stream << "Plane{origin=" << origin.DebugString() << ", normal=" << normal.DebugString() << "}";
-        return stream.str();
-    }
-};
-} // namespace Geometry
+        [[nodiscard]] double SignedDistanceTo( const Point3d &point, double eps = kDefaultEpsilon ) const
+        {
+            const Vector3d unitNormal = UnitNormal( eps );
+            return Dot( point - origin, unitNormal );
+        }
+
+        [[nodiscard]] std::string DebugString() const
+        {
+            std::ostringstream stream;
+            stream << "Plane{origin=" << origin.DebugString() << ", normal=" << normal.DebugString()
+                   << "}";
+            return stream.str();
+        }
+    };
+}  // namespace Geometry

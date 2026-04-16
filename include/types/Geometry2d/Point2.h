@@ -9,87 +9,86 @@
 
 namespace Geometry
 {
-template <typename T>
-struct Vector2;
+    template <typename T>
+    struct Vector2;
 
-template <typename T>
-struct Vec2Storage
-{
-    T x{};
-    T y{};
-
-    constexpr Vec2Storage() = default;
-    constexpr Vec2Storage(T xValue, T yValue) : x(xValue), y(yValue) {}
-
-    constexpr void Set(T xValue, T yValue)
+    template <typename T>
+    struct Vec2Storage
     {
-        x = xValue;
-        y = yValue;
-    }
+        T x{};
+        T y{};
 
-    [[nodiscard]] constexpr bool IsValid() const
-    {
-        if constexpr (std::is_floating_point_v<T>)
+        constexpr Vec2Storage() = default;
+        constexpr Vec2Storage( T xValue, T yValue ) : x( xValue ), y( yValue ) {}
+
+        constexpr void Set( T xValue, T yValue )
         {
-            return std::isfinite(x) && std::isfinite(y);
+            x = xValue;
+            y = yValue;
         }
 
-        return true;
-    }
-
-    [[nodiscard]] constexpr bool AlmostEquals(
-        const Vec2Storage& other,
-        double eps = kDefaultEpsilon) const
-    {
-        if constexpr (std::is_floating_point_v<T>)
+        [[nodiscard]] constexpr bool IsValid() const
         {
-            return std::abs(static_cast<double>(x - other.x)) <= eps &&
-                   std::abs(static_cast<double>(y - other.y)) <= eps;
+            if constexpr( std::is_floating_point_v<T> )
+            {
+                return std::isfinite( x ) && std::isfinite( y );
+            }
+
+            return true;
         }
 
-        (void)eps;
-        return *this == other;
-    }
+        [[nodiscard]] constexpr bool AlmostEquals( const Vec2Storage &other,
+                                                   double eps = kDefaultEpsilon ) const
+        {
+            if constexpr( std::is_floating_point_v<T> )
+            {
+                return std::abs( static_cast<double>( x - other.x ) ) <= eps &&
+                       std::abs( static_cast<double>( y - other.y ) ) <= eps;
+            }
 
-    [[nodiscard]] std::string DebugString(const char* typeName) const
+            (void)eps;
+            return *this == other;
+        }
+
+        [[nodiscard]] std::string DebugString( const char *typeName ) const
+        {
+            std::ostringstream stream;
+            stream << typeName << "{x=" << x << ", y=" << y << "}";
+            return stream.str();
+        }
+
+        [[nodiscard]] constexpr bool operator==( const Vec2Storage &other ) const = default;
+        [[nodiscard]] constexpr bool operator!=( const Vec2Storage &other ) const = default;
+    };
+
+    template <typename T>
+    struct Point2 : Vec2Storage<T>
     {
-        std::ostringstream stream;
-        stream << typeName << "{x=" << x << ", y=" << y << "}";
-        return stream.str();
-    }
+        using Vec2Storage<T>::Vec2Storage;
 
-    [[nodiscard]] constexpr bool operator==(const Vec2Storage& other) const = default;
-    [[nodiscard]] constexpr bool operator!=(const Vec2Storage& other) const = default;
-};
+        [[nodiscard]] static constexpr Point2 FromXY( T xValue, T yValue )
+        {
+            return Point2( xValue, yValue );
+        }
 
-template <typename T>
-struct Point2 : Vec2Storage<T>
-{
-    using Vec2Storage<T>::Vec2Storage;
+        [[nodiscard]] std::string DebugString() const
+        {
+            return this->Vec2Storage<T>::DebugString( "Point2" );
+        }
+    };
 
-    [[nodiscard]] static constexpr Point2 FromXY(T xValue, T yValue)
+    template <typename T>
+    [[nodiscard]] constexpr Point2<T> operator+( const Point2<T> &point, const Vector2<T> &vector )
     {
-        return Point2(xValue, yValue);
+        return Point2<T>( point.x + vector.x, point.y + vector.y );
     }
 
-    [[nodiscard]] std::string DebugString() const
+    template <typename T>
+    [[nodiscard]] constexpr Point2<T> operator-( const Point2<T> &point, const Vector2<T> &vector )
     {
-        return this->Vec2Storage<T>::DebugString("Point2");
+        return Point2<T>( point.x - vector.x, point.y - vector.y );
     }
-};
 
-template <typename T>
-[[nodiscard]] constexpr Point2<T> operator+(const Point2<T>& point, const Vector2<T>& vector)
-{
-    return Point2<T>(point.x + vector.x, point.y + vector.y);
-}
-
-template <typename T>
-[[nodiscard]] constexpr Point2<T> operator-(const Point2<T>& point, const Vector2<T>& vector)
-{
-    return Point2<T>(point.x - vector.x, point.y - vector.y);
-}
-
-using Point2d = Point2<double>;
-using Point2i = Point2<int>;
-}
+    using Point2d = Point2<double>;
+    using Point2i = Point2<int>;
+}  // namespace Geometry

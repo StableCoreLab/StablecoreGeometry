@@ -1,85 +1,69 @@
-﻿#pragma once
-
-#include <cstddef>
+#pragma once
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "Export/GeometryExport.h"
 #include "Brep/PolyhedronFace3d.h"
+#include "Export/GeometryExport.h"
 
 namespace Geometry
 {
-class GEOMETRY_API PolyhedronBody
-{
-public:
-    PolyhedronBody() = default;
-    explicit PolyhedronBody(std::vector<PolyhedronFace3d> faces) : faces_(std::move(faces)) {}
-
-    [[nodiscard]] bool IsEmpty() const
+    class GEOMETRY_API PolyhedronBody
     {
-        return faces_.empty();
-    }
+    public:
+        PolyhedronBody() = default;
+        explicit PolyhedronBody( std::vector<PolyhedronFace3d> faces ) : faces_( std::move( faces ) ) {}
 
-    [[nodiscard]] bool IsValid(double eps = Geometry::kDefaultEpsilon) const
-    {
-        if (faces_.empty())
-        {
-            return false;
-        }
+        [[nodiscard]] bool IsEmpty() const { return faces_.empty(); }
 
-        for (const PolyhedronFace3d& face : faces_)
+        [[nodiscard]] bool IsValid( double eps = Geometry::kDefaultEpsilon ) const
         {
-            if (!face.IsValid(eps))
+            if( faces_.empty() )
             {
                 return false;
             }
-        }
 
-        return true;
-    }
-
-    [[nodiscard]] std::size_t FaceCount() const
-    {
-        return faces_.size();
-    }
-
-    [[nodiscard]] PolyhedronFace3d FaceAt(std::size_t index) const
-    {
-        return faces_.at(index);
-    }
-
-    [[nodiscard]] const std::vector<PolyhedronFace3d>& Faces() const
-    {
-        return faces_;
-    }
-
-    [[nodiscard]] Box3d Bounds() const
-    {
-        Box3d bounds{};
-        for (const PolyhedronFace3d& face : faces_)
-        {
-            const Box3d faceBounds = face.Bounds();
-            if (!faceBounds.IsValid())
+            for( const PolyhedronFace3d &face : faces_ )
             {
-                continue;
+                if( !face.IsValid( eps ) )
+                {
+                    return false;
+                }
             }
 
-            bounds.ExpandToInclude(faceBounds.MinPoint());
-            bounds.ExpandToInclude(faceBounds.MaxPoint());
+            return true;
         }
-        return bounds;
-    }
 
-    [[nodiscard]] std::string DebugString() const
-    {
-        std::ostringstream stream;
-        stream << "PolyhedronBody{faceCount=" << FaceCount() << "}";
-        return stream.str();
-    }
+        [[nodiscard]] std::size_t FaceCount() const { return faces_.size(); }
 
-private:
-    std::vector<PolyhedronFace3d> faces_{};
-};
-} // namespace Geometry
+        [[nodiscard]] PolyhedronFace3d FaceAt( std::size_t index ) const { return faces_.at( index ); }
 
+        [[nodiscard]] const std::vector<PolyhedronFace3d> &Faces() const { return faces_; }
+
+        [[nodiscard]] Box3d Bounds() const
+        {
+            Box3d bounds{};
+            for( const PolyhedronFace3d &face : faces_ )
+            {
+                const Box3d faceBounds = face.Bounds();
+                if( !faceBounds.IsValid() )
+                {
+                    continue;
+                }
+
+                bounds.ExpandToInclude( faceBounds.MinPoint() );
+                bounds.ExpandToInclude( faceBounds.MaxPoint() );
+            }
+            return bounds;
+        }
+
+        [[nodiscard]] std::string DebugString() const
+        {
+            std::ostringstream stream;
+            stream << "PolyhedronBody{faceCount=" << FaceCount() << "}";
+            return stream.str();
+        }
+
+    private:
+        std::vector<PolyhedronFace3d> faces_{};
+    };
+}  // namespace Geometry

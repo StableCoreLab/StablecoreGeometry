@@ -8,31 +8,33 @@
 
 namespace Geometry
 {
-struct Ray3d
-{
-    Point3d origin{};
-    Direction3d direction{};
-
-    [[nodiscard]] static Ray3d FromOriginAndDirection(const Point3d& originValue, const Direction3d& directionValue)
+    struct Ray3d
     {
-        return Ray3d{originValue, directionValue};
-    }
+        Point3d origin{};
+        Direction3d direction{};
 
-    [[nodiscard]] bool IsValid(double eps = kDefaultEpsilon) const
-    {
-        return origin.IsValid() && direction.IsValid(eps);
-    }
+        [[nodiscard]] static Ray3d FromOriginAndDirection( const Point3d &originValue,
+                                                           const Direction3d &directionValue )
+        {
+            return Ray3d{ originValue, directionValue };
+        }
 
-    [[nodiscard]] Point3d PointAt(double parameter) const
-    {
-        return origin + direction.Vector() * parameter;
-    }
+        [[nodiscard]] bool IsValid( double eps = kDefaultEpsilon ) const
+        {
+            return origin.IsValid() && direction.IsValid( eps );
+        }
 
-    [[nodiscard]] std::string DebugString() const
-    {
-        std::ostringstream stream;
-        stream << "Ray3d{origin=" << origin.DebugString() << ", direction=" << direction.DebugString() << "}";
-        return stream.str();
-    }
-};
-} // namespace Geometry
+        [[nodiscard]] Point3d PointAt( double parameter ) const
+        {
+            return origin + direction.Vector() * parameter;
+        }
+
+        [[nodiscard]] std::string DebugString() const
+        {
+            std::ostringstream stream;
+            stream << "Ray3d{origin=" << origin.DebugString()
+                   << ", direction=" << direction.DebugString() << "}";
+            return stream.str();
+        }
+    };
+}  // namespace Geometry
