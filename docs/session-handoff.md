@@ -836,7 +836,7 @@
   - 补充稳定 umbrella header 说明，明确它只负责聚合稳定 `Include` 入口；
   - 保持 `GeometryApi` + `SearchPoly` + `BodyBoolean` 的产品侧收口方式不变，只做说明性整理。
 - 已新增 `UnitTests/Capabilities/TestUmbrella.cpp`：
-  - 用仅包含 `sdk/Geometry.h` 的测试文件验证 umbrella header 可直接暴露 `SearchPolygons(...)`、`IntersectBodies(...)`、`UnionBodies(...)`、`DifferenceBodies(...)` 等稳定入口；
+  - 用仅包含 `Geometry.h` 的测试文件验证 umbrella header 可直接暴露 `SearchPolygons(...)`、`IntersectBodies(...)`、`UnionBodies(...)`、`DifferenceBodies(...)` 等稳定入口；
   - 同时验证 `InvalidInput` / success 路径结果对象在 umbrella 入口下可正常使用。
 - 已更新：
   - `docs/next-task-prompt.md`

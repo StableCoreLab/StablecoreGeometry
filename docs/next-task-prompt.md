@@ -107,7 +107,7 @@
 ### Geometry.h / Include 收口
 
 - `Include/Geometry.h` 继续作为稳定 umbrella header，只聚合 `GeometryApi` / `SearchPoly` / `BodyBoolean`
-- 已新增仅包含 `sdk/Geometry.h` 的 umbrella contract test，确认产品侧可以只依赖稳定 SDK 入口
+- 已新增仅包含 `Geometry.h` 的 umbrella contract test，确认产品侧可以只依赖稳定公开入口
 - `Options / Result / Issue` 风格统一继续作为命名与暴露面收口的一部分，但本轮不做大范围 API 重设计
 
 ## 下一轮优先级

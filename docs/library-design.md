@@ -40,10 +40,10 @@ tests/
 对外优先使用：
 
 ```cpp
-#include "sdk/Geometry.h"
+#include "Geometry.h"
 ```
 
-`Geometry.h` 是当前稳定 umbrella 入口，它聚合了 `GeometryApi`、`GeometryEpsilon`、`SearchPoly`、`BodyBoolean` 以及当前主要的 2D / 3D SDK 头文件。
+`Geometry.h` 是当前稳定 umbrella 入口，它聚合了 `Core/GeometryApi.h`、`Support/Epsilon.h`、`Support/Geometry2d/Normalize2.h`、`Core/SearchPoly.h`、`Brep/BodyBoolean.h` 以及当前主要公开头文件。
 
 ### 3.2 值类型与 SDK 类型层
 
