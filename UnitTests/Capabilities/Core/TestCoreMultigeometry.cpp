@@ -27,7 +27,7 @@ namespace
 constexpr double kPi = 3.141592653589793238462643383279502884;
 }
 
-TEST(CoreMultigeometryTest, CoversCurrentCapabilities)
+TEST(CoreMultiGeometryTest, CoversCurrentCapabilities)
 {
     const Polyline2d outerRing(
         {Point2d{0.0, 0.0}, Point2d{6.0, 0.0}, Point2d{6.0, 6.0}, Point2d{0.0, 6.0}},
@@ -100,11 +100,3 @@ TEST(CoreMultigeometryTest, CoversCurrentCapabilities)
     ASSERT_TRUE(nearestSegment.has_value());
     ASSERT_EQ(nearestSegment->id, lineId);
 }
-
-
-
-
-
-
-
-

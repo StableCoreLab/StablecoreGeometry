@@ -15,7 +15,7 @@ A C++ geometry library for engineering computation.
 - Section, healing, boolean, projection, relation, measurement, validation, and mesh conversion services
 - Text serialization helpers and search/index helpers
 
-## Public Entry
+## Include Entry
 
 For external consumers, prefer the umbrella header:
 
@@ -25,14 +25,14 @@ For external consumers, prefer the umbrella header:
 
 `Geometry.h` is the stable umbrella entry point. It pulls in the main public headers for core operations, 2D/3D geometry, BRep, and shared support utilities.
 
-When you want a narrower include set, the public surface is split into the following module areas:
+When you want a narrower include set, the surface is split into the following module areas:
 
 - `Core` for umbrella types and cross-cutting operations
 - `Geometry2d` for 2D primitives and path utilities
 - `Geometry3d` for curves, surfaces, and 3D evaluation helpers
 - `Brep` for BRep, polyhedron, mesh, healing, and topology services
 
-The lower-level public surface is also split more explicitly:
+The lower-level surface is also split more explicitly:
 
 - `Support/Epsilon.h` for shared tolerance constants
 - `Support/Geometry2d` for 2D scalar, predicate, and normalization helpers
