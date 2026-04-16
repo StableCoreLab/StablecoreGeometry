@@ -46,7 +46,7 @@
 每一轮都必须同步更新：
 
 - `docs/session-handoff.md`
-- `docs/next-task-prompt.md`
+- `docs/todolist.md`
 - `docs/test-capability-coverage.md`
 - `docs/design-doc-sync-tracker.md`
 

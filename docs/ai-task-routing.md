@@ -84,7 +84,7 @@
 
 适用任务：
 
-- `session-handoff` / `next-task-prompt` / `coverage` / `sync-tracker` 同步
+- `session-handoff` / `todolist` / `coverage` / `sync-tracker` 同步
 - capability matrix、checklist、follow-up prompt 整理
 - 批次收尾、提交说明、路线文档维护
 
