@@ -92,6 +92,52 @@ function(SCGeometryConfigurePerformance target_name)
     endif()
 endfunction()
 
+function(SCGeometryShouldInstallPublicHeader header_path should_install_var)
+    file(RELATIVE_PATH SCGEOMETRY_HEADER_RELATIVE_PATH
+        "${CMAKE_CURRENT_SOURCE_DIR}/Include"
+        "${header_path}"
+    )
+
+    if(SCGEOMETRY_HEADER_RELATIVE_PATH MATCHES "^Geometry2d/SC" OR
+       SCGEOMETRY_HEADER_RELATIVE_PATH MATCHES "^Geometry2d/ISC" OR
+       SCGEOMETRY_HEADER_RELATIVE_PATH MATCHES "^Geometry3d/SC" OR
+       SCGEOMETRY_HEADER_RELATIVE_PATH MATCHES "^Types/Detail/")
+        set(${should_install_var} OFF PARENT_SCOPE)
+        return()
+    endif()
+
+    set(${should_install_var} ON PARENT_SCOPE)
+endfunction()
+
+function(SCGeometryInstallPublicHeader header_path)
+    file(RELATIVE_PATH SCGEOMETRY_HEADER_RELATIVE_PATH
+        "${CMAKE_CURRENT_SOURCE_DIR}/Include"
+        "${header_path}"
+    )
+    get_filename_component(SCGEOMETRY_HEADER_DIR "${SCGEOMETRY_HEADER_RELATIVE_PATH}" DIRECTORY)
+
+    if(SCGEOMETRY_HEADER_DIR STREQUAL ".")
+        set(SCGEOMETRY_HEADER_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+    else()
+        set(SCGEOMETRY_HEADER_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${SCGEOMETRY_HEADER_DIR}")
+    endif()
+
+    install(FILES "${header_path}"
+        DESTINATION "${SCGEOMETRY_HEADER_DESTINATION}"
+    )
+endfunction()
+
+function(SCGeometryInstallPublicHeaders)
+    foreach(SCGEOMETRY_HEADER IN LISTS SCGEOMETRY_HEADERS)
+        SCGeometryShouldInstallPublicHeader("${SCGEOMETRY_HEADER}" SCGEOMETRY_HEADER_SHOULD_INSTALL)
+        if(NOT SCGEOMETRY_HEADER_SHOULD_INSTALL)
+            continue()
+        endif()
+
+        SCGeometryInstallPublicHeader("${SCGEOMETRY_HEADER}")
+    endforeach()
+endfunction()
+
 # -------------------
 # SCGeometry 库
 # -------------------
@@ -190,15 +236,14 @@ install(FILES $<TARGET_PDB_FILE:${SCGEOMETRY_TARGET}>
     DESTINATION ${SCGEOMETRY_INSTALL_PDB_DIR}
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING
-        PATTERN "*.h"
-        PATTERN "Geometry2d/SC*" EXCLUDE
-        PATTERN "Geometry2d/ISC*" EXCLUDE
-        PATTERN "Geometry3d/SC*" EXCLUDE
-        PATTERN "Types/Detail/*" EXCLUDE
-)
+install(CODE [[
+    file(REMOVE_RECURSE
+        "${CMAKE_INSTALL_PREFIX}/Include/Types/Compat"
+        "${CMAKE_INSTALL_PREFIX}/Include/Types/Detail"
+    )
+]])
+
+SCGeometryInstallPublicHeaders()
 
 install(EXPORT SCGeometryTargets
     FILE SCGeometryTargets.cmake
