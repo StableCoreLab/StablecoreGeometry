@@ -15,17 +15,33 @@ A C++ geometry library for engineering computation.
 - Section, healing, boolean, projection, relation, measurement, validation, and mesh conversion services
 - Text serialization helpers and search/index helpers
 
-## SDK Entry
+## Public Entry
 
 For external consumers, prefer the umbrella header:
 
 ```cpp
-#include "sdk/Geometry.h"
+#include "Geometry.h"
 ```
 
-`sdk/Geometry.h` is the stable umbrella entry point. It pulls in `GeometryApi`, `GeometryEpsilon`, `GeometrySearchPoly`, `GeometryBodyBoolean`, and the main 2D / 3D SDK headers.
+`Geometry.h` is the stable umbrella entry point. It pulls in the main public headers for core operations, 2D/3D geometry, BRep, and shared support utilities.
 
-Common aliases available through `Geometry::Sdk::GeometryTypes` include:
+When you want a narrower include set, the public surface is split into the following module areas:
+
+- `Core` for umbrella types and cross-cutting operations
+- `Geometry2d` for 2D primitives and path utilities
+- `Geometry3d` for curves, surfaces, and 3D evaluation helpers
+- `Brep` for BRep, polyhedron, mesh, healing, and topology services
+
+The lower-level public surface is also split more explicitly:
+
+- `Support/Epsilon.h` for shared tolerance constants
+- `Support/Geometry2d` for 2D scalar, predicate, and normalization helpers
+- `Types/Geometry2d` for 2D value types
+- `Types/Geometry3d` for 3D value types and linear algebra helpers
+- `Types/Compat` for legacy alias wrappers
+- `Types/Detail` for implementation-detail type helpers
+
+Common aliases available through the umbrella include:
 
 - `Point2d`, `Vector2d`, `Box2d`
 - `Point3d`, `Vector3d`, `Direction3d`, `Box3d`, `Intervald`
@@ -80,7 +96,7 @@ The library installs into a release-friendly layout that separates configuration
 - `bin/RelWithDebInfo/x64` for DLLs and executables with debug info
 - `lib/Release/x64` for import libraries and static archives
 - `lib/RelWithDebInfo/x64` for import libraries and static archives with debug info
-- `include` for public headers
+- `Include` for public headers
 - `lib/cmake/SCGeometry` for CMake package files
 
 After installing, downstream projects can consume it with CMake:

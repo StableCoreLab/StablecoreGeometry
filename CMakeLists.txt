@@ -7,7 +7,6 @@ if(POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW)
 endif()
 
-include(CTest)
 include(FetchContent)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -77,19 +76,19 @@ endfunction()
 # SCGeometry 库
 # -------------------
 file(GLOB_RECURSE SCGEOMETRY_HEADERS CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Include/*.h"
 )
 
 file(GLOB_RECURSE SCGEOMETRY_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp"
 )
 
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     PREFIX "Header Files"
     FILES ${SCGEOMETRY_HEADERS}
 )
 
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src"
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source"
     PREFIX "Source Files"
     FILES ${SCGEOMETRY_SOURCES}
 )
@@ -123,7 +122,6 @@ set_target_properties(${SCGEOMETRY_TARGET} PROPERTIES
 # 测试配置
 # -------------------
 if (SCGEOMETRY_BUILD_TESTS)
-    enable_testing()
 
     # 尝试查找系统或已安装 GTest
     find_package(GTest CONFIG QUIET)
@@ -154,7 +152,8 @@ if (SCGEOMETRY_BUILD_TESTS)
     endif()
 
     # 添加测试子目录
-    add_subdirectory(tests)
+    enable_testing()
+    add_subdirectory(UnitTests)
 endif()
 
 install(TARGETS ${SCGEOMETRY_TARGET}
