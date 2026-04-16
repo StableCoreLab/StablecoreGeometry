@@ -1,20 +1,20 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Core/SearchPoly.h"
 
 
 
-using Geometry::Sdk::MultiPolyline2d;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
-using Geometry::Sdk::SearchPolygonContainingPoint;
-using Geometry::Sdk::SearchPolygons;
-using Geometry::Sdk::SearchPolyIssue2d;
-using Geometry::Sdk::SearchPolyOptions2d;
-using Geometry::Sdk::SearchPolyPenaltyKind2d;
-using Geometry::Sdk::SearchPolySyntheticEdgeKind2d;
-using Geometry::Sdk::SearchPolySyntheticEdgeSource2d;
+using Geometry::MultiPolyline2d;
+using Geometry::Point2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
+using Geometry::SearchPolygonContainingPoint;
+using Geometry::SearchPolygons;
+using Geometry::SearchPolyIssue2d;
+using Geometry::SearchPolyOptions2d;
+using Geometry::SearchPolyPenaltyKind2d;
+using Geometry::SearchPolySyntheticEdgeKind2d;
+using Geometry::SearchPolySyntheticEdgeSource2d;
 
 TEST(SearchPolyCapabilityTest, InvalidInputContractRejectsEmptyLineCollection)
 {
@@ -833,6 +833,7 @@ TEST(SearchPolyCapabilityTest, SearchPolygonContainingPointPreservesSyntheticExp
         EXPECT_EQ(candidate->inferredSyntheticEdgeBranchTouchCounts[index], 0U);
     }
 }
+
 
 
 

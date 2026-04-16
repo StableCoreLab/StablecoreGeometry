@@ -1,4 +1,4 @@
-#include "Core/Relation.h"
+﻿#include "Core/Relation.h"
 
 #include <cmath>
 #include <vector>
@@ -9,7 +9,7 @@
 #include "Core/Projection.h"
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -200,4 +200,5 @@ bool IsEqual(const LineSegment2d& first, const LineSegment2d& second, bool ignor
            first.startPoint.AlmostEquals(second.endPoint, eps) &&
            first.endPoint.AlmostEquals(second.startPoint, eps);
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

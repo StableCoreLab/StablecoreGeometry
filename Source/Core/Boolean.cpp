@@ -1,4 +1,4 @@
-#include "Core/Boolean.h"
+﻿#include "Core/Boolean.h"
 
 #include <algorithm>
 #include <cmath>
@@ -18,7 +18,7 @@
 #include "Core/Editing.h"
 #include "Core/Validation.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -1967,6 +1967,7 @@ MultiPolygon2d Difference(const Polygon2d& first, const Polygon2d& second, doubl
     }
     return result;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 
 

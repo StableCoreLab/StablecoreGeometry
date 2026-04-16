@@ -1,4 +1,4 @@
-#include "Core/Projection.h"
+﻿#include "Core/Projection.h"
 
 #include <algorithm>
 #include <array>
@@ -8,7 +8,7 @@
 #include "Geometry3d/LineCurve3d.h"
 #include "Geometry3d/PlaneSurface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -816,5 +816,6 @@ FaceProjection3d ProjectFaceToPolygon2d(const PolyhedronFace3d& face, const Geom
 
     return FaceProjection3d{true, std::move(polygon), plane.origin, basis.u, basis.v};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

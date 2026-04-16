@@ -1,11 +1,11 @@
-#include "Geometry2d/MultiPolygon2d.h"
+﻿#include "Geometry2d/MultiPolygon2d.h"
 
 #include <sstream>
 #include <utility>
 
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 MultiPolygon2d::MultiPolygon2d(std::vector<Polygon2d> polygons)
     : polygons_(std::move(polygons))
@@ -141,4 +141,5 @@ std::vector<Polygon2d>& MultiPolygon2d::Data()
 {
     return Polygons();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

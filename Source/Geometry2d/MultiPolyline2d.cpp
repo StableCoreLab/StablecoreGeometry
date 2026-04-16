@@ -1,11 +1,11 @@
-#include "Geometry2d/MultiPolyline2d.h"
+﻿#include "Geometry2d/MultiPolyline2d.h"
 
 #include <sstream>
 #include <utility>
 
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 MultiPolyline2d::MultiPolyline2d(std::vector<Polyline2d> polylines)
     : polylines_(std::move(polylines))
@@ -130,5 +130,6 @@ std::vector<Polyline2d>& MultiPolyline2d::Data()
 {
     return Polylines();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

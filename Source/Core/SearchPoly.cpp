@@ -1,4 +1,4 @@
-#include "Core/SearchPoly.h"
+﻿#include "Core/SearchPoly.h"
 
 #include <algorithm>
 #include <cmath>
@@ -13,7 +13,7 @@
 #include "Core/Relation.h"
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -939,4 +939,5 @@ std::optional<SearchPolyCandidate2d> SearchPolygonContainingPoint(
 
     return bestCandidate;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

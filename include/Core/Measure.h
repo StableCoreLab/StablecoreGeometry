@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 
@@ -12,7 +12,7 @@
 #include "Geometry3d/Surface.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 [[nodiscard]] GEOMETRY_API double DistanceSquared(const Point3d& lhs, const Point3d& rhs);
 [[nodiscard]] GEOMETRY_API double Distance(const Point3d& lhs, const Point3d& rhs);
@@ -132,4 +132,5 @@ namespace Geometry::Sdk
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const BrepEdge& edge);
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const BrepFace& face);
 [[nodiscard]] GEOMETRY_API Box3d Bounds(const BrepBody& body);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cmath>
 #include <cstddef>
@@ -9,7 +9,7 @@
 #include "Export/GeometryExport.h"
 #include "Brep/PolyhedronLoop3d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API PolyhedronFace3d
 {
@@ -100,4 +100,5 @@ private:
     PolyhedronLoop3d outerLoop_{};
     std::vector<PolyhedronLoop3d> holes_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#include "Core/Transform.h"
+﻿#include "Core/Transform.h"
 
 #include <cmath>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "Core/Metrics.h"
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -229,4 +229,5 @@ Polygon2d Stretch(const Polygon2d& polygon, const Box2d& region, const Vector2d&
     }
     return Polygon2d(Stretch(polygon.OuterRing(), region, offset), std::move(holes));
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

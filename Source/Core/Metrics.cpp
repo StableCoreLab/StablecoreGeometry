@@ -1,10 +1,10 @@
-#include "Core/Metrics.h"
+﻿#include "Core/Metrics.h"
 
 #include <cmath>
 
 #include "Core/Projection.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 double DistanceSquared(const Point2d& lhs, const Point2d& rhs)
 {
@@ -71,4 +71,5 @@ double Distance(const Point2d& point, const Segment2d& segment)
 {
     return std::sqrt(DistanceSquared(point, segment));
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

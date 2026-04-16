@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <initializer_list>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Geometry2d/Polygon2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API MultiPolygon2d
 {
@@ -44,4 +44,5 @@ public:
 private:
     std::vector<Polygon2d> polygons_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

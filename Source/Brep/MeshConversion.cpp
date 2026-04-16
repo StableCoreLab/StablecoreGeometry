@@ -1,4 +1,4 @@
-#include "Brep/MeshConversion.h"
+﻿#include "Brep/MeshConversion.h"
 
 #include <algorithm>
 #include <cmath>
@@ -13,7 +13,7 @@
 #include "Geometry3d/PlaneSurface.h"
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -713,4 +713,5 @@ PolyhedronMeshConversion3d ConvertToTriangleMesh(const BrepBody& body, double ep
 
     return {true, MeshConversionIssue3d::None, 0, TriangleMesh(std::move(vertices), std::move(triangles))};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

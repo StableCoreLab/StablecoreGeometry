@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <sstream>
@@ -10,7 +10,7 @@
 #include "Brep/BrepShell.h"
 #include "Brep/BrepVertex.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API BrepBody
 {
@@ -180,4 +180,5 @@ private:
     std::vector<BrepEdge> edges_{};
     std::vector<BrepShell> shells_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,8 +1,8 @@
-#include "Brep/BrepEditing.h"
+﻿#include "Brep/BrepEditing.h"
 
 #include <vector>
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 BrepLoopEdit3d InsertCoedge(const BrepLoop& loop, std::size_t index, const BrepCoedge& coedge)
 {
@@ -160,4 +160,5 @@ BrepBodyEdit3d ReplaceShell(
 
     return {true, BrepTopologyEditIssue3d::None, std::move(edited)};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

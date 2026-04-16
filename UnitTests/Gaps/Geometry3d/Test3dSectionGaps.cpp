@@ -1,15 +1,15 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Geometry.h"
 
 
 
-using Geometry::Sdk::LineSegment3d;
-using Geometry::Sdk::Plane;
-using Geometry::Sdk::Point3d;
-using Geometry::Sdk::PolyhedronBody;
-using Geometry::Sdk::Section;
-using Geometry::Sdk::Vector3d;
+using Geometry::LineSegment3d;
+using Geometry::Plane;
+using Geometry::Point3d;
+using Geometry::PolyhedronBody;
+using Geometry::Section;
+using Geometry::Vector3d;
 
 TEST(Section3dGapTest, NonPlanarDominantSectionGraphRemainsOpen)
 {
@@ -101,6 +101,7 @@ TEST(Section3dGapTest, MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpe
                     "plus two extra open contours where one is edge-attached on the merged outer boundary and the other is vertex-attached at an adjacent outer-boundary corner. "
                     "Expected future capability: preserve the single polygon-with-hole and keep both boundary-attached open contours separate with deterministic ordering instead of collapsing hole semantics or cross-stitching the spurs.";
 }
+
 
 
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <memory>
@@ -10,7 +10,7 @@
 #include "Brep/BrepLoop.h"
 #include "Geometry3d/CurveOnSurface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API BrepFace
 {
@@ -130,4 +130,5 @@ private:
     CurveOnSurface outerTrim_{};
     std::vector<CurveOnSurface> holeTrims_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

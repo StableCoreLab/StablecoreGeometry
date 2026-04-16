@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <array>
 #include <string>
@@ -7,7 +7,7 @@
 #include "Core/GeometryTypes.h"
 #include "Geometry2d/Polygon2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API Rectangle2d
 {
@@ -28,4 +28,5 @@ public:
     [[nodiscard]] Polygon2d ToPolygon() const;
     [[nodiscard]] std::string DebugString() const;
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <memory>
@@ -11,7 +11,7 @@
 #include "Core/Metrics.h"
 #include "Core/Projection.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 struct GEOMETRY_API SegmentSearchEntry2d
 {
@@ -75,4 +75,5 @@ private:
     std::vector<SegmentSearchEntry2d> entries_{};
 };
 
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

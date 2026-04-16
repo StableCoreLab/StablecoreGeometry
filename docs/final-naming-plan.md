@@ -1,4 +1,4 @@
-# Final Naming Plan
+﻿# Final Naming Plan
 
 This document is the authoritative naming rule for the published Geometry surface.
 
@@ -11,8 +11,59 @@ This document is the authoritative naming rule for the published Geometry surfac
 - The published API is organized by directory and by semantic type name, not by product prefix.
 
 Namespace note:
-- The current published codebase still uses `Geometry::Sdk` as the API namespace.
+- The current published API namespace is `Geometry`.
+- `Geometry::Sdk` is only a temporary compatibility alias during the migration window.
 - This naming plan applies to files, types, results, and public wrappers, not to the engineering namespace marker itself.
+
+## Namespace Migration
+
+Target public namespace:
+- `Geometry`
+
+Move out of `Geometry::Sdk`:
+- `Include/Core/GeometryTypes.h`
+- `Include/Core/Results.h`
+- `Include/Core/Validation.h`
+- `Include/Core/Algorithms.h`
+- `Include/Core/AxisOps.h`
+- `Include/Core/Boolean.h`
+- `Include/Core/Editing.h`
+- `Include/Core/Intersection.h`
+- `Include/Core/Measure.h`
+- `Include/Core/Metrics.h`
+- `Include/Core/Offset.h`
+- `Include/Core/Projection.h`
+- `Include/Core/Relation.h`
+- `Include/Core/Sampling.h`
+- `Include/Core/SearchPoly.h`
+- `Include/Core/Section.h`
+- `Include/Core/ShapeOps.h`
+- `Include/Core/Transform.h`
+- `Include/Geometry2d/*.h`
+- `Include/Geometry3d/*.h`
+- `Include/Brep/*.h`
+- `Include/Serialize/GeometryText.h`
+
+Already in the final namespace:
+- `Include/Types/*`
+- `Include/Support/*`
+- `Include/Export/*`
+- `Include/Geometry.h` umbrella header itself
+
+Compatibility strategy:
+- Keep a single transition alias from `Geometry::Sdk` to `Geometry` instead of duplicating wrappers.
+- Do not reintroduce `SC*` or `ISC*` compatibility classes.
+- Do not ship wrapper headers as part of the default installed surface.
+- Use the alias only as a temporary source-compatibility bridge for old call sites.
+- Remove the alias after the migration window is closed.
+- Prefer updating source, tests, and docs to `Geometry::...` directly rather than relying on the alias long term.
+
+Migration checklist:
+1. Move all public declarations in the listed headers to `namespace Geometry`.
+2. Update source files to include and use `namespace Geometry` directly.
+3. Update tests and documentation to reference `Geometry::...`.
+4. Keep only the `Geometry::Sdk` namespace alias as the temporary compatibility layer.
+5. Remove the alias once the release migration window is complete.
 
 ## Include/Core
 
@@ -131,3 +182,4 @@ Delete from the public surface:
 - All public value types that must cross DLL boundaries should stay in exported headers and keep `GEOMETRY_API`.
 - Do not introduce `SC` prefixes into value-type names just to indicate DLL usage.
 - If a type is only needed internally, keep it in a detail header or source file instead of shipping it in `Include/`.
+

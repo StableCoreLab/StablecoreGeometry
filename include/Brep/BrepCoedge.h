@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <sstream>
 #include <string>
 
 #include "Export/GeometryExport.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API BrepCoedge
 {
@@ -40,4 +40,5 @@ private:
     std::size_t edgeIndex_{static_cast<std::size_t>(-1)};
     bool reversed_{false};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

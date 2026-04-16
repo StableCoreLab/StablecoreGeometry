@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include <vector>
 
 #include "Core/Boolean.h"
@@ -9,18 +9,18 @@
 
 
 
-using Geometry::Sdk::LineSegment2d;
-using Geometry::Sdk::Difference;
-using Geometry::Sdk::Intersect;
-using Geometry::Sdk::LocatePoint;
-using Geometry::Sdk::MultiPolygon2d;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::PointContainment2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
-using Geometry::Sdk::Union;
-using Geometry::Sdk::Validate;
+using Geometry::LineSegment2d;
+using Geometry::Difference;
+using Geometry::Intersect;
+using Geometry::LocatePoint;
+using Geometry::MultiPolygon2d;
+using Geometry::Point2d;
+using Geometry::PointContainment2d;
+using Geometry::Polygon2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
+using Geometry::Union;
+using Geometry::Validate;
 
 namespace
 {
@@ -337,6 +337,7 @@ TEST(RelationBooleanTest, HandlesBelowToleranceArrangementDegeneracies)
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Union(first, second)), 26.0, 1e-8);
     GEOMETRY_TEST_ASSERT_NEAR(TotalArea(Difference(first, second)), 6.0, 1e-8);
 }
+
 
 
 

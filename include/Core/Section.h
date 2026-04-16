@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <string>
@@ -11,7 +11,7 @@
 #include "Geometry2d/Polygon2d.h"
 #include "Brep/PolyhedronBody.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class SectionIssue3d
 {
@@ -455,4 +455,5 @@ using SectionMeshSetConversion3d = SectionMeshSetConversionResult3d;
 [[nodiscard]] GEOMETRY_API SectionComponents3d BuildSectionComponents(
     const PolyhedronSection3d& section,
     double eps = 1e-9);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

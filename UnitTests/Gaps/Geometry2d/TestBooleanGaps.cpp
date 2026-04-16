@@ -1,14 +1,14 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Core/Boolean.h"
 #include "Core/ShapeOps.h"
 
 
 
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
+using Geometry::Point2d;
+using Geometry::Polygon2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
 
 TEST(BooleanGapTest, HarderArrangementDegeneraciesRemainOpen)
 {
@@ -24,6 +24,7 @@ TEST(BooleanGapTest, HarderArrangementDegeneraciesRemainOpen)
     (void)second;
     GTEST_SKIP() << "Known gap: arrangement degeneracies below current tolerance-scale recovery are still open.";
 }
+
 
 
 

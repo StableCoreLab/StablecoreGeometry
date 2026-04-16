@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <optional>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Core/GeometryTypes.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 struct GEOMETRY_API KDTreeEntry2d
 {
@@ -63,4 +63,5 @@ private:
     std::vector<KDTreeEntry2d> entries_{};
 };
 
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

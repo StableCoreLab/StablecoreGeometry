@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include <cmath>
 #include <memory>
 #include <vector>
@@ -10,14 +10,14 @@
 
 
 
-using Geometry::Sdk::ArcSegment2d;
-using Geometry::Sdk::LineSegment2d;
-using Geometry::Sdk::MultiPolygon2d;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::PointContainment2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
+using Geometry::ArcSegment2d;
+using Geometry::LineSegment2d;
+using Geometry::MultiPolygon2d;
+using Geometry::Point2d;
+using Geometry::PointContainment2d;
+using Geometry::Polygon2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
 
 TEST(OffsetTest, CoversCurrentCapabilities)
 {
@@ -205,6 +205,7 @@ TEST(OffsetTest, SupportsNarrowBridgeSplitViaMultiPolygonOffsetApi)
         }
     }
 }
+
 
 
 

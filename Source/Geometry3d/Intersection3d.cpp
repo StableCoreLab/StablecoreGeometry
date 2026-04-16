@@ -1,4 +1,4 @@
-#include "Core/Intersection.h"
+﻿#include "Core/Intersection.h"
 
 #include <algorithm>
 #include <array>
@@ -12,7 +12,7 @@
 #include "Geometry3d/NurbsSurface.h"
 #include "Geometry3d/PlaneSurface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -1135,5 +1135,6 @@ PlanePlaneIntersection3d Intersect(
     result.line = Line3d::FromOriginAndDirection(Point3d{pointVector.x, pointVector.y, pointVector.z}, direction);
     return result;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

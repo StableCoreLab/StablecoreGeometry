@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Geometry2d/ArcSegment2d.h"
@@ -11,7 +11,7 @@
 #include "Geometry3d/Surface.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 [[nodiscard]] GEOMETRY_API SegmentIntersection2d Intersect(
     const LineSegment2d& first,
@@ -112,4 +112,5 @@ namespace Geometry::Sdk
 [[nodiscard]] GEOMETRY_API ClosestPoints2d ClosestPoints(
     const Segment2d& first,
     const Segment2d& second);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,9 +1,9 @@
-#include "Brep/Tessellation.h"
+﻿#include "Brep/Tessellation.h"
 
 #include <algorithm>
 #include <vector>
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 TriangleMesh Tessellate(const PlaneSurface& surface, std::size_t uSegments, std::size_t vSegments)
 {
@@ -58,4 +58,5 @@ TriangleMesh Tessellate(const PlaneSurface& surface, std::size_t uSegments, std:
 
     return TriangleMesh(std::move(vertices), std::move(triangles));
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

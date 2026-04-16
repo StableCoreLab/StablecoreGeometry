@@ -1,4 +1,4 @@
-#include "Brep/Healing.h"
+﻿#include "Brep/Healing.h"
 
 #include <algorithm>
 #include <array>
@@ -15,7 +15,7 @@
 #include "Geometry3d/PlaneSurface.h"
 #include "Core/Validation.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -1386,5 +1386,6 @@ BrepHealing3d Heal(
 
     return {true, HealingIssue3d::None, std::move(healedBody)};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

@@ -1,32 +1,32 @@
-
+﻿
 #include <gtest/gtest.h>
 
 #include "Geometry.h"
 #include "Support/Fixtures3d.h"
 
 
-using Geometry::Sdk::Heal;
-using Geometry::Sdk::HealingIssue3d;
-using Geometry::Sdk::HealingPolicy3d;
-using Geometry::Sdk::Line3d;
-using Geometry::Sdk::LineCurve3d;
-using Geometry::Sdk::Plane;
-using Geometry::Sdk::PlaneSurface;
-using Geometry::Sdk::PolyhedronBody;
-using Geometry::Sdk::PolyhedronHealing3d;
-using Geometry::Sdk::Point3d;
-using Geometry::Sdk::Vector3d;
-using Geometry::Sdk::BrepBody;
-using Geometry::Sdk::BrepCoedge;
-using Geometry::Sdk::BrepEdge;
-using Geometry::Sdk::BrepFace;
-using Geometry::Sdk::BrepLoop;
-using Geometry::Sdk::BrepShell;
-using Geometry::Sdk::BrepVertex;
-using Geometry::Sdk::BrepHealing3d;
-using Geometry::Sdk::GeometryTolerance3d;
-using Geometry::Sdk::Intervald;
-using Geometry::Sdk::Surface;
+using Geometry::Heal;
+using Geometry::HealingIssue3d;
+using Geometry::HealingPolicy3d;
+using Geometry::Line3d;
+using Geometry::LineCurve3d;
+using Geometry::Plane;
+using Geometry::PlaneSurface;
+using Geometry::PolyhedronBody;
+using Geometry::PolyhedronHealing3d;
+using Geometry::Point3d;
+using Geometry::Vector3d;
+using Geometry::BrepBody;
+using Geometry::BrepCoedge;
+using Geometry::BrepEdge;
+using Geometry::BrepFace;
+using Geometry::BrepLoop;
+using Geometry::BrepShell;
+using Geometry::BrepVertex;
+using Geometry::BrepHealing3d;
+using Geometry::GeometryTolerance3d;
+using Geometry::Intervald;
+using Geometry::Surface;
 
 // Demonstrates that the conservative healing pass preserves an already-valid
 // PolyhedronBody without altering face count or validity.
@@ -3174,7 +3174,7 @@ TEST(Healing3dCapabilityTest, AggressiveHealingSupportMismatchEligibleMultiFaceM
 }
 
 // Demonstrates conservative trim backfill for a BrepFace whose support plane
-// has a non-horizontal (vertically-oriented) normal �?the y=0 plane with
+// has a non-horizontal (vertically-oriented) normal 锟?the y=0 plane with
 // normal (0,1,0). This narrows the NonPlanarTrimmedFaceTopologyRepairRemainsOpen
 // gap to the subset: single axis-non-horizontal planar face with missing trim.
 TEST(Healing3dCapabilityTest, NonHorizontalPlaneBrepFaceWithoutTrimIsHealedWithBackfilledTrim)
@@ -3344,8 +3344,8 @@ TEST(Healing3dCapabilityTest, ObliquePlaneBrepFaceWithoutTrimIsHealedWithBackfil
     ASSERT_EQ(healedFace.OuterTrim().PointCount(), 4);
 }
 
-// Demonstrates aggressive healing handles a four-shell body �?one closed plus
-// two independent eligible single-face open shells plus one ineligible �?and
+// Demonstrates aggressive healing handles a four-shell body 锟?one closed plus
+// two independent eligible single-face open shells plus one ineligible 锟?and
 // closes exactly the two eligible shells, leaving the closed and ineligible
 // shells unchanged. Narrows the AggressiveShellRepairPolicyRemainsOpen gap to
 // the four-shell two-eligible-plus-one-ineligible subset.
@@ -3367,7 +3367,7 @@ TEST(Healing3dCapabilityTest, AggressiveFourShellTwoEligibleOneIneligibleDetermi
         BrepVertex(Point3d{7.0, 0.0, 0.0}),
         BrepVertex(Point3d{7.0, 1.0, 0.0}),
         BrepVertex(Point3d{6.0, 1.0, 0.0}),
-        // Shell 3: ineligible �?vertex 14 has z-offset (not on z=0 support plane)
+        // Shell 3: ineligible 锟?vertex 14 has z-offset (not on z=0 support plane)
         BrepVertex(Point3d{9.0, 0.0, 0.0}),
         BrepVertex(Point3d{10.0, 0.0, 0.0}),
         BrepVertex(Point3d{10.0, 1.0, 0.15}),
@@ -3439,6 +3439,7 @@ TEST(Healing3dCapabilityTest, AggressiveFourShellTwoEligibleOneIneligibleDetermi
     // closed:2, eligible1:1->2, eligible2:1->2, ineligible:1 unchanged.
     ASSERT_EQ(healed.body.FaceCount(), 7);
 }
+
 
 
 

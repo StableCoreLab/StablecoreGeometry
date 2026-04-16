@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Geometry2d/ArcSegment2d.h"
@@ -15,7 +15,7 @@
 #include "Geometry3d/Surface.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 [[nodiscard]] GEOMETRY_API SegmentProjection2d ProjectPointToLineSegment(
     const Point2d& point,
@@ -131,4 +131,5 @@ struct GEOMETRY_API FaceProjection3d
 [[nodiscard]] GEOMETRY_API Vector2d NormalAt(const LineSegment2d& segment, double parameter);
 [[nodiscard]] GEOMETRY_API Vector2d NormalAt(const ArcSegment2d& segment, double parameter);
 [[nodiscard]] GEOMETRY_API Vector2d NormalAt(const Segment2d& segment, double parameter);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <memory>
 
 #include "Geometry3d/Surface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API RuledSurface final : public Surface
 {
@@ -121,4 +121,5 @@ private:
     std::shared_ptr<Curve3d> second_{};
     Intervald vRange_{0.0, 1.0};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include "Geometry3d/Curve3d.h"
 #include "Core/GeometryTypes.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API BrepEdge
 {
@@ -57,4 +57,5 @@ private:
     std::size_t startVertexIndex_{static_cast<std::size_t>(-1)};
     std::size_t endVertexIndex_{static_cast<std::size_t>(-1)};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

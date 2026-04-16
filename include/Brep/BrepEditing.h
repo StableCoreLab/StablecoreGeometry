@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 
@@ -8,7 +8,7 @@
 #include "Brep/BrepLoop.h"
 #include "Brep/BrepShell.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class BrepLoopEditIssue3d
 {
@@ -106,4 +106,5 @@ struct GEOMETRY_API BrepBodyEdit3d
     std::size_t shellIndex,
     const BrepShell& shell,
     const GeometryTolerance3d& tolerance = {});
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

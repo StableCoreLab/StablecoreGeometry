@@ -1,4 +1,4 @@
-#include "Core/Measure.h"
+﻿#include "Core/Measure.h"
 
 #include <algorithm>
 #include <cmath>
@@ -8,7 +8,7 @@
 #include "Core/Projection.h"
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 double DistanceSquared(const Point3d& lhs, const Point3d& rhs)
 {
@@ -310,4 +310,5 @@ Box3d Bounds(const BrepBody& body)
 {
     return body.Bounds();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

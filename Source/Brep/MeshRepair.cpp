@@ -1,4 +1,4 @@
-#include "Brep/MeshRepair.h"
+﻿#include "Brep/MeshRepair.h"
 
 #include <array>
 #include <algorithm>
@@ -10,7 +10,7 @@
 #include "Support/Geometry2d/Predicate2.h"
 #include "Brep/MeshOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -424,4 +424,5 @@ TriangleMeshRepair3d ClosePlanarBoundaryLoops(const TriangleMesh& mesh, double e
 
     return oriented;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

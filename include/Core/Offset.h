@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Geometry2d/ArcSegment2d.h"
@@ -8,7 +8,7 @@
 #include "Geometry2d/Polygon2d.h"
 #include "Geometry2d/Polyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 struct GEOMETRY_API OffsetOptions2d
 {
@@ -37,4 +37,5 @@ struct GEOMETRY_API OffsetOptions2d
     const MultiPolygon2d& polygons,
     double distance,
     OffsetOptions2d options = {});
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

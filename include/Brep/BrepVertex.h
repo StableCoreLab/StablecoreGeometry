@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <sstream>
 #include <string>
@@ -6,7 +6,7 @@
 #include "Export/GeometryExport.h"
 #include "Core/GeometryTypes.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API BrepVertex
 {
@@ -34,4 +34,5 @@ public:
 private:
     Point3d point_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

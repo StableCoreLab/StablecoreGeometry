@@ -1,19 +1,19 @@
-#pragma once
+﻿#pragma once
 
 #include "Geometry.h"
 
 namespace Geometry::Test
 {
-inline Geometry::Sdk::PolyhedronBody BuildUnitCubeBody()
+inline Geometry::PolyhedronBody BuildUnitCubeBody()
 {
-    using Geometry::Sdk::Plane;
-    using Geometry::Sdk::Point3d;
-    using Geometry::Sdk::PolyhedronBody;
-    using Geometry::Sdk::PolyhedronFace3d;
-    using Geometry::Sdk::PolyhedronLoop3d;
-    using Geometry::Sdk::Vector3d;
+    using Geometry::Plane;
+    using Geometry::Point3d;
+    using Geometry::PolyhedronBody;
+    using Geometry::PolyhedronFace3d;
+    using Geometry::PolyhedronLoop3d;
+    using Geometry::Vector3d;
 
-    return Geometry::Sdk::PolyhedronBody(
+    return Geometry::PolyhedronBody(
         {
             PolyhedronFace3d(
                 Plane::FromPointAndNormal(Point3d{0.0, 0.0, 0.0}, Vector3d{0.0, 0.0, -1.0}),
@@ -72,6 +72,7 @@ inline Geometry::Sdk::PolyhedronBody BuildUnitCubeBody()
         });
 }
 } // namespace Geometry::Test
+
 
 
 

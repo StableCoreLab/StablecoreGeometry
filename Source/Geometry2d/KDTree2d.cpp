@@ -1,4 +1,4 @@
-#include "Geometry2d/KDTree2d.h"
+﻿#include "Geometry2d/KDTree2d.h"
 
 #include <algorithm>
 #include <limits>
@@ -9,7 +9,7 @@
 #include "Support/Geometry2d/Predicate2.h"
 #include "Core/Metrics.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -286,4 +286,5 @@ std::vector<KDTreeEntry2d>& KDTree2d::Data()
 {
     return Entries();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

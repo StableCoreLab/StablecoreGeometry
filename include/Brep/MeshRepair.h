@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class MeshRepairIssue3d
 {
@@ -38,4 +38,5 @@ struct GEOMETRY_API TriangleMeshRepair3d
 [[nodiscard]] GEOMETRY_API TriangleMeshRepair3d ClosePlanarBoundaryLoops(
     const TriangleMesh& mesh,
     double eps = 1e-9);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

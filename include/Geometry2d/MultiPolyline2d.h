@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <initializer_list>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Geometry2d/Polyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API MultiPolyline2d
 {
@@ -43,4 +43,5 @@ public:
 private:
     std::vector<Polyline2d> polylines_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -7,7 +7,7 @@
 #include "Brep/BrepBody.h"
 #include "Brep/PolyhedronBody.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class BrepConversionIssue3d
 {
@@ -67,4 +67,5 @@ struct GEOMETRY_API PolyhedronBrepBodyConversion3d
 [[nodiscard]] GEOMETRY_API PolyhedronBrepBodyConversion3d ConvertToBrepBody(
     const PolyhedronBody& body,
     double eps = 1e-9);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

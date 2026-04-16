@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <array>
 #include <cstddef>
@@ -9,7 +9,7 @@
 #include "Export/GeometryExport.h"
 #include "Core/GeometryTypes.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API TriangleMesh
 {
@@ -147,4 +147,5 @@ private:
     std::vector<Point3d> vertices_{};
     std::vector<TriangleIndices> triangles_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

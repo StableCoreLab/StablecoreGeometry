@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include <cmath>
 #include <vector>
@@ -9,17 +9,17 @@
 
 
 
-using Geometry::Sdk::BodyBooleanIssue3d;
-using Geometry::Sdk::BodyBooleanOptions3d;
-using Geometry::Sdk::DifferenceBodies;
-using Geometry::Sdk::IntersectBodies;
-using Geometry::Sdk::PolyhedronBody;
-using Geometry::Sdk::Point3d;
-using Geometry::Sdk::PolyhedronFace3d;
-using Geometry::Sdk::PolyhedronLoop3d;
-using Geometry::Sdk::UnionBodies;
-using Geometry::Sdk::Plane;
-using Geometry::Sdk::Vector3d;
+using Geometry::BodyBooleanIssue3d;
+using Geometry::BodyBooleanOptions3d;
+using Geometry::DifferenceBodies;
+using Geometry::IntersectBodies;
+using Geometry::PolyhedronBody;
+using Geometry::Point3d;
+using Geometry::PolyhedronFace3d;
+using Geometry::PolyhedronLoop3d;
+using Geometry::UnionBodies;
+using Geometry::Plane;
+using Geometry::Vector3d;
 
 namespace
 {
@@ -906,6 +906,7 @@ TEST(BodyBooleanCapabilityTest, ContainedBrepDifferenceReturnsDeterministicEmpty
     EXPECT_EQ(result.body.FaceCount(), 0U);
     EXPECT_TRUE(result.bodies.empty());
 }
+
 
 
 

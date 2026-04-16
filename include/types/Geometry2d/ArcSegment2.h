@@ -190,6 +190,4 @@ private:
     ArcDirection direction_{ArcDirection::CounterClockwise};
 };
 
-using ArcSegment2d = ArcSegment2<double>;
 }
-

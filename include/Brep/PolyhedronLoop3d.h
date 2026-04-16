@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Core/GeometryTypes.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API PolyhedronLoop3d
 {
@@ -79,4 +79,5 @@ public:
 private:
     std::vector<Point3d> vertices_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include <cmath>
 #include <memory>
 #include <vector>
@@ -7,20 +7,20 @@
 
 
 
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::ArcSegment2d;
-using Geometry::Sdk::Box2d;
-using Geometry::Sdk::BoxTree2d;
-using Geometry::Sdk::KDTree2d;
-using Geometry::Sdk::SegmentSearch2d;
-using Geometry::Sdk::LineSegment2d;
-using Geometry::Sdk::MultiPolygon2d;
-using Geometry::Sdk::MultiPolyline2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::PolygonContainment2d;
-using Geometry::Sdk::PolygonTopology2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
+using Geometry::Point2d;
+using Geometry::ArcSegment2d;
+using Geometry::Box2d;
+using Geometry::BoxTree2d;
+using Geometry::KDTree2d;
+using Geometry::SegmentSearch2d;
+using Geometry::LineSegment2d;
+using Geometry::MultiPolygon2d;
+using Geometry::MultiPolyline2d;
+using Geometry::Polygon2d;
+using Geometry::PolygonContainment2d;
+using Geometry::PolygonTopology2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
 
 namespace
 {
@@ -100,3 +100,4 @@ TEST(CoreMultiGeometryTest, CoversCurrentCapabilities)
     ASSERT_TRUE(nearestSegment.has_value());
     ASSERT_EQ(nearestSegment->id, lineId);
 }
+

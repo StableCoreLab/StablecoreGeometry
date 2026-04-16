@@ -7,7 +7,7 @@
 
 #include "Support/Epsilon.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 ArcSegment2d::ArcSegment2d(
     const Point2d& center,
@@ -19,6 +19,33 @@ ArcSegment2d::ArcSegment2d(
       startAngle(startAngle),
       sweepAngle(sweepAngle)
 {
+}
+
+ArcSegment2d::ArcSegment2d(
+    const Point2d& center,
+    double radius,
+    double startAngle,
+    double endAngle,
+    ArcDirection direction)
+    : center(center),
+      radius(radius),
+      startAngle(startAngle),
+      sweepAngle(endAngle - startAngle)
+{
+    if (direction == ArcDirection::CounterClockwise)
+    {
+        while (sweepAngle < 0.0)
+        {
+            sweepAngle += 2.0 * std::numbers::pi_v<double>;
+        }
+    }
+    else
+    {
+        while (sweepAngle > 0.0)
+        {
+            sweepAngle -= 2.0 * std::numbers::pi_v<double>;
+        }
+    }
 }
 
 ArcSegment2d ArcSegment2d::FromCenterRadiusStartSweep(
@@ -188,5 +215,6 @@ Point2d ArcSegment2d::PointAtAngle(double angle) const
         center.x + radius * std::cos(angle),
         center.y + radius * std::sin(angle)};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

@@ -1,4 +1,4 @@
-#include "Geometry2d/Rectangle2d.h"
+﻿#include "Geometry2d/Rectangle2d.h"
 
 #include <array>
 #include <cmath>
@@ -7,7 +7,7 @@
 
 #include "Geometry2d/Polyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -85,4 +85,5 @@ std::string Rectangle2d::DebugString() const
            << ", angleRadians=" << angleRadians << "}";
     return stream.str();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

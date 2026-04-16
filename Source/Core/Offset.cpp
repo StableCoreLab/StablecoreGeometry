@@ -1,4 +1,4 @@
-#include "Core/Offset.h"
+﻿#include "Core/Offset.h"
 
 #include <algorithm>
 #include <cmath>
@@ -16,7 +16,7 @@
 #include "Brep/Topology.h"
 #include "Core/Validation.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -776,5 +776,6 @@ MultiPolygon2d Offset(const MultiPolygon2d& polygons, double distance, OffsetOpt
     const MultiPolygon2d rebuilt = BuildOffsetPolygons(offsetRings, Geometry::kOffsetDefaultEpsilon);
     return RecoverMultiPolygonSemanticFlip(normalizedSources, rebuilt, distance, Geometry::kOffsetDefaultEpsilon);
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

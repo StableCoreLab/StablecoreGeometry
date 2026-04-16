@@ -1,13 +1,13 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Brep/BodyBoolean.h"
 #include "Brep/PolyhedronBody.h"
 
 
 
-using Geometry::Sdk::BodyBooleanIssue3d;
-using Geometry::Sdk::IntersectBodies;
-using Geometry::Sdk::PolyhedronBody;
+using Geometry::BodyBooleanIssue3d;
+using Geometry::IntersectBodies;
+using Geometry::PolyhedronBody;
 
 TEST(BodyBoolean3dGapTest, DelphiGradeBodyAndShellBooleanRemainOpen)
 {
@@ -39,6 +39,7 @@ TEST(BodyBoolean3dGapTest, ContainedShellPolicyOptionStillHasNoEffectAndStaysGap
                     "so the option does not yet advertise or prove any deterministic shell-level semantic effect. "
                     "Expected future capability: either prove the option changes result selection/diagnostics deterministically or keep it explicitly unsupported.";
 }
+
 
 
 

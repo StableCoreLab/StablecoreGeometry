@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include <cmath>
 
 #include "Core/Editing.h"
@@ -8,21 +8,21 @@
 
 
 
-using Geometry::Sdk::ArcSegment2d;
-using Geometry::Sdk::Box2d;
-using Geometry::Sdk::LineSegment2d;
-using Geometry::Sdk::InsertPoint;
-using Geometry::Sdk::Mirror;
-using Geometry::Sdk::Normalize;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
-using Geometry::Sdk::Rotate;
-using Geometry::Sdk::SampleByMaxAngle;
-using Geometry::Sdk::Stretch;
-using Geometry::Sdk::Vector2d;
-using Geometry::Sdk::Translate;
+using Geometry::ArcSegment2d;
+using Geometry::Box2d;
+using Geometry::LineSegment2d;
+using Geometry::InsertPoint;
+using Geometry::Mirror;
+using Geometry::Normalize;
+using Geometry::Point2d;
+using Geometry::Polygon2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
+using Geometry::Rotate;
+using Geometry::SampleByMaxAngle;
+using Geometry::Stretch;
+using Geometry::Vector2d;
+using Geometry::Translate;
 
 TEST(TransformSamplingTest, CoversCurrentCapabilities)
 {
@@ -61,6 +61,7 @@ TEST(TransformSamplingTest, CoversCurrentCapabilities)
     const auto movedPolygon = Translate(polygon, Vector2d{1.0, 0.0});
     GEOMETRY_TEST_ASSERT_POINT_NEAR(movedPolygon.OuterRing().PointAt(0), (Point2d{1.0, 0.0}), 1e-12);
 }
+
 
 
 

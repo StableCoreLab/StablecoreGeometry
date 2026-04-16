@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <string>
@@ -7,7 +7,7 @@
 #include "Core/GeometryTypes.h"
 #include "Geometry2d/Segment2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API LineSegment2d : public Segment2d
 {
@@ -37,4 +37,5 @@ public:
     [[nodiscard]] constexpr bool operator==(const LineSegment2d& other) const = default;
     [[nodiscard]] constexpr bool operator!=(const LineSegment2d& other) const = default;
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

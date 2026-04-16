@@ -309,5 +309,4 @@ private:
     std::vector<PolylineType> holes_{};
 };
 
-using Polygon2d = Polygon2<double>;
 }

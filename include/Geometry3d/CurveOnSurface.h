@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <memory>
@@ -6,7 +6,7 @@
 #include "Geometry2d/Polyline2d.h"
 #include "Geometry3d/Surface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API CurveOnSurface
 {
@@ -72,4 +72,5 @@ private:
     std::shared_ptr<Surface> supportSurface_{};
     Polyline2d uvCurve_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

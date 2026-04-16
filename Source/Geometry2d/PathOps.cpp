@@ -1,4 +1,4 @@
-#include "Geometry2d/PathOps.h"
+﻿#include "Geometry2d/PathOps.h"
 
 #include <algorithm>
 #include <cmath>
@@ -19,7 +19,7 @@
 #include "Brep/Topology.h"
 #include "Core/Validation.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -1290,4 +1290,5 @@ Polygon2d NormalizePolygonByLines(const Polygon2d& polygon, double eps)
 
     return {};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <optional>
@@ -10,7 +10,7 @@
 #include "Geometry2d/MultiPolygon2d.h"
 #include "Geometry2d/MultiPolyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class SearchPolyIssue2d
 {
@@ -146,4 +146,5 @@ struct GEOMETRY_API SearchPolyResult2d
     const MultiPolyline2d& lines,
     const Point2d& point,
     SearchPolyOptions2d options = {});
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

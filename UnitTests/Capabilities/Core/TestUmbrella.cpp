@@ -1,26 +1,26 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Geometry.h"
 
 
 
-using Geometry::Sdk::BodyBooleanIssue3d;
-using Geometry::Sdk::DifferenceBodies;
-using Geometry::Sdk::IntersectBodies;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::Point3d;
-using Geometry::Sdk::Plane;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
-using Geometry::Sdk::PolyhedronBody;
-using Geometry::Sdk::PolyhedronFace3d;
-using Geometry::Sdk::PolyhedronLoop3d;
-using Geometry::Sdk::SearchPolyIssue2d;
-using Geometry::Sdk::SearchPolygons;
-using Geometry::Sdk::UnionBodies;
-using Geometry::Sdk::Vector3d;
+using Geometry::BodyBooleanIssue3d;
+using Geometry::DifferenceBodies;
+using Geometry::IntersectBodies;
+using Geometry::Point2d;
+using Geometry::Point3d;
+using Geometry::Plane;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
+using Geometry::PolyhedronBody;
+using Geometry::PolyhedronFace3d;
+using Geometry::PolyhedronLoop3d;
+using Geometry::SearchPolyIssue2d;
+using Geometry::SearchPolygons;
+using Geometry::UnionBodies;
+using Geometry::Vector3d;
 
-using namespace Geometry::Sdk;
+using namespace Geometry;
 
 namespace
 {
@@ -136,6 +136,7 @@ TEST(UmbrellaHeaderTest, GeometryUmbrellaExposesBodyBooleanIssueContract)
     EXPECT_FALSE(intersection.IsSuccess());
     EXPECT_FALSE(difference.IsSuccess());
 }
+
 
 
 

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include <memory>
 
 #include "Geometry2d/BoxTree2d.h"
@@ -9,18 +9,18 @@
 
 
 
-using Geometry::Sdk::ArcSegment2d;
-using Geometry::Sdk::Box2d;
-using Geometry::Sdk::BoxTree2d;
-using Geometry::Sdk::KDTree2d;
-using Geometry::Sdk::SegmentSearch2d;
-using Geometry::Sdk::LineSegment2d;
-using Geometry::Sdk::MultiPolygon2d;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::PolygonContainment2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
+using Geometry::ArcSegment2d;
+using Geometry::Box2d;
+using Geometry::BoxTree2d;
+using Geometry::KDTree2d;
+using Geometry::SegmentSearch2d;
+using Geometry::LineSegment2d;
+using Geometry::MultiPolygon2d;
+using Geometry::Point2d;
+using Geometry::Polygon2d;
+using Geometry::PolygonContainment2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
 
 TEST(TopologyIndexingTest, CoversCurrentCapabilities)
 {
@@ -127,6 +127,7 @@ TEST(TopologyIndexingTest, CoversCurrentCapabilities)
     ASSERT_EQ(normalizedTopology.ParentOf(1), 0);
     ASSERT_EQ(Relate(noisyOuter, smallInner), PolygonContainment2d::FirstContainsSecond);
 }
+
 
 
 

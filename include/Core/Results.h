@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <array>
 #include <cstddef>
@@ -12,7 +12,7 @@
 #include "Core/GeometryTypes.h"
 #include "Geometry2d/Segment2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class RingOrientation2d
 {
@@ -139,4 +139,5 @@ struct GEOMETRY_API SnapResult2d
         return !snapped || point.IsValid();
     }
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Brep/BrepBody.h"
@@ -8,7 +8,7 @@
 #include "Geometry2d/Polyline2d.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class PolygonValidationIssue2d
 {
@@ -98,4 +98,5 @@ struct GEOMETRY_API SectionValidation3d
     const BrepBody& body,
     const GeometryTolerance3d& tolerance = {});
 [[nodiscard]] GEOMETRY_API SectionValidation3d Validate(const PolyhedronSection3d& section, double eps = 1e-9);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

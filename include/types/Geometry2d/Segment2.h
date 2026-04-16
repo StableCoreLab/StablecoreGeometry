@@ -45,5 +45,4 @@ public:
     [[nodiscard]] virtual bool IsValid() const = 0;
 };
 
-using Segment2d = Segment2<double>;
 }

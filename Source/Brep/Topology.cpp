@@ -1,4 +1,4 @@
-#include "Brep/Topology.h"
+﻿#include "Brep/Topology.h"
 
 #include <sstream>
 #include <vector>
@@ -7,7 +7,7 @@
 #include "Geometry2d/PathOps.h"
 #include "Core/Relation.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -381,5 +381,6 @@ PolygonTopology2d BuildPolygonTopology(const MultiPolygon2d& polygons, double ep
 {
     return PolygonTopology2d(polygons, eps);
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

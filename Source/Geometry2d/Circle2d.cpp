@@ -1,4 +1,4 @@
-#include "Geometry2d/Circle2d.h"
+﻿#include "Geometry2d/Circle2d.h"
 
 #include <cmath>
 #include <numbers>
@@ -7,7 +7,7 @@
 
 #include "Geometry2d/Polyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 Circle2d::Circle2d(const Point2d& center, double radius)
     : center(center), radius(radius)
@@ -69,4 +69,5 @@ std::string Circle2d::DebugString() const
     stream << "Circle2d{center=" << center.DebugString() << ", radius=" << radius << "}";
     return stream.str();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

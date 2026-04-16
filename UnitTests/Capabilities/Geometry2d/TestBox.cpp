@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include <cmath>
 
 #include "Types/Geometry2d/Box2.h"
@@ -6,7 +6,7 @@
 
 
 
-using Geometry::Sdk::Box2d;
+using Geometry::Box2d;
 using Geometry::Box2i;
 using Geometry::Point2d;
 using Geometry::Point2i;
@@ -72,6 +72,7 @@ TEST(BoxTest, CoversCurrentCapabilities)
     ASSERT_NE(sameA, different);
     GEOMETRY_TEST_ASSERT_BOX_NEAR(sameA, sameB, 0.0);
 }
+
 
 
 

@@ -1,4 +1,4 @@
-#include "Core/ShapeOps.h"
+﻿#include "Core/ShapeOps.h"
 
 #include <algorithm>
 #include <cmath>
@@ -8,7 +8,7 @@
 #include "Support/Epsilon.h"
 #include "Core/Algorithms.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -168,5 +168,6 @@ Polyline2d Close(const Polyline2d& polyline)
 
     return Polyline2d(std::move(points), PolylineClosure::Closed);
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

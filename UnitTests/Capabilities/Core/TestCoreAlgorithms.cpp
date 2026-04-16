@@ -1,4 +1,4 @@
-#include <array>
+﻿#include <array>
 #include <gtest/gtest.h>
 #include <cmath>
 #include <memory>
@@ -9,27 +9,27 @@
 
 
 
-using Geometry::Sdk::ArcDirection;
-using Geometry::Sdk::SegmentKind2;
-using Geometry::Sdk::ArcSegment2d;
-using Geometry::Sdk::AxisProjection2d;
-using Geometry::Sdk::AxisSample2d;
-using Geometry::Sdk::Box2d;
-using Geometry::Sdk::ClosestPoints2d;
-using Geometry::Sdk::IntersectionKind2d;
-using Geometry::Sdk::LineSegment2d;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
-using Geometry::Sdk::RingOrientation2d;
-using Geometry::Sdk::Segment2d;
-using Geometry::Sdk::SegmentIntersection2d;
-using Geometry::Sdk::SegmentProjection2d;
-using Geometry::Sdk::SegmentSplit2d;
-using Geometry::Sdk::SegmentTrim2d;
-using Geometry::Sdk::SnapResult2d;
-using Geometry::Sdk::Vector2d;
+using Geometry::ArcDirection;
+using Geometry::SegmentKind2;
+using Geometry::ArcSegment2d;
+using Geometry::AxisProjection2d;
+using Geometry::AxisSample2d;
+using Geometry::Box2d;
+using Geometry::ClosestPoints2d;
+using Geometry::IntersectionKind2d;
+using Geometry::LineSegment2d;
+using Geometry::Point2d;
+using Geometry::Polygon2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
+using Geometry::RingOrientation2d;
+using Geometry::Segment2d;
+using Geometry::SegmentIntersection2d;
+using Geometry::SegmentProjection2d;
+using Geometry::SegmentSplit2d;
+using Geometry::SegmentTrim2d;
+using Geometry::SnapResult2d;
+using Geometry::Vector2d;
 
 TEST(CoreAlgorithmsTest, CoversCurrentCapabilities)
 {
@@ -124,6 +124,7 @@ TEST(CoreAlgorithmsTest, CoversCurrentCapabilities)
     const SnapResult2d snap = SnapPointToSegments(Point2d{1.0, 1.0}, snapSegments, 2.0);
     ASSERT_TRUE(snap.snapped);
 }
+
 
 
 

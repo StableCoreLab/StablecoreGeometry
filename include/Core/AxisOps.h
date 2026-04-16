@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <span>
 
@@ -6,7 +6,7 @@
 #include "Core/Results.h"
 #include "Geometry2d/Segment2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 [[nodiscard]] GEOMETRY_API AxisSample2d SampleAxis(const Segment2d& segment, double parameter);
 [[nodiscard]] GEOMETRY_API AxisSample2d SampleAxisAtLength(
@@ -27,4 +27,5 @@ namespace Geometry::Sdk
     const Point2d& point,
     std::span<const Segment2d* const> segments,
     double maxDistance);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

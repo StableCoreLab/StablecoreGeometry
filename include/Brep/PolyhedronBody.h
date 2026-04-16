@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Brep/PolyhedronFace3d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API PolyhedronBody
 {
@@ -81,4 +81,5 @@ public:
 private:
     std::vector<PolyhedronFace3d> faces_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

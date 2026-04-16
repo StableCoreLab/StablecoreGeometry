@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Brep/BrepCoedge.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API BrepLoop
 {
@@ -59,4 +59,5 @@ public:
 private:
     std::vector<BrepCoedge> coedges_{};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

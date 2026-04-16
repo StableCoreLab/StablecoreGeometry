@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Brep/BrepBody.h"
@@ -6,7 +6,7 @@
 #include "Brep/PolyhedronBody.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class HealingIssue3d
 {
@@ -51,4 +51,5 @@ struct GEOMETRY_API BrepHealing3d
     const BrepBody& body,
     const GeometryTolerance3d& tolerance,
     HealingPolicy3d policy);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

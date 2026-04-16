@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <string>
@@ -8,7 +8,7 @@
 #include "Core/GeometryTypes.h"
 #include "Types/Geometry2d/Segment2.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 using Geometry::ArcDirection;
 
@@ -26,6 +26,12 @@ public:
         double radius,
         double startAngle,
         double sweepAngle);
+    ArcSegment2d(
+        const Point2d& center,
+        double radius,
+        double startAngle,
+        double endAngle,
+        ArcDirection direction);
 
     [[nodiscard]] static ArcSegment2d FromCenterRadiusStartSweep(
         const Point2d& center,
@@ -55,4 +61,5 @@ private:
     [[nodiscard]] bool IsAngleOnArc(double candidateAngle) const;
     [[nodiscard]] Point2d PointAtAngle(double angle) const;
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

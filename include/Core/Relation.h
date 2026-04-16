@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Geometry2d/ArcSegment2d.h"
@@ -15,7 +15,7 @@
 #include "Geometry2d/Segment2d.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class PointContainment2d
 {
@@ -111,4 +111,5 @@ enum class PointPlaneSide3d
     const Vector3d& first,
     const Vector3d& second,
     const GeometryTolerance3d& tolerance = {});
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

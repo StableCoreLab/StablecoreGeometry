@@ -1,4 +1,4 @@
-#include "Geometry2d/BoxTree2d.h"
+﻿#include "Geometry2d/BoxTree2d.h"
 
 #include <algorithm>
 #include <memory>
@@ -7,7 +7,7 @@
 
 #include "Core/Metrics.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -111,7 +111,7 @@ void QueryPoint(
     double eps,
     std::vector<std::size_t>& result)
 {
-    if (node == nullptr || !Geometry::Sdk::Contains(node->bounds, point, eps))
+    if (node == nullptr || !Geometry::Contains(node->bounds, point, eps))
     {
         return;
     }
@@ -120,7 +120,7 @@ void QueryPoint(
     {
         for (std::size_t index : node->leafIndices)
         {
-            if (Geometry::Sdk::Contains(entries[index].box, point, eps))
+            if (Geometry::Contains(entries[index].box, point, eps))
             {
                 result.push_back(entries[index].id);
             }
@@ -263,4 +263,5 @@ std::vector<BoxTreeEntry2d>& BoxTree2d::Data()
 {
     return Entries();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

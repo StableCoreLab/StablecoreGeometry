@@ -102,5 +102,4 @@ private:
     PointType endPoint_{};
 };
 
-using LineSegment2d = LineSegment2<double>;
 }

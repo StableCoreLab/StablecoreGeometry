@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <optional>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Core/Metrics.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 struct GEOMETRY_API BoxTreeEntry2d
 {
@@ -56,4 +56,5 @@ private:
     std::vector<BoxTreeEntry2d> entries_{};
 };
 
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

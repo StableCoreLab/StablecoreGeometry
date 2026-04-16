@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include <numbers>
 #include <string>
 
@@ -9,14 +9,14 @@
 
 TEST(SerializeTest, CoversCurrentCapabilities)
 {
-    using Geometry::Sdk::Box2d;
-    using Geometry::Sdk::Point2d;
-    using Geometry::Sdk::ArcSegment2d;
-    using Geometry::Sdk::Polygon2d;
-    using Geometry::Sdk::Polyline2d;
-    using Geometry::Sdk::PolylineClosure;
-    using Geometry::Sdk::SegmentProjection2d;
-    using Geometry::Sdk::Vector2d;
+    using Geometry::Box2d;
+    using Geometry::Point2d;
+    using Geometry::ArcSegment2d;
+    using Geometry::Polygon2d;
+    using Geometry::Polyline2d;
+    using Geometry::PolylineClosure;
+    using Geometry::SegmentProjection2d;
+    using Geometry::Vector2d;
     using Geometry::Serialize::FromText;
     using Geometry::Serialize::ToText;
 
@@ -91,6 +91,7 @@ TEST(SerializeTest, CoversCurrentCapabilities)
     ASSERT_FALSE(FromText("Polyline2d open 2 0 0 1", parsedPolyline));
     ASSERT_FALSE(FromText("Polygon2d Polyline2d open 2 0 0 1 0 0", parsedPolygon));
 }
+
 
 
 

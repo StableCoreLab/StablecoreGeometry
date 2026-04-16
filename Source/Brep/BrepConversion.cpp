@@ -1,4 +1,4 @@
-#include "Brep/BrepConversion.h"
+﻿#include "Brep/BrepConversion.h"
 
 #include <algorithm>
 #include <cmath>
@@ -17,7 +17,7 @@
 #include "Geometry3d/LineCurve3d.h"
 #include "Geometry3d/PlaneSurface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -2311,5 +2311,6 @@ PolyhedronBrepBodyConversion3d ConvertToBrepBody(const PolyhedronBody& body, dou
         return {false, BrepConversionIssue3d::InvalidBody, 0, {}};
     }
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

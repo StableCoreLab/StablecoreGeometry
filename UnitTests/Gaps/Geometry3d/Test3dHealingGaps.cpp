@@ -1,13 +1,13 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Geometry.h"
 
 
 
-using Geometry::Sdk::BrepBody;
-using Geometry::Sdk::Heal;
-using Geometry::Sdk::MeshHealing3d;
-using Geometry::Sdk::TriangleMesh;
+using Geometry::BrepBody;
+using Geometry::Heal;
+using Geometry::MeshHealing3d;
+using Geometry::TriangleMesh;
 
 TEST(Healing3dGapTest, AggressiveShellRepairPolicyRemainsOpen)
 {
@@ -24,6 +24,7 @@ TEST(Healing3dGapTest, MultiStepMeshBodyJointHealingRemainsOpen)
     (void)meshHealing;
     GTEST_SKIP() << "Known 3D gap: multi-step mesh/body joint healing workflow is still open.";
 }
+
 
 
 

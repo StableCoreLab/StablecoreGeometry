@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Geometry2d/LineSegment2d.h"
@@ -7,7 +7,7 @@
 #include "Geometry2d/Polygon2d.h"
 #include "Geometry2d/Polyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 struct GEOMETRY_API PolygonCutResult2d
 {
@@ -33,4 +33,5 @@ struct GEOMETRY_API PolygonCutResult2d
 [[nodiscard]] GEOMETRY_API Polygon2d NormalizePolygonByLines(
     const Polygon2d& polygon,
     double eps = 1e-9);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

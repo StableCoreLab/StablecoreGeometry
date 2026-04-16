@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 
@@ -6,7 +6,7 @@
 #include "Core/GeometryTypes.h"
 #include "Geometry2d/Polygon2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API Circle2d
 {
@@ -25,4 +25,5 @@ public:
     [[nodiscard]] Polygon2d ToPolygon(std::size_t segmentCount = 64) const;
     [[nodiscard]] std::string DebugString() const;
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

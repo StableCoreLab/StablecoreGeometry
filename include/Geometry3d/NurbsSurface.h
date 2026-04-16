@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -7,7 +7,7 @@
 
 #include "Geometry3d/Surface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API NurbsSurface final : public Surface
 {
@@ -230,4 +230,5 @@ private:
     std::vector<double> knotsU_{0.0, 1.0};
     std::vector<double> knotsV_{0.0, 1.0};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

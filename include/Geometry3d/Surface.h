@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 
 #include "Export/GeometryExport.h"
 #include "Core/GeometryTypes.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API Surface
 {
@@ -40,4 +40,5 @@ public:
         return VRange().max;
     }
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

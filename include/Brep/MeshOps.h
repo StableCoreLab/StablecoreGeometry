@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <array>
 #include <cstddef>
@@ -7,7 +7,7 @@
 #include "Export/GeometryExport.h"
 #include "Geometry3d/TriangleMesh.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 struct GEOMETRY_API MeshTriangleAdjacency3d
 {
@@ -121,4 +121,5 @@ struct GEOMETRY_API MeshShell3d
 [[nodiscard]] GEOMETRY_API bool IsConsistentlyOrientedTriangleMesh(const TriangleMesh& mesh);
 
 [[nodiscard]] GEOMETRY_API std::vector<MeshShell3d> ComputeMeshShells(const TriangleMesh& mesh);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

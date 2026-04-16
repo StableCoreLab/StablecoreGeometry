@@ -6,56 +6,74 @@
 #include <utility>
 #include <vector>
 
+#include "Geometry2d/LineSegment2d.h"
+#include "Geometry2d/ArcSegment2d.h"
+#include "Geometry2d/Polyline2d.h"
 #include "Types/Geometry2d/LineSegment2.h"
+#include "Types/Geometry2d/ArcSegment2.h"
 #include "Types/Geometry2d/Polygon2.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
-[[nodiscard]] Geometry::PolylineClosure ToInternalClosure(PolylineClosure closure)
+using InternalPolyline = Geometry::Polyline2<double>;
+using InternalPolygon = Geometry::Polygon2<double>;
+using InternalSegment = Geometry::Segment2<double>;
+using InternalLineSegment = Geometry::LineSegment2<double>;
+
+[[nodiscard]] Geometry::PolylineClosure2 ToInternalClosure(PolylineClosure closure)
 {
-    return closure == PolylineClosure::Closed ? Geometry::PolylineClosure::Closed
-                                              : Geometry::PolylineClosure::Open;
+    return closure == PolylineClosure::Closed ? Geometry::PolylineClosure2::Closed
+                                              : Geometry::PolylineClosure2::Open;
 }
 
-[[nodiscard]] Geometry::Polyline2d BuildInternalPolylineFromSdk(const Polyline2d& polyline)
+[[nodiscard]] InternalPolyline BuildInternalPolylineFromWrapper(const Polyline2d& polyline)
 {
-    std::vector<Point2d> points;
-    points.reserve(polyline.PointCount());
-    for (std::size_t i = 0; i < polyline.PointCount(); ++i)
+    std::vector<std::shared_ptr<InternalSegment>> segments;
+    segments.reserve(polyline.SegmentCount());
+    for (std::size_t i = 0; i < polyline.SegmentCount(); ++i)
     {
-        points.push_back(polyline.PointAt(i));
-    }
-
-    std::vector<std::shared_ptr<Geometry::Segment2d>> segments;
-    if (points.size() >= 2)
-    {
-        const PolylineClosure closure =
-            polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open;
-        const std::size_t segmentCount = closure == PolylineClosure::Closed ? points.size()
-                                                                            : points.size() - 1;
-        segments.reserve(segmentCount);
-        for (std::size_t i = 0; i < segmentCount; ++i)
+        const std::unique_ptr<Segment2d> segment = polyline.SegmentAt(i);
+        if (segment == nullptr)
         {
-            segments.push_back(std::make_shared<Geometry::LineSegment2d>(
-                points[i],
-                points[(i + 1) % points.size()]));
+            return InternalPolyline();
         }
-        return Geometry::Polyline2d(std::move(segments), ToInternalClosure(closure));
+
+        if (const auto* line = dynamic_cast<const LineSegment2d*>(segment.get()))
+        {
+            segments.push_back(std::make_shared<InternalLineSegment>(
+                line->startPoint,
+                line->endPoint));
+            continue;
+        }
+
+        if (const auto* arc = dynamic_cast<const ArcSegment2d*>(segment.get()))
+        {
+            segments.push_back(std::make_shared<Geometry::ArcSegment2<double>>(
+                arc->center,
+                arc->radius,
+                arc->startAngle,
+                arc->EndAngle(),
+                arc->Direction()));
+            continue;
+        }
+
+        return InternalPolyline();
     }
 
-    return Geometry::Polyline2d();
+    return InternalPolyline(std::move(segments), ToInternalClosure(polyline.IsClosed() ? PolylineClosure::Closed
+                                                                                         : PolylineClosure::Open));
 }
 } // namespace
 
 struct Polygon2d::Impl
 {
-    Geometry::Polygon2d polygon;
+    InternalPolygon polygon;
 
     Impl() = default;
 
-    explicit Impl(Geometry::Polygon2d value)
+    explicit Impl(InternalPolygon value)
         : polygon(std::move(value))
     {
     }
@@ -64,21 +82,21 @@ struct Polygon2d::Impl
 Polygon2d::Polygon2d() : impl_(std::make_unique<Impl>()) {}
 
 Polygon2d::Polygon2d(Polyline2d outerRing)
-    : impl_(std::make_unique<Impl>(Geometry::Polygon2d(BuildInternalPolylineFromSdk(outerRing))))
+    : impl_(std::make_unique<Impl>(InternalPolygon(BuildInternalPolylineFromWrapper(outerRing))))
 {
 }
 
 Polygon2d::Polygon2d(Polyline2d outerRing, std::vector<Polyline2d> holes)
 {
-    std::vector<Geometry::Polyline2d> internalHoles;
+    std::vector<InternalPolyline> internalHoles;
     internalHoles.reserve(holes.size());
     for (const Polyline2d& hole : holes)
     {
-        internalHoles.push_back(BuildInternalPolylineFromSdk(hole));
+        internalHoles.push_back(BuildInternalPolylineFromWrapper(hole));
     }
 
     impl_ = std::make_unique<Impl>(
-        Geometry::Polygon2d(BuildInternalPolylineFromSdk(outerRing), std::move(internalHoles)));
+        InternalPolygon(BuildInternalPolylineFromWrapper(outerRing), std::move(internalHoles)));
 }
 
 Polygon2d::Polygon2d(const Polygon2d& other)
@@ -167,6 +185,16 @@ double Polygon2d::Area() const
     return impl_->polygon.Area();
 }
 
+double Polygon2d::Perimeter() const
+{
+    return impl_->polygon.Perimeter();
+}
+
+Point2d Polygon2d::Centroid() const
+{
+    return impl_->polygon.Centroid();
+}
+
 Box2d Polygon2d::Bounds() const
 {
     return impl_->polygon.Bounds();
@@ -182,5 +210,4 @@ std::string Polygon2d::DebugString() const
            << ", bounds=" << Bounds().DebugString() << "}";
     return stream.str();
 }
-} // namespace Geometry::Sdk
-
+} // namespace Geometry

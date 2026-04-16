@@ -1,4 +1,4 @@
-#include "Brep/MeshOps.h"
+﻿#include "Brep/MeshOps.h"
 
 #include <algorithm>
 #include <array>
@@ -7,7 +7,7 @@
 #include <functional>
 #include <unordered_map>
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -517,4 +517,5 @@ std::vector<MeshShell3d> ComputeMeshShells(const TriangleMesh& mesh)
 
     return shells;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

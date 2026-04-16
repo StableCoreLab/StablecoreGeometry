@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <string>
@@ -7,7 +7,7 @@
 #include "Core/GeometryTypes.h"
 #include "Types/Geometry2d/Segment2.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 using Geometry::SegmentKind2;
 
@@ -27,4 +27,5 @@ public:
     [[nodiscard]] virtual std::string DebugString() const = 0;
     [[nodiscard]] virtual std::unique_ptr<Segment2d> Clone() const = 0;
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

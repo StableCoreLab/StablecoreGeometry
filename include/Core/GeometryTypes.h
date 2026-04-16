@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cmath>
 #include <sstream>
@@ -23,7 +23,7 @@
 #include "Types/Geometry2d/Vector2.h"
 #include "Types/Geometry3d/Vector3.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 struct CurveEval3d;
 
@@ -600,4 +600,10 @@ struct GEOMETRY_API SurfaceEval3d
     }
 };
 
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
+namespace Geometry
+{
+namespace Sdk = ::Geometry;
+}
+

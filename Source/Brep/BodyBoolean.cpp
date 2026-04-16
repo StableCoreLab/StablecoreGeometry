@@ -1,4 +1,4 @@
-#include "Brep/BodyBoolean.h"
+﻿#include "Brep/BodyBoolean.h"
 
 #include <algorithm>
 #include <array>
@@ -9,7 +9,7 @@
 #include "Brep/BrepConversion.h"
 #include "Geometry3d/PlaneSurface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -1098,5 +1098,6 @@ BodyBooleanResult3d DifferenceBodies(
 {
     return MakeResultForPolyhedronBodies(first, second, options, 'd');
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

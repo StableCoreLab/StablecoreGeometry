@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <string>
@@ -8,7 +8,7 @@
 #include "Core/ShapeOps.h"
 #include "Geometry2d/MultiPolygon2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class PolygonContainment2d
 {
@@ -69,5 +69,6 @@ private:
 [[nodiscard]] GEOMETRY_API PolygonTopology2d BuildPolygonTopology(
     const MultiPolygon2d& polygons,
     double eps = 1e-9);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Export/GeometryExport.h"
 #include "Geometry2d/ArcSegment2d.h"
@@ -8,7 +8,7 @@
 #include "Geometry2d/Polygon2d.h"
 #include "Geometry2d/Polyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 [[nodiscard]] GEOMETRY_API Point2d Translate(const Point2d& point, const Vector2d& offset);
 [[nodiscard]] GEOMETRY_API LineSegment2d Translate(const LineSegment2d& segment, const Vector2d& offset);
@@ -74,4 +74,5 @@ namespace Geometry::Sdk
     const Polygon2d& polygon,
     const Box2d& region,
     const Vector2d& offset);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

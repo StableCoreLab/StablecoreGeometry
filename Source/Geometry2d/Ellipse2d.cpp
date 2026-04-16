@@ -1,4 +1,4 @@
-#include "Geometry2d/Ellipse2d.h"
+﻿#include "Geometry2d/Ellipse2d.h"
 
 #include <cmath>
 #include <numbers>
@@ -7,7 +7,7 @@
 
 #include "Geometry2d/Polyline2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 Ellipse2d::Ellipse2d(
     const Point2d& center,
@@ -86,4 +86,5 @@ std::string Ellipse2d::DebugString() const
            << ", angleRadians=" << angleRadians << "}";
     return stream.str();
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

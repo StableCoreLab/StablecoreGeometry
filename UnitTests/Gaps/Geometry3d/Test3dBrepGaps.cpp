@@ -1,16 +1,16 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Geometry.h"
 
 
 
-using Geometry::Sdk::BrepBody;
-using Geometry::Sdk::BrepEdge;
-using Geometry::Sdk::BrepFace;
-using Geometry::Sdk::BrepLoop;
-using Geometry::Sdk::BrepShell;
-using Geometry::Sdk::BrepVertex;
-using Geometry::Sdk::Point3d;
+using Geometry::BrepBody;
+using Geometry::BrepEdge;
+using Geometry::BrepFace;
+using Geometry::BrepLoop;
+using Geometry::BrepShell;
+using Geometry::BrepVertex;
+using Geometry::Point3d;
 
 TEST(Brep3dGapTest, CoedgeLoopOwnershipEditingWorkflowRemainsOpen)
 {
@@ -34,6 +34,7 @@ TEST(Brep3dGapTest, NonPlanarTrimmedFaceTopologyRepairRemainsOpen)
                     "single planar face missing-trim backfill on oblique plane (x+y+z=0, normal (1,1,1)). "
                     "Remaining open: curved-surface trim recompute and non-manifold shell stitching.";
 }
+
 
 
 

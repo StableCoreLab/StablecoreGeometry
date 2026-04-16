@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -7,7 +7,7 @@
 
 #include "Geometry3d/Curve3d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API NurbsCurve3d final : public Curve3d
 {
@@ -188,4 +188,5 @@ private:
     std::vector<double> knots_{0.0, 1.0};
     bool periodic_{false};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

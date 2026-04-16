@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <memory>
@@ -9,7 +9,7 @@
 #include "Geometry2d/Polyline2d.h"
 #include "Core/GeometryTypes.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API Polygon2d
 {
@@ -30,6 +30,8 @@ public:
     [[nodiscard]] Polyline2d OuterRing() const;
     [[nodiscard]] Polyline2d HoleAt(std::size_t index) const;
     [[nodiscard]] double Area() const;
+    [[nodiscard]] double Perimeter() const;
+    [[nodiscard]] Point2d Centroid() const;
     [[nodiscard]] Box2d Bounds() const;
     [[nodiscard]] std::string DebugString() const;
 
@@ -37,4 +39,5 @@ private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

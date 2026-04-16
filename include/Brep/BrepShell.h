@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include "Export/GeometryExport.h"
 #include "Brep/BrepFace.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API BrepShell
 {
@@ -86,4 +86,5 @@ private:
     std::vector<BrepFace> faces_{};
     bool closed_{false};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

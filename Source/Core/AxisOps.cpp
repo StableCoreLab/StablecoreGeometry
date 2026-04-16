@@ -1,4 +1,4 @@
-#include "Core/AxisOps.h"
+﻿#include "Core/AxisOps.h"
 
 #include <algorithm>
 #include <cmath>
@@ -12,7 +12,7 @@
 #include "Geometry2d/ArcSegment2d.h"
 #include "Geometry2d/LineSegment2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -340,4 +340,5 @@ SnapResult2d SnapPointToSegments(
 
     return result;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

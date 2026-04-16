@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "Core/GeometryTypes.h"
 #include "Brep/PolyhedronBody.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 enum class BodyBooleanIssue3d
 {
@@ -67,4 +67,5 @@ struct GEOMETRY_API BodyBooleanResult3d
     const PolyhedronBody& first,
     const PolyhedronBody& second,
     BodyBooleanOptions3d options = {});
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

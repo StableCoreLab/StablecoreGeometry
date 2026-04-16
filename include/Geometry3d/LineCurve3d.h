@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <memory>
 
 #include "Geometry3d/Curve3d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API LineCurve3d final : public Curve3d
 {
@@ -88,4 +88,5 @@ private:
     Line3d line_{};
     Intervald parameterRange_{-1.0, 1.0};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

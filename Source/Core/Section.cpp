@@ -1,4 +1,4 @@
-#include "Core/Section.h"
+﻿#include "Core/Section.h"
 
 #include <algorithm>
 #include <array>
@@ -23,7 +23,7 @@
 #include "Geometry3d/LineCurve3d.h"
 #include "Geometry3d/PlaneSurface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -3102,5 +3102,6 @@ SectionComponents3d BuildSectionComponents(const PolyhedronSection3d& section, d
 
     return result;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

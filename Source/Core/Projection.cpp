@@ -1,4 +1,4 @@
-#include "Core/Projection.h"
+﻿#include "Core/Projection.h"
 
 #include <algorithm>
 #include <cmath>
@@ -7,7 +7,7 @@
 #include "Support/Epsilon.h"
 #include "Core/Metrics.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -190,5 +190,6 @@ Vector2d NormalAt(const Segment2d& segment, double parameter)
 {
     return LeftNormal(TangentAt(segment, parameter));
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
 

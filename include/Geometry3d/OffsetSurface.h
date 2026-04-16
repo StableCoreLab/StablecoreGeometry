@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <cmath>
 #include <memory>
 
 #include "Geometry3d/Surface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API OffsetSurface final : public Surface
 {
@@ -98,4 +98,5 @@ private:
     std::shared_ptr<Surface> baseSurface_{};
     double offsetDistance_{0.0};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

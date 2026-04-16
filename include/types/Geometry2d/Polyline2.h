@@ -11,7 +11,7 @@
 
 namespace Geometry
 {
-enum class PolylineClosure
+enum class PolylineClosure2
 {
     Open,
     Closed
@@ -29,12 +29,12 @@ public:
 
     Polyline2() = default;
 
-    explicit Polyline2(PolylineClosure closure)
+    explicit Polyline2(PolylineClosure2 closure)
         : closure_(closure)
     {
     }
 
-    Polyline2(std::vector<SegmentPtr> segments, PolylineClosure closure = PolylineClosure::Open)
+    Polyline2(std::vector<SegmentPtr> segments, PolylineClosure2 closure = PolylineClosure2::Open)
         : segments_(std::move(segments)), closure_(closure)
     {
     }
@@ -51,14 +51,14 @@ public:
         return *segments_[index];
     }
 
-    [[nodiscard]] PolylineClosure Closure() const
+    [[nodiscard]] PolylineClosure2 Closure() const
     {
         return closure_;
     }
 
     [[nodiscard]] bool IsClosed() const
     {
-        return closure_ == PolylineClosure::Closed;
+        return closure_ == PolylineClosure2::Closed;
     }
 
     [[nodiscard]] std::size_t VertexCount() const
@@ -273,8 +273,7 @@ private:
     }
 
     std::vector<SegmentPtr> segments_{};
-    PolylineClosure closure_{PolylineClosure::Open};
+    PolylineClosure2 closure_{PolylineClosure2::Open};
 };
 
-using Polyline2d = Polyline2<double>;
 }

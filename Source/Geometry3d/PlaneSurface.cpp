@@ -1,9 +1,9 @@
-#include "Geometry3d/PlaneSurface.h"
+﻿#include "Geometry3d/PlaneSurface.h"
 
 #include <algorithm>
 #include <cmath>
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -38,4 +38,5 @@ PlaneSurface PlaneSurface::FromPlane(
     const Vector3d vAxis = Cross(plane.UnitNormal(eps), uAxis).Normalized(eps);
     return PlaneSurface(plane, uAxis, vAxis, uRange, vRange);
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

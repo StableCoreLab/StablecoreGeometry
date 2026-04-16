@@ -1,10 +1,10 @@
-#include "Geometry2d/SegmentSearch2d.h"
+﻿#include "Geometry2d/SegmentSearch2d.h"
 
 #include <algorithm>
 #include <sstream>
 #include <utility>
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 SegmentSearch2d::SegmentSearch2d(std::vector<SegmentSearchEntry2d> entries)
     : entries_(std::move(entries))
@@ -150,4 +150,5 @@ const std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Entries() const { retu
 std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Entries() { return entries_; }
 const std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() const { return Entries(); }
 std::vector<SegmentSearchEntry2d>& SegmentSearch2d::Data() { return Entries(); }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

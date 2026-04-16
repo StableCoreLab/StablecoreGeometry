@@ -1,4 +1,4 @@
-#include "Core/Intersection.h"
+﻿#include "Core/Intersection.h"
 
 #include <algorithm>
 #include <array>
@@ -11,7 +11,7 @@
 #include "Support/Geometry2d/Predicate2.h"
 #include "Support/Epsilon.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -1029,4 +1029,5 @@ ClosestPoints2d ClosestPoints(
 
     return ClosestPoints2d{};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

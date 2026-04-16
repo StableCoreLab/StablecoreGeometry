@@ -1,11 +1,11 @@
-#include "Core/Relation.h"
+﻿#include "Core/Relation.h"
 
 #include <cmath>
 
 #include "Core/Intersection.h"
 #include "Core/Projection.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 PointPlaneSide3d LocatePoint(
     const Point3d& point,
@@ -270,4 +270,5 @@ bool IsPerpendicular(
     return std::abs(Dot(first, second)) <= tolerance.angleEpsilon * firstLength * secondLength +
            tolerance.distanceEpsilon;
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

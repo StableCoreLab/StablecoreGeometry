@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cmath>
 #include <cstdlib>
@@ -449,46 +449,46 @@ inline void AssertPolygonNear(
     }
 }
 
-[[nodiscard]] inline Geometry::Sdk::Polyline2d MakePolyline(
-    std::initializer_list<Geometry::Sdk::Point2d> points,
-    Geometry::Sdk::PolylineClosure closure = Geometry::Sdk::PolylineClosure::Open)
+[[nodiscard]] inline Geometry::Polyline2d MakePolyline(
+    std::initializer_list<Geometry::Point2d> points,
+    Geometry::PolylineClosure closure = Geometry::PolylineClosure::Open)
 {
-    return Geometry::Sdk::Polyline2d(std::vector<Geometry::Sdk::Point2d>(points), closure);
+    return Geometry::Polyline2d(std::vector<Geometry::Point2d>(points), closure);
 }
 
-[[nodiscard]] inline Geometry::Sdk::Polyline2d MakeRectangleRing(
-    const Geometry::Sdk::Point2d& minPoint,
-    const Geometry::Sdk::Point2d& maxPoint)
+[[nodiscard]] inline Geometry::Polyline2d MakeRectangleRing(
+    const Geometry::Point2d& minPoint,
+    const Geometry::Point2d& maxPoint)
 {
     return MakePolyline(
         {
             minPoint,
-            Geometry::Sdk::Point2d{maxPoint.x, minPoint.y},
+            Geometry::Point2d{maxPoint.x, minPoint.y},
             maxPoint,
-            Geometry::Sdk::Point2d{minPoint.x, maxPoint.y},
+            Geometry::Point2d{minPoint.x, maxPoint.y},
         },
-        Geometry::Sdk::PolylineClosure::Closed);
+        Geometry::PolylineClosure::Closed);
 }
 
-[[nodiscard]] inline Geometry::Sdk::Polyline2d MakeRectangleHoleRing(
-    const Geometry::Sdk::Point2d& minPoint,
-    const Geometry::Sdk::Point2d& maxPoint)
+[[nodiscard]] inline Geometry::Polyline2d MakeRectangleHoleRing(
+    const Geometry::Point2d& minPoint,
+    const Geometry::Point2d& maxPoint)
 {
     return MakePolyline(
         {
             minPoint,
-            Geometry::Sdk::Point2d{minPoint.x, maxPoint.y},
+            Geometry::Point2d{minPoint.x, maxPoint.y},
             maxPoint,
-            Geometry::Sdk::Point2d{maxPoint.x, minPoint.y},
+            Geometry::Point2d{maxPoint.x, minPoint.y},
         },
-        Geometry::Sdk::PolylineClosure::Closed);
+        Geometry::PolylineClosure::Closed);
 }
 
-[[nodiscard]] inline Geometry::Sdk::Polygon2d MakeRectanglePolygon(
-    const Geometry::Sdk::Point2d& minPoint,
-    const Geometry::Sdk::Point2d& maxPoint)
+[[nodiscard]] inline Geometry::Polygon2d MakeRectanglePolygon(
+    const Geometry::Point2d& minPoint,
+    const Geometry::Point2d& maxPoint)
 {
-    return Geometry::Sdk::Polygon2d(MakeRectangleRing(minPoint, maxPoint));
+    return Geometry::Polygon2d(MakeRectangleRing(minPoint, maxPoint));
 }
 } // namespace Geometry::Test
 
@@ -512,6 +512,7 @@ inline void AssertPolygonNear(
 
 #define GEOMETRY_TEST_ASSERT_POLYGON_NEAR(actual, expected, eps) \
     ::Geometry::Test::AssertPolygonNear((actual), (expected), (eps), #actual, #expected, __FILE__, __LINE__)
+
 
 
 

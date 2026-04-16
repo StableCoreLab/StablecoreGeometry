@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 
@@ -7,7 +7,7 @@
 #include "Geometry2d/LineSegment2d.h"
 #include "Geometry2d/Segment2d.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 [[nodiscard]] GEOMETRY_API std::vector<Point2d> Sample(
     const LineSegment2d& segment,
@@ -21,4 +21,5 @@ namespace Geometry::Sdk
 [[nodiscard]] GEOMETRY_API std::vector<Point2d> SampleByMaxAngle(
     const ArcSegment2d& segment,
     double maxAngleRadians);
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

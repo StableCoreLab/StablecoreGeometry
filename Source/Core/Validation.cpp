@@ -1,4 +1,4 @@
-#include "Core/Validation.h"
+﻿#include "Core/Validation.h"
 
 #include <map>
 
@@ -6,7 +6,7 @@
 #include "Core/Relation.h"
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 bool HasSelfIntersection(const Polyline2d& ring, double eps)
 {
@@ -272,4 +272,5 @@ SectionValidation3d Validate(const PolyhedronSection3d& section, double eps)
 
     return {true, SectionValidationIssue3d::None, 0};
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

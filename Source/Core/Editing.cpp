@@ -1,11 +1,11 @@
-#include "Core/Editing.h"
+﻿#include "Core/Editing.h"
 
 #include <vector>
 
 #include "Core/Relation.h"
 #include "Core/ShapeOps.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 namespace
 {
@@ -86,4 +86,5 @@ Polygon2d InsertPoint(const Polygon2d& polygon, const Point2d& point, double eps
 {
     return Polygon2d(InsertPoint(polygon.OuterRing(), point, eps));
 }
-} // namespace Geometry::Sdk
+} // namespace Geometry
+

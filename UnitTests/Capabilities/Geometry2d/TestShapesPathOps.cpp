@@ -1,23 +1,23 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include "Geometry.h"
 #include "Support/GeometryTestSupport.h"
 
 
 
-using Geometry::Sdk::BuildMultiPolygonByLines;
-using Geometry::Sdk::Circle2d;
-using Geometry::Sdk::CutPolygon;
-using Geometry::Sdk::Ellipse2d;
-using Geometry::Sdk::LineSegment2d;
-using Geometry::Sdk::MultiPolyline2d;
-using Geometry::Sdk::NormalizePolygonByLines;
-using Geometry::Sdk::Point2d;
-using Geometry::Sdk::Polygon2d;
-using Geometry::Sdk::Polyline2d;
-using Geometry::Sdk::PolylineClosure;
-using Geometry::Sdk::Rectangle2d;
-using Geometry::Sdk::SubPolyline;
+using Geometry::BuildMultiPolygonByLines;
+using Geometry::Circle2d;
+using Geometry::CutPolygon;
+using Geometry::Ellipse2d;
+using Geometry::LineSegment2d;
+using Geometry::MultiPolyline2d;
+using Geometry::NormalizePolygonByLines;
+using Geometry::Point2d;
+using Geometry::Polygon2d;
+using Geometry::Polyline2d;
+using Geometry::PolylineClosure;
+using Geometry::Rectangle2d;
+using Geometry::SubPolyline;
 
 TEST(ShapesPathopsTest, CoversCurrentCapabilities)
 {
@@ -200,6 +200,7 @@ TEST(ShapesPathopsTest, CoversCurrentCapabilities)
     ASSERT_TRUE(normalizedByLines.IsValid());
     GEOMETRY_TEST_ASSERT_NEAR(normalizedByLines.Area(), 16.0, 1e-6);
 }
+
 
 
 

@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <memory>
 
 #include "Geometry3d/Surface.h"
 
-namespace Geometry::Sdk
+namespace Geometry
 {
 class GEOMETRY_API PlaneSurface final : public Surface
 {
@@ -109,4 +109,5 @@ private:
     Intervald uRange_{-1.0, 1.0};
     Intervald vRange_{-1.0, 1.0};
 };
-} // namespace Geometry::Sdk
+} // namespace Geometry
+
