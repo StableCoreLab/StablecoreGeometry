@@ -1,73 +1,32 @@
-﻿# Final Naming Plan
+# 最终命名规则
 
-This document is the authoritative naming rule for the published Geometry surface.
+本文档定义当前发布版 Geometry 公开面的命名规则。
 
-## Rules
+## 总则
 
-- Keep `SC` only for engineering identities: repository name, solution name, CMake target name, package name, and internal build/test labels.
-- Do not use `SC` in public type names, public function names, or public data structures.
-- Do not use `ISC` in the default shipped API surface.
-- Public ABI-stable data structures remain exported with `GEOMETRY_API`.
-- The published API is organized by directory and by semantic type name, not by product prefix.
+- `SC` 只保留给工程身份：仓库名、解决方案名、CMake target、包名、内部构建/测试标签。
+- 公开类型名、公开函数名、公开数据结构不使用 `SC`。
+- 默认发布面不使用 `ISC`。
+- 需要跨 DLL 的公开 ABI 稳定数据结构，继续通过 `GEOMETRY_API` 导出。
+- 公开面按目录和语义命名组织，不按产品前缀组织。
 
-Namespace note:
-- The current published API namespace is `Geometry`.
-- `Geometry::Sdk` is only a temporary compatibility alias during the migration window.
-- This naming plan applies to files, types, results, and public wrappers, not to the engineering namespace marker itself.
+## 命名空间
 
-## Namespace Migration
+- 当前公开命名空间为 `Geometry`。
+- `Geometry::Sdk` 只允许作为迁移期间的临时别名。
+- 本文档适用于文件、类型、结果和公开 API，不适用于工程标识前缀。
 
-Target public namespace:
-- `Geometry`
+### 兼容策略
 
-Move out of `Geometry::Sdk`:
-- `Include/Core/GeometryTypes.h`
-- `Include/Core/Results.h`
-- `Include/Core/Validation.h`
-- `Include/Core/Algorithms.h`
-- `Include/Core/AxisOps.h`
-- `Include/Core/Boolean.h`
-- `Include/Core/Editing.h`
-- `Include/Core/Intersection.h`
-- `Include/Core/Measure.h`
-- `Include/Core/Metrics.h`
-- `Include/Core/Offset.h`
-- `Include/Core/Projection.h`
-- `Include/Core/Relation.h`
-- `Include/Core/Sampling.h`
-- `Include/Core/SearchPoly.h`
-- `Include/Core/Section.h`
-- `Include/Core/ShapeOps.h`
-- `Include/Core/Transform.h`
-- `Include/Geometry2d/*.h`
-- `Include/Geometry3d/*.h`
-- `Include/Brep/*.h`
-- `Include/Serialize/GeometryText.h`
-
-Already in the final namespace:
-- `Include/Types/*`
-- `Include/Support/*`
-- `Include/Export/*`
-- `Include/Geometry.h` umbrella header itself
-
-Compatibility strategy:
-- Keep a single transition alias from `Geometry::Sdk` to `Geometry` instead of duplicating wrappers.
-- Do not reintroduce `SC*` or `ISC*` compatibility classes.
-- Do not ship wrapper headers as part of the default installed surface.
-- Use the alias only as a temporary source-compatibility bridge for old call sites.
-- Remove the alias after the migration window is closed.
-- Prefer updating source, tests, and docs to `Geometry::...` directly rather than relying on the alias long term.
-
-Migration checklist:
-1. Move all public declarations in the listed headers to `namespace Geometry`.
-2. Update source files to include and use `namespace Geometry` directly.
-3. Update tests and documentation to reference `Geometry::...`.
-4. Keep only the `Geometry::Sdk` namespace alias as the temporary compatibility layer.
-5. Remove the alias once the release migration window is complete.
+- 只保留一个从 `Geometry::Sdk` 指向 `Geometry` 的过渡别名。
+- 不恢复 `SC*` 或 `ISC*` 兼容类。
+- 不把兼容头放进默认安装面。
+- 迁移期结束后删除别名。
 
 ## Include/Core
 
-Keep:
+保留：
+
 - `GeometryApi.h`
 - `GeometryTypes.h`
 - `Algorithms.h`
@@ -88,13 +47,15 @@ Keep:
 - `Transform.h`
 - `Validation.h`
 
-Delete from the public surface:
-- `SC*` compatibility names
-- `ISC*` compatibility names
+删除：
+
+- `SC*` 兼容名字
+- `ISC*` 兼容名字
 
 ## Include/Geometry2d
 
-Keep:
+保留：
+
 - `ArcSegment2d.h`
 - `BoxTree2d.h`
 - `Circle2d.h`
@@ -110,7 +71,8 @@ Keep:
 - `Segment2d.h`
 - `SegmentSearch2d.h`
 
-Delete from the public surface:
+删除：
+
 - `SCArcSegment2d.h`
 - `SCCircle2d.h`
 - `SCLineSegment2d.h`
@@ -122,7 +84,8 @@ Delete from the public surface:
 
 ## Include/Geometry3d
 
-Keep:
+保留：
+
 - `Curve3d.h`
 - `CurveOnSurface.h`
 - `LineCurve3d.h`
@@ -134,12 +97,14 @@ Keep:
 - `Surface.h`
 - `TriangleMesh.h`
 
-Delete from the public surface:
+删除：
+
 - `SCCurve3d.h`
 
 ## Include/Brep
 
-Keep:
+保留：
+
 - `BodyBoolean.h`
 - `BrepBody.h`
 - `BrepCoedge.h`
@@ -160,26 +125,28 @@ Keep:
 - `Tessellation.h`
 - `Topology.h`
 
-Delete from the public surface:
-- No additional public wrapper names are kept here.
+删除：
 
-## Include/Support and Include/Types
+- 不再保留额外的公开包装名
 
-Keep:
+## Include/Support 与 Include/Types
+
+保留：
+
 - `Support/Epsilon.h`
 - `Support/Geometry2d/Normalize2.h`
 - `Support/Geometry2d/Predicate2.h`
-- `Types/Geometry2d/*` value types
-- `Types/Geometry3d/*` value types
+- `Types/Geometry2d/*` 值类型
+- `Types/Geometry3d/*` 值类型
 - `Types/Detail/Segment2Detail.h`
 
-Delete from the public surface:
-- Unused integer aliases and compatibility-only helpers
-- Any `SC*` or `ISC*` wrapper headers
+删除：
 
-## ABI Notes
+- 无用整数别名和兼容辅助
+- 所有 `SC*` / `ISC*` 兼容头
 
-- All public value types that must cross DLL boundaries should stay in exported headers and keep `GEOMETRY_API`.
-- Do not introduce `SC` prefixes into value-type names just to indicate DLL usage.
-- If a type is only needed internally, keep it in a detail header or source file instead of shipping it in `Include/`.
+## ABI 说明
 
+- 需要跨 DLL 的公开值类型，应继续放在导出头里并保持 `GEOMETRY_API`。
+- 不要为了“DLL 可见”而给值类型额外加 `SC` 前缀。
+- 只供内部使用的类型，应放入 detail 头或源文件，而不是继续放进 `Include/`。

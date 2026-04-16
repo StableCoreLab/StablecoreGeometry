@@ -1,15 +1,15 @@
-# Public API Naming
+# 公开 API 命名
 
-This page is now an index only.
+本页仅作为索引。
 
-The authoritative naming rules live in:
+正式命名规则见：
 
 - [docs/final-naming-plan.md](final-naming-plan.md)
 
-Use that document for:
+请以该文档为准，查看：
 
-- engineering/product naming rules
-- per-directory keep/delete decisions
-- public API and wrapper naming guidance
+- 工程与产品命名规则
+- 按目录的保留/删除清单
+- 公开 API 命名约定
 
-The release surface is expected to follow the final naming plan.
+发布面统一以最终命名规则为准。

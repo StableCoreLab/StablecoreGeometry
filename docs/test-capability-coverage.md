@@ -1,322 +1,61 @@
-# 测试覆盖布局
+# 测试覆盖说明
 
-## 总览
+本文档只保留当前能力覆盖和当前能力差距，不保留历史过程记录。
 
-测试已按两类能力拆分：
+## 测试分层
 
-- `UnitTests/Capabilities`
-  - 放当前库已经具备、应该稳定成立的能力验证
-  - 这些文件已经迁移为 gtest `TEST(...)` 用例
-- `UnitTests/Gaps`
-  - 放当前仍未补齐的能力缺口说明性用例
-  - 这些用例使用 `GTEST_SKIP()` 明确标记为已知差距，便于后续逐步转正
+- `UnitTests/Capabilities`：已收敛、应稳定支持的能力测试
+- `UnitTests/Gaps`：当前仍未闭合或明确未支持的差距测试
 
-## 2026-04-05 文档同步备注
+## 当前已覆盖的能力
 
-- 本轮继续推进 `Section` / `Healing` / `BodyBoolean` / `SearchPoly`。
-- 已同步 `AI Execution Spec` 的测试约束：后续每一轮默认要求 capability test、edge-case test，以及在存在歧义时保留 gap test。
-- 已新增 mixed area + open contour 的 representative section capability、dual edge-attached open contours 的 stable mixed-content 子集、mixed vertex-attached + edge-attached dual-open 子集、detached + vertex-attached + edge-attached triple-open 子集、mixed coplanar + non-planar edge-adjacent / strip-adjacent area merge、strip-adjacent merged-area + detached / edge-attached / vertex-attached / vertex+edge dual-open / detached+vertex+edge triple-open mixed-content 子集、detached-left + edge-attached open-contour stable ordering 子集、merged polygon-with-hole + detached / edge-attached / vertex-attached outer-boundary open-contour 子集、mixed body 内 eligible shared-edge shell 的 aggressive boundary-cap capability、competing multi-shell shared-boundary-edge arbitration 的保守子集、duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集、vertex-touch eligible multi-shell non-competing closure 子集、competing-pair-plus-vertex-touch shell 组合 arbitration 子集、independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集、mixed closed-shell + competing-pair + vertex-touch shell arbitration 子集、mixed closed-shell + partial-overlap pair 子集、independent+vertex-touch+partial-overlap pair 子集、face-touching external difference / contained difference-empty / identical difference-empty / contained intersection / contained union / disjoint empty intersection / disjoint ordered-multi-body union / edge-vertex-touching ordered multi-body union / edge-vertex-touching external difference 子集，以及 `SearchPoly` 的 top-candidate / runner-up / ambiguous-top / synthetic-source / candidate-level causality explanation 子集。
-- 已进一步新增 `Section` 的 vertex-attached mixed area + open contour 子集，并同步 `SearchPoly` gap 文案到 edge-level synthetic explanation 现状。
-- 下面的覆盖布局与子集清单已与当前代码状态一致。
+### 二维
 
-## Capability Tests
+- Box、Point、Vector、Segment、Polyline、Polygon 的基础行为
+- 距离、投影、反射、采样、偏移、关系判断、布尔运算
+- `SearchPoly` 的确定性候选筛选、分支评分、诊断一致性、最小包含查询
+- `Shapes` / `PathOps` / `Topology` 相关能力
 
-- `UnitTests/Capabilities/TestBox.cpp`
-  - 盒体基础行为、中心点、边界、有效性
-- `UnitTests/Capabilities/TestPointVector.cpp`
-  - 点、向量、基础段 / 圆弧辅助行为
-- `UnitTests/Capabilities/TestSegment.cpp`
-  - 线段、圆弧段的长度、采样、边界盒、方向行为
-- `UnitTests/Capabilities/TestPolyline.cpp`
-  - 开闭 polyline 的点访问、长度定位、边界盒
-- `UnitTests/Capabilities/TestPolygon.cpp`
-  - polygon 的面积、质心、边界盒、孔洞基础行为
-- `UnitTests/Capabilities/TestCore.cpp`
-  - SDK 层常用对象和基础 API 行为，以及 `LineCurve3d` / `NurbsCurve3d` / `PlaneSurface` / `NurbsSurface` / `RuledSurface` / `OffsetSurface` / `CurveOnSurface` / `CurveEval3d` / `SurfaceEval3d` / `TriangleMesh` / `TriangleNormal` / `VertexNormal` / `TriangleAdjacency` / `ExtractBoundaryEdges` / `ExtractBoundaryLoops` / `IsClosedTriangleMesh` / `ExtractNonManifoldEdges` / `IsManifoldTriangleMesh` / `ComputeTriangleConnectedComponents` / `IsConsistentlyOrientedTriangleMesh` / `ComputeMeshShells` / `OrientTriangleMeshConsistently(...)` / `CloseSinglePlanarBoundaryLoop(...)` / `ClosePlanarBoundaryLoops(...)` / `MeshValidation3d` / `Validate(PolyhedronSection3d, ...)` / `Validate(BrepBody, ...)` 的 edge-use adjacency 校验 / `Tessellate(PlaneSurface, ...)` / `ConvertToTriangleMesh(PolyhedronFace3d / PolyhedronBody / BrepFace / BrepBody / holed planar face / non-planar trimmed BrepFace, ...)` / `ConvertToPolyhedronFace(...)` / `ConvertToPolyhedronBody(...)` / `ConvertToBrepBody(...)` 的 trim 与 topology fallback / `Section(PolyhedronBody / BrepBody, Plane, ...)` / `BuildSectionTopology(...)` / `BuildSectionComponents(...)` / `RebuildSectionFaces(...)` / `RebuildSectionBrepFaces(...)` / `RebuildSectionBody(...)` / `RebuildSectionBrepBody(...)` / `RebuildSectionBrepBodies(...)` / `RebuildSectionBodies(...)` / `ConvertSectionToTriangleMesh(...)` / `ClassifySectionContent(...)` / `ProjectFaceToPolygon2d(...)` / `ProjectPointToCurve(...)` / `ProjectPointToCurveOnSurface(...)` / `ProjectPointToSurface(...)` / `ProjectPointToTriangleMesh(...)` / `ProjectPointToPolyhedronFace(...)` / `ProjectPointToPolyhedronBody(...)` / `ProjectPointToBrepVertex(...)` / `ProjectPointToBrepEdge(...)` / `ProjectPointToBrepFace(...)` / `ProjectPointToBrepBody(...)` / `LocatePoint(point, Curve3d / CurveOnSurface / PolyhedronFace3d / PolyhedronBody / BrepFace / BrepBody / TriangleMesh, ...)` / `Intersect(Line3d, Curve3d / CurveOnSurface / Surface / TriangleMesh / PolyhedronFace / PolyhedronBody / BrepVertex / BrepEdge / BrepFace / BrepBody, ...)` / `Intersect(Plane, Curve3d / CurveOnSurface / BrepVertex / BrepEdge, ...)` / `Measure` 的 point-to-curve / point-to-curve-on-surface / point-to-surface / point-to-trianglemesh / point-to-polyhedron-face / point-to-polyhedron-body / point-to-brep-vertex / point-to-brep-edge / point-to-brep-face / point-to-brep-body distance，以及 `Bounds(PolyhedronFace3d / BrepVertex / BrepEdge / BrepFace)` / `Healing` / `Heal(BrepBody)` 的 trim 回填 / `BrepVertex` / `BrepEdge` / `BrepCoedge` / `BrepLoop` / `BrepFace` / `BrepShell` / `BrepBody` / `PolyhedronLoop3d` / `PolyhedronFace3d` / `PolyhedronBody` / `PolyhedronValidation3d` 的最小 3D 能力
-- `UnitTests/Capabilities/TestCoreAlgorithms.cpp`
-  - 距离、投影、反转、采样、基础算法能力
-- `UnitTests/Capabilities/TestCoreMultiGeometry.cpp`
-  - multipolygon、box tree、kd tree、segment search 等索引与聚合能力
-- `UnitTests/Capabilities/TestTransformSampling.cpp`
-  - 平移、旋转、镜像、拉伸、采样变换行为
-- `UnitTests/Capabilities/TestSerialize.cpp`
-  - 文本序列化 / 反序列化稳定性
-- `UnitTests/Capabilities/TestShapesPathOps.cpp`
-  - shape/pathops、cut polygon、build multipolygon by lines、near-close、auto-extend、ambiguous fake-edge 当前已具备能力
-- `UnitTests/Capabilities/TestRelationBoolean.cpp`
-  - boolean 的 crossing、containment、equal、touching、simple collinear overlap、disjoint union、ultra-thin repeated-overlap 当前已具备能力
-- `UnitTests/Capabilities/TestOffset.cpp`
-  - line / arc / polyline / polygon / multipolygon offset、basic rebuilt polygon growth、disjoint multipolygon offset、single-polygon hole semantics recovery、representative reverse-edge/self-intersection recovery、narrow-bridge split via `OffsetToMultiPolygon(...)` 当前已具备能力
-- `UnitTests/Capabilities/TestSearchPoly.cpp`
-  - `SearchPoly` 当前 SDK 子集：空输入 invalid-input contract、`SearchPolygons(...)` 的代表性闭环子集、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、near-closed loop repair diagnostics、result/diagnostics consistency、auto-flag gating，以及 `SearchPolygonContainingPoint(...)` 的 smallest-containing candidate 选择子集
-  - `SearchPolyCandidate2d` 已显式暴露 `branchScore`、`inferredSyntheticPerimeter`、`inferredSyntheticEdgeCount`、`branchVertexCount` 与 `syntheticBranchVertexCount`
-  - `SearchPolyResult2d` 已显式暴露 `usedBranchScoring`，使产品侧可区分“仅建面成功”和“排序时已使用 branch/synthetic penalty”
-  - `SearchPolyResult2d` 已新增 deterministic top-candidate explanation：`bestCandidateScoreMargin`、`bestCandidateSyntheticPerimeter`、`bestCandidateSyntheticEdgeCount`、`bestCandidateSyntheticEdgeKind`、`candidateCountWithSyntheticEdges`、`candidateCountWithBranchPenalty`、`ambiguousTopCandidateCount`
-  - `SearchPolyResult2d` 已进一步新增 runner-up explanation：`runnerUpSyntheticPerimeter`、`runnerUpSyntheticEdgeCount`、`runnerUpSyntheticEdgeKind`、`runnerUpBranchVertexCount`、`bestCandidateBeatsSyntheticRunnerUp`、`bestCandidateBeatsBranchRunnerUp`
-  - `SearchPolyResult2d` 已进一步新增 synthetic-source summary explanation：`bestCandidateSyntheticEdgeSource`、`runnerUpSyntheticEdgeSource`、`ambiguousTopSyntheticEdgeSource`
-  - `SearchPolyResult2d` 已进一步新增 ambiguous-top summary explanation：`ambiguousTopPenaltyKind`、`ambiguousTopSyntheticEdgeKind`、`ambiguousTopCandidateCountWithSyntheticEdges`、`ambiguousTopCandidateCountWithBranchPenalty`
-  - `SearchPolyCandidate2d` 已新增 candidate-level causal explanation：`dominantPenaltyKind`、`dominantSyntheticEdgeKind`、`dominantSyntheticEdgeSource`、`inferredSyntheticEdgeLengths`、`inferredSyntheticEdges`、`inferredSyntheticEdgeKinds`、`inferredSyntheticEdgeSources`，以及逐边 line-network touch mapping / vertex identity mapping
-  - 已覆盖 clean candidate 与 synthetic candidate 并存时，`rank` 优先受 branch score 影响，而不是只按 area 稳定排序
-  - 已覆盖 explicit branch vertex 子集：branch penalty 会进入 candidate score，但不会误报为 fake-edge
-  - 已覆盖 `InvalidInput` / `NoClosedPolygonFound` / success 三类结果在 `issue / diagnostics / candidates / used*` 上的一致性与回零行为
-  - 已覆盖 top-candidate explanation、runner-up margin、synthetic / branch runner-up causal explanation，以及 candidate-level penalty-kind / dominant-synthetic-kind / synthetic-edge-lengths / synthetic-edge-list / synthetic-edge-kind / synthetic-edge-source / line-network touch mapping / vertex identity mapping 的自洽性，避免产品侧需要扫描全量 candidate 才能解释 best-candidate 选择
-  - 已覆盖 clean-winner-vs-synthetic-runner-up causal explanation：产品侧可直接通过 `bestCandidate*`、`runnerUp*` 与 candidate-level dominant penalty/source 解释 fake-edge 候选为何落败
-- `UnitTests/Capabilities/TestTopologyIndexing.cpp`
-  - touching / intersecting / basic contains / equal、duplicate-equal topology parent tie-break 当前已具备能力
-- `UnitTests/Capabilities/Test3dSection.cpp`
-  - 倾斜切平面下 `Section(...) + BuildSectionTopology(...) + BuildSectionComponents(...)` 的单区域闭环能力；并覆盖 non-axis-aligned multi-face 截面的稳定 contour/polygon 计数
-  - 覆盖 `Section(BrepBody, Plane)` 的 oblique-cut 子能力：单位立方体先转 Brep 后再截切，稳定得到 1 polygon / 1 contour / 6 points / 1 topology root
-  - 覆盖 `Section(BrepBody, Plane)` 的 coplanar 邻接片段合并子能力：2-face 邻接平面片先转 Brep 后截切，稳定得到单 polygon（area=2.0）
-  - 覆盖 `Section(BrepBody, Plane)` 的三面 coplanar strip 合并子能力：3-face 水平 strip 先转 Brep 后截切，稳定得到单 polygon（area=3.0）
-  - 覆盖 `Section(BrepBody, Plane)` 的 multi-component 子能力：双立方体先转 Brep 后截切，稳定得到 2 polygons / 2 roots / 2 components
-  - 覆盖 detached mixed-content 子能力：closed area + detached open contour 在 Polyhedron / Brep 路径都可共存于同一 section 结果，并稳定分类为 `Mixed`
-  - 覆盖 vertex-attached mixed-content 子能力：open contour 接触 polygon 单个顶点时，在 Polyhedron / Brep 路径都不会误报 `NonManifoldContour`，而会稳定保留为 `Mixed`
-  - 覆盖 edge-attached mixed-content 子能力：open contour 接触 polygon 边中点时，在 Polyhedron / Brep 路径同样稳定保留为 `Mixed`
-  - 覆盖 dual edge-attached mixed-content 子能力：两条 open contours 同时接触 polygon 边中点时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 endpoint 方向/顺序固定
-  - 覆盖 detached + dual edge-attached mixed-content 子能力：一条 detached open contour 与两条 edge-attached open contours 共存时，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 3 open contours`，且 boundary-attached contours 顺序固定在 detached contour 前
-  - 覆盖 mixed vertex-attached + edge-attached dual-open 子能力：一条 open contour 接触 polygon 顶点、一条接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 endpoint 方向/顺序固定
-  - 覆盖 `VertexTouchThenEdgeTouchOpenContoursDoNotCollapseIntoSinglePolyline` 子能力：一条 open contour 接触 polygon 顶点、另一条接触相邻边中点时，在 Polyhedron / Brep 路径都稳定保留为两条 open contours，而不会误拼成单条 polyline
-  - 覆盖 `NonPlanarLoopWithInteriorOpenSpurKeepsClosedContourAndOpenContourSeparate` 子能力：non-planar dominant closed loop 上挂接 interior open spur 时，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon + 1 open contour`
-  - 覆盖 `LCornerCoplanarPatchAndNonPlanarAreaMergeIntoSinglePolygon` 子能力：cube mid-section 与两个 L-corner coplanar patches 在 Polyhedron / Brep 路径都稳定 merge 为单 polygon（area=3.0）
-  - 覆盖 `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole` 子能力：frame-with-hole 与 adjacent non-planar area 在 Polyhedron / Brep 路径都稳定 merge 为单 polygon-with-hole（area=9.0）
-  - 覆盖 `MixedMergedAreaWithInteriorHoleAndDetachedOpenContourStaysMixed` 子能力：merged polygon-with-hole 再叠加 detached open contour 后，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
-  - 覆盖 `MixedMergedAreaWithInteriorHoleAndEdgeAttachedOpenContourStaysMixed` 子能力：merged polygon-with-hole 再叠加 edge-attached outer-boundary open contour 后，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
-  - 覆盖 `MixedMergedAreaWithInteriorHoleAndVertexAttachedOpenContourStaysMixed` 子能力：merged polygon-with-hole 再叠加 vertex-attached outer-boundary open contour 后，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
-  - 覆盖 detached + vertex-attached + edge-attached triple-open 子能力：三条 open contours 分别 detached / 接触 polygon 顶点 / 接触 polygon 边时，在 Polyhedron / Brep 路径都稳定保留为 `Mixed`，且 attached contours 方向固定为 boundary-outward、整体顺序固定
-  - 覆盖 mixed coplanar/non-planar edge-adjacent merge 子能力：coplanar face area 与 non-planar cube mid-section 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=2.0）
-  - 覆盖 mixed coplanar/non-planar strip-adjacent merge 子能力：cube mid-section 与相邻 two-face coplanar strip 在 Polyhedron / Brep 路径都可稳定 merge 为单 polygon（area=3.0）
-  - 覆盖 strip-adjacent merged-area + edge-attached open mixed-content 子能力：当 merged area 从单面扩展到 two-face strip 后，edge-attached open contour 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3.0）
-  - 覆盖 strip-adjacent merged-area + vertex-attached open mixed-content 子能力：当 merged area 从单面扩展到 two-face strip 后，vertex-attached open contour 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3.0）
-  - 覆盖 strip-adjacent merged-area + detached open mixed-content 子能力：当 merged area 从单面扩展到 two-face strip 后，detached open contour 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`（1 polygon + 1 open contour / area=3.0）
-  - 覆盖 strip-adjacent merged-area + vertex-attached + edge-attached dual-open mixed-content 子能力：当 merged area 从单面扩展到 two-face strip 后，vertex-attached 与 edge-attached open contours 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`（1 polygon + 2 open contours / area=3.0）
-  - 覆盖 strip-adjacent merged-area + detached + vertex-attached + edge-attached triple-open mixed-content 子能力：当 merged area 从单面扩展到 two-face strip 后，detached / vertex-attached / edge-attached open contours 在 Polyhedron / Brep 路径仍稳定保留为 `Mixed`（1 polygon + 3 open contours / area=3.0）
-  - 覆盖 detached-left + edge-attached stable ordering 子能力：当 detached contour 在词典序上更靠前时，Polyhedron / Brep 路径仍稳定输出 `boundary-attached -> detached` 的 mixed-content open contour 顺序
-  - 覆盖 dual disjoint non-planar closed loops 子能力：同一截面同时切过两个互不接触的 non-planar closed components 时，Polyhedron 路径稳定保留 `2 polygons / 2 contours / 2 roots`
-  - 覆盖 coplanar 相邻 face fragment 在 `Section(...)` 中合并为单 polygon 的代表性 face-merge 子集
-  - 覆盖 unit cube x=0.5 截面（法向 +x）的确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0），扩展钢筋线周长稳定性到 x 轴方向
-  - 覆盖 `Section(BrepBody, Plane)` 的 unit cube x=0.5 截面（法向 +x）确定性四段闭合矩形轮廓（perimeter=4.0 / area=1.0）
-  - 覆盖 `Section(BrepBody, Plane)` 的 2×2×1 矩形棱柱 z=0.5 截面确定性四段闭合方形轮廓（perimeter=8.0 / area=4.0）
-  - 覆盖 `Section(BrepBody, Plane)` 的三棱柱 mid-section 确定性三段闭合轮廓（perimeter≈3）
-  - 覆盖 2×2×1 矩形棱柱 z=0.5 截面的确定性四段闭合方形轮廓（perimeter=8.0 / area=4.0），验证非单位截面的钢筋线周长稳定性
-  - `Section(...)` 在输出阶段新增 contour 驱动的 deterministic segment 后处理：基于 contour 重建线段并做无向去重、共线简化后短毛刺抑制（长度<=eps 段过滤），稳定钢筋线根数统计
-  - 当前仍保留的 gap：更一般 ambiguous non-manifold contour stitching、mixed open-curve / area edge-adjacency arbitration beyond the explicit vertex-touch + edge-touch double-open subset、非邻接 coplanar fragment 跨 convex-hull gap 的 merge，以及 mixed merged polygon-with-hole 的 higher-order boundary-attached open-curve arbitration beyond the single edge-attached / single vertex-attached outer-boundary spur subsets
-- `UnitTests/Capabilities/TestSearchPoly.cpp`
-  - 已进一步覆盖 `SearchPolygonContainingPoint(...)` 路径的 synthetic explanation 保留，避免 point-pick 路径丢失 candidate-level diagnostics
-  - 已进一步覆盖 top-candidate / runner-up / ambiguous-top 的 synthetic-source summary，避免产品侧需要自行扫描 synthetic-edge-source 列表才能判断 tied-top 与 runner-up 的 fake-edge 成因
-  - 已进一步覆盖 ambiguous-top summary/count explanation，避免产品侧需要自行扫描 tied-top candidates 才能判断 top tie 的 penalty/synthetic profile
-- `UnitTests/Capabilities/Test3dBrep.cpp`
-  - 倾斜截面经过 `RebuildSectionBrepBody(...)` 得到只读 topology 完整的单面 `BrepBody`（1 shell / 1 face / 4 coedge loop），双立方体截面经 `RebuildSectionBrepBodies(...)` 稳定拆分为 2 个独立 body；并新增最小 coedge-loop 编辑链路 `InsertCoedge -> FlipCoedgeDirection -> RemoveCoedge`
-  - 覆盖端到端 Brep 路径：`ConvertToBrepBody -> Section(BrepBody, Plane) -> RebuildSectionBrepBodies` 在双组件输入下稳定输出 2 个独立重建 body
-  - 覆盖 `RebuildSectionBody(...)` / `RebuildSectionBodies(...)` 的 Polyhedron 重建子路径：倾斜截面可重建为单面 `PolyhedronBody`，双组件截面可稳定重建为 2 个独立 `PolyhedronBody`
-  - 覆盖 Brep section rebuild 壳体语义断言：`RebuildSectionBrepBody(...)` 与 `RebuildSectionBrepBodies(...)` 输出显式满足 `ShellCount()==1 && IsClosed()==false`
-  - 覆盖最小 ownership-consistent 编辑链路：`ReplaceOuterLoop -> ReplaceFace -> ReplaceShell` 可把 loop 级编辑稳定传播回有效 `BrepBody`
-  - 覆盖 ownership replacement 在 multi-face closed-shell 的子路径：unit-cube Brep 上 no-op `ReplaceOuterLoop -> ReplaceFace -> ReplaceShell` 后仍保持 `ShellCount=1 / FaceCount=6 / IsClosed=true`
-- `UnitTests/Capabilities/Test3dHealing.cpp`
-  - 保守 `Heal(PolyhedronBody)` 对已合法的单位立方体不改变 face count 且 `HealingIssue3d::None`；`Heal(BrepBody)` 可对 plane-surface + line-edge 且缺失 trim 的 face 进行 trim 回填，并覆盖带孔 face 的 outer/hole trims 同时回填；`Heal(..., policy=Aggressive)` 覆盖可恢复 open planar single/multi-face sheet（含 holed shell）的确定性闭壳子策略，并覆盖 aggressive 闭壳与 trim-backfill 的组合病理子场景
-  - `Heal(..., policy=Aggressive)` 当前已形成更清晰的内部边界：无 interior shared-edge 的 open shell 仍走 mirror-style 闭壳；standalone coplanar shared-edge shell 则可走 boundary-cap fallback，而不是继续依赖整壳镜像
-  - `Heal(..., policy=Aggressive)` 可在同一个 body 中同时闭合多个可恢复 open shell，并保持确定性拓扑结果
-  - `Heal(..., policy=Aggressive)` 在混合 closed-shell + open-shell 输入下可保持已闭壳稳定，并仅对可恢复 open shell 执行确定性闭壳
-  - `Heal(..., policy=Aggressive)` 在 mixed open-shell 输入下支持部分修复：可恢复 planar shell 可闭壳，不可恢复 shell 保持原状
-  - `Heal(..., policy=Aggressive)` 在存在 shared-edge 邻接的 planar multi-face open-sheet 上也可执行确定性闭壳，不再局限于边完全不共享的分离面片
-  - `Heal(..., policy=Aggressive)` 已新增 standalone shared-edge holed shell 的代表性 boundary-cap 子集：support-plane mismatch + 缺失 trims 输入会先走 conservative trim-backfill，再补单一 holed cap face 完成闭壳
-  - `Heal(..., policy=Aggressive)` 已新增 mixed body 内 eligible shared-edge shell 的 boundary-cap 子集：closed shell 保持稳定，同体内 open shared-edge shell 可独立补 cap 完成闭壳
-  - `Heal(..., policy=Aggressive)` 已进一步覆盖 mixed body 内多个彼此独立 eligible shared-edge shells 并存的 boundary-cap 子集：多个 eligible shells 可分别独立补 cap，而 closed shell 保持稳定
-  - `Heal(..., policy=Aggressive)` 已新增 conservative competing-shell arbitration 子集：独立 eligible shell 仍可 boundary-cap 闭壳，而与其他 open shell 共享 boundary edge 的 eligible shells 保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集：几何上共享同一 boundary loop、但 topology 独立的 eligible shells 也会保守保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 non-planar shared-edge shell reject 子集：共享 interior edge 但整体不共面的 shell 不会误走 planar boundary-cap，而会保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 partial-overlap shared-boundary-loop arbitration 子集：两组 eligible shared-edge shells 的 boundary spans 只部分重叠时，会保守保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 local arbitration 子集：当 independent eligible shell 与 partial-overlap competing pair 共存时，独立 shell 可继续闭壳，而 partial-overlap pair 保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 mixed closed-shell + partial-overlap pair arbitration 子集：closed shell 保持稳定，而 partial-overlap competing pair 继续保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 independent + vertex-touch + partial-overlap pair local arbitration 子集：independent eligible shell 与仅 vertex-touch 的 eligible shell 可继续闭壳，而 partial-overlap pair 保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 vertex-touch multi-shell arbitration 子集：仅共享单个顶点、但不共享 boundary edge 的 eligible shared-edge shells 可分别独立 boundary-cap 闭壳
-  - `Heal(..., policy=Aggressive)` 已新增 competing-pair-plus-vertex-touch arbitration 子集：shared-boundary-edge competing shells 继续保持 open，而仅 vertex-touch 的第三个 eligible shell 仍可独立 boundary-cap 闭壳
-  - `Heal(..., policy=Aggressive)` 已新增 independent-plus-competing-pair-plus-vertex-touch 四壳组合 arbitration 子集：independent shell 与 vertex-touch shell 可闭壳，而 shared-boundary-edge competing pair 继续保持 open
-  - `Heal(..., policy=Aggressive)` 已新增 mixed closed-shell + competing-pair + vertex-touch shell arbitration 子集：closed shell 保持稳定，shared-boundary-edge competing pair 保持 open，而仅 vertex-touch 的 eligible shell 可闭壳
-  - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下保持 deterministic：closed shell 保持稳定、eligible open shell 闭壳、ineligible open shell 保持 open
-  - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下可与 conservative trim-backfill 协同：eligible open shell 先回填 trims 后闭壳，ineligible open shell 保持 open
-  - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible multi-face open-sheet 闭壳，同时保持 closed shell 稳定与 ineligible shell open 状态
-  - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible holed shell（含缺失 outer/hole trims）先回填后闭壳，同时保持 ineligible shell open
-  - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible multi-face holed shell（含缺失 trims）回填后闭壳，同时保持 ineligible shell open
-  - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible multi-face（holed+plain）两面 trims 缺失场景回填后闭壳，同时保持 ineligible shell open
-  - `Heal(..., policy=Aggressive)` 在三壳 mixed 输入下支持 eligible multi-face holed shell 的 support-plane mismatch + 缺失 trims 组合修复并闭壳，同时保持 ineligible shell open
-  - `Heal(..., policy=Aggressive)` 在 support-plane mismatch 的 eligible shell 与 ineligible multi-face shell 共存时，保持 deterministic：eligible 闭壳、ineligible 保持 open
-  - `Heal(..., policy=Aggressive)` 在 support-plane mismatch 的 eligible shell 缺失 trims 且与 ineligible multi-face shell 共存时，仍可先回填后闭壳并保持 ineligible open
-  - `Heal(..., policy=Aggressive)` 在 support-plane mismatch 的 eligible holed shell（缺失 outer/hole trims）与 ineligible multi-face shell 共存时，仍可先回填后闭壳并保持 ineligible open
-  - `Heal(..., policy=Aggressive)` 在 support-plane mismatch 的 eligible multi-face（holed+plain，缺失 trims）与 ineligible multi-face shell 共存时，仍可先回填后闭壳并保持 ineligible open
-  - `Heal(..., policy=Aggressive)` 在 mixed support-mismatch + ineligible multiface 系列场景中已补齐 shell-level FaceCount 分布断言，避免仅靠总 FaceCount 掩盖 shell 归属回归
-  - `Heal(BrepBody)` 保守 trim 回填现已覆盖 z=0（水平面，法向+z）、y=0（竖面，法向+y）、x=0（竖面，法向+x）三个轴向平面，以及 oblique 平面 x+y+z=0（法向(1,1,1)）子样例，验证 trim 回填对非轴对齐平面的稳定性
-  - 当前仍保留的 gap：更一般 multi-shell shared-boundary-loop / shared-edge arbitration beyond the representative partial-overlap pair / mixed-closed-shell pair / independent+vertex-touch local-arbitration subsets、non-planar shell repair、mesh/body joint healing
-- `UnitTests/Capabilities/Test3dConversion.cpp`
-  - 单位立方体（6 quad faces）经 `ConvertToTriangleMesh(PolyhedronBody)` 得到 12 triangles，`SurfaceArea ≈ 6.0`；并可经 `ConvertToBrepBody(PolyhedronBody)` 得到 `FaceCount() == 6` 的有效 `BrepBody`，覆盖 affine-skew 非轴对齐子类输入、support-plane mismatch 可修复子场景（含 shared-chain mixed-content full-composition 下的 support-plane refit）、mild non-planar outer/hole loop 顶点投影修复子场景、leading collinear loop 顶点下的稳健法向回退、duplicate outer/hole loop 顶点归一化修复、tiny-scale non-planar（含 holed/multi-face/mixed-content/shared-edge/shared-chain/shared-chain-mixed-content）输入下的 scale-aware 法向回退与投影修复，以及 duplicate/hole/collinear-leading normalization 与 shared-edge chain 修复的组合稳定性；同时覆盖 planar holed、planar multi-face、以及 planar holed+multi-face `BrepBody` 到 mesh 的面积保持子场景
-- `UnitTests/Capabilities/Test3dBodyBoolean.cpp`
-  - `BodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / touching union / touching external difference / touching empty intersection 的代表性子集
-  - `IntersectBodies(...)` 已支持 deterministic disjoint closed-body empty-result 子集，稳定返回 success + `producedEmptyResult=true`
-  - `UnionBodies(...)` 已支持 deterministic disjoint multi-body ordering 子集：`bodies` 结果按 bounds 词典序稳定返回，而不是依赖输入顺序
-  - `IntersectBodies(...)` 已支持 axis-aligned contained closed boxes 的 contained-body 子集，稳定返回 inner body
-  - `IntersectBodies(...)` 已支持 axis-aligned closed boxes 的正体积 overlap，稳定返回单一 closed overlap box
-  - `UnionBodies(...)` 已支持 axis-aligned closed boxes 中“union 结果仍为单一 closed box”的 overlap/containment 子集，并显式覆盖 contained-body union 返回 outer body
-  - `DifferenceBodies(...)` 已支持 axis-aligned closed boxes 中“difference 结果仍为单一 closed box”的单侧 slab 子集
-  - `UnionBodies(...)` 进一步覆盖 face-touching axis-aligned closed boxes 的单闭壳子集；`IntersectBodies(...)` 对 axis-aligned touching empty-result 子集已收敛，而 richer touching 语义仍继续稳定返回 `UnsupportedOperation`
-  - `DifferenceBodies(...)` 进一步覆盖 face-touching external axis-aligned closed boxes 的 identity 子集：当 second 仅外贴 first 的完整面且不侵入体积时，稳定返回原始 `first`
-  - `IntersectBodies(...)` 进一步覆盖 axis-aligned touching closed boxes 的 empty-result 子集：当两个 body 仅在 face / edge / vertex 维度接触时，稳定返回 success + `producedEmptyResult=true`
-  - 非单-box overlap 的 `UnionBodies(...)` / `DifferenceBodies(...)`，以及 non-axis-aligned / richer touching intersection 当前继续稳定返回 `UnsupportedOperation`，避免过早引入 L 形、多壳与 healing 依赖
-  - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链 mixed-content full-composition 下，支持 outer/hole 双重复顶点归一化与 support-mismatch + collinear-leading 组合修复稳定叠加
-  - `ConvertToBrepBody(...)` 在 tiny-scale shared-edge 邻接链修复后可全局复用共享顶点/边，避免按 face 重复建拓扑并保持共享边一致性子集稳定
-  - `ConvertToBrepBody(...)` 在 closed-shell 代表性输入（单位立方体）上可收敛到共享拓扑 Brep：1 shell / 8 vertices / 12 edges / closed shell
-  - `ConvertToBrepBody(...)` 在 tiny-scale closed-shell 代表性输入（tetrahedron：4 triangular faces, 6 edges, 4 vertices, 所有 support planes mismatched）上，经 per-face refit 修复后可收敛为合法 closed BrepBody（IsClosed=true / VertexCount=4 / EdgeCount=6），验证 closed-shell 下的共享拓扑代表性路径
-  - `ConvertToTriangleMesh(BrepBody)` 在 planar shared-edge 相邻面上可全局复用共享 3D 顶点，避免 face-by-face 拼接导致的重复顶点子集
-  - `ConvertToTriangleMesh(BrepBody)` 在 disconnected closed-shell 输入上可保持组件保真：双立方体 Brep 转 mesh 后稳定得到 2 个连通分量（每分量 12 triangles）
-  - `ConvertToBrepBody(...)` 在 tiny-scale triangular-face chain（3 个三角面，mismatched support planes）上可确定性地保持共享边顶点一致性（每个共享顶点是所有相关三角面的定义顶点，distance=0 → 无投影偏差），结果满足 VertexCount=5 / EdgeCount=7 的精确拓扑共享断言
-  - `ConvertToBrepBody(...)` 在 tiny-scale triangular-fan（4 个三角面共享 apex，mismatched support planes）上可确定性地保持共享 apex 顶点一致性（apex 是所有 4 个三角面的定义顶点，distance=0 → 精确保留），结果满足 VertexCount=5 / EdgeCount=8（4 条径向共享边 + 4 条外边）
-  - `ConvertToBrepBody(...)` 的 per-face refit 已引入 shared-vertex-aware support-plane 估计启发式：当 outer loop 顶点在 body 内出现多次（跨面共享）时，优先使用包含更多 shared vertices 的三点组估计 refit plane，以减少 shared-edge 顶点跨面投影偏差
-  - `ConvertToBrepBody(...)` 已引入 source representative-id 贯穿复用：即使修复后共享顶点出现微小跨面漂移，也能按输入拓扑代表点强制复用同一 BrepVertex，从而恢复 tiny-scale quad shared-edge chain 的确定性拓扑断言（VertexCount=8 / EdgeCount=10）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch 的 tiny-scale quad shared-edge chain（3 quads）上可稳定收敛到共享拓扑（VertexCount=8 / EdgeCount=10），验证 representative-id 驱动复用在非三角面链场景下的代表性有效性
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + duplicate-loop-normalization 的 tiny-scale quad shared-edge chain（中间 face 含重复 leading 顶点）上也可稳定收敛到共享拓扑（VertexCount=8 / EdgeCount=10），验证 representative-id 映射可穿透修复归一化后的 loop cardinality 变化
-  - `ConvertToBrepBody(...)` 在 shared-chain mixed-content 子集上已补齐确定性共享拓扑计数断言：duplicate-hole、support-plane mismatch、以及二者组合（support-mismatch + duplicate-hole）场景均稳定满足 VertexCount=12 / EdgeCount=14
-  - `ConvertToBrepBody(...)` 在 shared-chain 组合子场景（shared-edge duplicate-loop、mixed-content collinear-leading、support-mismatch+collinear、full-composition、dual-duplicate full-composition）上也已补齐确定性共享拓扑计数断言，分别稳定满足 VertexCount=8/13 与 EdgeCount=10/15 的预期拓扑计数
-  - `ConvertToBrepBody(...)` 在 tiny-scale 基础子场景（non-planar multi-face、non-planar mixed-content、non-planar shared-edge faces、non-planar shared-edge-chain mixed-content）上也已补齐确定性共享拓扑计数断言（分别为 8/8、12/12、6/7、12/14）
-  - `ConvertToBrepBody(...)` 在早期 repair 子场景（skewed cube、support-plane mismatched cube、mildly non-planar cube face、mildly non-planar holed face、collinear-leading loop、duplicate loop / duplicate-hole loop、composite stress face、tiny-scale face / holed-face）上也已补齐确定性拓扑计数断言（分别覆盖 8/12、8/8、5/5、4/4、10/10 等代表性计数）
-  - `ConvertToBrepBody(...)` 已开始引入跨面联合修复步骤：repair 后执行 representative-id global snapping pass（并回投影到各自 face support plane），用于进一步降低 shared-vertex 跨面漂移并为 topology-changing non-planar repair 打基础
-  - `ConvertToBrepBody(...)` 已扩展 representative-id 全局目标点聚合：在 near-equal shared-edge 输入中，共享 `BrepVertex` 落点由跨面代表点全局平均驱动，不再依赖首个面点，进一步使共享边一致性约束参与最终顶点位置决策
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-edge 输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（2 faces -> VertexCount=6 / EdgeCount=7）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-apex triangular-fan 输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（4 faces -> VertexCount=5 / EdgeCount=8）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-edge-chain（3 faces）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=8 / EdgeCount=10）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-corner fan（3 faces，仅共享顶点）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=8 / EdgeCount=10）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra（4 triangular faces）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点，并保持 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-edge-chain（3 faces）且 middle-face duplicate-loop-normalization 输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=8 / EdgeCount=10）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-chain mixed-content（含 middle-face duplicate-hole-normalization）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=12 / EdgeCount=14）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-chain full-composition（含 collinear-leading + duplicate-hole-normalization）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=13 / EdgeCount=15）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal shared-chain dual-duplicate full-composition（含 outer+hole duplicate-normalization）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点（VertexCount=13 / EdgeCount=15）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra dual-shared-vertices（两个共享顶点同时 near-equal 扰动）输入下同样可经 refit 后稳定保持 representative-average 共享顶点落点，并保持 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra dual-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra all-shared-vertices（四个顶点全部 near-equal 扰动）输入下可经 refit 后对全部共享顶点同时应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-tetra all-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（VertexCount=4 / EdgeCount=6）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism dual-shared-vertices（三棱柱拓扑，两个不相邻共享顶点各有 near-equal 扰动）输入下可跨三角面和四边形面同时稳定应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism dual-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism all-shared-vertices（三棱柱拓扑，六个共享顶点全部 near-equal 扰动）输入下可经 refit 后对全体共享顶点同时稳定应用 representative-average 落点，并保持 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-prism all-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（VertexCount=6 / EdgeCount=9）
-  - `ConvertToBrepBody(...)` 已增加 representative-target 聚合失败回退：若全局平均目标点构建失败，将自动回退到原 representative-id 复用路径，避免把可转换输入误判为失败
-  - `ConvertToBrepBody(...)` 的 repair 后 representative snapping 已从单轮提升为最多两轮小步迭代（每轮保持 body 有效性约束），以增强跨面共享顶点对齐稳定性
-  - `ConvertToBrepBody(...)` 已为代表性 repair 场景补齐壳体语义断言：cube-like 输入稳定满足 `ShellCount()==1 && IsClosed()==true`，shared-chain sheet-like 输入稳定满足 `ShellCount()==1 && IsClosed()==false`
-- `ConvertToBrepBody(...)` 在 deformed unit cube（单顶点位移，三面同时非平面）场景下可经 per-face refit 逐面修复并通过 representative-id 复用保证共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
-- `ConvertToBrepBody(...)` 在 deformed unit cube + duplicate-loop-normalization 场景下也可经 per-face refit 与 loop 归一化协同修复并保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
-- `ConvertToBrepBody(...)` 在 deformed unit cube + dual-duplicate-loop-normalization 场景下也可稳定保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
-- `ConvertToBrepBody(...)` 在 dual-deformed unit cube（双顶点位移，六面均非平面）场景下同样可经 per-face refit 逐面修复并保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
-- `ConvertToBrepBody(...)` 在 dual-deformed unit cube + duplicate-loop-normalization 场景下也可经 per-face refit 与 loop 归一化协同修复并保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
-- `ConvertToBrepBody(...)` 在 dual-deformed unit cube + dual-duplicate-loop-normalization 场景下仍可稳定保持共享拓扑，结果满足 FaceCount=6/VertexCount=8/EdgeCount=12/closed shell 确定性拓扑断言
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-cuboid all-vertices（2×1×1 矩形盒子，8 顶点全部 near-equal 扰动）输入下可经 refit 后对全体共享顶点稳定应用 representative-average 落点，并保持 closed-shell 拓扑（FaceCount=6 / VertexCount=8 / EdgeCount=12）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-cuboid dual-shared-vertices（两个共享顶点同时 near-equal 扰动）输入下可经 refit 后稳定保持 representative-average 共享顶点落点，并保持 closed-shell 拓扑（FaceCount=6 / VertexCount=8 / EdgeCount=12）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-cuboid dual-shared-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（FaceCount=6 / VertexCount=8 / EdgeCount=12）
-  - `ConvertToBrepBody(...)` 在 support-plane mismatch + near-equal closed-cuboid all-vertices 且一面含 duplicate-loop-normalization 输入下，仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（FaceCount=6 / VertexCount=8 / EdgeCount=12）
+### 三维
 
-## 共享测试支持
+- `Section` 的平面截取、组件重建、BRep/Polyhedron 结果稳定性
+- `Healing` 的 trim 回填、open shell 修复、aggressive boundary-cap
+- `BodyBoolean` 的闭体布尔、touching 子集、显式不支持契约
+- `BrepConversion` 的修复、重建、对齐与拓扑回收
 
-- `UnitTests/Support/Fixtures3d.h`
-  - `Geometry::Test::BuildUnitCubeBody()` — 单位立方体 `[0,1]³`，6 个四边形 `PolyhedronFace3d`，法向朝外
+## 当前能力差距
 
-## 3D 算量必需项已收敛能力列表
+### `Section`
 
-### Section 子集（UnitTests/Capabilities/Test3dSection.cpp）
+- 更一般的非流形轮廓拼接
+- 超出显式 vertex-touch / edge-touch 子集的开放曲线与面积归并
+- 非邻接 coplanar 片段的更一般合并
+- 多层 boundary-attached 开放曲线裁决
 
-- `ThreeCoplanarFacesInLStripMergeIntoSinglePolygon` — 三面共面水平排列 strip 合并为单多边形（area=3），收敛 FaceMergeSemantics gap 子集
-- `BrepThreeCoplanarFacesInStripMergeIntoSinglePolygon` — 三面共面水平 strip 在 Brep 路径也可合并为单多边形（area=3），扩展 FaceMergeSemantics 的 Brep 子集
-- `CoplanarFrameFacesMergeIntoSinglePolygonWithHole` — 四片 coplanar frame faces 归并为单 polygon + 单 hole（area=8，segments=8），把 face-merge 子集从 strip/chain 扩展到 frame-with-hole
-- `MixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents` — coplanar frame 与 non-planar cube mid-section 在同一 Polyhedron section 结果中可共存（2 polygons / 3 contours / total area=9），收敛 mixed section 不再因 coplanar 提前返回而丢失 non-planar contour 的子集
-- `BrepMixedCoplanarAndNonPlanarSectionBuildsTwoAreaComponents` — 上述 mixed coplanar + non-planar coexistence 子集在 Brep 路径也保持稳定（2 polygons / 3 contours / total area=9）
-- `MixedMergedAreaWithInteriorHoleStaysSinglePolygonWithHole` — frame-with-hole 与 adjacent non-planar area 在 Polyhedron / Brep 路径都稳定 merge 为单 polygon-with-hole（area=9），把 mixed coplanar/non-planar merge 从 coexistence 推进到 hole-preserving 子集
-- `MixedMergedAreaWithInteriorHoleAndDetachedOpenContourStaysMixed` — merged polygon-with-hole 再叠加 detached open contour 后，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
-- `MixedMergedAreaWithInteriorHoleAndEdgeAttachedOpenContourStaysMixed` — merged polygon-with-hole 再叠加 edge-attached outer-boundary open contour 后，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
-- `MixedMergedAreaWithInteriorHoleAndVertexAttachedOpenContourStaysMixed` — merged polygon-with-hole 再叠加 vertex-attached outer-boundary open contour 后，在 Polyhedron / Brep 路径都稳定保留为 `1 polygon-with-hole + 1 open contour`
-- `UnitCubeMidPlaneSectionYieldsFourSegmentClosedContour` — unit cube y=0.5 截面恰好四段闭合，area=1，收敛 NonPlanarDominant gap 行列式子集
-- `ObliquePrismSectionYieldsDeterministicContourLength` — 等边三棱柱水平截面周长断言（≈3），收敛钢筋线总长稳定性子集
-- `ObliquePrismSectionYieldsDeterministicContourLength` 现补齐段数稳定断言（3 段），收敛钢筋线根数稳定子集
-- `BrepObliquePrismSectionYieldsDeterministicContourLength` — 等边三棱柱水平截面在 Brep 路径也保持三段闭合轮廓（perimeter≈3）
-- `UnitCubeXAxisSectionYieldsDeterministicRebarPerimeter` — unit cube x=0.5 截面四段闭合 1×1 矩形，perimeter=4，area=1，扩展钢筋线周长覆盖到 x 轴方向
-- `BrepUnitCubeXAxisSectionYieldsDeterministicRebarPerimeter` — unit cube x=0.5 在 Brep 路径也保持四段闭合 1×1 矩形（perimeter=4，area=1）
-- `RectangularPrismMidSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 z=0.5 截面四段闭合 2×2 方形，perimeter=8，area=4，扩展钢筋线周长覆盖到非单位截面
-- `BrepRectangularPrismMidSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 z=0.5 在 Brep 路径也保持四段闭合 2×2 方形（perimeter=8，area=4）
-- `RectangularPrismXAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 x=1.0 在 Polyhedron 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱横向截面钢筋线周长子集
-- `BrepRectangularPrismXAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 x=1.0 在 Brep 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱横向截面的钢筋线周长子集
-- `BrepUnitCubeMidPlaneSectionYieldsFourSegmentClosedContour` — unit cube y=0.5 在 Brep 路径保持四段闭合 1×1 方形（segments=4，perimeter=4，area=1），补齐 unit-cube y 轴截面的 Brep 路径子集
-- `RectangularPrismYAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 y=1.0 在 Polyhedron 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱 y 轴截面钢筋线周长子集
-- `BrepRectangularPrismYAxisSectionYieldsDeterministicRebarPerimeter` — 2×2×1 矩形棱柱 y=1.0 在 Brep 路径保持四段闭合 2×1 矩形（perimeter=6，area=2），补齐矩形棱柱 y 轴截面的 Brep 路径钢筋线周长子集
-- `UnitCubeZAxisSectionYieldsDeterministicRebarPerimeter` — unit cube z=0.5 截面四段闭合 1×1 方形（perimeter=4，area=1），完成 unit-cube 三轴方向截面 Poly 路径全覆盖
-- `BrepUnitCubeZAxisSectionYieldsDeterministicRebarPerimeter` — unit cube z=0.5 在 Brep 路径保持四段闭合 1×1 方形（perimeter=4，area=1），完成 unit-cube 三轴方向截面 Brep 路径全覆盖
-- `BoundaryAttachedOpenContourSortsAheadOfDetachedContour` — detached contour 在词典序更靠前时，Polyhedron 路径仍稳定输出 `edge-attached -> detached` 的 mixed-content open contour 顺序
-- `BrepBoundaryAttachedOpenContourSortsAheadOfDetachedContour` — 上述 detached-left + edge-attached ordering 子集在 Brep 路径同样保持稳定
+### `Healing`
 
-### Healing 子集（UnitTests/Capabilities/Test3dHealing.cpp）
+- 多 shell shared-boundary / shared-edge 裁决的更一般情形
+- 复杂开放 shell 与网格/实体联动修复
 
-- `NonHorizontalPlaneBrepFaceWithoutTrimIsHealedWithBackfilledTrim` — y=0 竖面（法向+y）单面 BrepFace 保守 trim 回填，收敛 NonPlanarTrimmedFace gap 非水平子集
-- `XNormalPlaneBrepFaceWithoutTrimIsHealedWithBackfilledTrim` — x=0 竖面（法向+x）单面 BrepFace 保守 trim 回填，扩展 NonPlanarTrimmedFace gap 到第三轴方向
-- `ObliquePlaneBrepFaceWithoutTrimIsHealedWithBackfilledTrim` — oblique 平面 x+y+z=0（法向(1,1,1)）单面 BrepFace 保守 trim 回填，扩展 NonPlanarTrimmedFace gap 到非轴对齐平面方向
-- `AggressiveFourShellTwoEligibleOneIneligibleDeterministicBehavior` — 四壳 mixed（1 closed + 2 eligible + 1 ineligible），两 eligible 闭合，ineligible 保持 open，收敛四壳 AggressiveShellRepair 子集
-- `AggressiveHealingSkipsGeometricallyCoincidentBoundaryLoopShells` — duplicated-topology 但几何上共享同一 boundary loop 的 eligible shells 保守保持 open，而独立 eligible shell 仍可闭壳，收敛 shared-boundary-loop arbitration 的 representative 子集
+### `SearchPoly`
 
-### Conversion 子集（UnitTests/Capabilities/Test3dConversion.cpp）
+- 更丰富的 fake-edge 解释
+- 更完整的 ambiguous recovery
 
-- `SupportMismatchNearEqualClosedCuboidAllVerticesRepairsWithRepresentativeAverageTarget` — tiny-scale 2×1×1 矩形盒子（纯四边形面闭壳，6 faces / 8 vertices / 12 edges）全顶点 near-equal 扰动 + 统一 support-plane mismatch，修复后 8 个共享顶点都稳定收敛到 deterministic representative-average 目标点，并保持 closed-shell 拓扑
-- `SupportMismatchNearEqualClosedCuboidDualVerticesRepairsToValidBrepBody` — 在 closed-cuboid dual-shared-vertices（两个共享顶点 near-equal 扰动）输入下，修复后稳定保持 representative-average 共享顶点落点与 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）
-- `SupportMismatchNearEqualClosedCuboidAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-cuboid all-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 8 个共享顶点的 representative-average 目标点与 closed-shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）
-- `SupportMismatchNearEqualClosedPrismAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-prism all-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=5 / VertexCount=6 / EdgeCount=9）
-- `SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-tetra all-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=4 / VertexCount=4 / EdgeCount=6）
-- `SupportMismatchNearEqualClosedTetrahedronAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-tetra all-vertices 基础上叠加两面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=4 / VertexCount=4 / EdgeCount=6）
-- `SupportMismatchNearEqualClosedPrismDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-prism dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=5 / VertexCount=6 / EdgeCount=9）
-- `SupportMismatchNearEqualClosedTetrahedronDualVerticesWithDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-tetra dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=4 / VertexCount=4 / EdgeCount=6）
-- `SupportMismatchNearEqualClosedCuboidDualVerticesWithDuplicateLoopRepairsToValidBrepBody` — 在 closed-cuboid dual-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）
-- `SupportMismatchNearEqualClosedCuboidDualVerticesWithDualDuplicateLoopRepairsToValidBrepBody` — 在 closed-cuboid dual-shared-vertices 基础上叠加两面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 dual-vertices 双重复病理组合子集
-- `SupportMismatchNearEqualClosedCuboidTripleVerticesRepairsToValidBrepBody` — 在 closed-cuboid triple-shared-vertices（三个共享顶点 near-equal 扰动）输入下，修复后稳定保持 representative-average 共享顶点落点与 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 dual→triple 中间子集
-- `SupportMismatchNearEqualClosedCuboidTripleVerticesWithDuplicateLoopRepairsToValidBrepBody` — 在 triple-shared-vertices 基础上叠加一面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 triple-vertices 的病理组合子集
-- `SupportMismatchNearEqualClosedCuboidTripleVerticesWithDualDuplicateLoopRepairsToValidBrepBody` — 在 triple-shared-vertices 基础上叠加两面 duplicate-loop-normalization，修复后仍保持 closed shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 triple-vertices 双重复病理组合子集
-- `SupportMismatchNearEqualClosedCuboidAllVerticesWithDualDuplicateLoopRepairsWithRepresentativeAverageTarget` — 在 closed-cuboid all-vertices 基础上叠加两面 duplicate-loop-normalization，修复后仍保持 8 个共享顶点的 representative-average 目标点与 closed-shell 确定性拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12），补齐 all-vertices 的双重复病理组合子集
-- `HoleDominatedNonPlanarHoledFaceRepairsToPlanarBrepBody` — 当 outer loop 比 hole loop 更偏离目标平面时，`ConvertToBrepBody(...)` 现在会基于 outer+hole 全 loop 顶点误差选择更低误差的 refit support plane，稳定回收到 planar holed face（FaceCount=1 / VertexCount=8 / EdgeCount=8，全部顶点 z≈0）
-- `SharedEdgeHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody` — all-loop support-plane scoring 已推进到 shared-edge mixed-content 子集：当 holed face 的 outer loop 比 hole loop 更偏离目标平面时，conversion 仍可与相邻 plain face 共同收敛到共享 open-shell 拓扑（FaceCount=2 / VertexCount=10 / EdgeCount=11，全部顶点 z≈0）
-- `SharedChainHoleDominatedMixedContentRepairsToPlanarSharedTopologyBrepBody` — all-loop support-plane scoring 已进一步推进到最小三面 shared-chain mixed-content 子集：中间 holed face 的 outer loop 比 hole loop 更偏离目标平面时，conversion 仍可与左右 plain faces 共同收敛到共享 open-shell 拓扑（FaceCount=3 / VertexCount=12 / EdgeCount=14，全部顶点 z≈0）
-- `SupportMismatchNearEqualSharedChainHoleDominatedMixedContentRepairsWithRepresentativeAverageTarget` — 在最小三面 shared-chain mixed-content 子集上叠加 near-equal shared-edge 扰动后，all-loop support-plane scoring 与 representative-average 可同时成立：左右共享边分别稳定收敛到 `x=2.0+1e-7` / `x=6.0+1e-7`，且全部顶点保持 `z≈0`（FaceCount=3 / VertexCount=12 / EdgeCount=14）
-- `SupportMismatchNearEqualSharedChainHoleDominatedMixedContentWithDuplicateHoleRepairsWithRepresentativeAverageTarget` — 在上述最小三面 shared-chain mixed-content 子集上进一步叠加 duplicate-hole normalization 后，all-loop support-plane scoring 与 representative-average 仍可同时成立：左右共享边继续稳定收敛到 `x=2.0+1e-7` / `x=6.0+1e-7`，且全部顶点保持 `z≈0`（FaceCount=3 / VertexCount=12 / EdgeCount=14）
-  - `SupportMismatchNearEqualSharedChainHoleDominatedFullCompositionRepairsWithRepresentativeAverageTarget` — 在上述子集上进一步叠加 collinear-leading fallback 后，all-loop support-plane scoring 与 representative-average 仍可同时成立：左右共享边继续稳定收敛到 `x=2.0+1e-7` / `x=6.0+1e-7`，全部顶点保持 `z≈0`，拓扑计数推进到 `FaceCount=3 / VertexCount=13 / EdgeCount=15`
+### `BodyBoolean`
 
-- `UnitTests/Capabilities/Test3dBodyBoolean.cpp`
-  - `BodyBoolean` 当前 deterministic SDK 子集：空输入 invalid-input contract、identical closed-body 的 intersection/union/difference-empty、disjoint closed-body 的 union/difference，以及 axis-aligned closed-box overlap / touching union / touching external difference / edge-vertex-touching ordered multi-body union / edge-vertex-touching external difference / contained difference-empty / touching empty intersection 的代表性子集
-  - `EdgeTouchingPolyhedronUnionReturnsDeterministicOrderedMultiBodyResult` / `EdgeTouchingBrepUnionReturnsDeterministicOrderedMultiBodyResult` — axis-aligned edge-touching boxes 稳定返回按 bounds 排序的 two-body union 结果
-  - `VertexTouchingPolyhedronDifferenceReturnsOriginalBody` / `VertexTouchingBrepDifferenceReturnsOriginalBody` — axis-aligned vertex-touching boxes 稳定返回 original-body external difference
-  - `FaceTouchingLShapeUnionReturnsExplicitUnsupportedOperation` / `BrepFaceTouchingLShapeUnionReturnsExplicitUnsupportedOperation` — 会形成 L-shape 的 face-touching non-box union 在 Polyhedron / Brep 路径都稳定返回 `UnsupportedOperation`
-  - `RotatedBoxIntersectionReturnsExplicitUnsupportedOperation` / `BrepRotatedBoxIntersectionReturnsExplicitUnsupportedOperation` — axis-aligned box 与 rotated box 的 positive-volume intersection 在 Polyhedron / Brep 路径都稳定返回 `UnsupportedOperation`
-  - 当前仍保留的 gap：更一般 overlap、non-axis-aligned / richer touching intersection、shell-policy、healing integration
+- 更一般的 touching / overlap 子集
+- shell-policy 相关更高阶裁决
 
-## Gap Characterization Tests
+## 当前判断
 
-### 三维算量必需完成清单（建模/显示/平切算筋）
+- 已闭合的能力应继续留在 `UnitTests/Capabilities`
+- 仍然语义不稳定或覆盖不足的能力，继续留在 `UnitTests/Gaps`
+- 如果某个 gap 已经具备明确、稳定、可复现的场景，应尽快转为 capability
 
-- 必需完成：non-planar dominant contour stitching（切面连通图稳定）
-- 必需完成：coplanar fragment merge 语义扩展（避免切面碎片化）
-- 必需完成：general non-planar polyhedron->Brep repair（超出现有 representative/refit 子集）
-- 必需完成：non-planar trimmed face topology repair
-- 必需完成：更一般 aggressive shell repair policy
-- 必需完成：切面钢筋线 deterministic 后处理与断言（线段去重/共线合并/短毛刺抑制/总长与根数稳定）
+## 交付标准
 
-- `UnitTests/Gaps/Test3dSectionGaps.cpp`
-  - 记录 non-planar dominant 下的歧义 non-manifold contour stitching 与更高阶 coplanar fragment merge 语义仍未闭合；当前已覆盖相邻 coplanar union、frame-with-hole coplanar merge、mixed coplanar+non-planar coexistence、edge-adjacent / strip-adjacent / L-corner mixed coplanar/non-planar deterministic merge、merged polygon-with-hole、merged polygon-with-hole + detached / edge-attached / vertex-attached single-open contour，以及 detached mixed area+open contour、vertex-touch + edge-touch double-open arbitration、non-planar loop + interior open spur、detached-left + edge-attached ordering、detached + dual edge-attached mixed-content、dual disjoint non-planar closed loops 等 representative 子集；当前 section gap 继续收敛到 `MixedMergedAreaWithInteriorHoleAndDualBoundaryAttachedOpenContoursStillNeedArbitration`
-- `UnitTests/Gaps/Test3dBrepGaps.cpp`
-  - 记录 coedge-loop ownership 编辑链路、non-planar trimmed face topology repair 仍未闭合（ownership gap 已覆盖 single-face + multi-face closed-shell no-op replacement 子集）
-- `UnitTests/Gaps/Test3dHealingGaps.cpp`
-  - 记录超出当前 planar open-shell aggressive 子策略的更一般 topology-changing repair 仍未闭合；当前已覆盖 single/multi-face、holed、多壳 mixed，以及 coplanar shared-edge boundary-cap（含 mixed-body eligible shell、独立 multi-shell 并存、conservative competing-shared-boundary-edge arbitration、duplicated-topology geometrically coincident shared-boundary-loop arbitration、partial-overlap competing-pair arbitration、independent+partial-overlap local arbitration、mixed closed-shell + partial-overlap pair arbitration、independent+vertex-touch+partial-overlap local arbitration、non-planar shared-edge shell reject、vertex-touch non-competing closure）子集，但更一般 multi-shell shared-boundary-loop / shared-edge arbitration 与 mesh/body 联合多阶段修复仍未闭合
-- `UnitTests/Gaps/Test3dBodyBooleanGaps.cpp`
-  - 记录 Delphi 级 3D body/shell boolean 语义仍未闭合；当前覆盖 invalid-input contract、deterministic identical/disjoint closed-body 子集，以及 axis-aligned single-box overlap / face-touching single-box union / edge-vertex-touching ordered multi-body union / touching external difference / edge-vertex-touching external difference / touching empty intersection 子集，并已把 face-touching L-shape union 与 rotated-box positive-volume intersection 收口到 explicit `UnsupportedOperation` contract；shell-policy、healing integration 与更一般 non-axis-aligned / richer touching intersection 仍为 gap；当前 gap 测试名继续收敛到 `ContainedShellPolicyOptionStillHasNoEffectAndStaysGap`
-- `UnitTests/Gaps/TestSearchPolyGaps.cpp`
-  - 记录 Delphi 级 smart-search ambiguous recovery、 richer fake-edge explanation 与完整策略闭环仍未闭合；当前已固定稳定 SDK 入口、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、candidate-level causality explanation、top-candidate / runner-up / ambiguous-top explanation/counts/source-summary、clean-winner-vs-synthetic-runner-up causal explanation，以及 result/diagnostics consistency 与 auto-flag gating；当前 representative unresolved scenario 已细化到 `SearchPolygonsReportsAmbiguousRecoveryWhenTwoCandidatesTieAfterSyntheticPenaltyNormalization`，其中 tied-top candidates 的 dominant synthetic source 不同
-- `UnitTests/Gaps/Test3dConversionGaps.cpp`
-  - 记录高保真 Brep->mesh 特征保持（超出 planar holed+multi-face area-preserving + shared-edge vertex-reuse + disconnected closed-shell component-preserving 子集）、鲁棒 non-planar polyhedron->Brep repair（超出 affine-planar + support-plane-refit + all-loop scored holed-face refit + mild outer/hole loop-projection + collinear-leading-loop + duplicate outer/hole loop-normalization 子集）仍未闭合
-- 2D 历史 gap 场景已全部转正到 `UnitTests/Capabilities`；当前 `UnitTests/Gaps` 专注 3D P1 骨架跟踪
-
-## CMake / gtest 说明
-
-- `UnitTests/CMakeLists.txt` 已切到 gtest
-- 优先 `find_package(GTest CONFIG QUIET)` 使用本地 gtest 资源
-- 本地不存在时，保留 `FetchContent` 作为后备接入方式
-- 当前拆成两个目标：
-  - capability test target
-  - gap test target
-- `UnitTests/Capabilities/Test3dConversion.cpp` 已新增 closed-prism dual-shared-vertices + dual-duplicate-loop-normalization capability：双侧面同时含 duplicate leading 顶点时，`ConvertToBrepBody(...)` 仍可稳定保持 representative-average 共享顶点落点与 closed-shell 拓扑（FaceCount=5 / VertexCount=6 / EdgeCount=9）
-- `UnitTests/Capabilities/Test3dConversion.cpp` 已新增 closed-prism all-shared-vertices + dual-duplicate-loop-normalization capability：六个共享顶点 near-equal 扰动叠加双侧面 duplicate-loop-normalization 时，`ConvertToBrepBody(...)` 仍可稳定保持 representative-average 落点与 closed-shell 拓扑（FaceCount=5 / VertexCount=6 / EdgeCount=9）
-- `UnitTests/Capabilities/Test3dConversion.cpp` 已新增 closed-tetra dual-shared-vertices + dual-duplicate-loop-normalization capability：双三角面同时含 duplicate leading 顶点时，`ConvertToBrepBody(...)` 仍可稳定保持 representative-average 落点与 closed-shell 拓扑（FaceCount=4 / VertexCount=4 / EdgeCount=6）
+- 至少包含正常路径测试
+- 至少包含边界测试
+- 只要存在歧义，就必须有 gap 测试
+- 结果与诊断必须一致

@@ -1,80 +1,82 @@
-# Iteration Task
+# 迭代任务模板
 
-## Spec
+## 规范
 
-- Must follow `docs/ai-execution-spec.md`
-- If this iteration prompt conflicts with the execution spec, the execution spec wins
+- 必须遵守 [`docs/ai-execution-spec.md`](ai-execution-spec.md)
+- 如果本次任务说明与执行规范冲突，以执行规范为准
 
-## Execution Rules
+## 执行要求
 
-- This iteration must produce a closed capability unit.
-- Must fully complete `P1`.
-- Must also touch at least one of `P2` / `P3`.
-- Must not work on only a single module.
-- Must include code + tests + docs.
-- Must preserve clear capability vs gap boundary.
-- Must not hide unstable behavior as completed capability.
-- If diagnostics exist, keep result / diagnostics consistent.
+- 本轮必须形成一个闭环能力单元
+- 必须完整完成一个 P1
+- 必须至少触及一个 P2 / P3
+- 不能只做单一模块
+- 必须同时产出代码、测试和文档
+- 必须保持能力与差距边界清晰
+- 不能把不稳定行为伪装成已完成能力
+- 如果有诊断信息，必须保持 result / diagnostics 一致
 
-## Focus
+## 重点
 
-### P1 (Primary)
-- [module + capability target]
+### P1（主线）
 
-### P2 / P3 (Secondary, must pick at least one)
-- [module + target]
+- [模块 + 能力目标]
 
----
+### P2 / P3（至少选一个）
 
-## Objectives
-
-- Deliver a **representative capability subset**
-- Maintain clear boundary between capability and gap
-- Ensure deterministic behavior
+- [模块 + 目标]
 
 ---
 
-## Required Outputs
+## 目标
 
-### New Capabilities
-
-- [Module]&#58; description
-
----
-
-### Known Gaps (New / Updated)
-
-- [Module]&#58; description
+- 交付一个有代表性的能力子集
+- 保持能力与差距之间的清晰边界
+- 保证确定性
 
 ---
 
-## Required Code Changes
+## 必须产出
 
-- src/...
-- tests/...
-- docs/...
+### 新能力
 
----
-
-## Required Tests
-
-### Capability Tests
-
-- [case1]
-- [case2]
-
-### Edge-Case Tests
-
-- [boundary case]
-
-### Gap Tests
-
-- [ambiguous / unsupported case]
+- [模块]：说明
 
 ---
 
-## Commit Message (Structured)
+### 已知差距（新增 / 更新）
 
-[Section] ...
-[Healing] ...
-[SearchPoly] ...
+- [模块]：说明
+
+---
+
+## 必须修改的代码
+
+- `src/...`
+- `tests/...`
+- `docs/...`
+
+---
+
+## 必须补充的测试
+
+### 能力测试
+
+- [用例 1]
+- [用例 2]
+
+### 边界测试
+
+- [边界用例]
+
+### 差距测试
+
+- [歧义 / 未支持用例]
+
+---
+
+## 提交信息（结构化）
+
+- `[Section] ...`
+- `[Healing] ...`
+- `[SearchPoly] ...`

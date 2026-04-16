@@ -1,18 +1,14 @@
-# 成员方法与自由函数清单
+# 成员方法与自由函数检查清单
 
-## 目的
+本文档用于判断某个能力更适合做成成员方法还是自由函数。
 
-这份清单用于在几何栈继续收敛时，保持 API 面稳定。
+## 原则
 
-## 规则
-
-- 对象天然属性优先做成员方法。
-- 涉及多个对象、容差、上下文或结构化结果的能力，优先做自由函数。
-- 不要因为实现方便，就把临时 helper 扩散成公开面。
+- 对象天然属性优先做成员方法
+- 需要同时处理多个对象、容差、上下文或结构化结果时，优先做自由函数
+- 不要为了实现方便，就把临时 helper 扩散成公开面
 
 ## 适合做成员方法的能力
-
-以下能力仍然更适合保留为成员方法：
 
 - `Count()`
 - `Bounds()`
@@ -30,12 +26,10 @@
 
 ## 适合做自由函数的能力
 
-以下能力仍然更适合做自由函数：
-
 - 距离
 - 投影
 - 相交
-- 包含 / 关系查询
+- 包含与关系查询
 - boolean
 - offset
 - section / cut / split
@@ -44,25 +38,17 @@
 
 ## 当前后续指引
 
-- 保持 `SearchPoly` 和 `BodyBoolean` 走稳定 SDK 路线，放在 `Include` 里。
+- 保持 `SearchPoly` 和 `BodyBoolean` 走稳定发布 API 路线，放在 `Include` 里。
 - 保持 `Section`、`Healing` 和 `BrepConversion` 作为内部实现空间，并维持清晰的 pass 边界。
-- 新增 surface area 时，继续保持产品侧 `Options / Result / Issue` 风格一致。
-- 如果某个 helper 成了产品依赖，就先经过 fast-track 矩阵再考虑公开。
+- 新增能力时继续沿用 `Options / Result / Issue` 风格。
+- 如果某个 helper 成了产品依赖，就先评估它是否应该提升为正式 API。
 
-## 新 API 检查项
+## 检查问题
 
 1. 这个 API 是否只依赖对象自身？
 2. 是否需要容差、上下文或多个对象？
 3. 是否返回结构化数据，而不是简单属性？
-4. 是否把实现 helper 暴露进了公开面？
-5. 是否符合现有 `Include` 风格？
+4. 是否只是为了实现方便而暴露 helper？
+5. 是否符合当前 `Include` 风格？
 
-如果第 2 到第 5 项里任一项为“是”，优先做自由函数，并把它写入 fast-track 矩阵。
-
-## 相关文档
-
-- `docs/delphi-interface-fasttrack.md`
-- `docs/delphi-test-fasttrack-matrix.md`
-- `docs/rename-followup-todo.md`
-- `docs/session-handoff.md`
-
+如果第 2 到第 5 项里有任意一项为“是”，通常更适合做成自由函数。

@@ -1,72 +1,62 @@
-# Geometry Capability Matrix
+# 几何能力矩阵
 
-Last Updated: 2026-04-05
+本文档只记录当前能力和当前差距。
 
----
+## 迭代纪律
 
-## Iteration Discipline
-
-- Every iteration must deliver a closed capability unit.
-- Every iteration must fully complete `P1` and touch at least one of `P2` / `P3`.
-- Capability / edge-case / gap tests are all mandatory at iteration level.
-- Capability means deterministic, reproducible, test-covered behavior.
-- Unsupported or ambiguous behavior must remain explicitly listed as gap.
-
----
+- 每一轮都必须形成闭环能力单元。
+- 每一轮都必须完成一个 P1，并至少触及一个 P2 / P3。
+- 能力测试、边界测试和差距测试都必须存在。
+- 能力必须是确定、可复现、已测试覆盖的行为。
+- 未支持或歧义行为必须明确保留为差距。
 
 ## Section
 
-| Capability | Status | Tests | Notes |
-|----------|--------|------|------|
-| Coplanar face merge | ✅ | ✔ | stable |
-| Multi-face coplanar strip | ✅ | ✔ | stable |
-| Frame with hole | ✅ | ✔ | stable |
-| Non-planar section perimeter (basic) | ✅ | ✔ | deterministic subset |
-| Mixed coplanar + non-planar coexist | ✅ | ✔ | representative subset |
-| Mixed area + open curve adjacency | ⚠️ partial | ✔ | arbitration incomplete |
-| Non-planar dominant stitching | ⚠️ partial | ✖ | limited |
-| Cross-fragment merge (convex gap) | ❌ | ✖ | unsupported |
-| Non-manifold contour stitching | ❌ | ✖ | unsupported |
-
----
+| 能力 | 状态 | 测试 | 说明 |
+|------|------|------|------|
+| 共面面合并 | 已支持 | 已测 | 稳定 |
+| 多面共面条带 | 已支持 | 已测 | 稳定 |
+| 带孔框形面 | 已支持 | 已测 | 稳定 |
+| 非平面截面周长（基础） | 已支持 | 已测 | 确定性子集 |
+| 共面与非平面共存 | 已支持 | 已测 | 代表性子集 |
+| 面积与开放曲线邻接 | 部分支持 | 已测 | 裁决尚未闭合 |
+| 非平面主导拼接 | 部分支持 | 已测 | 范围有限 |
+| 跨碎片合并 | 差距 | 已测 | 未支持 |
+| 非流形轮廓拼接 | 差距 | 已测 | 未支持 |
 
 ## Healing
 
-| Capability | Status | Tests | Notes |
-|----------|--------|------|------|
-| Conservative trim-backfill | ✅ | ✔ | stable |
-| Single-shell boundary cap | ✅ | ✔ | stable |
-| Multi-shell independent cap | ✅ | ✔ | deterministic subset |
-| Mixed body shared-edge shell cap | ✅ | ✔ | representative subset |
-| Multi-shell shared-edge arbitration | ⚠️ partial | ✔ | limited conflict handling |
-| Non-planar shell repair | ❌ | ✖ | unsupported |
-| Mesh-body joint healing | ❌ | ✖ | unsupported |
-
----
+| 能力 | 状态 | 测试 | 说明 |
+|------|------|------|------|
+| 保守 trim 回填 | 已支持 | 已测 | 稳定 |
+| 单 shell 边界封帽 | 已支持 | 已测 | 稳定 |
+| 多 shell 独立封帽 | 已支持 | 已测 | 确定性子集 |
+| 混合体共享边封帽 | 已支持 | 已测 | 代表性子集 |
+| 多 shell 共享边裁决 | 部分支持 | 已测 | 冲突处理有限 |
+| 非平面 shell 修复 | 差距 | 已测 | 未支持 |
+| mesh-body 联动修复 | 差距 | 已测 | 未支持 |
 
 ## SearchPoly
 
-| Capability | Status | Tests | Notes |
-|----------|--------|------|------|
-| Candidate ranking | ✅ | ✔ | stable |
-| Smallest-containing candidate | ✅ | ✔ | stable |
-| Diagnostics consistency | ✅ | ✔ | stable |
-| Candidate-level penalty explanation | ✅ | ✔ | basic |
-| Synthetic edge classification | ⚠️ partial | ✔ | limited |
-| Fake-edge causal explanation | ⚠️ partial | ✖ | shallow |
-| Ambiguous recovery | ❌ | ✖ | unsupported |
-
----
+| 能力 | 状态 | 测试 | 说明 |
+|------|------|------|------|
+| 候选排序 | 已支持 | 已测 | 稳定 |
+| 最小包含候选 | 已支持 | 已测 | 稳定 |
+| 诊断一致性 | 已支持 | 已测 | 稳定 |
+| 候选级惩罚说明 | 已支持 | 已测 | 基础版 |
+| synthetic edge 分类 | 部分支持 | 已测 | 范围有限 |
+| fake-edge 因果解释 | 部分支持 | 已测 | 仍偏浅 |
+| 歧义恢复 | 差距 | 已测 | 未支持 |
 
 ## BodyBoolean
 
-| Capability | Status | Tests | Notes |
-|----------|--------|------|------|
-| Identical body union/intersection | ✅ | ✔ | stable |
-| Disjoint bodies | ✅ | ✔ | stable |
-| Axis-aligned box overlap | ✅ | ✔ | subset |
-| Face-touching union | ✅ | ✔ | subset |
-| Face-touching external difference | ✅ | ✔ | subset |
-| Touching empty intersection | ✅ | ✔ | subset |
-| Non-axis-aligned overlap | ❌ | ✖ | unsupported |
-| Rich touching intersection | ❌ | ✖ | unsupported |
+| 能力 | 状态 | 测试 | 说明 |
+|------|------|------|------|
+| 相同体并/交 | 已支持 | 已测 | 稳定 |
+| 相离体 | 已支持 | 已测 | 稳定 |
+| 轴对齐盒重叠 | 已支持 | 已测 | 子集 |
+| 面接触并集 | 已支持 | 已测 | 子集 |
+| 面接触外差 | 已支持 | 已测 | 子集 |
+| 接触空交 | 已支持 | 已测 | 子集 |
+| 非轴对齐重叠 | 差距 | 已测 | 未支持 |
+| 更丰富的接触相交 | 差距 | 已测 | 未支持 |

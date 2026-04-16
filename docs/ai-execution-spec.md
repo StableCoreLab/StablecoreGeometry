@@ -1,86 +1,72 @@
-# AI Execution Spec (stablecore-geometry)
+# AI 执行规范
 
-## 1. Execution Goal
+## 1. 执行目标
 
-Each iteration must produce a **closed capability unit**, including:
+每一轮都必须形成一个“闭环能力单元”，至少包含：
 
-- ≥1 new capability (deterministic & testable)
-- ≥1 explicit gap (clearly marked as NOT supported)
-- Code + Tests + Docs
+- 一个新的确定性、可测试能力
+- 一个明确标注的能力差距
+- 代码、测试、文档三者同时落地
 
----
+## 2. 覆盖要求
 
-## 2. Coverage Rules (MANDATORY)
+每一轮都必须包含：
 
-Each iteration MUST include:
+- 能力测试：验证正常路径
+- 边界测试：验证边界条件
+- 差距测试：只要存在歧义或未支持场景，就必须保留
 
-- Capability test (happy path)
-- Edge-case test (boundary condition)
-- Gap test (if ambiguity exists)
+所有行为都必须满足：
 
-All behavior must be:
+- 确定性
+- 可复现
+- 跨运行稳定
 
-- Deterministic
-- Reproducible
-- Stable across runs
+## 3. 宽度要求
 
----
+每一轮都必须：
 
-## 3. Breadth Rules (MANDATORY)
+- 完成一个 P1 目标
+- 并且至少触及一个 P2 / P3 目标
 
-Each iteration must:
+禁止只围绕单一模块做局部收尾。
 
-- Fully complete P1
-- AND touch at least one of P2 / P3
+## 4. 能力与差距纪律
 
-❌ Forbidden: only working on a single module
+- 能力：稳定、确定、已被测试覆盖的行为
+- 差距：明确未支持或语义未闭合的行为
 
----
+禁止：
 
-## 4. Capability vs Gap Discipline
+- 把不稳定逻辑伪装成能力
+- 没有诊断信息的静默回退
 
-- Capability = stable, deterministic, test-covered behavior
-- Gap = explicitly unsupported or ambiguous behavior
+## 5. 必须更新的文档
 
-❌ Forbidden:
+每一轮都必须同步更新：
 
-- Hiding unstable logic as capability
-- Silent fallback without diagnostics
+- `docs/session-handoff.md`
+- `docs/next-task-prompt.md`
+- `docs/test-capability-coverage.md`
+- `docs/design-doc-sync-tracker.md`
 
----
+## 6. 代码约束
 
-## 5. Required Outputs
+- 不修改已发布 API contract
+- 不引入 breaking change
+- 允许重构内部 helper
 
-Each iteration MUST update:
+## 7. 诊断要求
 
-- docs/session-handoff.md
-- docs/next-task-prompt.md
-- docs/test-capability-coverage.md
-- docs/design-doc-sync-tracker.md
+如果模块支持诊断：
 
----
+- 歧义发生时必须给出解释或问题描述
+- 结果与诊断必须一致
 
-## 6. Code Constraints
+## 8. 禁止行为
 
-- DO NOT modify public SDK contracts
-- DO NOT introduce breaking changes
-- Internal helper refactoring is allowed
-
----
-
-## 7. Diagnostics Requirement (if applicable)
-
-For modules supporting diagnostics:
-
-- Must expose explanation or issue when ambiguity occurs
-- Must keep result / diagnostics consistent
-
----
-
-## 8. Forbidden Behaviors
-
-- ❌ Only writing code without tests
-- ❌ Only happy-path implementation
-- ❌ Partial implementation without marking gap
-- ❌ Fake completeness (claiming support without coverage)
-- ❌ Silent non-deterministic behavior
+- 只写代码不写测试
+- 只实现 happy path
+- 没有标记差距就做部分实现
+- 声称已支持但没有覆盖
+- 产生静默且非确定性的行为

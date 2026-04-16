@@ -1,16 +1,16 @@
-# Public API Naming Audit
+# 公开 API 命名审计
 
-This page is now an audit index only.
+本页仅作为审计索引。
 
-The current approved naming rules and keep/delete lists live in:
+当前已批准的命名规则和保留/删除清单见：
 
 - [docs/final-naming-plan.md](final-naming-plan.md)
 
-Use that document as the source of truth when checking:
+检查以下内容时，请以该文档为唯一依据：
 
-- public headers
-- exported data structures
-- wrapper and compatibility names
-- install-set filtering
+- 公开头文件
+- 导出数据结构
+- 兼容命名
+- 安装集合过滤
 
-If this audit disagrees with the final naming plan, the final naming plan wins.
+如果本页与最终命名规则不一致，以最终命名规则为准。
