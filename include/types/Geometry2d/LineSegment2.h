@@ -103,6 +103,4 @@ private:
 };
 
 using LineSegment2d = LineSegment2<double>;
-using LineSegment2i = LineSegment2<int>;
 }
-

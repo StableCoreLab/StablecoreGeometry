@@ -191,7 +191,5 @@ private:
 };
 
 using ArcSegment2d = ArcSegment2<double>;
-using ArcSegment2i = ArcSegment2<int>;
 }
-
 

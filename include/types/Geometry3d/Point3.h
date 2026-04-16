@@ -93,5 +93,4 @@ template <typename T>
 }
 
 using Point3d = Point3<double>;
-using Point3i = Point3<int>;
 } // namespace Geometry

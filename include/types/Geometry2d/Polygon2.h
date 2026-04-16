@@ -310,6 +310,4 @@ private:
 };
 
 using Polygon2d = Polygon2<double>;
-using Polygon2i = Polygon2<int>;
 }
-

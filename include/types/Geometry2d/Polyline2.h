@@ -277,6 +277,4 @@ private:
 };
 
 using Polyline2d = Polyline2<double>;
-using Polyline2i = Polyline2<int>;
 }
-

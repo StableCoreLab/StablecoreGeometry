@@ -117,5 +117,4 @@ template <typename T>
 }
 
 using Vector3d = Vector3<double>;
-using Vector3i = Vector3<int>;
 } // namespace Geometry

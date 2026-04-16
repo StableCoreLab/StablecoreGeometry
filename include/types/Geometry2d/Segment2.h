@@ -46,5 +46,4 @@ public:
 };
 
 using Segment2d = Segment2<double>;
-using Segment2i = Segment2<int>;
 }
