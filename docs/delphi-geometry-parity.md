@@ -181,8 +181,8 @@
 
 当前 C++ 证据：
 
-- `src/sdk/Boolean.cpp`
-- `tests/capabilities/test_relation_boolean.cpp`
+- `Source/Core/Boolean.cpp`
+- `UnitTests/Capabilities/TestRelationBoolean.cpp`
 
 相比 Delphi 仍缺：
 
@@ -198,8 +198,8 @@
 
 当前 C++ 证据：
 
-- `src/sdk/PathOps.cpp`
-- `tests/capabilities/test_shapes_pathops.cpp`
+- `Source/Geometry2d/PathOps.cpp`
+- `UnitTests/Capabilities/TestShapesPathOps.cpp`
 
 相比 Delphi 仍缺：
 
@@ -224,8 +224,8 @@
 
 当前 C++ 证据：
 
-- `src/sdk/Offset.cpp`
-- `tests/capabilities/test_offset.cpp`
+- `Source/Core/Offset.cpp`
+- `UnitTests/Capabilities/TestOffset.cpp`
 
 相比 Delphi 仍缺：
 

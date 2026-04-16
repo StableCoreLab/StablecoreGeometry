@@ -49,8 +49,8 @@ tests/
 
 当前公开值类型和类型别名主要分布在：
 
-- `include/types/*`
-- `include/sdk/GeometryTypes.h`
+- `Include/Types/*`
+- `Include/Core/GeometryTypes.h`
 
 典型类型包括：
 
@@ -75,8 +75,8 @@ tests/
 
 当前代码已经将容差集中到：
 
-- `include/common/GeometryEpsilon.h`
-- `include/sdk/GeometryTypes.h` 中的 `GeometryTolerance3d` / `GeometryContext3d`
+- `Include/Support/GeometryEpsilon.h`
+- `Include/Core/GeometryTypes.h` 中的 `GeometryTolerance3d` / `GeometryContext3d`
 
 原则上不应在算法里散落固定魔法数。
 
@@ -188,7 +188,7 @@ tests/
 
 ### 7.6 `tests`
 
-`tests/capabilities` 放已成立能力，`tests/gaps` 放仍未收敛的已知差距。
+`UnitTests/Capabilities` 放已成立能力，`UnitTests/Gaps` 放仍未收敛的已知差距。
 
 ## 8. 当前边界结论
 

@@ -1,7 +1,7 @@
 # 稳定 API 后续待办
 
 这份文档用于记录 API 稳定化工作里那些“要持续收敛，但不要求单轮做完”的事项。
-目标是让 `include/sdk` 始终保持为唯一的产品侧入口，同时继续把内部 helper 面收紧。
+目标是让 `Include` 始终保持为唯一的产品侧入口，同时继续把内部 helper 面收紧。
 
 ## 当前重点
 
@@ -13,12 +13,12 @@
 ## P1：公共 API 面
 
 - `SearchPoly`
-  - 保持 `include/sdk/SearchPoly.h` 作为稳定入口。
+  - 保持 `Include/Core/SearchPoly.h` 作为稳定入口。
   - 维持当前子集：invalid-input contract、candidate ranking、branch scoring、candidate-level fake-edge diagnostics、result/diagnostics consistency、auto-flag gating、smallest-containing lookup。
   - 下一轮 follow-up 提示：在不破坏 result consistency 的前提下，继续加深 richer fake-edge explanation 和 ambiguous recovery。
 
 - `BodyBoolean`
-  - 保持 `include/sdk/BodyBoolean.h` 稳定。
+  - 保持 `Include/Brep/BodyBoolean.h` 稳定。
   - 维持当前子集：invalid-input contract、identical/disjoint closed-body capability、axis-aligned single-box overlap、face-touching union。
   - 下一轮 follow-up 提示：谨慎加深 overlap 语义，同时把 touching intersection/difference 和 shell-policy 继续保留在 gap 状态。
 

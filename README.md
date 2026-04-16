@@ -38,8 +38,9 @@ The lower-level surface is also split more explicitly:
 - `Support/Geometry2d` for 2D scalar, predicate, and normalization helpers
 - `Types/Geometry2d` for 2D value types
 - `Types/Geometry3d` for 3D value types and linear algebra helpers
-- `Types/Compat` for legacy alias wrappers
 - `Types/Detail` for implementation-detail type helpers
+- `Serialize/GeometryText.h` for text serialization helpers
+- `Export/GeometryExport.h` for import/export annotations
 
 Common aliases available through the umbrella include:
 

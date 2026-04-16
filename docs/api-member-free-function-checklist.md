@@ -44,7 +44,7 @@
 
 ## 当前后续指引
 
-- 保持 `SearchPoly` 和 `BodyBoolean` 走稳定 SDK 路线，放在 `include/sdk` 里。
+- 保持 `SearchPoly` 和 `BodyBoolean` 走稳定 SDK 路线，放在 `Include` 里。
 - 保持 `Section`、`Healing` 和 `BrepConversion` 作为内部实现空间，并维持清晰的 pass 边界。
 - 新增 surface area 时，继续保持产品侧 `Options / Result / Issue` 风格一致。
 - 如果某个 helper 成了产品依赖，就先经过 fast-track 矩阵再考虑公开。
@@ -55,7 +55,7 @@
 2. 是否需要容差、上下文或多个对象？
 3. 是否返回结构化数据，而不是简单属性？
 4. 是否把实现 helper 暴露进了公开面？
-5. 是否符合现有 `include/sdk` 风格？
+5. 是否符合现有 `Include` 风格？
 
 如果第 2 到第 5 项里任一项为“是”，优先做自由函数，并把它写入 fast-track 矩阵。
 

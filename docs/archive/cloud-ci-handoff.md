@@ -23,7 +23,7 @@
 
 当前已内置的确定性规则包括：
 - workflow/doc 的行尾归一化（LF）
-- 针对 3D capability 测试常见编译故障的 using 别名补齐（`test_3d_brep.cpp` / `test_3d_conversion.cpp`）
+- 针对 3D capability 测试常见编译故障的 using 别名补齐（`Test3dBrep.cpp` / `Test3dConversion.cpp`）
 
 ## 使用方式
 

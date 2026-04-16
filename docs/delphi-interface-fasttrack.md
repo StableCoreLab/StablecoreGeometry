@@ -26,7 +26,7 @@
 
 ## 快通道规则
 
-1. 产品代码只应依赖 `include/sdk` 下的 SDK 头文件。
+1. 产品代码只应依赖 `Include` 下的 SDK 头文件。
 2. 新的 Delphi parity 工作，应优先补稳定入口，再逐步加深内部实现。
 3. 每个新接口都必须配套以下之一：
    - capability 测试，证明一个可支持的子集，或
@@ -42,9 +42,9 @@
   - 预留 Delphi 风格的 body/shell boolean SDK 名称，方便产品现在就对接稳定 API
   - 当前稳定子集覆盖 invalid-input contract、identical/disjoint closed-body 子集、axis-aligned single-box overlap 子集（结果仍保持一个 closed box），以及 face-touching union 子集
 - 配套测试
-  - `tests/capabilities/test_searchpoly_sdk.cpp`
-  - `tests/capabilities/test_3d_body_boolean_sdk.cpp`
-  - `tests/gaps/test_3d_body_boolean_gaps.cpp`
+  - `UnitTests/Capabilities/TestSearchPoly.cpp`
+  - `UnitTests/Capabilities/Test3dBodyBoolean.cpp`
+  - `UnitTests/Gaps/Test3dBodyBooleanGaps.cpp`
 
 ## 下一批
 

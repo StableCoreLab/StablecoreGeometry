@@ -26,7 +26,7 @@
 - 已进一步同步 `Section` 的 detached-left + edge-attached stable ordering 子集、`Healing` 的 duplicated-topology geometrically coincident shared-boundary-loop arbitration 子集，以及 `BodyBoolean` 的 axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集。
 - 已进一步把四条具体化 gap 转正为 capability tests：`Section` 的 detached + dual edge-attached mixed-content 子集、`Section` 的 Polyhedron dual-disjoint-non-planar-loop 子集、`Healing` 的 non-planar shared-edge shell reject 子集，以及 `SearchPoly` 的 clean-winner-vs-synthetic-runner-up causal explanation 子集。
 - 已将当前 remaining gaps 从抽象方向改写为更具体的场景 / 候选测试用例，并同步到 `docs/next-task-prompt.md`，减少后续轮次继续做“抽象盘点”的成本。
-- 已同步这些具体化 gap 名称到 `tests/gaps/test_3d_section_gaps.cpp`、`tests/gaps/test_3d_healing_gaps.cpp`、`tests/gaps/test_3d_body_boolean_gaps.cpp`、`tests/gaps/test_searchpoly_gaps.cpp`，保证文档与测试名一致。
+- 已同步这些具体化 gap 名称到 `UnitTests/Gaps/Test3dSectionGaps.cpp`、`UnitTests/Gaps/Test3dHealingGaps.cpp`、`UnitTests/Gaps/Test3dBodyBooleanGaps.cpp`、`UnitTests/Gaps/TestSearchPolyGaps.cpp`，保证文档与测试名一致。
 - 已进一步同步 `Section` 的 dual edge-attached mixed-content 子集，以及 `SearchPoly` 的 ambiguous-top summary explanation。
 - 已进一步同步 `Section` 的 mixed vertex-attached + edge-attached dual-open 子集，以及 `SearchPoly` 的 ambiguous-top count explanation。
 - 已进一步同步 `Section` 的 detached + vertex-attached + edge-attached triple-open mixed-content 子集，以及 `SearchPoly` 的 top-candidate / runner-up / ambiguous-top synthetic-source summary。
@@ -65,14 +65,14 @@
 
 - status: `done`
 - notes:
-  - 已按当前 `Polyline2 / Geometry::Sdk::Polyline2d / MultiPolyline2d` API 与设计结论重写
+  - 已按当前 `Polyline2 / Polyline2d / MultiPolyline2d` API 与设计结论重写
   - 已同步 `SegmentCount / VertexCount / VertexAt / StartPoint / EndPoint / Bounds / PointAt / PointAtLength`
 
 ### `docs/polygon-design.md`
 
 - status: `done`
 - notes:
-  - 已按当前 `Polygon2 / Geometry::Sdk::Polygon2d / MultiPolygon2d` API 与设计结论重写
+  - 已按当前 `Polygon2 / Polygon2d / MultiPolygon2d` API 与设计结论重写
   - 已同步 `OuterRing / HoleCount / HoleAt / Bounds`
 
 ### `docs/archive/box-design.md`
@@ -136,7 +136,7 @@
   - 已进一步同步 `SearchPoly` 到 branch scoring + candidate-level fake-edge diagnostics 子集，并把下一轮重点收敛到 richer fake-edge explanation 与 ambiguous recovery
   - 已进一步同步 `Healing` 当前内部边界：conservative trim-backfill、aggressive mirror-style closure，以及 standalone shared-edge boundary-cap fallback
 
-### `tests/capabilities/test_searchpoly_sdk.cpp` / `tests/gaps/test_searchpoly_gaps.cpp`
+### `UnitTests/Capabilities/TestSearchPoly.cpp` / `UnitTests/Gaps/TestSearchPolyGaps.cpp`
 
 - status: `done`
 - notes:
@@ -173,7 +173,7 @@
 - 已明确 touching intersection / difference 仍保持 gap，不把 lower-dimensional touching 结果误抬成 3D body capability。
 - 已把这次边界调整同步到 `docs/test-capability-coverage.md`、`docs/delphi-test-fasttrack-matrix.md`、`docs/session-handoff.md` 与 `docs/next-task-prompt.md`。
 
-### `src/sdk/Healing.cpp`
+### `Source/Brep/Healing.cpp`
 
 - status: `done`
 - notes:
@@ -181,12 +181,12 @@
   - `trim_backfill` 负责 face trim 回填，`shell_cap` 负责 standalone shell boundary cap 组装，`aggressive` 负责保守 healing 之后的 topology-changing closure
   - 未改变 public SDK 入口，也未调整已收敛 capability 的 contract 边界
 
-### `include/sdk/Geometry.h` / `tests/capabilities/test_sdk_umbrella.cpp`
+### `Include/Geometry.h` / `UnitTests/Capabilities/TestUmbrella.cpp`
 
 - status: `done`
 - notes:
   - 已将 `Geometry.h` 明确为稳定 umbrella header，只聚合 `GeometryApi` / `SearchPoly` / `BodyBoolean`
-  - 已新增 umbrella contract test，确保产品侧仅依赖 `include/sdk` 时仍可直接使用稳定 SDK 入口
+  - 已新增 umbrella contract test，确保产品侧仅依赖 `Include` 时仍可直接使用稳定 SDK 入口
   - 本轮属于命名、收口、暴露面一致性整理，不改变 public SDK contract
 
 ## 2026-04-05 Section / Healing / BodyBoolean 同步
@@ -221,7 +221,7 @@
   - 已进一步新增 identical difference-empty 子集：当两个 closed bodies 完全相同时，`DifferenceBodies(first, second)` 稳定返回 empty result
   - 已进一步新增 axis-aligned edge/vertex-touching ordered multi-body union 与 external difference 子集：lower-dimensional touching 不再一律落回 `UnsupportedOperation`
   - 已进一步新增 explicit unsupported contract 子集：face-touching L-shape non-box union 与 rotated-box positive-volume intersection 在 Polyhedron / Brep 路径都稳定返回 `UnsupportedOperation`
-  - 已同步 `tests/capabilities/test_3d_body_boolean_sdk.cpp` 与 `tests/gaps/test_3d_body_boolean_gaps.cpp` 的边界说明
+  - 已同步 `UnitTests/Capabilities/Test3dBodyBoolean.cpp` 与 `UnitTests/Gaps/Test3dBodyBooleanGaps.cpp` 的边界说明
 
 ## 2026-04-05 SearchPoly explanation 同步
 
@@ -243,27 +243,27 @@
 - 2026-04-01：
   - 已完成 `delphi-geometry-parity` 与本轮代码实现对齐，覆盖共享预处理、布尔鲁棒性、偏移恢复与拓扑包含修复
   - 已补充对应能力回归测试覆盖项说明（relation / offset / pathops / topology）
-  - 已将 below-tolerance arrangement degeneracy 从 `tests/gaps` 提升到 `tests/capabilities`，并通过定向 gtest 验证
+  - 已将 below-tolerance arrangement degeneracy 从 `UnitTests/Gaps` 提升到 `UnitTests/Capabilities`，并通过定向 gtest 验证
   - 已补充 `NormalizePolygonByLines(...)` 的多级容差重建与边界简化回退，提升近退化 polygon operand 归一化稳定性
   - 已修复本机构建缓存中的过期 MSVC 路径，恢复 capability / gap 测试目标重生成与重建
-  - 已将单多边形带孔 offset 语义恢复从 `tests/gaps` 提升到 `tests/capabilities`，并通过定向 gtest 验证
-  - 已将一组 branch-scoring / fake-edge 误选场景从 `tests/gaps` 提升到 `tests/capabilities`，验证当前 SearchPoly 候选排序可稳定保留主轮廓
+  - 已将单多边形带孔 offset 语义恢复从 `UnitTests/Gaps` 提升到 `UnitTests/Capabilities`，并通过定向 gtest 验证
+  - 已将一组 branch-scoring / fake-edge 误选场景从 `UnitTests/Gaps` 提升到 `UnitTests/Capabilities`，验证当前 SearchPoly 候选排序可稳定保留主轮廓
   - 已修正 `Contains(...)` 对 boundary T-junction 的过度保守短路，令 shared-boundary contained 场景可稳定落到 `FirstContainsSecond`
-  - 已将一组 reverse-edge / self-intersection offset 恢复场景从 `tests/gaps` 提升到 `tests/capabilities`，并通过定向 gtest 验证
+  - 已将一组 reverse-edge / self-intersection offset 恢复场景从 `UnitTests/Gaps` 提升到 `UnitTests/Capabilities`，并通过定向 gtest 验证
   - 已新增 `OffsetToMultiPolygon(const Polygon2d&, ...)`，补齐单 polygon 内缩发生分裂时的 multipolygon 输出能力
-  - 已将 narrow-bridge split 从 `tests/gaps` 提升到 `tests/capabilities`，并通过定向 gtest 验证
+  - 已将 narrow-bridge split 从 `UnitTests/Gaps` 提升到 `UnitTests/Capabilities`，并通过定向 gtest 验证
   - 已完成 3D gap 骨架落地：新增 section / brep / healing / conversion 四组 3D gap tests，并接入 `SCGeometryGapTests`
   - 当前 `gap` 目标已从“空套件”切换为“3D P1 骨架套件”（2D gaps 已清空，3D gaps 已建档）
-  - 已新增 3D capability：倾斜切平面下 `Section + BuildSectionTopology + BuildSectionComponents` 单区域闭环验证，section gap 收敛为更高阶歧义 stitching / merge 语义  - 已新增 `tests/support/Fixtures3d.h`，提供共享 `BuildUnitCubeBody()` 单位立方体 fixture
+  - 已新增 3D capability：倾斜切平面下 `Section + BuildSectionTopology + BuildSectionComponents` 单区域闭环验证，section gap 收敛为更高阶歧义 stitching / merge 语义  - 已新增 `UnitTests/Support/Fixtures3d.h`，提供共享 `BuildUnitCubeBody()` 单位立方体 fixture
   - 已扩展 section 子能力：coplanar 相邻 face fragment 在 `Section(...)` 中可归并为单 polygon，收窄 face-merge gap 到更高阶歧义 fragment 语义
-  - 已新增 `test_3d_brep.cpp`：`RebuildSectionBrepBody` 单面 BrepBody rebuild 转正为 capability
-  - 已扩展 `test_3d_brep.cpp`：`ConvertToBrepBody -> Section(BrepBody) -> RebuildSectionBrepBodies` 端到端双组件路径转正为 capability
-  - 已扩展 `test_3d_brep.cpp`：`RebuildSectionBody` 单面 PolyhedronBody rebuild 与 `RebuildSectionBodies` 双组件 Polyhedron 重建转正为 capability
-  - 已扩展 `test_3d_brep.cpp`：`RebuildSectionBrepBody` / `RebuildSectionBrepBodies` 输出补齐 open-shell 语义断言（`ShellCount==1` 且 `IsClosed==false`）
+  - 已新增 `Test3dBrep.cpp`：`RebuildSectionBrepBody` 单面 BrepBody rebuild 转正为 capability
+  - 已扩展 `Test3dBrep.cpp`：`ConvertToBrepBody -> Section(BrepBody) -> RebuildSectionBrepBodies` 端到端双组件路径转正为 capability
+  - 已扩展 `Test3dBrep.cpp`：`RebuildSectionBody` 单面 PolyhedronBody rebuild 与 `RebuildSectionBodies` 双组件 Polyhedron 重建转正为 capability
+  - 已扩展 `Test3dBrep.cpp`：`RebuildSectionBrepBody` / `RebuildSectionBrepBodies` 输出补齐 open-shell 语义断言（`ShellCount==1` 且 `IsClosed==false`）
   - 已扩展 brep editing 子能力：最小 loop->face->shell->body ownership-consistent replacement workflow 已转正为 capability
   - 已扩展 brep editing 子能力：multi-face closed-shell（unit-cube Brep）上的 no-op `ReplaceOuterLoop -> ReplaceFace -> ReplaceShell` 也可稳定保持 body/shell 有效性与 closed 语义
-  - 已新增 `test_3d_healing.cpp`：保守 `Heal(PolyhedronBody)` 幂等性转正为 capability
-  - 已新增 `test_3d_conversion.cpp`：`ConvertToTriangleMesh(PolyhedronBody)` 12 triangles / area≈6.0 转正为 capability
+  - 已新增 `Test3dHealing.cpp`：保守 `Heal(PolyhedronBody)` 幂等性转正为 capability
+  - 已新增 `Test3dConversion.cpp`：`ConvertToTriangleMesh(PolyhedronBody)` 12 triangles / area≈6.0 转正为 capability
 - 2026-04-02：
   - 已扩展 `Heal(BrepBody)` 能力验证：plane-surface + line-edge 且缺失 trim 的 `BrepFace` 可稳定回填 outer trim
   - 已补齐 `ConvertToBrepBody(PolyhedronBody)` 最小 conversion API 与 capability test，单位立方体可转换为有效 `BrepBody` 且 `FaceCount()==6`
@@ -363,8 +363,8 @@
   - 已进一步深化 aggressive healing 实现分层：对 standalone coplanar shared-edge shell 新增 boundary-cap fallback，避免 interior shared-edge 在 mirror-style closure 下把 edge-use 从 2 推高到 4
   - 已新增 representative capability：support-plane mismatch + missing trims + holed shared-edge shell 可先经 conservative trim-backfill，再由 aggressive boundary-cap 补单一 holed cap face 完成闭壳
 - 2026-04-03：
-  - 已在 `src/sdk/Section.cpp` 落地 contour 驱动的 deterministic segment 后处理：输出段由 contour 重建并执行无向去重、短毛刺过滤（长度<=eps），减少 mesh-slice 原始段顺序/重复对统计的影响
-  - 已扩展 `tests/capabilities/test_3d_section.cpp`：`ObliquePrismSectionYieldsDeterministicContourLength` 新增 `section.segments.size()==3` 断言，固化钢筋线根数稳定子集
+  - 已在 `Source/Core/Section.cpp` 落地 contour 驱动的 deterministic segment 后处理：输出段由 contour 重建并执行无向去重、短毛刺过滤（长度<=eps），减少 mesh-slice 原始段顺序/重复对统计的影响
+  - 已扩展 `UnitTests/Capabilities/Test3dSection.cpp`：`ObliquePrismSectionYieldsDeterministicContourLength` 新增 `section.segments.size()==3` 断言，固化钢筋线根数稳定子集
   - 已补齐 `Section(BrepBody, Plane)` 的 coplanar merge 路径：三面共面 horizontal strip 经 Polyhedron->Brep 后截切可稳定合并为单 polygon（area=3.0）
   - 已扩展 conversion capability：support-mismatch near-equal closed-cuboid all-vertices 场景叠加一面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛 closed-shell 拓扑计数（FaceCount=6 / VertexCount=8 / EdgeCount=12）
   - 已扩展 conversion capability：support-mismatch near-equal closed-prism all-shared-vertices 场景叠加一面 duplicate-loop-normalization 后，`ConvertToBrepBody(...)` 仍可稳定收敛 closed-shell 拓扑计数（FaceCount=5 / VertexCount=6 / EdgeCount=9）
@@ -393,7 +393,7 @@
 
 ### 2D 对齐完成
 
-- 所有 2D gap 用例不再 `GTEST_SKIP()`，并转入 `tests/capabilities`
+- 所有 2D gap 用例不再 `GTEST_SKIP()`，并转入 `UnitTests/Capabilities`
 - boolean / offset / pathops / topology 共享统一预处理与容差语义，不出现模块间结果漂移
 - relation 层级可稳定区分 touching / intersecting / contains / hole-diff，包含同外环不同孔场景
 
@@ -401,7 +401,7 @@
 
 - 从第一阶段最小 workflow 升级为 section -> rebuild -> validation -> healing -> conversion 稳定闭环
 - `BrepBody` 从 skeleton 发展为可用拓扑一致性与修复链路，覆盖非平面主导场景
-- 为 3D 尚未补齐能力建立 `tests/gaps` 体系，避免仅文档跟踪
+- 为 3D 尚未补齐能力建立 `UnitTests/Gaps` 体系，避免仅文档跟踪
 
 ## 燃尽清单（优先级）
 
@@ -468,7 +468,7 @@
   - 已同步收敛 conversion gap 文案，移除 closed-cuboid all-vertices / single-duplicate / dual-duplicate 这组三个 representative-average open subset。
 ## 2026-04-04 Section 高阶 section 语义同步
 
-- 已更新 `src/sdk/Section.cpp`：
+- 已更新 `Source/Core/Section.cpp`：
   - coplanar polygon merge 由顺序二元 `Union(...)` 提升为稳定累积式 pairwise merge，当前可覆盖四片以上 frame-with-hole 级共面 fragment merge；
   - `Section(...)` 在存在 coplanar face 时不再提前返回，允许 coplanar area 与后续 non-planar sliced contours 共存；
   - `PolyhedronBody` 路径继续保留 plane-edge segment 回收，但不再把 coplanar polygon 边界重新作为 non-planar graph 输入，避免 mixed section 下重复 contour 重建。

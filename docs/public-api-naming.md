@@ -6,7 +6,7 @@
 
 ## 目标
 
-- 保持 `include/sdk` 作为唯一面向产品的公开表面。
+- 保持 `Include` 作为唯一面向产品的公开表面。
 - 优先使用简短、表达意图明确的名字，避免臃肿的 helper 风格命名。
 - 在可行时保留旧名字作为别名，以维持兼容性。
 
@@ -33,11 +33,11 @@
 
 ## 目录布局
 
-- `include/common` 放共享 epsilon / 底层常量。
-- `include/types` 放基础几何类型。
-- `include/sdk` 放稳定的公开 SDK 头文件。
+- `Include/Support` 放共享 epsilon / 底层常量。
+- `Include/Types` 放基础几何类型。
+- `Include` 放稳定的公开 SDK 头文件。
 - `src/common` 放共享实现辅助代码。
-- `src/sdk` 放公开 SDK 行为的实现。
+- `Source` 放公开 SDK 行为的实现。
 
 ## 兼容规则
 

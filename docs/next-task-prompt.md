@@ -83,12 +83,12 @@
 - aggressive boundary-cap 当前已进一步覆盖 mixed closed-shell + partial-overlap pair arbitration 子集：closed shell 保持稳定，而 partial-overlap competing pair 继续保持 open
 - aggressive boundary-cap 当前已进一步覆盖 independent + vertex-touch + partial-overlap pair local arbitration 子集：独立 eligible shell 与仅 vertex-touch 的 eligible shell 可继续闭壳，而 partial-overlap competing pair 保持 open
 - aggressive boundary-cap 当前已进一步覆盖 non-planar shared-edge shell reject 子集：共享 interior edge 但整体不共面的 shell 不会误走 planar boundary-cap，而会继续保持 open
-- src/sdk/Healing.cpp 已按 trim-backfill / shell-cap / aggressive 三个内部 pass helper 拆层，便于继续推进而不改外部 contract
+- Source/Brep/Healing.cpp 已按 trim-backfill / shell-cap / aggressive 三个内部 pass helper 拆层，便于继续推进而不改外部 contract
 - 更一般 multi-shell shared-boundary-loop / shared-edge arbitration、non-planar shell repair、mesh/body joint healing 仍为 gap
 
 ### SearchPoly
 
-- 稳定 SDK 入口位于 `include/sdk/SearchPoly.h`
+- 稳定 SDK 入口位于 `Include/Core/SearchPoly.h`
 - 已覆盖 diagnostics、candidate ranking、smallest-containing candidate、branch scoring、candidate-level fake-edge diagnostics、result / diagnostics consistency、auto-flag gating
 - `SearchPolyResult2d` 已补充 deterministic top-candidate explanation：best-candidate synthetic metrics、top-score margin、synthetic/branch aggregate counts、ambiguous-top count，以及 runner-up synthetic / branch penalty explanation；并已补充 `bestCandidateSyntheticEdgeKind` / `runnerUpSyntheticEdgeKind`
 - `SearchPolyResult2d` 已进一步补充 synthetic-source summary explanation：`bestCandidateSyntheticEdgeSource` / `runnerUpSyntheticEdgeSource` / `ambiguousTopSyntheticEdgeSource`
@@ -99,14 +99,14 @@
 
 ### BodyBoolean
 
-- `include/sdk/BodyBoolean.h` public contract 保持稳定
+- `Include/Brep/BodyBoolean.h` public contract 保持稳定
 - 已覆盖 identical / disjoint closed-body 子集、deterministic disjoint empty intersection / ordered-multi-body union 子集、axis-aligned single-box overlap 子集、axis-aligned contained intersection / union 子集、face-touching union 子集、face-touching external difference 子集、identical difference-empty 子集、axis-aligned contained difference-empty 子集、axis-aligned edge/vertex-touching ordered multi-body union / external difference 子集，以及 axis-aligned face/edge/vertex touching empty intersection 子集
 - 已进一步覆盖 explicit unsupported contract 子集：face-touching L-shape non-box union 与 rotated-box positive-volume intersection 在 Polyhedron / Brep 路径都稳定返回 `UnsupportedOperation`
 - 更一般 non-axis-aligned / richer touching intersection、shell-policy、healing integration 仍为 gap
 
-### Geometry.h / include-sdk 收口
+### Geometry.h / Include 收口
 
-- `include/sdk/Geometry.h` 继续作为稳定 umbrella header，只聚合 `GeometryApi` / `SearchPoly` / `BodyBoolean`
+- `Include/Geometry.h` 继续作为稳定 umbrella header，只聚合 `GeometryApi` / `SearchPoly` / `BodyBoolean`
 - 已新增仅包含 `sdk/Geometry.h` 的 umbrella contract test，确认产品侧可以只依赖稳定 SDK 入口
 - `Options / Result / Issue` 风格统一继续作为命名与暴露面收口的一部分，但本轮不做大范围 API 重设计
 
@@ -133,16 +133,16 @@
   - 当前 detached-left + edge-attached ordering 只是一个 representative ordering 子集，不等于更一般 adjacency 语义已闭合
 - 保持 capability / gap 边界清晰，不要把仍不稳定语义伪装成已完成
 - 实现方式要求：
-  - 优先把 `tests/gaps` 里已经具体化的用例转成 `tests/capabilities`
+  - 优先把 `UnitTests/Gaps` 里已经具体化的用例转成 `UnitTests/Capabilities`
   - 每轮至少把 3 个 gap 场景推进为 capability test 通过
   - 其中至少 2 个 gap 场景必须来自 P1 方向，也就是 `Section`
   - 如果某个 gap 仍然不能稳定通过，就保留 gap test，并在本轮给出更精确的失败场景描述
 
 建议触达文件：
 
-- `src/sdk/Section.cpp`
-- `tests/capabilities/test_3d_section.cpp`
-- `tests/gaps/test_3d_section_gaps.cpp`
+- `Source/Core/Section.cpp`
+- `UnitTests/Capabilities/Test3dSection.cpp`
+- `UnitTests/Gaps/Test3dSectionGaps.cpp`
 
 ### P2：继续深化 Healing
 
@@ -150,7 +150,7 @@
 - 当前 mixed body 中的 per-shell shared-edge boundary-cap 已有代表性 capability；下一步优先考虑更一般 multi-shell arbitration，而不是回退到单-shell-only
 - 当前已补独立 shell 可闭合、competing shared-boundary-edge shells 保守跳过、duplicated-topology geometrically coincident shared-boundary-loop 保守跳过、partial-overlap shared-boundary-loop 保守跳过、vertex-touch non-competing 可闭合、competing-pair-plus-vertex-touch 组合 arbitration、independent-plus-competing-pair-plus-vertex-touch 四壳组合子集、independent-plus-partial-overlap-pair local arbitration、mixed closed-shell + competing-pair + vertex-touch shell 子集、mixed closed-shell + partial-overlap pair 子集，以及 independent + vertex-touch + partial-overlap pair 子集；下一步优先推进更一般 three-shell / mixed closed-shell + partial-overlap shared-boundary-loop arbitration，而不是继续扩散仅共享单点的子例
 - 实现方式要求：
-  - 优先把 `tests/gaps/test_3d_healing_gaps.cpp` 里具体化的用例转成 capability tests
+  - 优先把 `UnitTests/Gaps/Test3dHealingGaps.cpp` 里具体化的用例转成 capability tests
   - 每轮至少有 1 个 healing gap 场景推进成 capability
   - 如果当前轮不能稳定实现，就把 gap 描述改成更具体的输入拓扑和期望结果
 - 建议直接转成以下测试目标：
@@ -169,7 +169,7 @@
     - 要解决的问题：明确 ambiguous recovery 需要返回什么解释，而不是只有 `ambiguousTopCandidateCount`
 - BodyBoolean：推进更一般 overlap / touching 子集，但保持 InvalidInput / UnsupportedOperation contract 稳定；当前 disjoint ordered-union / axis-aligned contained / face-touching single-box union / edge-vertex-touching ordered multi-body union / external difference / empty intersection 子集已收敛，face-touching L-shape union 与 rotated-box positive-volume intersection 也已明确收口到 explicit unsupported contract；下一步优先考虑 shell-policy 与更一般 non-axis-aligned / richer touching intersection
 - 实现方式要求：
-  - 优先把 `tests/gaps/test_searchpoly_gaps.cpp` 和 `tests/gaps/test_3d_body_boolean_gaps.cpp` 里能明确落地的场景转成 capability
+  - 优先把 `UnitTests/Gaps/TestSearchPolyGaps.cpp` 和 `UnitTests/Gaps/Test3dBodyBooleanGaps.cpp` 里能明确落地的场景转成 capability
   - 每轮至少有 1 个 P2 / P3 场景从 gap 转成 capability
   - 其余未能实现的项，保留 gap test，不要停留在文案层
 - BodyBoolean 建议直接转成以下测试目标：
@@ -180,7 +180,7 @@
 
 ### P4：继续推进 SDK 风格统一与接口收口
 
-- 继续收紧 `include/sdk` 暴露面，优先通过 umbrella / public contract 文档收口，而不是扩散临时 helper
+- 继续收紧 `Include` 暴露面，优先通过 umbrella / public contract 文档收口，而不是扩散临时 helper
 - 继续统一 Delphi-facing SDK 的 `Options / Result / Issue` 风格，但避免引入大范围 API 重设计
 
 ## 剩余任务具体化清单
