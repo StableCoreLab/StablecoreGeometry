@@ -1,45 +1,36 @@
-﻿---
 BasedOnStyle: Google
-AlignAfterOpenBracket: Align
-#AlignConsecutiveAssignments: 'true'
-AlignEscapedNewlines: DontAlign
-AllowAllConstructorInitializersOnNextLine: false
-AllowShortFunctionsOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: 'false'
-AllowShortLoopsOnASingleLine: 'false'
-BinPackParameters: 'true'
-BreakBeforeBraces: Custom
-ColumnLimit: '105'
-ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
-BreakConstructorInitializers: 'AfterColon'
-ConstructorInitializerIndentWidth: '4'
-ContinuationIndentWidth: '4'
-Cpp11BracedListStyle: 'false'
-DerivePointerAlignment: 'false'
-IncludeBlocks: 'Preserve'
-IndentCaseLabels: 'false'
-IndentWidth: '4'
-NamespaceIndentation: All
-PointerAlignment: Right
-SpaceBeforeParens: Never
-SpaceInEmptyParentheses: 'false'
-SpacesInParentheses: 'true'
-TabWidth: '4'
+IndentWidth: 4
+TabWidth: 4
 UseTab: Never
-AccessModifierOffset: '-4'
-IndentPPDirectives: 'AfterHash'
+ColumnLimit: 80
+AccessModifierOffset: -4          # <-- 修饰符与 class 对齐
+DerivePointerAlignment: false
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: None  # 永不将函数放在单行上
+SortIncludes: false
+IncludeBlocks: Regroup
+SpaceBeforeParens: ControlStatements
+ReflowComments: true
+AlwaysBreakAfterReturnType: None
+Cpp11BracedListStyle: true
+IndentCaseLabels: true
+ContinuationIndentWidth: 4
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+# Brace control
+BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterCaseLabel:  true
-  AfterClass:      true
+  AfterFunction: true        # 函数的 { 单独一行
+  AfterClass: true           # ✅ 类声明的 { 单独一行
+  AfterStruct: true
   AfterControlStatement: true
-  AfterEnum:       true
-  AfterFunction:   true
-  AfterNamespace:  true
-  AfterObjCDeclaration: true
-  AfterStruct:     true
-  AfterUnion:      true
-  BeforeCatch:     true
-  BeforeElse:      true
-  IndentBraces:    false
-
-...
+  AfterEnum: true
+  AfterNamespace: true
+  AfterUnion: false
+  BeforeElse: false
+  BeforeCatch: false
+  IndentBraces: false
+NamespaceIndentation: All
