@@ -1,10 +1,15 @@
 #pragma once
 
+#include <array>
+
 #include "Export/GeometryExport.h"
 
 namespace Geometry
 {
     constexpr double kDefaultEpsilon = 1e-9;
+    extern GEOMETRY_API const double kPi;
+    extern GEOMETRY_API const double kTwoPi;
+    extern GEOMETRY_API const std::array<double, 4> kArcBoundsCriticalAngles;
 
     // Shared topology matching for cross-face representative grouping.
     extern GEOMETRY_API const double kSharedTopologyMatchEpsilon;

@@ -4,6 +4,7 @@
 
 #include "Core/Metrics.h"
 #include "Export/GeometryExport.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -37,9 +38,10 @@ namespace Geometry
         [[nodiscard]] bool IsValid() const;
         [[nodiscard]] bool Contains( std::size_t id ) const;
         [[nodiscard]] const BoxTreeEntry2d *Find( std::size_t id ) const;
-        [[nodiscard]] std::vector<std::size_t> Query( const Box2d &box, double eps = 1e-9 ) const;
+        [[nodiscard]] std::vector<std::size_t> Query( const Box2d &box,
+                                                      double eps = Geometry::kDefaultEpsilon ) const;
         [[nodiscard]] std::vector<std::size_t> QueryContaining( const Point2d &point,
-                                                                double eps = 1e-9 ) const;
+                                                                double eps = Geometry::kDefaultEpsilon ) const;
         [[nodiscard]] std::string DebugString() const;
 
         [[nodiscard]] const std::vector<BoxTreeEntry2d> &Entries() const;

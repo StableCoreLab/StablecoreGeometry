@@ -3,6 +3,7 @@
 #include "Brep/PolyhedronBody.h"
 #include "Export/GeometryExport.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -27,14 +28,14 @@ namespace Geometry
     };
 
     [[nodiscard]] GEOMETRY_API PolyhedronMeshConversion3d
-    ConvertToTriangleMesh( const PolyhedronFace3d &face, double eps = 1e-9 );
+    ConvertToTriangleMesh( const PolyhedronFace3d &face, double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API PolyhedronMeshConversion3d
-    ConvertToTriangleMesh( const PolyhedronBody &body, double eps = 1e-9 );
+    ConvertToTriangleMesh( const PolyhedronBody &body, double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API PolyhedronMeshConversion3d ConvertToTriangleMesh( const BrepFace &face,
-                                                                                 double eps = 1e-9 );
+                                                                                 double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API PolyhedronMeshConversion3d ConvertToTriangleMesh( const BrepBody &body,
-                                                                                 double eps = 1e-9 );
+                                                                                 double eps = Geometry::kDefaultEpsilon );
 }  // namespace Geometry

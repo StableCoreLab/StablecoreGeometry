@@ -7,6 +7,7 @@
 #include "Core/GeometryTypes.h"
 #include "Export/GeometryExport.h"
 #include "Geometry2d/Polygon2d.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -392,35 +393,43 @@ namespace Geometry
                                                             const GeometryTolerance3d &tolerance = {} );
 
     [[nodiscard]] GEOMETRY_API SectionFaceRebuildResult3d
-    RebuildSectionFaces( const PolyhedronSection3d &section, double eps = 1e-9 );
+    RebuildSectionFaces( const PolyhedronSection3d &section, double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionBrepFaceRebuildResult3d
-    RebuildSectionBrepFaces( const PolyhedronSection3d &section, double eps = 1e-9 );
+    RebuildSectionBrepFaces( const PolyhedronSection3d &section,
+                             double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionBodyRebuildResult3d
-    RebuildSectionBody( const PolyhedronSection3d &section, double eps = 1e-9 );
+    RebuildSectionBody( const PolyhedronSection3d &section, double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionBrepBodyRebuildResult3d
-    RebuildSectionBrepBody( const PolyhedronSection3d &section, double eps = 1e-9 );
+    RebuildSectionBrepBody( const PolyhedronSection3d &section,
+                            double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionBrepBodySetRebuildResult3d
-    RebuildSectionBrepBodies( const PolyhedronSection3d &section, double eps = 1e-9 );
+    RebuildSectionBrepBodies( const PolyhedronSection3d &section,
+                              double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionBodySetRebuildResult3d
-    RebuildSectionBodies( const PolyhedronSection3d &section, double eps = 1e-9 );
+    RebuildSectionBodies( const PolyhedronSection3d &section,
+                          double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionTopology3d
-    BuildSectionTopology( const PolyhedronSection3d &section, double eps = 1e-9 );
+    BuildSectionTopology( const PolyhedronSection3d &section, double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionMeshConversionResult3d
-    ConvertSectionToTriangleMesh( const PolyhedronSection3d &section, double eps = 1e-9 );
+    ConvertSectionToTriangleMesh( const PolyhedronSection3d &section,
+                                  double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionMeshSetConversionResult3d
-    ConvertSectionToTriangleMeshes( const PolyhedronSection3d &section, double eps = 1e-9 );
+    ConvertSectionToTriangleMeshes( const PolyhedronSection3d &section,
+                                    double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionContentKind3d
-    ClassifySectionContent( const PolyhedronSection3d &section, double eps = 1e-9 );
+    ClassifySectionContent( const PolyhedronSection3d &section,
+                            double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API SectionComponents3d
-    BuildSectionComponents( const PolyhedronSection3d &section, double eps = 1e-9 );
+    BuildSectionComponents( const PolyhedronSection3d &section,
+                            double eps = Geometry::kDefaultEpsilon );
 }  // namespace Geometry

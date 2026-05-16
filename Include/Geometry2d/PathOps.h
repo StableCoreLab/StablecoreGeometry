@@ -6,6 +6,7 @@
 #include "Geometry2d/MultiPolyline2d.h"
 #include "Geometry2d/Polygon2d.h"
 #include "Geometry2d/Polyline2d.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -21,11 +22,11 @@ namespace Geometry
 
     [[nodiscard]] GEOMETRY_API PolygonCutResult2d CutPolygon( const Polygon2d &polygon,
                                                               const LineSegment2d &cutter,
-                                                              double eps = 1e-9 );
+                                                              double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API MultiPolygon2d BuildMultiPolygonByLines( const MultiPolyline2d &polylines,
-                                                                        double eps = 1e-9 );
+                                                                        double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API Polygon2d NormalizePolygonByLines( const Polygon2d &polygon,
-                                                                  double eps = 1e-9 );
+                                                                  double eps = Geometry::kDefaultEpsilon );
 }  // namespace Geometry

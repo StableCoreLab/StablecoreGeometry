@@ -14,6 +14,7 @@
 #include "Geometry3d/Curve3d.h"
 #include "Geometry3d/CurveOnSurface.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -33,19 +34,19 @@ namespace Geometry
 
     [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint( const Point2d &point,
                                                                const LineSegment2d &segment,
-                                                               double eps = 1e-9 );
+                                                               double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint( const Point2d &point,
                                                                const ArcSegment2d &segment,
-                                                               double eps = 1e-9 );
+                                                               double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint( const Point2d &point,
                                                                const Segment2d &segment,
-                                                               double eps = 1e-9 );
+                                                               double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint( const Point2d &point,
                                                                const Polyline2d &polyline,
-                                                               double eps = 1e-9 );
+                                                               double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PointContainment2d LocatePoint( const Point2d &point,
                                                                const Polygon2d &polygon,
-                                                               double eps = 1e-9 );
+                                                               double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API PointPlaneSide3d LocatePoint( const Point3d &point, const Plane &plane,
                                                              const GeometryTolerance3d &tolerance = {} );
@@ -66,13 +67,16 @@ namespace Geometry
         const Point3d &point, const TriangleMesh &mesh, const GeometryTolerance3d &tolerance = {} );
 
     [[nodiscard]] GEOMETRY_API bool IsParallel( const LineSegment2d &first, const LineSegment2d &second,
-                                                double eps = 1e-9 );
+                                                double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API bool IsAntiParallel( const LineSegment2d &first,
-                                                    const LineSegment2d &second, double eps = 1e-9 );
+                                                    const LineSegment2d &second,
+                                                    double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API bool IsSameDirection( const LineSegment2d &first,
-                                                     const LineSegment2d &second, double eps = 1e-9 );
+                                                     const LineSegment2d &second,
+                                                     double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API bool IsEqual( const LineSegment2d &first, const LineSegment2d &second,
-                                             bool ignoreDirection = true, double eps = 1e-9 );
+                                             bool ignoreDirection = true,
+                                             double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API bool IsParallel( const Vector3d &first, const Vector3d &second,
                                                 const GeometryTolerance3d &tolerance = {} );

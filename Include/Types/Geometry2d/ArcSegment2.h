@@ -80,10 +80,7 @@ namespace Geometry
             const double startAngle = AngleAsDouble( startAngle_ );
             const double signedSweep = SignedSweep();
 
-            static constexpr double kCriticalAngles[] = { 0.0, Detail::kPi * 0.5, Detail::kPi,
-                                                          Detail::kPi * 1.5 };
-
-            for( const double candidateAngle : kCriticalAngles )
+            for( const double candidateAngle : Geometry::kArcBoundsCriticalAngles )
             {
                 if( Detail::IsAngleOnArc( candidateAngle, startAngle, signedSweep ) )
                 {

@@ -4,6 +4,7 @@
 #include "Core/ShapeOps.h"
 #include "Export/GeometryExport.h"
 #include "Geometry2d/MultiPolygon2d.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -35,9 +36,10 @@ namespace Geometry
     {
     public:
         PolygonTopology2d() = default;
-        explicit PolygonTopology2d( const MultiPolygon2d &polygons, double eps = 1e-9 );
+        explicit PolygonTopology2d( const MultiPolygon2d &polygons,
+                                    double eps = Geometry::kDefaultEpsilon );
 
-        bool Build( const MultiPolygon2d &polygons, double eps = 1e-9 );
+        bool Build( const MultiPolygon2d &polygons, double eps = Geometry::kDefaultEpsilon );
 
         [[nodiscard]] std::size_t Count() const;
         [[nodiscard]] bool IsEmpty() const;
@@ -57,13 +59,14 @@ namespace Geometry
     };
 
     [[nodiscard]] GEOMETRY_API bool ContainsPoint( const Polyline2d &ring, const Point2d &point,
-                                                   double eps = 1e-9 );
+                                                   double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API bool ContainsPoint( const Polygon2d &polygon, const Point2d &point,
-                                                   double eps = 1e-9 );
+                                                   double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API bool Contains( const Polygon2d &outer, const Polygon2d &inner,
-                                              double eps = 1e-9 );
+                                              double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PolygonContainment2d Relate( const Polygon2d &first,
-                                                            const Polygon2d &second, double eps = 1e-9 );
+                                                            const Polygon2d &second,
+                                                            double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PolygonTopology2d BuildPolygonTopology( const MultiPolygon2d &polygons,
-                                                                       double eps = 1e-9 );
+                                                                       double eps = Geometry::kDefaultEpsilon );
 }  // namespace Geometry

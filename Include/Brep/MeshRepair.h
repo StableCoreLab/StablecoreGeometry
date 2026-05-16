@@ -1,6 +1,7 @@
 #pragma once
 #include "Export/GeometryExport.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -24,11 +25,13 @@ namespace Geometry
     };
 
     [[nodiscard]] GEOMETRY_API TriangleMeshRepair3d
-    OrientTriangleMeshConsistently( const TriangleMesh &mesh, double eps = 1e-9 );
+    OrientTriangleMeshConsistently( const TriangleMesh &mesh,
+                                    double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API TriangleMeshRepair3d
-    CloseSinglePlanarBoundaryLoop( const TriangleMesh &mesh, double eps = 1e-9 );
+    CloseSinglePlanarBoundaryLoop( const TriangleMesh &mesh,
+                                   double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API TriangleMeshRepair3d ClosePlanarBoundaryLoops( const TriangleMesh &mesh,
-                                                                              double eps = 1e-9 );
+                                                                              double eps = Geometry::kDefaultEpsilon );
 }  // namespace Geometry

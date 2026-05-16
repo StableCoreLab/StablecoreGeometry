@@ -6,6 +6,7 @@
 #include "Geometry2d/Polygon2d.h"
 #include "Geometry2d/Polyline2d.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -88,15 +89,18 @@ namespace Geometry
         std::size_t elementIndex{ 0 };
     };
 
-    [[nodiscard]] GEOMETRY_API bool HasSelfIntersection( const Polyline2d &ring, double eps = 1e-9 );
-    [[nodiscard]] GEOMETRY_API PolygonValidation2d Validate( const Polyline2d &ring, double eps = 1e-9 );
+    [[nodiscard]] GEOMETRY_API bool HasSelfIntersection( const Polyline2d &ring,
+                                                         double eps = Geometry::kDefaultEpsilon );
+    [[nodiscard]] GEOMETRY_API PolygonValidation2d Validate( const Polyline2d &ring,
+                                                             double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PolygonValidation2d Validate( const Polygon2d &polygon,
-                                                             double eps = 1e-9 );
-    [[nodiscard]] GEOMETRY_API MeshValidation3d Validate( const TriangleMesh &mesh, double eps = 1e-9 );
+                                                             double eps = Geometry::kDefaultEpsilon );
+    [[nodiscard]] GEOMETRY_API MeshValidation3d Validate( const TriangleMesh &mesh,
+                                                          double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API PolyhedronValidation3d Validate( const PolyhedronBody &body,
-                                                                double eps = 1e-9 );
+                                                                double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API BrepValidation3d Validate( const BrepBody &body,
                                                           const GeometryTolerance3d &tolerance = {} );
     [[nodiscard]] GEOMETRY_API SectionValidation3d Validate( const PolyhedronSection3d &section,
-                                                             double eps = 1e-9 );
+                                                             double eps = Geometry::kDefaultEpsilon );
 }  // namespace Geometry

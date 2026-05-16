@@ -10,6 +10,7 @@
 #include "Core/Metrics.h"
 #include "Core/Projection.h"
 #include "Export/GeometryExport.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -55,9 +56,9 @@ namespace Geometry
         [[nodiscard]] bool Contains( std::size_t id ) const;
         [[nodiscard]] const SegmentSearchEntry2d *Find( std::size_t id ) const;
         [[nodiscard]] std::vector<std::size_t> QueryIntersecting( const Box2d &box,
-                                                                  double eps = 1e-9 ) const;
+                                                                  double eps = Geometry::kDefaultEpsilon ) const;
         [[nodiscard]] std::vector<std::size_t> QueryIntersecting( const Segment2d &segment,
-                                                                  double eps = 1e-9 ) const;
+                                                                  double eps = Geometry::kDefaultEpsilon ) const;
         [[nodiscard]] std::vector<SegmentSearchHit2d> QueryWithinDistance( const Point2d &point,
                                                                            double maxDistance ) const;
         [[nodiscard]] std::optional<SegmentSearchHit2d> Nearest( const Point2d &point ) const;

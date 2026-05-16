@@ -4,12 +4,12 @@
 #include <string>
 
 #include "Export/GeometryExport.h"
-#include "Types/Geometry2d/Segment2.h"
+#include "Geometry2d/SegmentTypes.h"
+#include "Types/Geometry2d/Box2.h"
+#include "Types/Geometry2d/Point2.h"
 
 namespace Geometry
 {
-    using Geometry::SegmentKind2;
-
     class GEOMETRY_API Segment2d
     {
     public:

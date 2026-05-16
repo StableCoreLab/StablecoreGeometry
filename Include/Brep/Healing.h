@@ -4,6 +4,7 @@
 #include "Core/GeometryTypes.h"
 #include "Export/GeometryExport.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -43,8 +44,10 @@ namespace Geometry
         BrepBody body{};
     };
 
-    [[nodiscard]] GEOMETRY_API MeshHealing3d Heal( const TriangleMesh &mesh, double eps = 1e-9 );
-    [[nodiscard]] GEOMETRY_API PolyhedronHealing3d Heal( const PolyhedronBody &body, double eps = 1e-9 );
+    [[nodiscard]] GEOMETRY_API MeshHealing3d Heal( const TriangleMesh &mesh,
+                                                   double eps = Geometry::kDefaultEpsilon );
+    [[nodiscard]] GEOMETRY_API PolyhedronHealing3d Heal( const PolyhedronBody &body,
+                                                         double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API BrepHealing3d Heal( const BrepBody &body,
                                                    const GeometryTolerance3d &tolerance = {} );
     [[nodiscard]] GEOMETRY_API BrepHealing3d Heal( const BrepBody &body,

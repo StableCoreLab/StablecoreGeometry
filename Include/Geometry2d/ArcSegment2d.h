@@ -5,12 +5,10 @@
 
 #include "Export/GeometryExport.h"
 #include "Geometry2d/Segment2d.h"
-#include "Types/Geometry2d/Segment2.h"
+#include "Geometry2d/SegmentTypes.h"
 
 namespace Geometry
 {
-    using Geometry::ArcDirection;
-
     class GEOMETRY_API ArcSegment2d : public Segment2d
     {
     public:

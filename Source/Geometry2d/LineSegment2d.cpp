@@ -3,6 +3,8 @@
 #include <memory>
 #include <sstream>
 
+#include "Types/Geometry2d/Vector2.h"
+
 namespace Geometry
 {
     LineSegment2d::LineSegment2d( const Point2d &startPoint, const Point2d &endPoint ) :

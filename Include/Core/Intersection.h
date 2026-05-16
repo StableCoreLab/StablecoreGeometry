@@ -10,21 +10,22 @@
 #include "Geometry2d/Segment2d.h"
 #include "Geometry3d/Surface.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
     [[nodiscard]] GEOMETRY_API SegmentIntersection2d Intersect( const LineSegment2d &first,
                                                                 const LineSegment2d &second,
-                                                                double eps = 1e-9 );
+                                                                double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API SegmentIntersection2d Intersect( const LineSegment2d &first,
                                                                 const ArcSegment2d &second,
-                                                                double eps = 1e-9 );
+                                                                double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API SegmentIntersection2d Intersect( const ArcSegment2d &first,
                                                                 const ArcSegment2d &second,
-                                                                double eps = 1e-9 );
+                                                                double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API SegmentIntersection2d Intersect( const Segment2d &first,
                                                                 const Segment2d &second,
-                                                                double eps = 1e-9 );
+                                                                double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API LinePlaneIntersection3d
     Intersect( const Line3d &line, const Plane &plane, const GeometryTolerance3d &tolerance = {} );
@@ -62,7 +63,7 @@ namespace Geometry
     Intersect( const Plane &first, const Plane &second, const GeometryTolerance3d &tolerance = {} );
 
     [[nodiscard]] GEOMETRY_API bool HasIntersection( const Segment2d &first, const Segment2d &second,
-                                                     double eps = 1e-9 );
+                                                     double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API ClosestPoints2d ClosestPoints( const LineSegment2d &first,
                                                               const LineSegment2d &second );

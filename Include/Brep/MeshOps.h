@@ -3,6 +3,7 @@
 #include <vector>
 #include "Export/GeometryExport.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -61,16 +62,17 @@ namespace Geometry
     };
 
     [[nodiscard]] GEOMETRY_API Vector3d TriangleNormal( const TriangleMesh &mesh,
-                                                        std::size_t triangleIndex, double eps = 1e-9 );
+                                                        std::size_t triangleIndex,
+                                                        double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API std::vector<Vector3d> ComputeTriangleNormals( const TriangleMesh &mesh,
-                                                                             double eps = 1e-9 );
+                                                                             double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API Vector3d VertexNormal( const TriangleMesh &mesh, std::size_t vertexIndex,
-                                                      double eps = 1e-9 );
+                                                      double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API std::vector<Vector3d> ComputeVertexNormals( const TriangleMesh &mesh,
-                                                                           double eps = 1e-9 );
+                                                                           double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API MeshTriangleAdjacency3d TriangleAdjacency( const TriangleMesh &mesh,
                                                                           std::size_t triangleIndex );

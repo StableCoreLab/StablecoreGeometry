@@ -2,6 +2,7 @@
 #include "Brep/BrepBody.h"
 #include "Brep/PolyhedronBody.h"
 #include "Export/GeometryExport.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -53,11 +54,11 @@ namespace Geometry
     };
 
     [[nodiscard]] GEOMETRY_API BrepFaceConversion3d ConvertToPolyhedronFace( const BrepFace &face,
-                                                                             double eps = 1e-9 );
+                                                                             double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API BrepBodyConversion3d ConvertToPolyhedronBody( const BrepBody &body,
-                                                                             double eps = 1e-9 );
+                                                                             double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API PolyhedronBrepBodyConversion3d
-    ConvertToBrepBody( const PolyhedronBody &body, double eps = 1e-9 );
+    ConvertToBrepBody( const PolyhedronBody &body, double eps = Geometry::kDefaultEpsilon );
 }  // namespace Geometry

@@ -11,6 +11,7 @@
 #include "Geometry3d/CurveOnSurface.h"
 #include "Geometry3d/Surface.h"
 #include "Geometry3d/TriangleMesh.h"
+#include "Support/Epsilon.h"
 
 namespace Geometry
 {
@@ -75,12 +76,15 @@ namespace Geometry
     [[nodiscard]] GEOMETRY_API double Area( const Triangle3d &triangle );
     [[nodiscard]] GEOMETRY_API double Area( const PolyhedronFace3d &face,
                                             const GeometryTolerance3d &tolerance = {} );
-    [[nodiscard]] GEOMETRY_API double Area( const BrepFace &face, double eps = 1e-9 );
+    [[nodiscard]] GEOMETRY_API double Area( const BrepFace &face,
+                                            double eps = Geometry::kDefaultEpsilon );
     [[nodiscard]] GEOMETRY_API double Area( const TriangleMesh &mesh );
 
     [[nodiscard]] GEOMETRY_API double Volume( const TriangleMesh &mesh );
-    [[nodiscard]] GEOMETRY_API double Volume( const PolyhedronBody &body, double eps = 1e-9 );
-    [[nodiscard]] GEOMETRY_API double Volume( const BrepBody &body, double eps = 1e-9 );
+    [[nodiscard]] GEOMETRY_API double Volume( const PolyhedronBody &body,
+                                              double eps = Geometry::kDefaultEpsilon );
+    [[nodiscard]] GEOMETRY_API double Volume( const BrepBody &body,
+                                              double eps = Geometry::kDefaultEpsilon );
 
     [[nodiscard]] GEOMETRY_API Box3d Bounds( const Curve3d &curve );
     [[nodiscard]] GEOMETRY_API Box3d Bounds( const Surface &surface );
