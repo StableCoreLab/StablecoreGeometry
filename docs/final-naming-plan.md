@@ -1,20 +1,20 @@
-# 最终命名规则
+# 最终命名规划
 
-本文档定义当前发布版 Geometry 公开面的命名规则。
+本文定义当前发布版 Geometry 公共面的命名规则。
 
 ## 总则
 
-- `SC` 只保留给工程身份：仓库名、解决方案名、CMake target、包名、内部构建/测试标签。
-- 公开类型名、公开函数名、公开数据结构不使用 `SC`。
+- `SC` 只保留给工程身份使用，例如仓库名、解决方案名、CMake target、包名和内部构建标识。
+- 公共类型名、公共函数名、公共数据结构不使用 `SC` 前缀。
 - 默认发布面不使用 `ISC`。
-- 需要跨 DLL 的公开 ABI 稳定数据结构，继续通过 `GEOMETRY_API` 导出。
-- 公开面按目录和语义命名组织，不按产品前缀组织。
+- 需要跨 DLL 的公共 ABI 稳定数据结构继续通过 `GEOMETRY_API` 导出。
+- 公共面按目录和语义命名，不按产品前缀组织。
 
 ## 命名空间
 
-- 当前公开命名空间为 `Geometry`。
+- 当前公共命名空间为 `Geometry`。
 - `Geometry::Sdk` 只允许作为迁移期间的临时别名。
-- 本文档适用于文件、类型、结果和公开 API，不适用于工程标识前缀。
+- 本文档适用于源码树中的文件、类型、结果和公共 API，不适用于安装后的目录前缀。
 
 ### 兼容策略
 
@@ -23,7 +23,7 @@
 - 不把兼容头放进默认安装面。
 - 迁移期结束后删除别名。
 
-## Include/Core
+## 源码 Include/Core
 
 保留：
 
@@ -52,7 +52,7 @@
 - `SC*` 兼容名字
 - `ISC*` 兼容名字
 
-## Include/Geometry2d
+## 源码 Include/Geometry2d
 
 保留：
 
@@ -82,7 +82,7 @@
 - `ISCPolygon2d.h`
 - `ISCPolyline2d.h`
 
-## Include/Geometry3d
+## 源码 Include/Geometry3d
 
 保留：
 
@@ -101,7 +101,7 @@
 
 - `SCCurve3d.h`
 
-## Include/Brep
+## 源码 Include/Brep
 
 保留：
 
@@ -127,17 +127,17 @@
 
 删除：
 
-- 不再保留额外的公开包装名
+- 不再保留额外的公共包装头
 
-## Include/Support 与 Include/Types
+## 源码 Include/Support 与 Include/Types
 
 保留：
 
 - `Support/Epsilon.h`
 - `Support/Geometry2d/Normalize2.h`
 - `Support/Geometry2d/Predicate2.h`
-- `Types/Geometry2d/*` 值类型
-- `Types/Geometry3d/*` 值类型
+- `Types/Geometry2d/*`
+- `Types/Geometry3d/*`
 - `Types/Detail/Segment2Detail.h`
 
 删除：
@@ -147,6 +147,6 @@
 
 ## ABI 说明
 
-- 需要跨 DLL 的公开值类型，应继续放在导出头里并保持 `GEOMETRY_API`。
-- 不要为了“DLL 可见”而给值类型额外加 `SC` 前缀。
-- 只供内部使用的类型，应放入 detail 头或源文件，而不是继续放进 `Include/`。
+- 需要跨 DLL 的公共值类型，应继续放在导出头里并保持 `GEOMETRY_API`。
+- 不要为了 DLL 可见性给值类型额外加 `SC` 前缀。
+- 只供内部使用的类型，应放入 detail 头或源文件，而不是继续放进源码 `Include/`。

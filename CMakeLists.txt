@@ -23,7 +23,7 @@ set(SCGEOMETRY_UNITY_BUILD_BATCH_SIZE 8 CACHE STRING "Number of source files per
 set(SCGEOMETRY_TARGET SCGeometry)
 set(SCGEOMETRY_BIN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../Bin")
 set(CMAKE_INSTALL_BINDIR "Bin")
-set(CMAKE_INSTALL_INCLUDEDIR "Include")
+set(CMAKE_INSTALL_INCLUDEDIR "Include/SCGeometry")
 set(CMAKE_INSTALL_LIBDIR "Lib")
 
 set(SCGEOMETRY_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/SCGeometry")
@@ -171,7 +171,7 @@ add_library(SCGeometry::Geometry ALIAS ${SCGEOMETRY_TARGET})
 target_include_directories(${SCGEOMETRY_TARGET}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>
-        $<INSTALL_INTERFACE:Include>
+        $<INSTALL_INTERFACE:Include/SCGeometry>
 )
 
 target_compile_features(${SCGEOMETRY_TARGET} PUBLIC cxx_std_20)
@@ -238,8 +238,8 @@ install(FILES $<TARGET_PDB_FILE:${SCGEOMETRY_TARGET}>
 
 install(CODE [[
     file(REMOVE_RECURSE
-        "${CMAKE_INSTALL_PREFIX}/Include/Types/Compat"
-        "${CMAKE_INSTALL_PREFIX}/Include/Types/Detail"
+        "${CMAKE_INSTALL_PREFIX}/Include/SCGeometry/Types/Compat"
+        "${CMAKE_INSTALL_PREFIX}/Include/SCGeometry/Types/Detail"
     )
 ]])
 

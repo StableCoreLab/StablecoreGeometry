@@ -1,14 +1,16 @@
-﻿# StableCore Geometry 代码规范
+# StableCore Geometry 代码规范
 
 ## 1. 命名空间与目录
 
 ### 1.1 目录结构
 
-对外头文件目录保持清晰：
+对外头文件目录保持清晰。
 
 ```text
-include/stablecore/geometry/
+Include/
 ```
+
+这里描述的是源码树中的目录风格；安装后的公开头文件根目录使用 `Include/SCGeometry/`。
 
 ### 1.2 命名空间
 
@@ -22,7 +24,8 @@ namespace Geometry
 
 原则：
 
-- 对外路径使用 `stablecore/geometry`
+- 对外源码路径使用 `Include/`
+- 对外安装路径使用 `Include/SCGeometry`
 - 对内命名空间使用 `Geometry::`
 
 ## 2. 类型命名

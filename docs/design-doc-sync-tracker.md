@@ -4,8 +4,9 @@
 
 ## 已对齐内容
 
-- 公开入口：`Include/Geometry.h`
-- 公开命名空间目标：`Geometry`
+- 源码公开入口：`Include/Geometry.h`
+- 安装后的公开头文件根目录：`Include/SCGeometry`
+- 公共命名空间目标：`Geometry`
 - 工程身份：`SCGeometry`
 - 目录分层：`Core`、`Geometry2d`、`Geometry3d`、`Brep`、`Support`、`Types`、`Serialize`、`Export`
 - 命名规则：见 `docs/final-naming-plan.md`
@@ -16,7 +17,7 @@
 - 文档必须只描述当前发布 API
 - 不再保留历史专题叙述
 - 不再保留历史过程记录
-- 能力差距可以保留，但必须是当前有效差距
+- 能力差距可以保留，但必须是当前仍有效的差距
 
 ## 当前待同步项
 
@@ -34,14 +35,8 @@
 - `ci-autofix-on-failure` 只在 `ci-windows-cmake` 失败时触发
 - 自动修复只执行确定性、可验证、低风险的修复规则
 - 自动修复入口是 `scripts/ci-autofix.ps1`
-- 如果没有产出补丁，或者验证失败，应该回到人工修复和 issue 跟踪
-
-当前已内置的确定性规则包括：
-
-- workflow 和文档行尾归一化为 LF
-- 针对常见 3D capability 编译故障补齐 using 别名
 
 ## 结论
 
 - 代码、测试和文档现在都应围绕当前发布版结构书写
-- 如果新能力已经稳定，就应该尽快从 gap 侧移入 capability 侧
+- 如果新能力已经稳定，就应尽快从 gap 侧迁入 capability 侧

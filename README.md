@@ -108,8 +108,8 @@ cmake --build --preset vs2022-x64-build --config RelWithDebInfo
 - `bin/RelWithDebInfo/x64`：带调试信息的 DLL 和可执行文件
 - `lib/Release/x64`：导入库和静态库
 - `lib/RelWithDebInfo/x64`：带调试信息的导入库和静态库
-- `Include`：公开头文件
-- `lib/cmake/SCGeometry`：CMake 包文件
+- `Include/SCGeometry`：公开头文件
+- `Lib/cmake/SCGeometry`：CMake 包文件
 
 安装后，下游项目可这样使用：
 
