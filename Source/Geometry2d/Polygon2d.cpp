@@ -1,5 +1,6 @@
 #include "Geometry2d/Polygon2d.h"
 
+#include <cmath>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -7,94 +8,168 @@
 #include <vector>
 
 #include "Geometry2d/ArcSegment2d.h"
-#include "Geometry2d/LineSegment2d.h"
-#include "Geometry2d/Polyline2d.h"
-#include "Types/Geometry2d/ArcSegment2.h"
-#include "Types/Geometry2d/LineSegment2.h"
-#include "Types/Geometry2d/Polygon2.h"
+#include "Support/Geometry2d/Predicate2.h"
 
 namespace Geometry
 {
     namespace
     {
-        using InternalPolyline = Geometry::Polyline2<double>;
-        using InternalPolygon = Geometry::Polygon2<double>;
-        using InternalSegment = Geometry::Segment2<double>;
-        using InternalLineSegment = Geometry::LineSegment2<double>;
-
-        [[nodiscard]] Geometry::PolylineClosure2 ToInternalClosure( PolylineClosure closure )
+        struct RingMoment
         {
-            return closure == PolylineClosure::Closed ? Geometry::PolylineClosure2::Closed
-                                                      : Geometry::PolylineClosure2::Open;
+            double signedArea{ 0.0 };
+            double firstMomentX{ 0.0 };
+            double firstMomentY{ 0.0 };
+        };
+
+        [[nodiscard]] RingMoment RingMomentIntegral( const Polyline2d &ring );
+
+        [[nodiscard]] double RingSignedArea( const Polyline2d &ring )
+        {
+            return RingMomentIntegral( ring ).signedArea;
         }
 
-        [[nodiscard]] InternalPolyline BuildInternalPolylineFromWrapper( const Polyline2d &polyline )
+        [[nodiscard]] std::pair<Point2d, double> RingCentroidAndArea( const Polyline2d &ring )
         {
-            std::vector<std::shared_ptr<InternalSegment>> segments;
-            segments.reserve( polyline.SegmentCount() );
-            for( std::size_t i = 0; i < polyline.SegmentCount(); ++i )
+            const RingMoment moment = RingMomentIntegral( ring );
+            if( IsZero( moment.signedArea ) )
             {
-                const std::unique_ptr<Segment2d> segment = polyline.SegmentAt( i );
-                if( segment == nullptr )
-                {
-                    return InternalPolyline();
-                }
-
-                if( const auto *line = dynamic_cast<const LineSegment2d *>( segment.get() ) )
-                {
-                    segments.push_back(
-                        std::make_shared<InternalLineSegment>( line->startPoint, line->endPoint ) );
-                    continue;
-                }
-
-                if( const auto *arc = dynamic_cast<const ArcSegment2d *>( segment.get() ) )
-                {
-                    segments.push_back( std::make_shared<Geometry::ArcSegment2<double>>(
-                        arc->center, arc->radius, arc->startAngle, arc->EndAngle(), arc->Direction() ) );
-                    continue;
-                }
-
-                return InternalPolyline();
+                return { Point2d{}, 0.0 };
             }
 
-            return InternalPolyline( std::move( segments ),
-                                     ToInternalClosure( polyline.IsClosed() ? PolylineClosure::Closed
-                                                                            : PolylineClosure::Open ) );
+            return { Point2d( moment.firstMomentX / moment.signedArea,
+                              moment.firstMomentY / moment.signedArea ),
+                     moment.signedArea };
+        }
+
+        void AccumulateLineSegmentMoment( const Point2d &startPoint, const Point2d &endPoint,
+                                          RingMoment &total )
+        {
+            const double cross = startPoint.x * endPoint.y - endPoint.x * startPoint.y;
+
+            total.signedArea += cross / 2.0;
+            total.firstMomentX +=
+                ( endPoint.y - startPoint.y ) *
+                ( startPoint.x * startPoint.x + startPoint.x * endPoint.x +
+                  endPoint.x * endPoint.x ) /
+                6.0;
+            total.firstMomentY +=
+                ( startPoint.x - endPoint.x ) *
+                ( startPoint.y * startPoint.y + startPoint.y * endPoint.y +
+                  endPoint.y * endPoint.y ) /
+                6.0;
+        }
+
+        [[nodiscard]] double ArcFirstMomentXPrimitive( double centerX, double radius, double angle )
+        {
+            const double sinAngle = std::sin( angle );
+            const double cosAngle = std::cos( angle );
+            return ( centerX * centerX * radius * sinAngle +
+                     centerX * radius * radius * ( angle + sinAngle * cosAngle ) +
+                     radius * radius * radius * ( sinAngle - sinAngle * sinAngle * sinAngle / 3.0 ) ) /
+                   2.0;
+        }
+
+        [[nodiscard]] double ArcFirstMomentYPrimitive( double centerY, double radius, double angle )
+        {
+            const double sinAngle = std::sin( angle );
+            const double cosAngle = std::cos( angle );
+            return ( -centerY * centerY * radius * cosAngle +
+                     centerY * radius * radius * ( angle - sinAngle * cosAngle ) +
+                     radius * radius * radius * ( -cosAngle + cosAngle * cosAngle * cosAngle / 3.0 ) ) /
+                   2.0;
+        }
+
+        void AccumulateArcSegmentMoment( const ArcSegment2d &arc, RingMoment &total )
+        {
+            const double cx = arc.center.x;
+            const double cy = arc.center.y;
+            const double radius = arc.radius;
+            const double startAngle = arc.startAngle;
+            const double sweep = arc.sweepAngle;
+            const double endAngle = startAngle + sweep;
+
+            const double sinStart = std::sin( startAngle );
+            const double cosStart = std::cos( startAngle );
+            const double sinEnd = std::sin( endAngle );
+            const double cosEnd = std::cos( endAngle );
+
+            total.signedArea +=
+                ( cx * radius * ( sinEnd - sinStart ) - cy * radius * ( cosEnd - cosStart ) +
+                  radius * radius * sweep ) /
+                2.0;
+
+            total.firstMomentX +=
+                ArcFirstMomentXPrimitive( cx, radius, endAngle ) -
+                ArcFirstMomentXPrimitive( cx, radius, startAngle );
+            total.firstMomentY +=
+                ArcFirstMomentYPrimitive( cy, radius, endAngle ) -
+                ArcFirstMomentYPrimitive( cy, radius, startAngle );
+        }
+
+        [[nodiscard]] RingMoment RingMomentIntegral( const Polyline2d &ring )
+        {
+            RingMoment total{};
+            for( std::size_t i = 0; i < ring.SegmentCount(); ++i )
+            {
+                std::unique_ptr<Segment2d> segment = ring.SegmentAt( i );
+                if( segment == nullptr )
+                {
+                    continue;
+                }
+
+                switch( segment->Kind() )
+                {
+                case SegmentKind2::Line:
+                    AccumulateLineSegmentMoment( segment->StartPoint(), segment->EndPoint(), total );
+                    break;
+                case SegmentKind2::Arc:
+                {
+                    const auto *arc = dynamic_cast<const ArcSegment2d *>( segment.get() );
+                    if( arc != nullptr )
+                    {
+                        AccumulateArcSegmentMoment( *arc, total );
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+
+            return total;
         }
     }  // namespace
 
     struct Polygon2d::Impl
     {
-        InternalPolygon polygon;
+        Polyline2d outerRing{};
+        std::vector<Polyline2d> holes{};
 
         Impl() = default;
 
-        explicit Impl( InternalPolygon value ) : polygon( std::move( value ) ) {}
+        explicit Impl( Polyline2d outerRing ) : outerRing( std::move( outerRing ) ) {}
+
+        Impl( Polyline2d outerRing, std::vector<Polyline2d> holes ) :
+            outerRing( std::move( outerRing ) ),
+            holes( std::move( holes ) )
+        {
+        }
     };
 
     Polygon2d::Polygon2d() : impl_( std::make_unique<Impl>() ) {}
 
     Polygon2d::Polygon2d( Polyline2d outerRing ) :
-        impl_(
-            std::make_unique<Impl>( InternalPolygon( BuildInternalPolylineFromWrapper( outerRing ) ) ) )
+        impl_( std::make_unique<Impl>( std::move( outerRing ) ) )
     {
     }
 
-    Polygon2d::Polygon2d( Polyline2d outerRing, std::vector<Polyline2d> holes )
+    Polygon2d::Polygon2d( Polyline2d outerRing, std::vector<Polyline2d> holes ) :
+        impl_( std::make_unique<Impl>( std::move( outerRing ), std::move( holes ) ) )
     {
-        std::vector<InternalPolyline> internalHoles;
-        internalHoles.reserve( holes.size() );
-        for( const Polyline2d &hole : holes )
-        {
-            internalHoles.push_back( BuildInternalPolylineFromWrapper( hole ) );
-        }
-
-        impl_ = std::make_unique<Impl>( InternalPolygon( BuildInternalPolylineFromWrapper( outerRing ),
-                                                         std::move( internalHoles ) ) );
     }
 
     Polygon2d::Polygon2d( const Polygon2d &other ) :
-        impl_( std::make_unique<Impl>( other.impl_->polygon ) )
+        impl_( std::make_unique<Impl>( other.impl_->outerRing, other.impl_->holes ) )
     {
     }
 
@@ -104,7 +179,7 @@ namespace Geometry
     {
         if( this != &other )
         {
-            impl_ = std::make_unique<Impl>( other.impl_->polygon );
+            impl_ = std::make_unique<Impl>( other.impl_->outerRing, other.impl_->holes );
         }
         return *this;
     }
@@ -113,68 +188,142 @@ namespace Geometry
 
     Polygon2d::~Polygon2d() = default;
 
-    bool Polygon2d::IsValid() const { return impl_->polygon.IsValid(); }
+    bool Polygon2d::IsValid() const
+    {
+        if( !impl_->outerRing.IsValid() || !impl_->outerRing.IsClosed() )
+        {
+            return false;
+        }
+
+        const double outerArea = RingSignedArea( impl_->outerRing );
+        if( !( outerArea > 0.0 ) )
+        {
+            return false;
+        }
+
+        for( const auto &hole : impl_->holes )
+        {
+            if( !hole.IsValid() || !hole.IsClosed() )
+            {
+                return false;
+            }
+
+            const double holeArea = RingSignedArea( hole );
+            if( !( holeArea < 0.0 ) )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     std::size_t Polygon2d::PointCount() const
     {
-        std::size_t count = impl_->polygon.OuterRing().VertexCount();
-        for( std::size_t i = 0; i < impl_->polygon.HoleCount(); ++i )
+        std::size_t count = impl_->outerRing.VertexCount();
+        for( const auto &hole : impl_->holes )
         {
-            count += impl_->polygon.HoleAt( i ).VertexCount();
+            count += hole.VertexCount();
         }
         return count;
     }
 
     std::size_t Polygon2d::SegmentCount() const
     {
-        std::size_t count = impl_->polygon.OuterRing().SegmentCount();
-        for( std::size_t i = 0; i < impl_->polygon.HoleCount(); ++i )
+        std::size_t count = impl_->outerRing.SegmentCount();
+        for( const auto &hole : impl_->holes )
         {
-            count += impl_->polygon.HoleAt( i ).SegmentCount();
+            count += hole.SegmentCount();
         }
         return count;
     }
 
-    std::size_t Polygon2d::HoleCount() const { return impl_->polygon.HoleCount(); }
+    std::size_t Polygon2d::HoleCount() const { return impl_->holes.size(); }
 
-    Polyline2d Polygon2d::OuterRing() const
-    {
-        std::vector<Point2d> points;
-        const auto &ring = impl_->polygon.OuterRing();
-        points.reserve( ring.VertexCount() );
-        for( std::size_t i = 0; i < ring.VertexCount(); ++i )
-        {
-            points.push_back( ring.VertexAt( i ) );
-        }
-
-        return Polyline2d( std::move( points ), PolylineClosure::Closed );
-    }
+    Polyline2d Polygon2d::OuterRing() const { return impl_->outerRing; }
 
     Polyline2d Polygon2d::HoleAt( std::size_t index ) const
     {
-        if( index >= impl_->polygon.HoleCount() )
+        if( index >= impl_->holes.size() )
         {
             throw std::out_of_range( "Polygon2d::HoleAt index out of range" );
         }
 
-        std::vector<Point2d> points;
-        const auto &ring = impl_->polygon.HoleAt( index );
-        points.reserve( ring.VertexCount() );
-        for( std::size_t i = 0; i < ring.VertexCount(); ++i )
-        {
-            points.push_back( ring.VertexAt( i ) );
-        }
-
-        return Polyline2d( std::move( points ), PolylineClosure::Closed );
+        return impl_->holes[index];
     }
 
-    double Polygon2d::Area() const { return impl_->polygon.Area(); }
+    double Polygon2d::Area() const
+    {
+        if( !IsValid() )
+        {
+            return 0.0;
+        }
 
-    double Polygon2d::Perimeter() const { return impl_->polygon.Perimeter(); }
+        double total = RingSignedArea( impl_->outerRing );
+        for( const auto &hole : impl_->holes )
+        {
+            total += RingSignedArea( hole );
+        }
+        return std::abs( total );
+    }
 
-    Point2d Polygon2d::Centroid() const { return impl_->polygon.Centroid(); }
+    double Polygon2d::Perimeter() const
+    {
+        if( !IsValid() )
+        {
+            return 0.0;
+        }
 
-    Box2d Polygon2d::Bounds() const { return impl_->polygon.Bounds(); }
+        double total = impl_->outerRing.Length();
+        for( const auto &hole : impl_->holes )
+        {
+            total += hole.Length();
+        }
+        return total;
+    }
+
+    Point2d Polygon2d::Centroid() const
+    {
+        if( !IsValid() )
+        {
+            return Point2d{};
+        }
+
+        const auto outer = RingCentroidAndArea( impl_->outerRing );
+        double weightedX = outer.first.x * outer.second;
+        double weightedY = outer.first.y * outer.second;
+        double signedArea = outer.second;
+
+        for( const auto &hole : impl_->holes )
+        {
+            const auto ring = RingCentroidAndArea( hole );
+            weightedX += ring.first.x * ring.second;
+            weightedY += ring.first.y * ring.second;
+            signedArea += ring.second;
+        }
+
+        if( IsZero( signedArea ) )
+        {
+            return Point2d{};
+        }
+
+        return Point2d( weightedX / signedArea, weightedY / signedArea );
+    }
+
+    Box2d Polygon2d::Bounds() const
+    {
+        if( !IsValid() )
+        {
+            return Box2d{};
+        }
+
+        Box2d box = impl_->outerRing.Bounds();
+        for( const auto &hole : impl_->holes )
+        {
+            box.ExpandToInclude( hole.Bounds() );
+        }
+        return box;
+    }
 
     std::string Polygon2d::DebugString() const
     {

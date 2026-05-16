@@ -1,37 +1,44 @@
 #include "Geometry2d/Polyline2d.h"
 
+#include <cassert>
 #include <memory>
 #include <sstream>
 #include <utility>
 
 #include "Geometry2d/ArcSegment2d.h"
 #include "Geometry2d/LineSegment2d.h"
-#include "Types/Geometry2d/ArcSegment2.h"
-#include "Types/Geometry2d/LineSegment2.h"
-#include "Types/Geometry2d/Polyline2.h"
+#include "Support/Geometry2d/Predicate2.h"
 
 namespace Geometry
 {
     namespace
     {
-        using InternalPolyline = Geometry::Polyline2<double>;
-        using InternalSegment = Geometry::Segment2<double>;
-        using InternalLineSegment = Geometry::LineSegment2<double>;
-        using InternalArcSegment = Geometry::ArcSegment2<double>;
-
-        [[nodiscard]] Geometry::PolylineClosure2 ToInternalClosure( PolylineClosure closure )
+        [[nodiscard]] std::vector<std::shared_ptr<Segment2d>>
+        CloneSegments( const std::vector<std::shared_ptr<Segment2d>> &segments )
         {
-            return closure == PolylineClosure::Closed ? Geometry::PolylineClosure2::Closed
-                                                      : Geometry::PolylineClosure2::Open;
+            std::vector<std::shared_ptr<Segment2d>> clones;
+            clones.reserve( segments.size() );
+            for( const auto &segment : segments )
+            {
+                if( segment == nullptr )
+                {
+                    clones.push_back( nullptr );
+                    continue;
+                }
+
+                std::unique_ptr<Segment2d> clone = segment->Clone();
+                clones.push_back( std::shared_ptr<Segment2d>( std::move( clone ) ) );
+            }
+            return clones;
         }
 
-        [[nodiscard]] InternalPolyline MakeInternalPolyline( const std::vector<Point2d> &points,
-                                                             PolylineClosure closure )
+        [[nodiscard]] std::vector<std::shared_ptr<Segment2d>> MakeLineSegments(
+            const std::vector<Point2d> &points, PolylineClosure closure )
         {
-            std::vector<std::shared_ptr<InternalSegment>> segments;
+            std::vector<std::shared_ptr<Segment2d>> segments;
             if( points.size() < 2 )
             {
-                return InternalPolyline( std::move( segments ), ToInternalClosure( closure ) );
+                return segments;
             }
 
             const std::size_t segmentCount =
@@ -39,56 +46,27 @@ namespace Geometry
             segments.reserve( segmentCount );
             for( std::size_t i = 0; i < segmentCount; ++i )
             {
-                segments.push_back( std::make_shared<InternalLineSegment>(
-                    points[i], points[( i + 1 ) % points.size()] ) );
+                segments.push_back(
+                    std::make_shared<LineSegment2d>( points[i], points[( i + 1 ) % points.size()] ) );
             }
-
-            return InternalPolyline( std::move( segments ), ToInternalClosure( closure ) );
-        }
-
-        [[nodiscard]] InternalPolyline MakeInternalPolyline(
-            const std::vector<std::shared_ptr<Segment2d>> &segments, PolylineClosure closure )
-        {
-            std::vector<std::shared_ptr<InternalSegment>> internalSegments;
-            internalSegments.reserve( segments.size() );
-
-            for( const auto &segment : segments )
-            {
-                if( segment == nullptr )
-                {
-                    return InternalPolyline();
-                }
-
-                if( const auto *line = dynamic_cast<const LineSegment2d *>( segment.get() ) )
-                {
-                    internalSegments.push_back(
-                        std::make_shared<InternalLineSegment>( line->startPoint, line->endPoint ) );
-                    continue;
-                }
-
-                if( const auto *arc = dynamic_cast<const ArcSegment2d *>( segment.get() ) )
-                {
-                    internalSegments.push_back( std::make_shared<InternalArcSegment>(
-                        arc->center, arc->radius, arc->startAngle, arc->EndAngle(), arc->Direction() ) );
-                    continue;
-                }
-
-                return InternalPolyline();
-            }
-
-            return InternalPolyline( std::move( internalSegments ), ToInternalClosure( closure ) );
+            return segments;
         }
     }  // namespace
 
     struct Polyline2d::Impl
     {
-        InternalPolyline polyline;
+        std::vector<std::shared_ptr<Segment2d>> segments{};
+        PolylineClosure closure{ PolylineClosure::Open };
 
         Impl() = default;
 
-        explicit Impl( PolylineClosure closure ) : polyline( ToInternalClosure( closure ) ) {}
+        explicit Impl( PolylineClosure closure ) : closure( closure ) {}
 
-        explicit Impl( InternalPolyline value ) : polyline( std::move( value ) ) {}
+        Impl( std::vector<std::shared_ptr<Segment2d>> segments, PolylineClosure closure ) :
+            segments( std::move( segments ) ),
+            closure( closure )
+        {
+        }
     };
 
     Polyline2d::Polyline2d() : impl_( std::make_unique<Impl>() ) {}
@@ -96,19 +74,19 @@ namespace Geometry
     Polyline2d::Polyline2d( PolylineClosure closure ) : impl_( std::make_unique<Impl>( closure ) ) {}
 
     Polyline2d::Polyline2d( std::vector<Point2d> points, PolylineClosure closure ) :
-        impl_( std::make_unique<Impl>( MakeInternalPolyline( points, closure ) ) )
+        impl_( std::make_unique<Impl>( MakeLineSegments( points, closure ), closure ) )
     {
     }
 
     Polyline2d::Polyline2d( std::vector<std::shared_ptr<Segment2d>> segments, PolylineClosure closure ) :
-        impl_( std::make_unique<Impl>( MakeInternalPolyline( segments, closure ) ) )
+        impl_( std::make_unique<Impl>( std::move( segments ), closure ) )
     {
     }
 
     Polyline2d::Polyline2d( std::unique_ptr<Impl> impl ) : impl_( std::move( impl ) ) {}
 
     Polyline2d::Polyline2d( const Polyline2d &other ) :
-        impl_( std::make_unique<Impl>( other.impl_->polyline ) )
+        impl_( std::make_unique<Impl>( CloneSegments( other.impl_->segments ), other.impl_->closure ) )
     {
     }
 
@@ -118,7 +96,8 @@ namespace Geometry
     {
         if( this != &other )
         {
-            impl_ = std::make_unique<Impl>( other.impl_->polyline );
+            impl_ = std::make_unique<Impl>( CloneSegments( other.impl_->segments ),
+                                            other.impl_->closure );
         }
         return *this;
     }
@@ -127,66 +106,215 @@ namespace Geometry
 
     Polyline2d::~Polyline2d() = default;
 
-    bool Polyline2d::IsValid() const { return impl_->polyline.IsValid(); }
+    bool Polyline2d::IsValid() const
+    {
+        if( impl_->segments.empty() )
+        {
+            return false;
+        }
 
-    bool Polyline2d::IsClosed() const { return impl_->polyline.IsClosed(); }
+        double totalLength = 0.0;
+        for( std::size_t i = 0; i < impl_->segments.size(); ++i )
+        {
+            const auto &segment = impl_->segments[i];
+            if( segment == nullptr || !segment->IsValid() )
+            {
+                return false;
+            }
 
-    double Polyline2d::Length() const { return impl_->polyline.Length(); }
+            totalLength += segment->Length();
+            if( i > 0 && !IsEqual( impl_->segments[i - 1]->EndPoint(), segment->StartPoint() ) )
+            {
+                return false;
+            }
+        }
 
-    std::size_t Polyline2d::PointCount() const { return impl_->polyline.VertexCount(); }
+        if( !( totalLength > 0.0 ) )
+        {
+            return false;
+        }
 
-    std::size_t Polyline2d::VertexCount() const { return PointCount(); }
+        if( IsClosed() )
+        {
+            return IsEqual( impl_->segments.back()->EndPoint(), impl_->segments.front()->StartPoint() );
+        }
 
-    std::size_t Polyline2d::SegmentCount() const { return impl_->polyline.SegmentCount(); }
+        return true;
+    }
+
+    bool Polyline2d::IsClosed() const { return impl_->closure == PolylineClosure::Closed; }
+
+    std::size_t Polyline2d::PointCount() const { return VertexCount(); }
+
+    std::size_t Polyline2d::VertexCount() const
+    {
+        if( impl_->segments.empty() )
+        {
+            return 0;
+        }
+
+        return IsClosed() ? impl_->segments.size() : impl_->segments.size() + 1;
+    }
+
+    std::size_t Polyline2d::SegmentCount() const { return impl_->segments.size(); }
+
+    double Polyline2d::Length() const
+    {
+        double total = 0.0;
+        for( const auto &segment : impl_->segments )
+        {
+            if( segment != nullptr )
+            {
+                total += segment->Length();
+            }
+        }
+        return total;
+    }
+
+    Point2d Polyline2d::PointAt( std::size_t index ) const
+    {
+        return VertexAt( index );
+    }
 
     Point2d Polyline2d::PointAt( double parameter ) const
     {
-        return impl_->polyline.PointAt( parameter );
+        return PointAtLength( LengthAt( parameter ), false );
     }
 
-    Point2d Polyline2d::PointAt( std::size_t index ) const { return impl_->polyline.VertexAt( index ); }
-
-    Point2d Polyline2d::VertexAt( std::size_t index ) const { return PointAt( index ); }
-
-    Point2d Polyline2d::StartPoint() const { return impl_->polyline.StartPoint(); }
-
-    Point2d Polyline2d::EndPoint() const { return impl_->polyline.EndPoint(); }
-
-    double Polyline2d::LengthAt( double parameter ) const
+    Point2d Polyline2d::VertexAt( std::size_t index ) const
     {
-        return impl_->polyline.LengthAt( parameter );
+        assert( index < VertexCount() );
+        if( impl_->segments.empty() )
+        {
+            return Point2d{};
+        }
+
+        if( !IsClosed() && index == impl_->segments.size() )
+        {
+            return impl_->segments.back()->EndPoint();
+        }
+
+        return impl_->segments.at( index )->StartPoint();
     }
+
+    Point2d Polyline2d::StartPoint() const
+    {
+        if( impl_->segments.empty() || impl_->segments.front() == nullptr )
+        {
+            return Point2d{};
+        }
+        return impl_->segments.front()->StartPoint();
+    }
+
+    Point2d Polyline2d::EndPoint() const
+    {
+        if( impl_->segments.empty() || impl_->segments.back() == nullptr )
+        {
+            return Point2d{};
+        }
+        return impl_->segments.back()->EndPoint();
+    }
+
+    double Polyline2d::LengthAt( double parameter ) const { return parameter * Length(); }
 
     double Polyline2d::ParameterAtLength( double distanceFromStart, bool clampToPath ) const
     {
-        return impl_->polyline.ParameterAtLength( distanceFromStart, clampToPath );
+        const double totalLength = Length();
+        if( !( totalLength > 0.0 ) )
+        {
+            return 0.0;
+        }
+
+        if( clampToPath )
+        {
+            if( distanceFromStart < 0.0 )
+            {
+                distanceFromStart = 0.0;
+            }
+            else if( distanceFromStart > totalLength )
+            {
+                distanceFromStart = totalLength;
+            }
+        }
+
+        return distanceFromStart / totalLength;
     }
 
     Point2d Polyline2d::PointAtLength( double distanceFromStart, bool clampToPath ) const
     {
-        return impl_->polyline.PointAtLength( distanceFromStart, clampToPath );
+        if( impl_->segments.empty() )
+        {
+            return Point2d{};
+        }
+
+        if( !IsValid() )
+        {
+            return StartPoint();
+        }
+
+        const double totalLength = Length();
+        if( !( totalLength > 0.0 ) )
+        {
+            return StartPoint();
+        }
+
+        if( clampToPath )
+        {
+            if( distanceFromStart < 0.0 )
+            {
+                distanceFromStart = 0.0;
+            }
+            else if( distanceFromStart > totalLength )
+            {
+                distanceFromStart = totalLength;
+            }
+        }
+
+        if( distanceFromStart < 0.0 )
+        {
+            return impl_->segments.front()->PointAtLength( distanceFromStart, false );
+        }
+
+        double prefixLength = 0.0;
+        for( std::size_t i = 0; i < impl_->segments.size(); ++i )
+        {
+            const double segmentLength = impl_->segments[i]->Length();
+            const double segmentEnd = prefixLength + segmentLength;
+            if( distanceFromStart <= segmentEnd || i + 1 == impl_->segments.size() )
+            {
+                return impl_->segments[i]->PointAtLength( distanceFromStart - prefixLength, false );
+            }
+            prefixLength = segmentEnd;
+        }
+
+        return EndPoint();
     }
 
     std::unique_ptr<Segment2d> Polyline2d::SegmentAt( std::size_t index ) const
     {
-        const auto &segment = impl_->polyline.SegmentAt( index );
-        if( const auto *line = dynamic_cast<const InternalLineSegment *>( &segment ) )
+        assert( index < impl_->segments.size() );
+        if( index >= impl_->segments.size() || impl_->segments[index] == nullptr )
         {
-            return std::make_unique<LineSegment2d>( line->StartPoint(), line->EndPoint() );
+            return nullptr;
         }
 
-        if( const auto *arc = dynamic_cast<const InternalArcSegment *>( &segment ) )
-        {
-            return std::make_unique<ArcSegment2d>( arc->Center(), static_cast<double>( arc->Radius() ),
-                                                   static_cast<double>( arc->StartAngle() ),
-                                                   static_cast<double>( arc->EndAngle() ),
-                                                   arc->Direction() );
-        }
-
-        return nullptr;
+        return impl_->segments[index]->Clone();
     }
 
-    Box2d Polyline2d::Bounds() const { return impl_->polyline.Bounds(); }
+    Box2d Polyline2d::Bounds() const
+    {
+        if( !IsValid() )
+        {
+            return Box2d{};
+        }
+
+        Box2d box;
+        for( const auto &segment : impl_->segments )
+        {
+            box.ExpandToInclude( segment->Bounds() );
+        }
+        return box;
+    }
 
     std::string Polyline2d::DebugString() const
     {

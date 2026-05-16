@@ -3,9 +3,9 @@
 #include <concepts>
 #include <type_traits>
 
+#include "Geometry2d/ArcSegment2d.h"
+#include "Geometry2d/LineSegment2d.h"
 #include "Support/GeometryTestSupport.h"
-#include "Types/Geometry2d/ArcSegment2.h"
-#include "Types/Geometry2d/LineSegment2.h"
 
 using Geometry::ArcDirection;
 using Geometry::ArcSegment2d;
