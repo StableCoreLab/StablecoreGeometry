@@ -1,6 +1,7 @@
 ﻿#include "Core/Transform.h"
 
 #include <cmath>
+#include <memory>
 #include <vector>
 
 #include "Core/Metrics.h"
@@ -35,15 +36,40 @@ namespace Geometry
             return projected + ( projected - point );
         }
 
-        [[nodiscard]] std::vector<Point2d> PolylinePoints( const Polyline2d &polyline )
+        template<typename LineTransform, typename ArcTransform>
+        [[nodiscard]] Polyline2d TransformPolylineSegments( const Polyline2d &polyline,
+                                                            LineTransform &&lineTransform,
+                                                            ArcTransform &&arcTransform )
         {
-            std::vector<Point2d> points;
-            points.reserve( polyline.PointCount() );
-            for( std::size_t i = 0; i < polyline.PointCount(); ++i )
+            std::vector<std::shared_ptr<Segment2d>> segments;
+            segments.reserve( polyline.SegmentCount() );
+            for( std::size_t i = 0; i < polyline.SegmentCount(); ++i )
             {
-                points.push_back( polyline.PointAt( i ) );
+                std::unique_ptr<Segment2d> segment = polyline.SegmentAt( i );
+                if( segment == nullptr )
+                {
+                    segments.push_back( nullptr );
+                    continue;
+                }
+
+                switch( segment->Kind() )
+                {
+                case SegmentKind2::Line:
+                    segments.push_back( std::make_shared<LineSegment2d>(
+                        lineTransform( static_cast<const LineSegment2d &>( *segment ) ) ) );
+                    break;
+                case SegmentKind2::Arc:
+                    segments.push_back( std::make_shared<ArcSegment2d>(
+                        arcTransform( static_cast<const ArcSegment2d &>( *segment ) ) ) );
+                    break;
+                default:
+                    segments.push_back( std::shared_ptr<Segment2d>( segment->Clone().release() ) );
+                    break;
+                }
             }
-            return points;
+
+            return Polyline2d( std::move( segments ),
+                               polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
         }
     }  // namespace
 
@@ -62,13 +88,9 @@ namespace Geometry
 
     Polyline2d Translate( const Polyline2d &polyline, const Vector2d &offset )
     {
-        std::vector<Point2d> points = PolylinePoints( polyline );
-        for( Point2d &point : points )
-        {
-            point = point + offset;
-        }
-        return Polyline2d( std::move( points ),
-                           polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
+        return TransformPolylineSegments(
+            polyline, [&]( const LineSegment2d &segment ) { return Translate( segment, offset ); },
+            [&]( const ArcSegment2d &segment ) { return Translate( segment, offset ); } );
     }
 
     Polygon2d Translate( const Polygon2d &polygon, const Vector2d &offset )
@@ -123,13 +145,9 @@ namespace Geometry
 
     Polyline2d Rotate( const Polyline2d &polyline, const Point2d &origin, double angleRadians )
     {
-        std::vector<Point2d> points = PolylinePoints( polyline );
-        for( Point2d &point : points )
-        {
-            point = RotatePoint( point, origin, angleRadians );
-        }
-        return Polyline2d( std::move( points ),
-                           polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
+        return TransformPolylineSegments(
+            polyline, [&]( const LineSegment2d &segment ) { return Rotate( segment, origin, angleRadians ); },
+            [&]( const ArcSegment2d &segment ) { return Rotate( segment, origin, angleRadians ); } );
     }
 
     Polygon2d Rotate( const Polygon2d &polygon, const Point2d &origin, double angleRadians )
@@ -165,13 +183,10 @@ namespace Geometry
 
     Polyline2d Mirror( const Polyline2d &polyline, const Point2d &linePoint, const Vector2d &lineDir )
     {
-        std::vector<Point2d> points = PolylinePoints( polyline );
-        for( Point2d &point : points )
-        {
-            point = MirrorPoint( point, linePoint, lineDir );
-        }
-        return Polyline2d( std::move( points ),
-                           polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
+        return TransformPolylineSegments(
+            polyline,
+            [&]( const LineSegment2d &segment ) { return Mirror( segment, linePoint, lineDir ); },
+            [&]( const ArcSegment2d &segment ) { return Mirror( segment, linePoint, lineDir ); } );
     }
 
     Polygon2d Mirror( const Polygon2d &polygon, const Point2d &linePoint, const Vector2d &lineDir )
@@ -212,13 +227,9 @@ namespace Geometry
 
     Polyline2d Stretch( const Polyline2d &polyline, const Box2d &region, const Vector2d &offset )
     {
-        std::vector<Point2d> points = PolylinePoints( polyline );
-        for( Point2d &point : points )
-        {
-            point = Stretch( point, region, offset );
-        }
-        return Polyline2d( std::move( points ),
-                           polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
+        return TransformPolylineSegments(
+            polyline, [&]( const LineSegment2d &segment ) { return Stretch( segment, region, offset ); },
+            [&]( const ArcSegment2d &segment ) { return Stretch( segment, region, offset ); } );
     }
 
     Polygon2d Stretch( const Polygon2d &polygon, const Box2d &region, const Vector2d &offset )

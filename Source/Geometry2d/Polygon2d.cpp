@@ -7,30 +7,65 @@
 #include <utility>
 #include <vector>
 
+#include "../Core/RingIntegral2d.h"
 #include "Geometry2d/ArcSegment2d.h"
+#include "Core/Intersection.h"
+#include "Core/Relation.h"
+#include "Core/Validation.h"
 #include "Support/Geometry2d/Predicate2.h"
 
 namespace Geometry
 {
     namespace
     {
-        struct RingMoment
+        [[nodiscard]] std::vector<std::unique_ptr<Segment2d>> CollectSegments( const Polyline2d &ring )
         {
-            double signedArea{ 0.0 };
-            double firstMomentX{ 0.0 };
-            double firstMomentY{ 0.0 };
-        };
+            std::vector<std::unique_ptr<Segment2d>> segments;
+            segments.reserve( ring.SegmentCount() );
+            for( std::size_t i = 0; i < ring.SegmentCount(); ++i )
+            {
+                segments.push_back( ring.SegmentAt( i ) );
+            }
+            return segments;
+        }
 
-        [[nodiscard]] RingMoment RingMomentIntegral( const Polyline2d &ring );
+        [[nodiscard]] bool HasBoundaryIntersection( const Polyline2d &first, const Polyline2d &second )
+        {
+            const std::vector<std::unique_ptr<Segment2d>> firstSegments = CollectSegments( first );
+            const std::vector<std::unique_ptr<Segment2d>> secondSegments = CollectSegments( second );
+
+            for( const auto &lhs : firstSegments )
+            {
+                if( lhs == nullptr )
+                {
+                    continue;
+                }
+
+                for( const auto &rhs : secondSegments )
+                {
+                    if( rhs == nullptr )
+                    {
+                        continue;
+                    }
+
+                    if( HasIntersection( *lhs, *rhs, Geometry::kDefaultEpsilon ) )
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
 
         [[nodiscard]] double RingSignedArea( const Polyline2d &ring )
         {
-            return RingMomentIntegral( ring ).signedArea;
+            return Detail::ComputeSignedArea( ring );
         }
 
         [[nodiscard]] std::pair<Point2d, double> RingCentroidAndArea( const Polyline2d &ring )
         {
-            const RingMoment moment = RingMomentIntegral( ring );
+            const Detail::RingMoment2d moment = Detail::ComputeRingMoment( ring );
             if( IsZero( moment.signedArea ) )
             {
                 return { Point2d{}, 0.0 };
@@ -41,103 +76,6 @@ namespace Geometry
                      moment.signedArea };
         }
 
-        void AccumulateLineSegmentMoment( const Point2d &startPoint, const Point2d &endPoint,
-                                          RingMoment &total )
-        {
-            const double cross = startPoint.x * endPoint.y - endPoint.x * startPoint.y;
-
-            total.signedArea += cross / 2.0;
-            total.firstMomentX +=
-                ( endPoint.y - startPoint.y ) *
-                ( startPoint.x * startPoint.x + startPoint.x * endPoint.x +
-                  endPoint.x * endPoint.x ) /
-                6.0;
-            total.firstMomentY +=
-                ( startPoint.x - endPoint.x ) *
-                ( startPoint.y * startPoint.y + startPoint.y * endPoint.y +
-                  endPoint.y * endPoint.y ) /
-                6.0;
-        }
-
-        [[nodiscard]] double ArcFirstMomentXPrimitive( double centerX, double radius, double angle )
-        {
-            const double sinAngle = std::sin( angle );
-            const double cosAngle = std::cos( angle );
-            return ( centerX * centerX * radius * sinAngle +
-                     centerX * radius * radius * ( angle + sinAngle * cosAngle ) +
-                     radius * radius * radius * ( sinAngle - sinAngle * sinAngle * sinAngle / 3.0 ) ) /
-                   2.0;
-        }
-
-        [[nodiscard]] double ArcFirstMomentYPrimitive( double centerY, double radius, double angle )
-        {
-            const double sinAngle = std::sin( angle );
-            const double cosAngle = std::cos( angle );
-            return ( -centerY * centerY * radius * cosAngle +
-                     centerY * radius * radius * ( angle - sinAngle * cosAngle ) +
-                     radius * radius * radius * ( -cosAngle + cosAngle * cosAngle * cosAngle / 3.0 ) ) /
-                   2.0;
-        }
-
-        void AccumulateArcSegmentMoment( const ArcSegment2d &arc, RingMoment &total )
-        {
-            const double cx = arc.center.x;
-            const double cy = arc.center.y;
-            const double radius = arc.radius;
-            const double startAngle = arc.startAngle;
-            const double sweep = arc.sweepAngle;
-            const double endAngle = startAngle + sweep;
-
-            const double sinStart = std::sin( startAngle );
-            const double cosStart = std::cos( startAngle );
-            const double sinEnd = std::sin( endAngle );
-            const double cosEnd = std::cos( endAngle );
-
-            total.signedArea +=
-                ( cx * radius * ( sinEnd - sinStart ) - cy * radius * ( cosEnd - cosStart ) +
-                  radius * radius * sweep ) /
-                2.0;
-
-            total.firstMomentX +=
-                ArcFirstMomentXPrimitive( cx, radius, endAngle ) -
-                ArcFirstMomentXPrimitive( cx, radius, startAngle );
-            total.firstMomentY +=
-                ArcFirstMomentYPrimitive( cy, radius, endAngle ) -
-                ArcFirstMomentYPrimitive( cy, radius, startAngle );
-        }
-
-        [[nodiscard]] RingMoment RingMomentIntegral( const Polyline2d &ring )
-        {
-            RingMoment total{};
-            for( std::size_t i = 0; i < ring.SegmentCount(); ++i )
-            {
-                std::unique_ptr<Segment2d> segment = ring.SegmentAt( i );
-                if( segment == nullptr )
-                {
-                    continue;
-                }
-
-                switch( segment->Kind() )
-                {
-                case SegmentKind2::Line:
-                    AccumulateLineSegmentMoment( segment->StartPoint(), segment->EndPoint(), total );
-                    break;
-                case SegmentKind2::Arc:
-                {
-                    const auto *arc = dynamic_cast<const ArcSegment2d *>( segment.get() );
-                    if( arc != nullptr )
-                    {
-                        AccumulateArcSegmentMoment( *arc, total );
-                    }
-                    break;
-                }
-                default:
-                    break;
-                }
-            }
-
-            return total;
-        }
     }  // namespace
 
     struct Polygon2d::Impl
@@ -195,6 +133,11 @@ namespace Geometry
             return false;
         }
 
+        if( HasSelfIntersection( impl_->outerRing, Geometry::kDefaultEpsilon ) )
+        {
+            return false;
+        }
+
         const double outerArea = RingSignedArea( impl_->outerRing );
         if( !( outerArea > 0.0 ) )
         {
@@ -208,10 +151,57 @@ namespace Geometry
                 return false;
             }
 
+            if( HasSelfIntersection( hole, Geometry::kDefaultEpsilon ) )
+            {
+                return false;
+            }
+
             const double holeArea = RingSignedArea( hole );
             if( !( holeArea < 0.0 ) )
             {
                 return false;
+            }
+
+            if( HasBoundaryIntersection( impl_->outerRing, hole ) )
+            {
+                return false;
+            }
+
+            if( hole.PointCount() == 0 )
+            {
+                return false;
+            }
+
+            if( LocatePoint( hole.PointAt( 0 ), impl_->outerRing, Geometry::kDefaultEpsilon ) !=
+                PointContainment2d::Inside )
+            {
+                return false;
+            }
+        }
+
+        for( std::size_t i = 0; i < impl_->holes.size(); ++i )
+        {
+            for( std::size_t j = i + 1; j < impl_->holes.size(); ++j )
+            {
+                if( HasBoundaryIntersection( impl_->holes[i], impl_->holes[j] ) )
+                {
+                    return false;
+                }
+
+                if( impl_->holes[i].PointCount() == 0 || impl_->holes[j].PointCount() == 0 )
+                {
+                    return false;
+                }
+
+                if( LocatePoint( impl_->holes[i].PointAt( 0 ), impl_->holes[j],
+                                 Geometry::kDefaultEpsilon ) ==
+                        PointContainment2d::Inside ||
+                    LocatePoint( impl_->holes[j].PointAt( 0 ), impl_->holes[i],
+                                 Geometry::kDefaultEpsilon ) ==
+                        PointContainment2d::Inside )
+                {
+                    return false;
+                }
             }
         }
 

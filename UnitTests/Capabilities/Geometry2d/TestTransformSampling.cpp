@@ -1,5 +1,6 @@
 ﻿#include <gtest/gtest.h>
 #include <cmath>
+#include <memory>
 
 #include "Core/Editing.h"
 #include "Core/Sampling.h"
@@ -53,6 +54,21 @@ TEST( TransformSamplingTest, CoversCurrentCapabilities )
         InsertPoint( Polyline2d( { Point2d{ 0.0, 0.0 }, Point2d{ 4.0, 0.0 } }, PolylineClosure::Open ),
                      Point2d{ 2.0, 0.0 } );
     ASSERT_EQ( inserted.PointCount(), 3 );
+
+    const Polyline2d mixedPath(
+        { std::make_shared<LineSegment2d>( Point2d{ 0.0, 0.0 }, Point2d{ 1.0, 0.0 } ),
+          std::make_shared<ArcSegment2d>( Point2d{ 1.0, 1.0 }, 1.0, -std::acos( -1.0 ) * 0.5, 0.0,
+                                          Geometry::ArcDirection::CounterClockwise ) },
+        PolylineClosure::Open );
+    const Polyline2d movedMixedPath = Translate( mixedPath, Vector2d{ 2.0, 3.0 } );
+    ASSERT_TRUE( movedMixedPath.IsValid() );
+    ASSERT_EQ( movedMixedPath.SegmentAt( 0 )->Kind(), Geometry::SegmentKind2::Line );
+    ASSERT_EQ( movedMixedPath.SegmentAt( 1 )->Kind(), Geometry::SegmentKind2::Arc );
+    const Polyline2d rotatedMixedPath =
+        Rotate( mixedPath, Point2d{ 0.0, 0.0 }, std::acos( -1.0 ) * 0.5 );
+    ASSERT_TRUE( rotatedMixedPath.IsValid() );
+    ASSERT_EQ( rotatedMixedPath.SegmentAt( 0 )->Kind(), Geometry::SegmentKind2::Line );
+    ASSERT_EQ( rotatedMixedPath.SegmentAt( 1 )->Kind(), Geometry::SegmentKind2::Arc );
 
     const Polygon2d polygon( Polyline2d(
         { Point2d{ 0.0, 0.0 }, Point2d{ 4.0, 0.0 }, Point2d{ 4.0, 4.0 }, Point2d{ 0.0, 4.0 } },

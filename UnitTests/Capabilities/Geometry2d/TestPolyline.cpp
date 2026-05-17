@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "Core/ShapeOps.h"
 #include "Geometry2d/ArcSegment2d.h"
 #include "Geometry2d/LineSegment2d.h"
 #include "Geometry2d/Polyline2d.h"
@@ -16,6 +17,7 @@ using Geometry::LineSegment2d;
 using Geometry::Point2d;
 using Geometry::Polyline2d;
 using Geometry::PolylineClosure;
+using Geometry::Reverse;
 
 namespace
 {
@@ -73,6 +75,13 @@ TEST( PolylineTest, CoversCurrentCapabilities )
     GEOMETRY_TEST_ASSERT_POINT_NEAR( closedPath.StartPoint(), Point2d( 0.0, 0.0 ), 1e-12 );
     GEOMETRY_TEST_ASSERT_POINT_NEAR( closedPath.EndPoint(), Point2d( 0.0, 0.0 ), 1e-12 );
 
+    Polyline2d closedByRepeatedPoint(
+        { Point2d( 0.0, 0.0 ), Point2d( 1.0, 0.0 ), Point2d( 0.0, 1.0 ), Point2d( 0.0, 0.0 ) },
+        PolylineClosure::Closed );
+    ASSERT_TRUE( closedByRepeatedPoint.IsValid() );
+    ASSERT_EQ( closedByRepeatedPoint.SegmentCount(), 3 );
+    ASSERT_EQ( closedByRepeatedPoint.VertexCount(), 3 );
+
     auto line = std::make_shared<LineSegment2d>( Point2d( 0.0, 0.0 ), Point2d( 1.0, 0.0 ) );
     auto arc = std::make_shared<ArcSegment2d>( Point2d( 1.0, 1.0 ), 1.0, -kPi / 2.0, 0.0,
                                                ArcDirection::CounterClockwise );
@@ -84,4 +93,12 @@ TEST( PolylineTest, CoversCurrentCapabilities )
     ASSERT_TRUE( mixedBox.IsValid() );
     GEOMETRY_TEST_ASSERT_POINT_NEAR( mixedBox.MinPoint(), Point2d( 0.0, 0.0 ), 1e-12 );
     GEOMETRY_TEST_ASSERT_POINT_NEAR( mixedBox.MaxPoint(), Point2d( 2.0, 1.0 ), 1e-12 );
+
+    const Polyline2d reversedMixedPath = Reverse( mixedPath );
+    ASSERT_TRUE( reversedMixedPath.IsValid() );
+    ASSERT_EQ( reversedMixedPath.SegmentCount(), 2 );
+    ASSERT_EQ( reversedMixedPath.SegmentAt( 0 )->Kind(), Geometry::SegmentKind2::Arc );
+    ASSERT_EQ( reversedMixedPath.SegmentAt( 1 )->Kind(), Geometry::SegmentKind2::Line );
+    GEOMETRY_TEST_ASSERT_POINT_NEAR( reversedMixedPath.StartPoint(), Point2d( 2.0, 1.0 ), 1e-12 );
+    GEOMETRY_TEST_ASSERT_POINT_NEAR( reversedMixedPath.EndPoint(), Point2d( 0.0, 0.0 ), 1e-12 );
 }

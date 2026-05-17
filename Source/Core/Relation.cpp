@@ -1,6 +1,7 @@
 ﻿#include "Core/Relation.h"
 
 #include <cmath>
+#include <memory>
 #include <vector>
 
 #include "Core/Intersection.h"
@@ -13,11 +14,6 @@ namespace Geometry
 {
     namespace
     {
-        [[nodiscard]] double Cross2( const Point2d &a, const Point2d &b, const Point2d &c )
-        {
-            return Cross( b - a, c - a );
-        }
-
         [[nodiscard]] bool IsPointOnLineSegment( const Point2d &point, const LineSegment2d &segment,
                                                  double eps )
         {
@@ -32,34 +28,106 @@ namespace Geometry
             return projection.distanceSquared <= eps * eps;
         }
 
+        [[nodiscard]] std::size_t CountLineSegmentRayCrossings( const LineSegment2d &segment,
+                                                                const Point2d &point, double eps )
+        {
+            const double startY = segment.startPoint.y;
+            const double endY = segment.endPoint.y;
+            const bool straddles = ( startY <= point.y && endY > point.y ) ||
+                                   ( endY <= point.y && startY > point.y );
+            if( !straddles )
+            {
+                return 0;
+            }
+
+            const double x =
+                segment.startPoint.x +
+                ( segment.endPoint.x - segment.startPoint.x ) * ( point.y - startY ) / ( endY - startY );
+            return x > point.x + eps ? 1U : 0U;
+        }
+
+        [[nodiscard]] std::size_t CountArcSegmentRayCrossings( const ArcSegment2d &segment,
+                                                               const Point2d &point, double eps )
+        {
+            const double dy = point.y - segment.center.y;
+            if( std::abs( dy ) >= segment.radius - eps )
+            {
+                return 0;
+            }
+
+            const double radialSquared = segment.radius * segment.radius - dy * dy;
+            if( radialSquared <= 0.0 )
+            {
+                return 0;
+            }
+
+            const double dx = std::sqrt( radialSquared );
+            const double candidateX[2] = { segment.center.x - dx, segment.center.x + dx };
+            std::size_t count = 0;
+            for( const double x : candidateX )
+            {
+                if( x <= point.x + eps )
+                {
+                    continue;
+                }
+
+                const Point2d candidate{ x, point.y };
+                const SegmentProjection2d projection = ProjectPointToArcSegment( candidate, segment, false );
+                if( projection.distanceSquared > eps * eps || !projection.isOnSegment )
+                {
+                    continue;
+                }
+
+                if( projection.parameter < -eps || projection.parameter >= 1.0 - eps )
+                {
+                    continue;
+                }
+
+                ++count;
+            }
+
+            return count;
+        }
+
+        [[nodiscard]] std::size_t CountSegmentRayCrossings( const Segment2d &segment,
+                                                            const Point2d &point, double eps )
+        {
+            if( segment.Kind() == SegmentKind2::Line )
+            {
+                return CountLineSegmentRayCrossings( static_cast<const LineSegment2d &>( segment ), point,
+                                                     eps );
+            }
+
+            return CountArcSegmentRayCrossings( static_cast<const ArcSegment2d &>( segment ), point, eps );
+        }
+
         [[nodiscard]] PointContainment2d LocatePointInRing( const Point2d &point, const Polyline2d &ring,
                                                             double eps )
         {
-            if( !ring.IsClosed() || ring.PointCount() < 3 )
+            if( !ring.IsClosed() || !ring.IsValid() || ring.SegmentCount() == 0 )
             {
                 return PointContainment2d::Outside;
             }
 
-            bool inside = false;
-            for( std::size_t i = 0; i < ring.PointCount(); ++i )
+            std::size_t crossingCount = 0;
+            for( std::size_t i = 0; i < ring.SegmentCount(); ++i )
             {
-                const Point2d a = ring.PointAt( i );
-                const Point2d b = ring.PointAt( ( i + 1 ) % ring.PointCount() );
-                if( LocatePoint( point, LineSegment2d( a, b ), eps ) == PointContainment2d::OnBoundary )
+                std::unique_ptr<Segment2d> segment = ring.SegmentAt( i );
+                if( segment == nullptr )
+                {
+                    continue;
+                }
+
+                if( LocatePoint( point, *segment, eps ) == PointContainment2d::OnBoundary )
                 {
                     return PointContainment2d::OnBoundary;
                 }
 
-                const bool intersects =
-                    ( ( a.y > point.y ) != ( b.y > point.y ) ) &&
-                    ( point.x < ( b.x - a.x ) * ( point.y - a.y ) / ( b.y - a.y ) + a.x );
-                if( intersects )
-                {
-                    inside = !inside;
-                }
+                crossingCount += CountSegmentRayCrossings( *segment, point, eps );
             }
 
-            return inside ? PointContainment2d::Inside : PointContainment2d::Outside;
+            return ( crossingCount % 2U ) == 1U ? PointContainment2d::Inside
+                                                : PointContainment2d::Outside;
         }
     }  // namespace
 
@@ -115,11 +183,10 @@ namespace Geometry
 
         if( !polyline.IsClosed() )
         {
-            for( std::size_t i = 0; i + 1 < polyline.PointCount(); ++i )
+            for( std::size_t i = 0; i < polyline.SegmentCount(); ++i )
             {
-                if( LocatePoint( point,
-                                 LineSegment2d( polyline.PointAt( i ), polyline.PointAt( i + 1 ) ),
-                                 eps ) == PointContainment2d::OnBoundary )
+                std::unique_ptr<Segment2d> segment = polyline.SegmentAt( i );
+                if( segment != nullptr && LocatePoint( point, *segment, eps ) == PointContainment2d::OnBoundary )
                 {
                     return PointContainment2d::OnBoundary;
                 }

@@ -41,13 +41,27 @@ namespace Geometry
                 return segments;
             }
 
-            const std::size_t segmentCount =
-                closure == PolylineClosure::Closed ? points.size() : points.size() - 1;
+            std::size_t effectivePointCount = points.size();
+            if( closure == PolylineClosure::Closed && points.size() >= 3 &&
+                points.front().AlmostEquals( points.back() ) )
+            {
+                effectivePointCount -= 1;
+            }
+
+            if( effectivePointCount < 2 )
+            {
+                return segments;
+            }
+
+            const std::size_t segmentCount = closure == PolylineClosure::Closed
+                                                 ? effectivePointCount
+                                                 : effectivePointCount - 1;
             segments.reserve( segmentCount );
             for( std::size_t i = 0; i < segmentCount; ++i )
             {
-                segments.push_back(
-                    std::make_shared<LineSegment2d>( points[i], points[( i + 1 ) % points.size()] ) );
+                const std::size_t nextIndex =
+                    closure == PolylineClosure::Closed ? ( i + 1 ) % effectivePointCount : i + 1;
+                segments.push_back( std::make_shared<LineSegment2d>( points[i], points[nextIndex] ) );
             }
             return segments;
         }

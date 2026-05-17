@@ -1,6 +1,7 @@
 ﻿#include "Core/Validation.h"
 
 #include <map>
+#include <memory>
 
 #include "Core/Intersection.h"
 #include "Core/Relation.h"
@@ -10,15 +11,25 @@ namespace Geometry
 {
     bool HasSelfIntersection( const Polyline2d &ring, double eps )
     {
-        if( !ring.IsClosed() || ring.PointCount() < 4 )
+        if( !ring.IsClosed() || ring.SegmentCount() < 3 )
         {
             return false;
         }
 
-        const std::size_t n = ring.PointCount();
+        const std::size_t n = ring.SegmentCount();
+        std::vector<std::unique_ptr<Segment2d>> segments;
+        segments.reserve( n );
         for( std::size_t i = 0; i < n; ++i )
         {
-            const LineSegment2d first( ring.PointAt( i ), ring.PointAt( ( i + 1 ) % n ) );
+            segments.push_back( ring.SegmentAt( i ) );
+        }
+
+        for( std::size_t i = 0; i < n; ++i )
+        {
+            if( segments[i] == nullptr )
+            {
+                continue;
+            }
             for( std::size_t j = i + 1; j < n; ++j )
             {
                 if( j == i || j == ( i + 1 ) % n || ( i == 0 && j + 1 == n ) )
@@ -26,8 +37,12 @@ namespace Geometry
                     continue;
                 }
 
-                const LineSegment2d second( ring.PointAt( j ), ring.PointAt( ( j + 1 ) % n ) );
-                if( HasIntersection( first, second, eps ) )
+                if( segments[j] == nullptr )
+                {
+                    continue;
+                }
+
+                if( HasIntersection( *segments[i], *segments[j], eps ) )
                 {
                     return true;
                 }
@@ -39,7 +54,7 @@ namespace Geometry
 
     PolygonValidation2d Validate( const Polyline2d &ring, double eps )
     {
-        if( !ring.IsClosed() || ring.PointCount() < 3 )
+        if( !ring.IsClosed() || ring.SegmentCount() == 0 )
         {
             return { false, !ring.IsClosed() ? PolygonValidationIssue2d::NotClosed
                                              : PolygonValidationIssue2d::TooFewPoints };

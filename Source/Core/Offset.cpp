@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <memory>
 #include <utility>
 #include <vector>
 
+#include "RingIntegral2d.h"
 #include "Brep/Topology.h"
 #include "Core/Boolean.h"
 #include "Core/Editing.h"
@@ -20,6 +22,98 @@ namespace Geometry
 {
     namespace
     {
+        [[nodiscard]] bool ContainsArcSegment( const Polyline2d &polyline )
+        {
+            for( std::size_t i = 0; i < polyline.SegmentCount(); ++i )
+            {
+                std::unique_ptr<Segment2d> segment = polyline.SegmentAt( i );
+                if( segment != nullptr && segment->Kind() == SegmentKind2::Arc )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        [[nodiscard]] Polyline2d OffsetSegmentPolyline( const Polyline2d &polyline, double distance )
+        {
+            if( !polyline.IsValid() || polyline.SegmentCount() == 0 )
+            {
+                return Polyline2d( polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
+            }
+
+            std::vector<std::shared_ptr<Segment2d>> segments;
+            segments.reserve( polyline.SegmentCount() * 2 + ( polyline.IsClosed() ? 1 : 0 ) );
+            for( std::size_t i = 0; i < polyline.SegmentCount(); ++i )
+            {
+                std::unique_ptr<Segment2d> source = polyline.SegmentAt( i );
+                if( source == nullptr )
+                {
+                    return Polyline2d( polyline.IsClosed() ? PolylineClosure::Closed
+                                                           : PolylineClosure::Open );
+                }
+
+                std::shared_ptr<Segment2d> offsetSegment;
+                switch( source->Kind() )
+                {
+                case SegmentKind2::Line:
+                {
+                    const LineSegment2d segment =
+                        Offset( static_cast<const LineSegment2d &>( *source ), distance );
+                    if( !segment.IsValid() )
+                    {
+                        return Polyline2d( polyline.IsClosed() ? PolylineClosure::Closed
+                                                               : PolylineClosure::Open );
+                    }
+                    offsetSegment = std::make_shared<LineSegment2d>( segment );
+                    break;
+                }
+                case SegmentKind2::Arc:
+                {
+                    const ArcSegment2d segment =
+                        Offset( static_cast<const ArcSegment2d &>( *source ), distance );
+                    if( !segment.IsValid() )
+                    {
+                        return Polyline2d( polyline.IsClosed() ? PolylineClosure::Closed
+                                                               : PolylineClosure::Open );
+                    }
+                    offsetSegment = std::make_shared<ArcSegment2d>( segment );
+                    break;
+                }
+                default:
+                    return Polyline2d( polyline.IsClosed() ? PolylineClosure::Closed
+                                                           : PolylineClosure::Open );
+                }
+
+                if( !segments.empty() &&
+                    !segments.back()->EndPoint().AlmostEquals( offsetSegment->StartPoint(),
+                                                               Geometry::kOffsetDefaultEpsilon ) )
+                {
+                    segments.push_back( std::make_shared<LineSegment2d>( segments.back()->EndPoint(),
+                                                                         offsetSegment->StartPoint() ) );
+                }
+
+                segments.push_back( std::move( offsetSegment ) );
+            }
+
+            if( polyline.IsClosed() && !segments.empty() &&
+                !segments.back()->EndPoint().AlmostEquals( segments.front()->StartPoint(),
+                                                           Geometry::kOffsetDefaultEpsilon ) )
+            {
+                segments.push_back(
+                    std::make_shared<LineSegment2d>( segments.back()->EndPoint(), segments.front()->StartPoint() ) );
+            }
+
+            return Polyline2d( std::move( segments ),
+                               polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
+        }
+
+        [[nodiscard]] double SignedRingArea( const Polyline2d &ring )
+        {
+            return Detail::ComputeSignedArea( ring );
+        }
+
         [[nodiscard]] Vector2d LeftNormal( const Vector2d &direction )
         {
             const double length = direction.Length();
@@ -161,8 +255,8 @@ namespace Geometry
             }
             if( normalized.IsClosed() )
             {
-                if( normalized.PointCount() < 3 ||
-                    std::abs( Polygon2d( normalized ).Area() ) <=
+                if( normalized.SegmentCount() == 0 ||
+                    std::abs( SignedRingArea( normalized ) ) <=
                         256.0 * Geometry::kOffsetDefaultEpsilon * Geometry::kOffsetDefaultEpsilon )
                 {
                     return;
@@ -639,6 +733,11 @@ namespace Geometry
         if( !polyline.IsValid() || polyline.PointCount() < 2 )
         {
             return Polyline2d( polyline.IsClosed() ? PolylineClosure::Closed : PolylineClosure::Open );
+        }
+
+        if( ContainsArcSegment( polyline ) )
+        {
+            return OffsetSegmentPolyline( polyline, distance );
         }
 
         std::vector<Point2d> vertices;

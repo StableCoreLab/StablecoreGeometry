@@ -45,8 +45,8 @@ namespace Geometry
     {
         const double x = majorRadius * std::cos( angleRadians );
         const double y = minorRadius * std::sin( angleRadians );
-        const double c = std::cos( angleRadians );
-        const double s = std::sin( angleRadians );
+        const double c = std::cos( this->angleRadians );
+        const double s = std::sin( this->angleRadians );
         return Point2d{ center.x + x * c - y * s, center.y + x * s + y * c };
     }
 

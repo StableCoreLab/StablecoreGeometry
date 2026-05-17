@@ -91,6 +91,16 @@ TEST( CoreAlgorithmsTest, CoversCurrentCapabilities )
     const Polyline2d closedOpen = Close( Polyline2d(
         { Point2d{ 0.0, 0.0 }, Point2d{ 1.0, 0.0 }, Point2d{ 1.0, 1.0 } }, PolylineClosure::Open ) );
     ASSERT_TRUE( closedOpen.IsClosed() );
+    const Polyline2d openArcPath(
+        { std::make_shared<LineSegment2d>( Point2d{ 0.0, 0.0 }, Point2d{ 1.0, 0.0 } ),
+          std::make_shared<ArcSegment2d>( Point2d{ 1.0, 1.0 }, 1.0, -std::numbers::pi_v<double> * 0.5, 0.0,
+                                          ArcDirection::CounterClockwise ) },
+        PolylineClosure::Open );
+    const Polyline2d closedArcPath = Close( openArcPath );
+    ASSERT_TRUE( closedArcPath.IsClosed() );
+    ASSERT_EQ( closedArcPath.SegmentAt( 0 )->Kind(), SegmentKind2::Line );
+    ASSERT_EQ( closedArcPath.SegmentAt( 1 )->Kind(), SegmentKind2::Arc );
+    ASSERT_EQ( closedArcPath.SegmentAt( 2 )->Kind(), SegmentKind2::Line );
 
     const AxisSample2d sample = SampleAxis( line, 0.5 );
     GEOMETRY_TEST_ASSERT_POINT_NEAR( sample.point, ( Point2d{ 2.0, 0.0 } ), 1e-12 );

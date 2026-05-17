@@ -896,31 +896,21 @@ namespace Geometry
             return depth;
         }
 
-        std::vector<Point2d> CollectRingPoints( const Polyline2d &ring )
-        {
-            std::vector<Point2d> points;
-            points.reserve( ring.PointCount() );
-            for( std::size_t i = 0; i < ring.PointCount(); ++i )
-            {
-                points.push_back( ring.PointAt( i ) );
-            }
-            return points;
-        }
-
         Polyline2d NormalizeRingOrientation( const Polyline2d &ring, bool counterClockwise )
         {
-            std::vector<Point2d> points = CollectRingPoints( ring );
-            if( points.size() >= 3 )
+            const RingOrientation2d orientation = Orientation( ring );
+            if( orientation == RingOrientation2d::Unknown )
             {
-                const double signedArea = SignedArea2d( points );
-                if( ( counterClockwise && signedArea < 0.0 ) ||
-                    ( !counterClockwise && signedArea > 0.0 ) )
-                {
-                    std::reverse( points.begin(), points.end() );
-                }
+                return ring;
             }
 
-            return Polyline2d( std::move( points ), PolylineClosure::Closed );
+            if( ( counterClockwise && orientation == RingOrientation2d::Clockwise ) ||
+                ( !counterClockwise && orientation == RingOrientation2d::CounterClockwise ) )
+            {
+                return Reverse( ring );
+            }
+
+            return ring;
         }
 
         Polygon2d NormalizePolygonOrientation( const Polygon2d &polygon )
